@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>universal_notes_flutter</id>
+    <title>Universal Notes</title>
+    <authors>Diego Lima</authors>
+    <version>1.0.0</version>
+    <description>A simple note-taking app.</description>
+    <owners />
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/diegolima362/universal_notes_flutter</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright 2025</copyright>
+    <releaseNotes>Initial release.</releaseNotes>
+  </metadata>
+  <files>
+    <file src="Release/**" target="lib/net45" />
+  </files>
+</package>

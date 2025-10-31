@@ -1,0 +1,62 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: universal_notes_flutter
+
+      - name: Build Flutter app
+        run: flutter build windows
+        working-directory: universal_notes_flutter
+
+      - name: Download nuget.exe
+        run: |
+          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
+        working-directory: universal_notes_flutter/build/windows/runner
+
+      - name: Create .nupkg
+        run: |
+          ./nuget.exe pack universal_notes_flutter.nuspec -Version 1.0.0 -Properties "target=Release"
+        working-directory: universal_notes_flutter/build/windows/runner
+
+      - name: Install Squirrel.Windows
+        run: dotnet tool install --global Squirrel.Windows --version 2.0.1
+
+      - name: Run Squirrel
+        run: |
+          squirrel --releasify universal_notes_flutter.1.0.0.nupkg --releaseDir ../../releases
+        working-directory: universal_notes_flutter/build/windows/runner
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: 'universal_notes_flutter/build/windows/releases/*'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
