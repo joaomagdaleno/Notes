@@ -57,15 +57,21 @@ jobs:
         run: |
           ./nuget.exe pack universal_notes_flutter.nuspec
 
-      - name: Install Squirrel.Windows
-        run: choco install squirrel.windows -y
+      - name: Download & unpack Squirrel
+        working-directory: universal_notes_flutter/build/windows/x64/runner/Release
+        shell: pwsh
+        run: |
+          Invoke-WebRequest `
+            -Uri https://github.com/Squirrel/Squirrel.Windows/releases/download/2.0.1/SquirrelTools-2.0.1.zip `
+            -OutFile squirrel.zip
+          Expand-Archive -Path squirrel.zip -DestinationPath . -Force
 
       - name: Run Squirrel
         id: squirrel
         working-directory: universal_notes_flutter/build/windows/x64/runner/Release
         run: |
           $nupkgFile = "universal_notes_flutter.${{ steps.get_version.outputs.VERSION }}.nupkg"
-          squirrel --releasify $nupkgFile --releaseDir releases
+          ./Squirrel.exe --releasify $nupkgFile --releaseDir releases
 
       - name: Create Release
         id: create_release
