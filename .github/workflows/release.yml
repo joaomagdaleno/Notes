@@ -20,7 +20,7 @@ jobs:
 
       - name: Get version from tag
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Install dependencies and Build Flutter app
@@ -39,21 +39,26 @@ jobs:
           }
           Write-Host "Build output verified."
 
+      - name: Update nuspec version
+        run: |
+          $nuspecPath = "universal_notes_flutter\\windows\\runner\\universal_notes_flutter.nuspec"
+          $xml = [xml](Get-Content $nuspecPath)
+          $xml.package.metadata.version = "${{ steps.get_version.outputs.VERSION }}"
+          $xml.Save($nuspecPath)
+
       - name: Prepare for packaging
         run: |
           $buildPath = "universal_notes_flutter\\build\\windows\\x64\\runner\\Release"
-          # Copy the nuspec file into the build output directory
           Copy-Item -Path "universal_notes_flutter\\windows\\runner\\universal_notes_flutter.nuspec" -Destination $buildPath
-          # Download nuget.exe into the build output directory
           Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile "$buildPath\\nuget.exe"
 
       - name: Create .nupkg
         working-directory: universal_notes_flutter/build/windows/x64/runner/Release
         run: |
-          ./nuget.exe pack universal_notes_flutter.nuspec -Version ${{ steps.get_version.outputs.VERSION }}
+          ./nuget.exe pack universal_notes_flutter.nuspec
 
       - name: Install Squirrel.Windows
-        run: dotnet tool install --global Squirrel.Windows --version 2.0.1
+        run: choco install squirrel.windows -y
 
       - name: Run Squirrel
         id: squirrel
