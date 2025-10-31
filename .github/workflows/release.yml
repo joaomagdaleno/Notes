@@ -57,14 +57,13 @@ jobs:
         run: |
           ./nuget.exe pack universal_notes_flutter.nuspec
 
-      - name: Download & unpack Squirrel
+      - name: Download Squirrel
         working-directory: universal_notes_flutter/build/windows/x64/runner/Release
         shell: pwsh
         run: |
           Invoke-WebRequest `
-            -Uri https://github.com/Squirrel/Squirrel.Windows/releases/download/1.9.1/SquirrelTools-1.9.1.zip `
-            -OutFile squirrel.zip
-          Expand-Archive -Path squirrel.zip -DestinationPath . -Force
+            -Uri "https://github.com/Squirrel/Squirrel.Windows/releases/download/1.9.1/Squirrel.exe" `
+            -OutFile "Squirrel.exe"
 
       - name: Run Squirrel
         id: squirrel
