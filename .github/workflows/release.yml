@@ -62,7 +62,7 @@ jobs:
         shell: pwsh
         run: |
           Invoke-WebRequest `
-            -Uri https://github.com/Squirrel/Squirrel.Windows/releases/download/2.0.1/SquirrelTools-2.0.1.zip `
+            -Uri https://github.com/Squirrel/Squirrel.Windows/releases/download/1.9.2/SquirrelTools-1.9.2.zip `
             -OutFile squirrel.zip
           Expand-Archive -Path squirrel.zip -DestinationPath . -Force
 
