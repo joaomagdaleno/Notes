@@ -18,38 +18,49 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Get version from tag
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+        shell: bash
+
+      - name: Install dependencies and Build Flutter app
         working-directory: universal_notes_flutter
-
-      - name: Build Flutter app
-        run: flutter build windows
-        working-directory: universal_notes_flutter
-
-      - name: Copy .nuspec to build directory
         run: |
-          Copy-Item -Path "universal_notes_flutter\windows\runner\universal_notes_flutter.nuspec" -Destination "universal_notes_flutter\build\windows\runner"
+          flutter pub get
+          flutter build windows
 
-      - name: Download nuget.exe
+      - name: Verify build output structure
         run: |
-          $targetDir = "universal_notes_flutter\build\windows\runner"
-          if (-not (Test-Path $targetDir)) {
-            New-Item -ItemType Directory -Path $targetDir -Force
+          Write-Host "Verifying build output..."
+          $buildPath = "universal_notes_flutter\\build\\windows\\x64\\runner\\Release"
+          if (-not (Test-Path "$buildPath\\universal_notes_flutter.exe")) {
+            Get-ChildItem -Path "universal_notes_flutter\\build" -Recurse | Select-Object FullName
+            throw "Build output not found at $buildPath!"
           }
-          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile "$targetDir\nuget.exe"
+          Write-Host "Build output verified."
+
+      - name: Prepare for packaging
+        run: |
+          $buildPath = "universal_notes_flutter\\build\\windows\\x64\\runner\\Release"
+          # Copy the nuspec file into the build output directory
+          Copy-Item -Path "universal_notes_flutter\\windows\\runner\\universal_notes_flutter.nuspec" -Destination $buildPath
+          # Download nuget.exe into the build output directory
+          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile "$buildPath\\nuget.exe"
 
       - name: Create .nupkg
+        working-directory: universal_notes_flutter/build/windows/x64/runner/Release
         run: |
-          ./nuget.exe pack universal_notes_flutter.nuspec -Version 1.0.0 -Properties "target=Release"
-        working-directory: universal_notes_flutter/build/windows/runner
+          ./nuget.exe pack universal_notes_flutter.nuspec -Version ${{ steps.get_version.outputs.VERSION }}
 
       - name: Install Squirrel.Windows
         run: dotnet tool install --global Squirrel.Windows --version 2.0.1
 
       - name: Run Squirrel
+        id: squirrel
+        working-directory: universal_notes_flutter/build/windows/x64/runner/Release
         run: |
-          squirrel --releasify universal_notes_flutter.1.0.0.nupkg --releaseDir ../../releases
-        working-directory: universal_notes_flutter/build/windows/runner
+          $nupkgFile = "universal_notes_flutter.${{ steps.get_version.outputs.VERSION }}.nupkg"
+          squirrel --releasify $nupkgFile --releaseDir releases
 
       - name: Create Release
         id: create_release
@@ -65,5 +76,5 @@ jobs:
       - name: Upload Release Assets
         uses: AButler/upload-release-assets@v2.0
         with:
-          files: 'universal_notes_flutter/build/windows/releases/*'
+          files: 'universal_notes_flutter/build/windows/x64/runner/Release/releases/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
