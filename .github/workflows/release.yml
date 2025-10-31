@@ -26,10 +26,17 @@ jobs:
         run: flutter build windows
         working-directory: universal_notes_flutter
 
+      - name: Copy .nuspec to build directory
+        run: |
+          Copy-Item -Path "universal_notes_flutter\windows\runner\universal_notes_flutter.nuspec" -Destination "universal_notes_flutter\build\windows\runner"
+
       - name: Download nuget.exe
         run: |
-          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
-        working-directory: universal_notes_flutter/build/windows/runner
+          $targetDir = "universal_notes_flutter\build\windows\runner"
+          if (-not (Test-Path $targetDir)) {
+            New-Item -ItemType Directory -Path $targetDir -Force
+          }
+          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile "$targetDir\nuget.exe"
 
       - name: Create .nupkg
         run: |
