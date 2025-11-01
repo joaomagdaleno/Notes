@@ -32,14 +32,16 @@ jobs:
           Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES" -Wait
 
       - name: Build Installer
+        id: build_installer
         run: |
           $version = "${{ github.ref_name }}".TrimStart('v')
+          echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           (Get-Content installer.iss) -replace '0\.1\.7', $version | Set-Content installer.iss
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
       - name: Upload Release Asset
         uses: AButler/upload-release-assets@v2.0
         with:
-          files: 'Output\UniversalNotesSetup-${{ github.ref_name }}.exe'
+          files: 'Output\UniversalNotesSetup-${{ steps.build_installer.outputs.VERSION }}.exe'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           release-tag: ${{ github.ref_name }}
