@@ -21,8 +21,10 @@ class Updater {
             'https://api.github.com/repos/diegolima362/universal_notes_flutter/releases/latest'),
       );
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to check for updates');
+      if (response.statusCode == 404) {
+        throw Exception('Nenhum release encontrado. Verifique se um release público foi criado no repositório.');
+      } else if (response.statusCode != 200) {
+        throw Exception('Falha ao verificar atualizações. Código de status: ${response.statusCode}');
       }
 
       final json = jsonDecode(response.body);
@@ -94,14 +96,15 @@ class Updater {
       }
 
     } catch (e) {
-      onStatusChange('Erro ao verificar atualizações: $e');
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      onStatusChange('Erro: $errorMessage');
       // ignore: use_build_context_synchronously
       if (!context.mounted) return;
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Erro de Atualização'),
-          content: Text('Não foi possível verificar ou baixar a atualização. Por favor, tente novamente mais tarde.\n\nDetalhes: $e'),
+          content: Text(errorMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
