@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:universal_notes_flutter/data/sample_notes.dart';
+import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'screens/settings_screen.dart';
 
 void main() {
@@ -29,6 +31,27 @@ class NotesScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Todas as notas'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.view_agenda_outlined),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {},
+          ),
+          PopupMenuButton<String>(
+            onSelected: (value) {},
+            itemBuilder: (BuildContext context) {
+              return {'Ordenar por', 'Outra Ação'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: Column(
@@ -74,10 +97,24 @@ class NotesScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: const Center(
-        child: Text(
-          'A grade de notas aparecerá aqui.',
+      body: GridView.builder(
+        padding: const EdgeInsets.all(8.0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8.0,
+          mainAxisSpacing: 8.0,
+          childAspectRatio: 0.75,
         ),
+        itemCount: sampleNotes.length,
+        itemBuilder: (context, index) {
+          return NoteCard(note: sampleNotes[index]);
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Ação para criar nova nota
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
