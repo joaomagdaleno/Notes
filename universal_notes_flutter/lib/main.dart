@@ -36,6 +36,12 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _initPackageInfo();
+    _checkForUpdates();
+  }
+
+  void _checkForUpdates() {
+    final updater = Updater();
+    updater.checkForUpdates();
   }
 
   Future<void> _initPackageInfo() async {
@@ -43,11 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _version = info.version;
     });
-  }
-
-  void _checkForUpdates() {
-    final updater = Updater();
-    updater.checkForUpdates(context);
   }
 
   @override
@@ -69,11 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               _version,
               style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _checkForUpdates,
-              child: const Text('Buscar Atualizações'),
             ),
           ],
         ),

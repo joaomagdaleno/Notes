@@ -1,84 +1,51 @@
+import 'dart:convert';
 import 'dart:io';
-import 'package:path/path.dart' as path;
-import 'package:flutter/material.dart';
+
+import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pub_semver/pub_semver.dart';
 
 class Updater {
-  static const String _updateUrl =
-      'https://github.com/diegolima362/universal_notes_flutter/releases/latest/download';
-
-  Future<void> checkForUpdates(BuildContext context) async {
+  Future<void> checkForUpdates() async {
     try {
-      final updateExe = _getUpdateExePath();
-      if (updateExe == null) {
-        _showErrorDialog(context, 'Update.exe não encontrado.');
-        return;
-      }
+      final packageInfo = await PackageInfo.fromPlatform();
+      final currentVersion = Version.parse(packageInfo.version);
 
-      _showInfoDialog(context, 'Buscando atualizações...', 'Aguarde um momento.');
+      final response = await http.get(
+        Uri.parse(
+            'https://api.github.com/repos/diegolima362/universal_notes_flutter/releases/latest'),
+      );
 
-      final process = await Process.start(updateExe, ['--update', _updateUrl]);
-      final exitCode = await process.exitCode;
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        final latestVersionStr = (json['tag_name'] as String).substring(1);
+        final latestVersion = Version.parse(latestVersionStr);
 
-      Navigator.of(context).pop(); // Fecha o diálogo de "buscando"
+        if (latestVersion > currentVersion) {
+          final assets = json['assets'] as List;
+          final asset = assets.firstWhere(
+            (asset) =>
+                (asset['name'] as String).startsWith('UniversalNotesSetup-'),
+            orElse: () => null,
+          );
 
-      if (exitCode == 0) {
-        // O Squirrel lida com a atualização em segundo plano.
-        // Um exit code 0 aqui geralmente significa que o processo foi iniciado.
-        // A atualização real, download e instalação são gerenciados pelo Update.exe
-        _showInfoDialog(context, 'Atualização em andamento',
-            'O aplicativo será reiniciado quando a atualização for concluída.');
-      } else {
-        _showErrorDialog(
-            context, 'Erro ao buscar atualizações (código: $exitCode).');
+          if (asset != null) {
+            final downloadUrl = asset['browser_download_url'] as String;
+            final tempDir = await getTemporaryDirectory();
+            final filePath = '${tempDir.path}/${asset['name']}';
+            final response = await http.get(Uri.parse(downloadUrl));
+
+            if (response.statusCode == 200) {
+              final file = File(filePath);
+              await file.writeAsBytes(response.bodyBytes);
+              await Process.run(filePath, ['/SILENT', '/NORESTART']);
+            }
+          }
+        }
       }
     } catch (e) {
-      Navigator.of(context).pop();
-      _showErrorDialog(context, 'Ocorreu um erro inesperado: $e');
+      // Ignore errors for now, as this is a background process.
     }
-  }
-
-  String? _getUpdateExePath() {
-    final exePath = Platform.resolvedExecutable;
-    final exeDir = path.dirname(exePath);
-    // O Update.exe geralmente está no diretório pai do diretório do executável do app
-    final updateExePath = path.join(exeDir, '..', 'Update.exe');
-
-    if (File(updateExePath).existsSync()) {
-      return updateExePath;
-    }
-    return null;
-  }
-
-  void _showInfoDialog(BuildContext context, String title, String content) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-        );
-      },
-    );
-  }
-
-  void _showErrorDialog(BuildContext context, String content) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Erro de Atualização'),
-          content: Text(content),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 }
