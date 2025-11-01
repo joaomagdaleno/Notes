@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/data/sample_notes.dart';
+import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'screens/settings_screen.dart';
 
@@ -23,8 +24,32 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class NotesScreen extends StatelessWidget {
+class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
+
+  @override
+  State<NotesScreen> createState() => _NotesScreenState();
+}
+
+class _NotesScreenState extends State<NotesScreen> {
+  late List<Note> _notes;
+
+  @override
+  void initState() {
+    super.initState();
+    _notes = List.from(sampleNotes);
+  }
+
+  void _updateNote(Note note) {
+    setState(() {
+      final index = _notes.indexWhere((n) => n.id == note.id);
+      if (index != -1) {
+        _notes[index] = note;
+      } else {
+        _notes.insert(0, note);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,14 +130,18 @@ class NotesScreen extends StatelessWidget {
           mainAxisSpacing: 8.0,
           childAspectRatio: 0.75,
         ),
-        itemCount: sampleNotes.length,
+        itemCount: _notes.length,
         itemBuilder: (context, index) {
-          return NoteCard(note: sampleNotes[index]);
+          return NoteCard(note: _notes[index], onSave: _updateNote);
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Ação para criar nova nota
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => NoteEditorScreen(onSave: _updateNote),
+            ),
+          );
         },
         child: const Icon(Icons.add),
       ),
