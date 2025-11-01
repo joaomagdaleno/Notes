@@ -31,6 +31,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String _version = '...';
+  String _updateStatus = '';
+  bool _isCheckingForUpdates = false;
 
   @override
   void initState() {
@@ -39,9 +41,26 @@ class _MyHomePageState extends State<MyHomePage> {
     _checkForUpdates();
   }
 
-  void _checkForUpdates() {
+  Future<void> _checkForUpdates() async {
+    if (_isCheckingForUpdates) return;
+    setState(() {
+      _isCheckingForUpdates = true;
+      _updateStatus = 'Verificando atualizações...';
+    });
+
     final updater = Updater();
-    updater.checkForUpdates();
+    await updater.checkForUpdates(
+      context: context,
+      onStatusChange: (status) {
+        setState(() {
+          _updateStatus = status;
+        });
+      },
+    );
+
+    setState(() {
+      _isCheckingForUpdates = false;
+    });
   }
 
   Future<void> _initPackageInfo() async {
@@ -71,6 +90,13 @@ class _MyHomePageState extends State<MyHomePage> {
               _version,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: _isCheckingForUpdates ? null : _checkForUpdates,
+              child: const Text('Buscar Atualizações'),
+            ),
+            const SizedBox(height: 16),
+            Text(_updateStatus),
           ],
         ),
       ),
