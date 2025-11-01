@@ -18,7 +18,7 @@ class Updater {
 
       final response = await http.get(
         Uri.parse(
-            'https://api.github.com/repos/diegolima362/universal_notes_flutter/releases/latest'),
+            'https://api.github.com/repos/joaomagdaleno/Notes/releases/latest'),
       );
 
       if (response.statusCode == 404) {
