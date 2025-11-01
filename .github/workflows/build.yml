@@ -1,0 +1,44 @@
+name: Build Windows Installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-2025
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Flutter Build Windows
+        run: |
+          flutter pub get
+          flutter build windows
+
+      - name: Install Inno Setup
+        run: |
+          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile is.exe
+          Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES" -Wait
+
+      - name: Build Installer
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          (Get-Content installer.iss) -replace '0\.1\.7', $version | Set-Content installer.iss
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
+      - name: Upload Release Asset
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: 'Output\UniversalNotesSetup-${{ github.ref_name }}.exe'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: ${{ github.ref_name }}
