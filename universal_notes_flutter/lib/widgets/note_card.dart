@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import '../models/note.dart';
 
 class NoteCard extends StatelessWidget {
   final Note note;
+  final Function(Note) onSave;
 
-  const NoteCard({super.key, required this.note});
+  const NoteCard({super.key, required this.note, required this.onSave});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => NoteEditorScreen(note: note, onSave: onSave),
+          ),
+        );
+      },
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
