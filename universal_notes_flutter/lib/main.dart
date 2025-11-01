@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/data/sample_notes.dart';
+import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'screens/settings_screen.dart';

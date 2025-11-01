@@ -22,7 +22,7 @@ class NoteCard extends StatelessWidget {
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-        child: Column(
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
