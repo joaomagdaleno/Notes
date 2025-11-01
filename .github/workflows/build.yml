@@ -22,6 +22,15 @@ jobs:
         with:
           channel: stable
 
+      - name: Inject version into pubspec
+        shell: pwsh
+        working-directory: universal_notes_flutter
+        run: |
+          $v = "${{ github.ref_name }}".TrimStart('v')
+          (Get-Content pubspec.yaml) `
+            -replace '^version:.*', "version: $v+${{ github.run_number }}" `
+            | Set-Content pubspec.yaml
+
       - name: Flutter Build Windows
         working-directory: universal_notes_flutter
         run: |
