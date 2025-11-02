@@ -25,7 +25,7 @@ class NoteCard extends StatelessWidget {
           ),
         );
       },
-      onLongPressStart: (details) {
+      onLongPressDown: (details) {
         ContextMenuHelper.showContextMenu(
           context: context,
           position: details.globalPosition,

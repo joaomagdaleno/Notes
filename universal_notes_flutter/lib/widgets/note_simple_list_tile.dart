@@ -37,7 +37,7 @@ class NoteSimpleListTile extends StatelessWidget {
       ),
       title: Text(note.title),
       trailing: Text(DateFormat('d MMM').format(note.date)),
-      onLongPressStart: (details) {
+      onLongPressDown: (details) {
         ContextMenuHelper.showContextMenu(
           context: context,
           position: details.globalPosition,
