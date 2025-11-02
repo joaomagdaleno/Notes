@@ -61,12 +61,25 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
+          cache-key: flutter-3.35.7
 
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.android/build-cache
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
       - name: Inject version into pubspec
         working-directory: universal_notes_flutter
@@ -77,8 +90,8 @@ jobs:
       - name: Flutter Build APK
         working-directory: universal_notes_flutter
         run: |
-          flutter pub get
-          flutter build apk --release
+          flutter pub get --offline
+          flutter build apk --release --target-platform=android-arm64
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
