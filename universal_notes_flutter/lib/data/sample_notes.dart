@@ -5,6 +5,7 @@ final List<Note> sampleNotes = [
     title: 'Minhas Informações',
     contentPreview: '...',
     date: DateTime(2022, 2, 9),
+    isFavorite: true,
   ),
   Note(
     title: 'Nota escrita à mão 24/10',
