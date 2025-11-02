@@ -111,22 +111,27 @@ class _NotesScreenState extends State<NotesScreen> {
     });
   }
 
-  void _selectAll(List<Note> visibleNotes) {
+  void _selectAll(List<String> visibleNoteIds) {
     setState(() {
-      if (_selectedNotes.length == visibleNotes.length) {
+      final allVisibleSelected = _selectedNotes.containsAll(visibleNoteIds) && _selectedNotes.length == visibleNoteIds.length;
+
+      if (allVisibleSelected) {
         _selectedNotes.clear();
       } else {
-        _selectedNotes.addAll(visibleNotes.map((note) => note.id));
+        _selectedNotes.addAll(visibleNoteIds);
       }
     });
   }
 
   AppBar _buildAppBar(List<Note> visibleNotes) {
     if (_isSelectionMode) {
+      final visibleNoteIds = visibleNotes.map((note) => note.id).toList();
+      final allVisibleSelected = _selectedNotes.containsAll(visibleNoteIds) && _selectedNotes.length == visibleNoteIds.length;
+
       return AppBar(
         leading: Checkbox(
-          value: _selectedNotes.length == visibleNotes.length && visibleNotes.isNotEmpty,
-          onChanged: (value) => _selectAll(visibleNotes),
+          value: allVisibleSelected && visibleNotes.isNotEmpty,
+          onChanged: (value) => _selectAll(visibleNoteIds),
         ),
         title: Text('${_selectedNotes.length} selecionado(s)'),
         actions: [
