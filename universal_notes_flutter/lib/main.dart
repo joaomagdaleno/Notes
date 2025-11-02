@@ -20,9 +20,22 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Universal Notes',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
         useMaterial3: true,
+        fontFamily: 'Roboto',
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+        fontFamily: 'Roboto',
+      ),
+      themeMode: ThemeMode.system,
       home: const NotesScreen(),
     );
   }
@@ -58,6 +71,12 @@ class _NotesScreenState extends State<NotesScreen> {
     });
   }
 
+  void _deleteNote(Note note) {
+    setState(() {
+      _notes.removeWhere((n) => n.id == note.id);
+    });
+  }
+
   void _cycleViewMode() {
     setState(() {
       final nextIndex = (_viewMode.index + 1) % ViewMode.values.length;
@@ -77,7 +96,9 @@ class _NotesScreenState extends State<NotesScreen> {
             });
           },
         ),
-        title: const Text('Todas as notas'),
+        title: Center(
+          child: Text(_getAppBarTitle()),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.view_agenda_outlined),
@@ -175,17 +196,34 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   Widget _buildBody() {
+    List<Note> visibleNotes;
+
+    switch (_selectedIndex) {
+      case 1: // Favorites
+        visibleNotes =
+            _notes.where((n) => n.isFavorite && !n.isInTrash).toList();
+        break;
+      case 4: // Trash
+        visibleNotes = _notes.where((n) => n.isInTrash).toList();
+        break;
+      default: // All notes
+        visibleNotes = _notes.where((n) => !n.isInTrash).toList();
+        break;
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         if (_viewMode == ViewMode.list) {
-          return _buildGridView(2, 0.75); // 2 columns, elongated aspect ratio
+          return _buildGridView(
+              2, 0.75, visibleNotes); // 2 columns, elongated aspect ratio
         } else if (_viewMode == ViewMode.listSimple) {
           return ListView.builder(
-            itemCount: _notes.length,
+            itemCount: visibleNotes.length,
             itemBuilder: (context, index) {
               return NoteSimpleListTile(
-                note: _notes[index],
+                note: visibleNotes[index],
                 onSave: _updateNote,
+                onDelete: _deleteNote,
               );
             },
           );
@@ -199,18 +237,20 @@ class _NotesScreenState extends State<NotesScreen> {
           } else if (_viewMode == ViewMode.gridMedium) {
             crossAxisCount = (constraints.maxWidth / 200).floor().clamp(2, 7);
             childAspectRatio = 1 / 1.414; // A4 aspect ratio
-          } else { // gridLarge
+          } else {
+            // gridLarge
             crossAxisCount = (constraints.maxWidth / 150).floor().clamp(1, 5);
             childAspectRatio = 1 / 1.414; // A4 aspect ratio
           }
 
-          return _buildGridView(crossAxisCount, childAspectRatio);
+          return _buildGridView(crossAxisCount, childAspectRatio, visibleNotes);
         }
       },
     );
   }
 
-  Widget _buildGridView(int crossAxisCount, double childAspectRatio) {
+  Widget _buildGridView(
+      int crossAxisCount, double childAspectRatio, List<Note> notes) {
     return GridView.builder(
       padding: const EdgeInsets.all(8.0),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -219,10 +259,33 @@ class _NotesScreenState extends State<NotesScreen> {
         mainAxisSpacing: 8.0,
         childAspectRatio: childAspectRatio,
       ),
-      itemCount: _notes.length,
+      itemCount: notes.length,
       itemBuilder: (context, index) {
-        return NoteCard(note: _notes[index], onSave: _updateNote);
+        return NoteCard(
+          note: notes[index],
+          onSave: _updateNote,
+          onDelete: _deleteNote,
+        );
       },
     );
+  }
+
+  String _getAppBarTitle() {
+    switch (_selectedIndex) {
+      case 0:
+        return 'Todas as notas';
+      case 1:
+        return 'Favoritos';
+      case 2:
+        return 'Notas bloqueadas';
+      case 3:
+        return 'Notas compartilhadas';
+      case 4:
+        return 'Lixeira';
+      case 5:
+        return 'Pastas';
+      default:
+        return 'Universal Notes';
+    }
   }
 }
