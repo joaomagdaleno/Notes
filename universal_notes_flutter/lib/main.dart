@@ -237,7 +237,7 @@ class _NotesScreenState extends State<NotesScreen> {
                     onTap: () {},
                   ),
                   ListTile(
-                    leading: const Icon(Icons.folder_managed_outlined),
+                    leading: const Icon(Icons.folder_open_outlined),
                     title: const Text('Gerenciar pastas'),
                     onTap: () {},
                   ),
