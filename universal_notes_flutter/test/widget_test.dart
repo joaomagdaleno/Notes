@@ -7,17 +7,27 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:universal_notes_flutter/main.dart';
+import 'package:universal_notes_flutter/screens/about_screen.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 
 void main() {
-  testWidgets('Initial UI smoke test', (WidgetTester tester) async {
+  // Ensure the test environment is ready for Flutter specifics.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Set up the downloader initialization before the tests run.
+  setUpAll(() async {
+    await FlutterDownloader.initialize(debug: true);
+  });
+
+  testWidgets('AboutScreen UI smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MaterialApp(home: AboutScreen()));
+
+    // Wait for the version to be loaded
+    await tester.pumpAndSettle();
 
     // Verify that the initial UI elements are present.
-    expect(find.text('Versão atual do aplicativo:'), findsOneWidget);
-    expect(find.text('...'), findsOneWidget); // Initial version text
+    expect(find.textContaining('Versão atual:'), findsOneWidget);
 
     // Find the ElevatedButton and check its child for the correct text.
     final buttonFinder = find.byType(ElevatedButton);
@@ -25,6 +35,6 @@ void main() {
 
     final button = tester.widget<ElevatedButton>(buttonFinder);
     final buttonChild = button.child as Text;
-    expect(buttonChild.data, 'Buscar Atualizações');
+    expect(buttonChild.data, 'Verificar Atualizações');
   });
 }

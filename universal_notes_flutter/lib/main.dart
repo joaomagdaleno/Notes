@@ -2,14 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/data/sample_notes.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'dart:isolate';
+import 'dart:ui';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:open_file/open_file.dart';
+import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'screens/settings_screen.dart';
 
 enum ViewMode { gridSmall, gridMedium, gridLarge, list, listSimple }
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(
+    debug: true,
+  );
+  FlutterDownloader.registerCallback(downloadCallback);
   runApp(const MyApp());
+}
+
+@pragma('vm:entry-point')
+void downloadCallback(String id, int status, int progress) {
+  final SendPort? send = IsolateNameServer.lookupPortByName('downloader_send_port');
+  send?.send([id, status, progress]);
 }
 
 class MyApp extends StatelessWidget {
@@ -53,11 +69,47 @@ class _NotesScreenState extends State<NotesScreen> {
   bool _isNavigationRailExpanded = false;
   int _selectedIndex = 0;
   ViewMode _viewMode = ViewMode.gridMedium;
+  final ReceivePort _port = ReceivePort();
 
   @override
   void initState() {
     super.initState();
     _notes = List.from(sampleNotes);
+    _bindBackgroundIsolate();
+    // Use a post-frame callback to ensure the Scaffold is available.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      UpdateHelper.checkForUpdate(context);
+    });
+  }
+
+  @override
+  void dispose() {
+    _unbindBackgroundIsolate();
+    super.dispose();
+  }
+
+  void _bindBackgroundIsolate() {
+    IsolateNameServer.registerPortWithName(_port.sendPort, 'downloader_send_port');
+    _port.listen((dynamic data) {
+      final status = DownloadTaskStatus.fromInt(data[1]);
+      final String taskId = data[0];
+
+      if (status == DownloadTaskStatus.complete) {
+        _openDownloadedFile(taskId);
+      }
+    });
+  }
+
+  void _unbindBackgroundIsolate() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+  }
+
+  Future<void> _openDownloadedFile(String taskId) async {
+    final tasks = await FlutterDownloader.loadTasksWithRawQuery(query: 'SELECT * FROM task WHERE task_id="$taskId"');
+    if (tasks != null && tasks.isNotEmpty) {
+      final task = tasks.first;
+      OpenFile.open('${task.savedDir}/${task.filename}');
+    }
   }
 
   void _updateNote(Note note) {
