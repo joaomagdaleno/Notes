@@ -35,6 +35,8 @@ class NotesScreen extends StatefulWidget {
 class _NotesScreenState extends State<NotesScreen> {
   late List<Note> _notes;
   String _activeFilter = 'all'; // 'all' or 'favorites'
+  bool _isSelectionMode = false;
+  final Set<String> _selectedNotes = {};
 
   @override
   void initState() {
@@ -56,20 +58,59 @@ class _NotesScreenState extends State<NotesScreen> {
   void _setFilter(String filter) {
     setState(() {
       _activeFilter = filter;
+      _isSelectionMode = false;
+      _selectedNotes.clear();
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final List<Note> _visibleNotes = _activeFilter == 'favorites'
-        ? _notes.where((note) => note.isFavorite).toList()
-        : _notes;
+  void _toggleSelection(String noteId) {
+    setState(() {
+      if (_selectedNotes.contains(noteId)) {
+        _selectedNotes.remove(noteId);
+      } else {
+        _selectedNotes.add(noteId);
+      }
+      if (_selectedNotes.isEmpty) {
+        _isSelectionMode = false;
+      } else {
+        _isSelectionMode = true;
+      }
+    });
+  }
 
-    final String appBarTitle = _activeFilter == 'favorites' ? 'Favoritos' : 'Todas as notas';
+  void _selectAll() {
+    setState(() {
+      if (_selectedNotes.length == _notes.where((note) => _activeFilter == 'all' || note.isFavorite).length) {
+        _selectedNotes.clear();
+      } else {
+        _selectedNotes.addAll(_notes.where((note) => _activeFilter == 'all' || note.isFavorite).map((note) => note.id));
+      }
+    });
+  }
 
-    return Scaffold(
-      drawerScrimColor: Colors.transparent,
-      appBar: AppBar(
+  AppBar _buildAppBar() {
+    if (_isSelectionMode) {
+      return AppBar(
+        leading: Checkbox(
+          value: _selectedNotes.length == _notes.where((note) => _activeFilter == 'all' || note.isFavorite).length,
+          onChanged: (value) => _selectAll(),
+        ),
+        title: Text('${_selectedNotes.length} selecionado(s)'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              setState(() {
+                _isSelectionMode = false;
+                _selectedNotes.clear();
+              });
+            },
+          ),
+        ],
+      );
+    } else {
+      final String appBarTitle = _activeFilter == 'favorites' ? 'Favoritos' : 'Todas as notas';
+      return AppBar(
         centerTitle: true,
         title: Text(appBarTitle),
         actions: [
@@ -93,7 +134,19 @@ class _NotesScreenState extends State<NotesScreen> {
             },
           ),
         ],
-      ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Note> _visibleNotes = _activeFilter == 'favorites'
+        ? _notes.where((note) => note.isFavorite).toList()
+        : _notes;
+
+    return Scaffold(
+      drawerScrimColor: Colors.transparent,
+      appBar: _buildAppBar(),
       drawer: Drawer(
         child: Column(
           children: [
@@ -217,10 +270,19 @@ class _NotesScreenState extends State<NotesScreen> {
         ),
         itemCount: _visibleNotes.length,
         itemBuilder: (context, index) {
-          return NoteCard(note: _visibleNotes[index], onSave: _updateNote);
+          final note = _visibleNotes[index];
+          return NoteCard(
+            note: note,
+            onSave: _updateNote,
+            isSelectionMode: _isSelectionMode,
+            isSelected: _selectedNotes.contains(note.id),
+            onToggleSelection: _toggleSelection,
+          );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _isSelectionMode
+          ? null
+          : FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -229,6 +291,38 @@ class _NotesScreenState extends State<NotesScreen> {
           );
         },
         child: const Icon(Icons.add),
+      ),
+      bottomNavigationBar: _isSelectionMode
+          ? BottomAppBar(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildBottomActionButton(Icons.drive_file_move_outline, 'Mover', () {}),
+                  _buildBottomActionButton(Icons.lock_outline, 'Bloquear', () {}),
+                  _buildBottomActionButton(Icons.share_outlined, 'Compart.', () {}),
+                  _buildBottomActionButton(Icons.delete_outline, 'Excluir', () {}),
+                  _buildBottomActionButton(Icons.more_vert, 'Mais', () {}),
+                ],
+              ),
+            )
+          : null,
+    );
+  }
+
+  Widget _buildBottomActionButton(IconData icon, String label, VoidCallback onPressed) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon),
+            const SizedBox(height: 4),
+            Text(label),
+          ],
+        ),
       ),
     );
   }
