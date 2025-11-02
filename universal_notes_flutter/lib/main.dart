@@ -66,6 +66,25 @@ class _NotesScreenState extends State<NotesScreen> {
     });
   }
 
+  void _deleteSelectedNotesPermanently() {
+    setState(() {
+      _notes.removeWhere((note) => _selectedNotes.contains(note.id));
+      _isSelectionMode = false;
+      _selectedNotes.clear();
+    });
+  }
+
+  void _restoreSelectedNotes() {
+    setState(() {
+      for (var noteId in _selectedNotes) {
+        final note = _notes.firstWhere((note) => note.id == noteId);
+        note.isInTrash = false;
+      }
+      _isSelectionMode = false;
+      _selectedNotes.clear();
+    });
+  }
+
   void _trashSelectedNotes() {
     setState(() {
       for (var noteId in _selectedNotes) {
@@ -356,19 +375,27 @@ class _NotesScreenState extends State<NotesScreen> {
       ),
       bottomNavigationBar: _isSelectionMode
           ? BottomAppBar(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildBottomActionButton(Icons.drive_file_move_outline, 'Mover', () {}),
-                  if (allSelectedAreLocked)
-                    _buildBottomActionButton(Icons.lock_open_outlined, 'Desbloquear', _unlockSelectedNotes)
-                  else
-                    _buildBottomActionButton(Icons.lock_outline, 'Bloquear', _lockSelectedNotes),
-                  _buildBottomActionButton(Icons.share_outlined, 'Compart.', () {}),
-                  _buildBottomActionButton(Icons.delete_outline, 'Excluir', _trashSelectedNotes),
-                  _buildBottomActionButton(Icons.more_vert, 'Mais', () {}),
-                ],
-              ),
+              child: _activeFilter == 'trash'
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildBottomActionButton(Icons.restore, 'Restaurar', _restoreSelectedNotes),
+                        _buildBottomActionButton(Icons.delete_forever_outlined, 'Excluir perm.', _deleteSelectedNotesPermanently),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildBottomActionButton(Icons.drive_file_move_outline, 'Mover', () {}),
+                        if (allSelectedAreLocked)
+                          _buildBottomActionButton(Icons.lock_open_outlined, 'Desbloquear', _unlockSelectedNotes)
+                        else
+                          _buildBottomActionButton(Icons.lock_outline, 'Bloquear', _lockSelectedNotes),
+                        _buildBottomActionButton(Icons.share_outlined, 'Compart.', () {}),
+                        _buildBottomActionButton(Icons.delete_outline, 'Excluir', _trashSelectedNotes),
+                        _buildBottomActionButton(Icons.more_vert, 'Mais', () {}),
+                      ],
+                    ),
             )
           : null,
     );
