@@ -34,6 +34,7 @@ class NotesScreen extends StatefulWidget {
 
 class _NotesScreenState extends State<NotesScreen> {
   late List<Note> _notes;
+  String _activeFilter = 'all'; // 'all' or 'favorites'
 
   @override
   void initState() {
@@ -52,12 +53,24 @@ class _NotesScreenState extends State<NotesScreen> {
     });
   }
 
+  void _setFilter(String filter) {
+    setState(() {
+      _activeFilter = filter;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<Note> _visibleNotes = _activeFilter == 'favorites'
+        ? _notes.where((note) => note.isFavorite).toList()
+        : _notes;
+
+    final String appBarTitle = _activeFilter == 'favorites' ? 'Favoritos' : 'Todas as notas';
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Todas as notas'),
+        title: Text(appBarTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.view_agenda_outlined),
@@ -83,34 +96,101 @@ class _NotesScreenState extends State<NotesScreen> {
       drawer: Drawer(
         child: Column(
           children: [
+            const UserAccountsDrawerHeader(
+              accountName: Text(""),
+              accountEmail: Text(""),
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+            ),
             Expanded(
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  const DrawerHeader(
-                    decoration: BoxDecoration(
-                      color: Colors.deepPurple,
-                    ),
-                    child: Text(
-                      'Universal Notes',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                      ),
-                    ),
-                  ),
                   ListTile(
-                    leading: const Icon(Icons.notes),
-                    title: const Text('Todas as notas'),
+                    leading: const Icon(Icons.notes_outlined),
+                    title: Row(
+                      children: [
+                        const Text('Todas as notas'),
+                        const Spacer(),
+                        Text('240', style: TextStyle(color: Colors.grey[600])),
+                      ],
+                    ),
                     onTap: () {
+                      _setFilter('all');
                       Navigator.pop(context);
                     },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.star_outline),
+                    title: Row(
+                      children: [
+                        const Text('Favoritos'),
+                        const Spacer(),
+                        Text('1', style: TextStyle(color: Colors.grey[600])),
+                      ],
+                    ),
+                    onTap: () {
+                      _setFilter('favorites');
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.lock_outline),
+                    title: Row(
+                      children: [
+                        const Text('Notas bloqueadas'),
+                        const Spacer(),
+                        Text('1', style: TextStyle(color: Colors.grey[600])),
+                      ],
+                    ),
+                    onTap: () {},
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.share_outlined),
+                    title: Row(
+                      children: [
+                        const Text('Notas compartilhadas BETA'),
+                        const Spacer(),
+                        Text('1', style: TextStyle(color: Colors.grey[600])),
+                      ],
+                    ),
+                    onTap: () {},
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.delete_outline),
+                    title: Row(
+                      children: [
+                        const Text('Lixeira'),
+                        const Spacer(),
+                        Text('0', style: TextStyle(color: Colors.grey[600])),
+                      ],
+                    ),
+                    onTap: () {},
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.folder_outlined),
+                    title: Row(
+                      children: [
+                        const Text('Pastas'),
+                        const Spacer(),
+                        Text('56', style: TextStyle(color: Colors.grey[600])),
+                      ],
+                    ),
+                    onTap: () {},
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.folder_managed_outlined),
+                    title: const Text('Gerenciar pastas'),
+                    onTap: () {},
                   ),
                 ],
               ),
             ),
+            const Divider(),
             ListTile(
-              leading: const Icon(Icons.settings),
+              leading: const Icon(Icons.settings_outlined),
               title: const Text('Configurações'),
               onTap: () {
                 Navigator.pop(context); // Fecha o drawer
@@ -132,9 +212,9 @@ class _NotesScreenState extends State<NotesScreen> {
           mainAxisSpacing: 8.0,
           childAspectRatio: 0.75,
         ),
-        itemCount: _notes.length,
+        itemCount: _visibleNotes.length,
         itemBuilder: (context, index) {
-          return NoteCard(note: _notes[index], onSave: _updateNote);
+          return NoteCard(note: _visibleNotes[index], onSave: _updateNote);
         },
       ),
       floatingActionButton: FloatingActionButton(

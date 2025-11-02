@@ -38,11 +38,31 @@ class NoteCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                note.title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      note.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: Icon(
+                      note.isFavorite ? Icons.star : Icons.star_border,
+                      color: note.isFavorite ? Colors.amber : Colors.grey,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      note.isFavorite = !note.isFavorite;
+                      onSave(note);
+                    },
+                  )
+                ],
               ),
               const SizedBox(height: 4),
               Text(
