@@ -18,7 +18,7 @@ class NoteSimpleListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -29,14 +29,6 @@ class NoteSimpleListTile extends StatelessWidget {
           ),
         );
       },
-      leading: Container(
-        width: 40,
-        height: 40,
-        color: Colors.grey[300],
-        child: const Icon(Icons.image_outlined, color: Colors.grey),
-      ),
-      title: Text(note.title),
-      trailing: Text(DateFormat('d MMM').format(note.date)),
       onLongPressDown: (details) {
         ContextMenuHelper.showContextMenu(
           context: context,
@@ -46,6 +38,16 @@ class NoteSimpleListTile extends StatelessWidget {
           onDelete: onDelete,
         );
       },
+      child: ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          color: Colors.grey[300],
+          child: const Icon(Icons.image_outlined, color: Colors.grey),
+        ),
+        title: Text(note.title),
+        trailing: Text(DateFormat('d MMM').format(note.date)),
+      ),
     );
   }
 }
