@@ -3,7 +3,10 @@ import 'package:universal_notes_flutter/data/sample_notes.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
+import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'screens/settings_screen.dart';
+
+enum ViewMode { gridSmall, gridMedium, gridLarge, list, listSimple }
 
 void main() {
   runApp(const MyApp());
@@ -34,9 +37,9 @@ class NotesScreen extends StatefulWidget {
 
 class _NotesScreenState extends State<NotesScreen> {
   late List<Note> _notes;
-  String _activeFilter = 'all'; // 'all', 'favorites', or 'trash'
-  bool _isSelectionMode = false;
-  final Set<String> _selectedNotes = {};
+  bool _isNavigationRailExpanded = false;
+  int _selectedIndex = 0;
+  ViewMode _viewMode = ViewMode.gridMedium;
 
   @override
   void initState() {
@@ -55,135 +58,30 @@ class _NotesScreenState extends State<NotesScreen> {
     });
   }
 
-  void _lockSelectedNotes() {
+  void _cycleViewMode() {
     setState(() {
-      for (var noteId in _selectedNotes) {
-        final note = _notes.firstWhere((note) => note.id == noteId);
-        note.isLocked = true;
-      }
-      _isSelectionMode = false;
-      _selectedNotes.clear();
+      final nextIndex = (_viewMode.index + 1) % ViewMode.values.length;
+      _viewMode = ViewMode.values[nextIndex];
     });
   }
 
-  void _deleteSelectedNotesPermanently() {
-    setState(() {
-      _notes.removeWhere((note) => _selectedNotes.contains(note.id));
-      _isSelectionMode = false;
-      _selectedNotes.clear();
-    });
-  }
-
-  void _restoreSelectedNotes() {
-    setState(() {
-      for (var noteId in _selectedNotes) {
-        final note = _notes.firstWhere((note) => note.id == noteId);
-        note.isInTrash = false;
-      }
-      _isSelectionMode = false;
-      _selectedNotes.clear();
-    });
-  }
-
-  void _trashSelectedNotes() {
-    setState(() {
-      for (var noteId in _selectedNotes) {
-        final note = _notes.firstWhere((note) => note.id == noteId);
-        note.isInTrash = true;
-      }
-      _isSelectionMode = false;
-      _selectedNotes.clear();
-    });
-  }
-
-  void _unlockSelectedNotes() {
-    setState(() {
-      for (var noteId in _selectedNotes) {
-        final note = _notes.firstWhere((note) => note.id == noteId);
-        note.isLocked = false;
-      }
-      _isSelectionMode = false;
-      _selectedNotes.clear();
-    });
-  }
-
-  void _setFilter(String filter) {
-    setState(() {
-      _activeFilter = filter;
-      _isSelectionMode = false;
-      _selectedNotes.clear();
-    });
-  }
-
-  void _toggleSelection(String noteId) {
-    setState(() {
-      if (_selectedNotes.contains(noteId)) {
-        _selectedNotes.remove(noteId);
-      } else {
-        _selectedNotes.add(noteId);
-      }
-      if (_selectedNotes.isEmpty) {
-        _isSelectionMode = false;
-      } else {
-        _isSelectionMode = true;
-      }
-    });
-  }
-
-  void _selectAll(List<String> visibleNoteIds) {
-    setState(() {
-      final allVisibleSelected = _selectedNotes.containsAll(visibleNoteIds) && _selectedNotes.length == visibleNoteIds.length;
-
-      if (allVisibleSelected) {
-        _selectedNotes.clear();
-      } else {
-        _selectedNotes.addAll(visibleNoteIds);
-      }
-    });
-  }
-
-  AppBar _buildAppBar(List<Note> visibleNotes) {
-    if (_isSelectionMode) {
-      final visibleNoteIds = visibleNotes.map((note) => note.id).toList();
-      final allVisibleSelected = _selectedNotes.containsAll(visibleNoteIds) && _selectedNotes.length == visibleNoteIds.length;
-
-      return AppBar(
-        leading: Checkbox(
-          value: allVisibleSelected && visibleNotes.isNotEmpty,
-          onChanged: (value) => _selectAll(visibleNoteIds),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            setState(() {
+              _isNavigationRailExpanded = !_isNavigationRailExpanded;
+            });
+          },
         ),
-        title: Text('${_selectedNotes.length} selecionado(s)'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              setState(() {
-                _isSelectionMode = false;
-                _selectedNotes.clear();
-              });
-            },
-          ),
-        ],
-      );
-    } else {
-      String appBarTitle;
-      switch (_activeFilter) {
-        case 'trash':
-          appBarTitle = 'Lixeira';
-          break;
-        case 'favorites':
-          appBarTitle = 'Favoritos';
-          break;
-        default:
-          appBarTitle = 'Todas as notas';
-      }
-      return AppBar(
-        centerTitle: true,
-        title: Text(appBarTitle),
+        title: const Text('Todas as notas'),
         actions: [
           IconButton(
             icon: const Icon(Icons.view_agenda_outlined),
-            onPressed: () {},
+            onPressed: _cycleViewMode,
           ),
           IconButton(
             icon: const Icon(Icons.search),
@@ -201,169 +99,69 @@ class _NotesScreenState extends State<NotesScreen> {
             },
           ),
         ],
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List<Note> _visibleNotes;
-    switch (_activeFilter) {
-      case 'trash':
-        _visibleNotes = _notes.where((note) => note.isInTrash).toList();
-        break;
-      case 'favorites':
-        _visibleNotes = _notes.where((note) => !note.isInTrash && note.isFavorite).toList();
-        break;
-      default:
-        _visibleNotes = _notes.where((note) => !note.isInTrash).toList();
-    }
-
-    final bool allSelectedAreLocked = _isSelectionMode && _selectedNotes.isNotEmpty && _selectedNotes.every((noteId) => _notes.firstWhere((note) => note.id == noteId).isLocked);
-
-    return Scaffold(
-      drawerScrimColor: Colors.transparent,
-      appBar: _buildAppBar(_visibleNotes),
-      drawer: Drawer(
-        child: Column(
-          children: [
-            const UserAccountsDrawerHeader(
-              accountName: Text(""),
-              accountEmail: Text(""),
-              decoration: BoxDecoration(
-                color: Colors.white,
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.notes_outlined),
-                    title: Row(
-                      children: [
-                        const Text('Todas as notas'),
-                        const Spacer(),
-                        Text('240', style: TextStyle(color: Colors.grey[600])),
-                      ],
-                    ),
-                    selected: _activeFilter == 'all',
-                    onTap: () {
-                      _setFilter('all');
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.star_outline),
-                    title: Row(
-                      children: [
-                        const Text('Favoritos'),
-                        const Spacer(),
-                        Text('1', style: TextStyle(color: Colors.grey[600])),
-                      ],
-                    ),
-                    selected: _activeFilter == 'favorites',
-                    onTap: () {
-                      _setFilter('favorites');
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.lock_outline),
-                    title: Row(
-                      children: [
-                        const Text('Notas bloqueadas'),
-                        const Spacer(),
-                        Text('1', style: TextStyle(color: Colors.grey[600])),
-                      ],
-                    ),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.share_outlined),
-                    title: Row(
-                      children: [
-                        const Text('Notas compartilhadas BETA'),
-                        const Spacer(),
-                        Text('1', style: TextStyle(color: Colors.grey[600])),
-                      ],
-                    ),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.delete_outline),
-                    title: Row(
-                      children: [
-                        const Text('Lixeira'),
-                        const Spacer(),
-                        Text('0', style: TextStyle(color: Colors.grey[600])),
-                      ],
-                    ),
-                    selected: _activeFilter == 'trash',
-                    onTap: () {
-                      _setFilter('trash');
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const Divider(),
-                  ListTile(
-                    leading: const Icon(Icons.folder_outlined),
-                    title: Row(
-                      children: [
-                        const Text('Pastas'),
-                        const Spacer(),
-                        Text('56', style: TextStyle(color: Colors.grey[600])),
-                      ],
-                    ),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.folder_outlined),
-                    title: const Text('Gerenciar pastas'),
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.settings_outlined),
-              title: const Text('Configurações'),
-              onTap: () {
-                Navigator.pop(context); // Fecha o drawer
+      ),
+      body: Row(
+        children: [
+          NavigationRail(
+            extended: _isNavigationRailExpanded,
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: (int index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+              if (index == 6) { // Index of settings
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const SettingsScreen(),
                   ),
                 );
-              },
-            ),
-          ],
-        ),
+              }
+            },
+            destinations: const <NavigationRailDestination>[
+              NavigationRailDestination(
+                icon: Icon(Icons.notes_outlined),
+                selectedIcon: Icon(Icons.notes),
+                label: Text('Todas as notas'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.star_outline),
+                selectedIcon: Icon(Icons.star),
+                label: Text('Favoritos'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.lock_outline),
+                selectedIcon: Icon(Icons.lock),
+                label: Text('Notas bloqueadas'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.share_outlined),
+                selectedIcon: Icon(Icons.share),
+                label: Text('Notas compartilhadas'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.delete_outline),
+                selectedIcon: Icon(Icons.delete),
+                label: Text('Lixeira'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.folder_outlined),
+                selectedIcon: Icon(Icons.folder),
+                label: Text('Pastas'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.settings_outlined),
+                selectedIcon: Icon(Icons.settings),
+                label: Text('Configurações'),
+              ),
+            ],
+          ),
+          const VerticalDivider(thickness: 1, width: 1),
+          Expanded(
+            child: _buildBody(),
+          ),
+        ],
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(8.0),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          crossAxisSpacing: 8.0,
-          mainAxisSpacing: 8.0,
-          childAspectRatio: 0.75,
-        ),
-        itemCount: _visibleNotes.length,
-        itemBuilder: (context, index) {
-          final note = _visibleNotes[index];
-          return NoteCard(
-            note: note,
-            onSave: _updateNote,
-            isSelectionMode: _isSelectionMode,
-            isSelected: _selectedNotes.contains(note.id),
-            onToggleSelection: _toggleSelection,
-          );
-        },
-      ),
-      floatingActionButton: _isSelectionMode
-          ? null
-          : FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -373,49 +171,58 @@ class _NotesScreenState extends State<NotesScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      bottomNavigationBar: _isSelectionMode
-          ? BottomAppBar(
-              child: _activeFilter == 'trash'
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildBottomActionButton(Icons.restore, 'Restaurar', _restoreSelectedNotes),
-                        _buildBottomActionButton(Icons.delete_forever_outlined, 'Excluir perm.', _deleteSelectedNotesPermanently),
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildBottomActionButton(Icons.drive_file_move_outline, 'Mover', () {}),
-                        if (allSelectedAreLocked)
-                          _buildBottomActionButton(Icons.lock_open_outlined, 'Desbloquear', _unlockSelectedNotes)
-                        else
-                          _buildBottomActionButton(Icons.lock_outline, 'Bloquear', _lockSelectedNotes),
-                        _buildBottomActionButton(Icons.share_outlined, 'Compart.', () {}),
-                        _buildBottomActionButton(Icons.delete_outline, 'Excluir', _trashSelectedNotes),
-                        _buildBottomActionButton(Icons.more_vert, 'Mais', () {}),
-                      ],
-                    ),
-            )
-          : null,
     );
   }
 
-  Widget _buildBottomActionButton(IconData icon, String label, VoidCallback onPressed) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon),
-            const SizedBox(height: 4),
-            Text(label),
-          ],
-        ),
+  Widget _buildBody() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (_viewMode == ViewMode.list) {
+          return _buildGridView(2, 0.75); // 2 columns, elongated aspect ratio
+        } else if (_viewMode == ViewMode.listSimple) {
+          return ListView.builder(
+            itemCount: _notes.length,
+            itemBuilder: (context, index) {
+              return NoteSimpleListTile(
+                note: _notes[index],
+                onSave: _updateNote,
+              );
+            },
+          );
+        } else {
+          int crossAxisCount;
+          double childAspectRatio;
+
+          if (_viewMode == ViewMode.gridSmall) {
+            crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 7);
+            childAspectRatio = 0.75;
+          } else if (_viewMode == ViewMode.gridMedium) {
+            crossAxisCount = (constraints.maxWidth / 200).floor().clamp(2, 7);
+            childAspectRatio = 1 / 1.414; // A4 aspect ratio
+          } else { // gridLarge
+            crossAxisCount = (constraints.maxWidth / 150).floor().clamp(1, 5);
+            childAspectRatio = 1 / 1.414; // A4 aspect ratio
+          }
+
+          return _buildGridView(crossAxisCount, childAspectRatio);
+        }
+      },
+    );
+  }
+
+  Widget _buildGridView(int crossAxisCount, double childAspectRatio) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(8.0),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 8.0,
+        mainAxisSpacing: 8.0,
+        childAspectRatio: childAspectRatio,
       ),
+      itemCount: _notes.length,
+      itemBuilder: (context, index) {
+        return NoteCard(note: _notes[index], onSave: _updateNote);
+      },
     );
   }
 }
