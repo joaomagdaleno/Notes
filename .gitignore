@@ -1,0 +1,7 @@
+*.zip
+android_sdk/
+universal_notes_flutter/android/
+universal_notes_flutter/ios/
+universal_notes_flutter/linux/
+universal_notes_flutter/macos/
+universal_notes_flutter/web/

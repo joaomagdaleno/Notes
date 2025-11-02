@@ -1,6 +1,10 @@
+import 'dart:isolate';
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../updater.dart';
+import '../utils/update_helper.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -10,44 +14,66 @@ class AboutScreen extends StatefulWidget {
 }
 
 class _AboutScreenState extends State<AboutScreen> {
-  String _version = '...';
-  String _updateStatus = '';
-  bool _isCheckingForUpdates = false;
+  String _currentVersion = '...';
+  bool _isChecking = false;
+  final ReceivePort _port = ReceivePort();
 
   @override
   void initState() {
     super.initState();
-    _initPackageInfo();
-    _checkForUpdates();
+    _loadVersion();
+    _bindBackgroundIsolate();
   }
 
-  Future<void> _checkForUpdates() async {
-    if (_isCheckingForUpdates) return;
-    setState(() {
-      _isCheckingForUpdates = true;
-      _updateStatus = 'Verificando atualizações...';
-    });
+  @override
+  void dispose() {
+    _unbindBackgroundIsolate();
+    super.dispose();
+  }
 
-    final updater = Updater();
-    await updater.checkForUpdates(
-      context: context,
-      onStatusChange: (status) {
-        setState(() {
-          _updateStatus = status;
-        });
-      },
-    );
+  void _bindBackgroundIsolate() {
+    IsolateNameServer.registerPortWithName(_port.sendPort, 'downloader_send_port');
+    _port.listen((dynamic data) {
+      final status = DownloadTaskStatus.fromInt(data[1]);
+      final String taskId = data[0];
 
-    setState(() {
-      _isCheckingForUpdates = false;
+      if (status == DownloadTaskStatus.complete) {
+        _openDownloadedFile(taskId);
+      }
     });
   }
 
-  Future<void> _initPackageInfo() async {
-    final info = await PackageInfo.fromPlatform();
+  void _unbindBackgroundIsolate() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+  }
+
+  Future<void> _openDownloadedFile(String taskId) async {
+    final tasks = await FlutterDownloader.loadTasksWithRawQuery(query: 'SELECT * FROM task WHERE task_id="$taskId"');
+    if (tasks != null && tasks.isNotEmpty) {
+      final task = tasks.first;
+      OpenFile.open('${task.savedDir}/${task.filename}');
+    }
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
     setState(() {
-      _version = info.version;
+      _currentVersion = packageInfo.version;
     });
+  }
+
+  Future<void> _checkForUpdate() async {
+    setState(() {
+      _isChecking = true;
+    });
+
+    await UpdateHelper.checkForUpdate(context, isManual: true);
+
+    if (mounted) {
+      setState(() {
+        _isChecking = false;
+      });
+    }
   }
 
   @override
@@ -59,23 +85,15 @@ class _AboutScreenState extends State<AboutScreen> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Versão atual do aplicativo:',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _version,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _isCheckingForUpdates ? null : _checkForUpdates,
-              child: const Text('Buscar Atualizações'),
-            ),
-            const SizedBox(height: 16),
-            Text(_updateStatus),
+          children: [
+            Text('Versão atual: $_currentVersion'),
+            const SizedBox(height: 20),
+            _isChecking
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: _checkForUpdate,
+                    child: const Text('Verificar Atualizações'),
+                  ),
           ],
         ),
       ),
