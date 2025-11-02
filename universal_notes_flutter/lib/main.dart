@@ -34,7 +34,7 @@ class NotesScreen extends StatefulWidget {
 
 class _NotesScreenState extends State<NotesScreen> {
   late List<Note> _notes;
-  String _activeFilter = 'all'; // 'all' or 'favorites'
+  String _activeFilter = 'all'; // 'all', 'favorites', or 'trash'
   bool _isSelectionMode = false;
   final Set<String> _selectedNotes = {};
 
@@ -60,6 +60,17 @@ class _NotesScreenState extends State<NotesScreen> {
       for (var noteId in _selectedNotes) {
         final note = _notes.firstWhere((note) => note.id == noteId);
         note.isLocked = true;
+      }
+      _isSelectionMode = false;
+      _selectedNotes.clear();
+    });
+  }
+
+  void _trashSelectedNotes() {
+    setState(() {
+      for (var noteId in _selectedNotes) {
+        final note = _notes.firstWhere((note) => note.id == noteId);
+        note.isInTrash = true;
       }
       _isSelectionMode = false;
       _selectedNotes.clear();
@@ -131,7 +142,17 @@ class _NotesScreenState extends State<NotesScreen> {
         ],
       );
     } else {
-      final String appBarTitle = _activeFilter == 'favorites' ? 'Favoritos' : 'Todas as notas';
+      String appBarTitle;
+      switch (_activeFilter) {
+        case 'trash':
+          appBarTitle = 'Lixeira';
+          break;
+        case 'favorites':
+          appBarTitle = 'Favoritos';
+          break;
+        default:
+          appBarTitle = 'Todas as notas';
+      }
       return AppBar(
         centerTitle: true,
         title: Text(appBarTitle),
@@ -162,9 +183,17 @@ class _NotesScreenState extends State<NotesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Note> _visibleNotes = _activeFilter == 'favorites'
-        ? _notes.where((note) => note.isFavorite).toList()
-        : _notes;
+    List<Note> _visibleNotes;
+    switch (_activeFilter) {
+      case 'trash':
+        _visibleNotes = _notes.where((note) => note.isInTrash).toList();
+        break;
+      case 'favorites':
+        _visibleNotes = _notes.where((note) => !note.isInTrash && note.isFavorite).toList();
+        break;
+      default:
+        _visibleNotes = _notes.where((note) => !note.isInTrash).toList();
+    }
 
     final bool allSelectedAreLocked = _isSelectionMode && _selectedNotes.isNotEmpty && _selectedNotes.every((noteId) => _notes.firstWhere((note) => note.id == noteId).isLocked);
 
@@ -246,7 +275,11 @@ class _NotesScreenState extends State<NotesScreen> {
                         Text('0', style: TextStyle(color: Colors.grey[600])),
                       ],
                     ),
-                    onTap: () {},
+                    selected: _activeFilter == 'trash',
+                    onTap: () {
+                      _setFilter('trash');
+                      Navigator.pop(context);
+                    },
                   ),
                   const Divider(),
                   ListTile(
@@ -327,7 +360,7 @@ class _NotesScreenState extends State<NotesScreen> {
                   else
                     _buildBottomActionButton(Icons.lock_outline, 'Bloquear', _lockSelectedNotes),
                   _buildBottomActionButton(Icons.share_outlined, 'Compart.', () {}),
-                  _buildBottomActionButton(Icons.delete_outline, 'Excluir', () {}),
+                  _buildBottomActionButton(Icons.delete_outline, 'Excluir', _trashSelectedNotes),
                   _buildBottomActionButton(Icons.more_vert, 'Mais', () {}),
                 ],
               ),
