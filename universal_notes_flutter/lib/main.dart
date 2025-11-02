@@ -68,6 +68,7 @@ class _NotesScreenState extends State<NotesScreen> {
     final String appBarTitle = _activeFilter == 'favorites' ? 'Favoritos' : 'Todas as notas';
 
     return Scaffold(
+      drawerScrimColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
         title: Text(appBarTitle),
@@ -116,6 +117,7 @@ class _NotesScreenState extends State<NotesScreen> {
                         Text('240', style: TextStyle(color: Colors.grey[600])),
                       ],
                     ),
+                    selected: _activeFilter == 'all',
                     onTap: () {
                       _setFilter('all');
                       Navigator.pop(context);
@@ -130,6 +132,7 @@ class _NotesScreenState extends State<NotesScreen> {
                         Text('1', style: TextStyle(color: Colors.grey[600])),
                       ],
                     ),
+                    selected: _activeFilter == 'favorites',
                     onTap: () {
                       _setFilter('favorites');
                       Navigator.pop(context);
