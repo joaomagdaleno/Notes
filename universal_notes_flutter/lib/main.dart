@@ -100,22 +100,22 @@ class _NotesScreenState extends State<NotesScreen> {
     });
   }
 
-  void _selectAll() {
+  void _selectAll(List<Note> visibleNotes) {
     setState(() {
-      if (_selectedNotes.length == _notes.where((note) => _activeFilter == 'all' || note.isFavorite).length) {
+      if (_selectedNotes.length == visibleNotes.length) {
         _selectedNotes.clear();
       } else {
-        _selectedNotes.addAll(_notes.where((note) => _activeFilter == 'all' || note.isFavorite).map((note) => note.id));
+        _selectedNotes.addAll(visibleNotes.map((note) => note.id));
       }
     });
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(List<Note> visibleNotes) {
     if (_isSelectionMode) {
       return AppBar(
         leading: Checkbox(
-          value: _selectedNotes.length == _notes.where((note) => _activeFilter == 'all' || note.isFavorite).length,
-          onChanged: (value) => _selectAll(),
+          value: _selectedNotes.length == visibleNotes.length && visibleNotes.isNotEmpty,
+          onChanged: (value) => _selectAll(visibleNotes),
         ),
         title: Text('${_selectedNotes.length} selecionado(s)'),
         actions: [
@@ -170,7 +170,7 @@ class _NotesScreenState extends State<NotesScreen> {
 
     return Scaffold(
       drawerScrimColor: Colors.transparent,
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(_visibleNotes),
       drawer: Drawer(
         child: Column(
           children: [
