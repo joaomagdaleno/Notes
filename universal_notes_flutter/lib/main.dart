@@ -34,7 +34,7 @@ class NotesScreen extends StatefulWidget {
 
 class _NotesScreenState extends State<NotesScreen> {
   late List<Note> _notes;
-  String _activeFilter = 'all'; // 'all' or 'favorites'
+  String _activeFilter = 'all'; // 'all', 'favorites', or 'trash'
   bool _isSelectionMode = false;
   final Set<String> _selectedNotes = {};
 
@@ -52,6 +52,39 @@ class _NotesScreenState extends State<NotesScreen> {
       } else {
         _notes.insert(0, note);
       }
+    });
+  }
+
+  void _lockSelectedNotes() {
+    setState(() {
+      for (var noteId in _selectedNotes) {
+        final note = _notes.firstWhere((note) => note.id == noteId);
+        note.isLocked = true;
+      }
+      _isSelectionMode = false;
+      _selectedNotes.clear();
+    });
+  }
+
+  void _trashSelectedNotes() {
+    setState(() {
+      for (var noteId in _selectedNotes) {
+        final note = _notes.firstWhere((note) => note.id == noteId);
+        note.isInTrash = true;
+      }
+      _isSelectionMode = false;
+      _selectedNotes.clear();
+    });
+  }
+
+  void _unlockSelectedNotes() {
+    setState(() {
+      for (var noteId in _selectedNotes) {
+        final note = _notes.firstWhere((note) => note.id == noteId);
+        note.isLocked = false;
+      }
+      _isSelectionMode = false;
+      _selectedNotes.clear();
     });
   }
 
@@ -78,22 +111,22 @@ class _NotesScreenState extends State<NotesScreen> {
     });
   }
 
-  void _selectAll() {
+  void _selectAll(List<Note> visibleNotes) {
     setState(() {
-      if (_selectedNotes.length == _notes.where((note) => _activeFilter == 'all' || note.isFavorite).length) {
+      if (_selectedNotes.length == visibleNotes.length) {
         _selectedNotes.clear();
       } else {
-        _selectedNotes.addAll(_notes.where((note) => _activeFilter == 'all' || note.isFavorite).map((note) => note.id));
+        _selectedNotes.addAll(visibleNotes.map((note) => note.id));
       }
     });
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(List<Note> visibleNotes) {
     if (_isSelectionMode) {
       return AppBar(
         leading: Checkbox(
-          value: _selectedNotes.length == _notes.where((note) => _activeFilter == 'all' || note.isFavorite).length,
-          onChanged: (value) => _selectAll(),
+          value: _selectedNotes.length == visibleNotes.length && visibleNotes.isNotEmpty,
+          onChanged: (value) => _selectAll(visibleNotes),
         ),
         title: Text('${_selectedNotes.length} selecionado(s)'),
         actions: [
@@ -109,7 +142,17 @@ class _NotesScreenState extends State<NotesScreen> {
         ],
       );
     } else {
-      final String appBarTitle = _activeFilter == 'favorites' ? 'Favoritos' : 'Todas as notas';
+      String appBarTitle;
+      switch (_activeFilter) {
+        case 'trash':
+          appBarTitle = 'Lixeira';
+          break;
+        case 'favorites':
+          appBarTitle = 'Favoritos';
+          break;
+        default:
+          appBarTitle = 'Todas as notas';
+      }
       return AppBar(
         centerTitle: true,
         title: Text(appBarTitle),
@@ -140,13 +183,23 @@ class _NotesScreenState extends State<NotesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Note> _visibleNotes = _activeFilter == 'favorites'
-        ? _notes.where((note) => note.isFavorite).toList()
-        : _notes;
+    List<Note> _visibleNotes;
+    switch (_activeFilter) {
+      case 'trash':
+        _visibleNotes = _notes.where((note) => note.isInTrash).toList();
+        break;
+      case 'favorites':
+        _visibleNotes = _notes.where((note) => !note.isInTrash && note.isFavorite).toList();
+        break;
+      default:
+        _visibleNotes = _notes.where((note) => !note.isInTrash).toList();
+    }
+
+    final bool allSelectedAreLocked = _isSelectionMode && _selectedNotes.isNotEmpty && _selectedNotes.every((noteId) => _notes.firstWhere((note) => note.id == noteId).isLocked);
 
     return Scaffold(
       drawerScrimColor: Colors.transparent,
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(_visibleNotes),
       drawer: Drawer(
         child: Column(
           children: [
@@ -222,7 +275,11 @@ class _NotesScreenState extends State<NotesScreen> {
                         Text('0', style: TextStyle(color: Colors.grey[600])),
                       ],
                     ),
-                    onTap: () {},
+                    selected: _activeFilter == 'trash',
+                    onTap: () {
+                      _setFilter('trash');
+                      Navigator.pop(context);
+                    },
                   ),
                   const Divider(),
                   ListTile(
@@ -298,9 +355,12 @@ class _NotesScreenState extends State<NotesScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildBottomActionButton(Icons.drive_file_move_outline, 'Mover', () {}),
-                  _buildBottomActionButton(Icons.lock_outline, 'Bloquear', () {}),
+                  if (allSelectedAreLocked)
+                    _buildBottomActionButton(Icons.lock_open_outlined, 'Desbloquear', _unlockSelectedNotes)
+                  else
+                    _buildBottomActionButton(Icons.lock_outline, 'Bloquear', _lockSelectedNotes),
                   _buildBottomActionButton(Icons.share_outlined, 'Compart.', () {}),
-                  _buildBottomActionButton(Icons.delete_outline, 'Excluir', () {}),
+                  _buildBottomActionButton(Icons.delete_outline, 'Excluir', _trashSelectedNotes),
                   _buildBottomActionButton(Icons.more_vert, 'Mais', () {}),
                 ],
               ),

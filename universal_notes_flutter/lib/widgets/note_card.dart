@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/services/auth_service.dart';
 import '../models/note.dart';
 
 class NoteCard extends StatelessWidget {
@@ -9,8 +10,9 @@ class NoteCard extends StatelessWidget {
   final bool isSelectionMode;
   final bool isSelected;
   final Function(String) onToggleSelection;
+  final AuthService _authService = AuthService();
 
-  const NoteCard({
+  NoteCard({
     super.key,
     required this.note,
     required this.onSave,
@@ -22,16 +24,28 @@ class NoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (isSelectionMode) {
           onToggleSelection(note.id);
         } else {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) =>
-                  NoteEditorScreen(note: note, onSave: onSave),
-            ),
-          );
+          if (note.isLocked) {
+            final didAuthenticate = await _authService.authenticate();
+            if (didAuthenticate) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      NoteEditorScreen(note: note, onSave: onSave),
+                ),
+              );
+            }
+          } else {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) =>
+                    NoteEditorScreen(note: note, onSave: onSave),
+              ),
+            );
+          }
         }
       },
       onLongPress: () {
@@ -95,6 +109,16 @@ class NoteCard extends StatelessWidget {
                 ],
               ),
             ),
+            if (note.isLocked)
+              const Positioned(
+                top: 8,
+                left: 8,
+                child: Icon(
+                  Icons.lock,
+                  color: Colors.grey,
+                  size: 16,
+                ),
+              ),
             if (isSelected)
               Container(
                 decoration: BoxDecoration(
