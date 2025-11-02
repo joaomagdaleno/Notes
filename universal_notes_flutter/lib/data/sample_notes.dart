@@ -16,6 +16,7 @@ final List<Note> sampleNotes = [
     title: 'Enade aula 1',
     contentPreview: '...',
     date: DateTime.now().subtract(const Duration(days: 50)),
+    isLocked: true,
   ),
   Note(
     title: 'Fabio Giambiagi - Macroeconomia...',

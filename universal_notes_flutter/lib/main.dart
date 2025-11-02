@@ -55,6 +55,28 @@ class _NotesScreenState extends State<NotesScreen> {
     });
   }
 
+  void _lockSelectedNotes() {
+    setState(() {
+      for (var noteId in _selectedNotes) {
+        final note = _notes.firstWhere((note) => note.id == noteId);
+        note.isLocked = true;
+      }
+      _isSelectionMode = false;
+      _selectedNotes.clear();
+    });
+  }
+
+  void _unlockSelectedNotes() {
+    setState(() {
+      for (var noteId in _selectedNotes) {
+        final note = _notes.firstWhere((note) => note.id == noteId);
+        note.isLocked = false;
+      }
+      _isSelectionMode = false;
+      _selectedNotes.clear();
+    });
+  }
+
   void _setFilter(String filter) {
     setState(() {
       _activeFilter = filter;
@@ -143,6 +165,8 @@ class _NotesScreenState extends State<NotesScreen> {
     final List<Note> _visibleNotes = _activeFilter == 'favorites'
         ? _notes.where((note) => note.isFavorite).toList()
         : _notes;
+
+    final bool allSelectedAreLocked = _isSelectionMode && _selectedNotes.isNotEmpty && _selectedNotes.every((noteId) => _notes.firstWhere((note) => note.id == noteId).isLocked);
 
     return Scaffold(
       drawerScrimColor: Colors.transparent,
@@ -298,7 +322,10 @@ class _NotesScreenState extends State<NotesScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildBottomActionButton(Icons.drive_file_move_outline, 'Mover', () {}),
-                  _buildBottomActionButton(Icons.lock_outline, 'Bloquear', () {}),
+                  if (allSelectedAreLocked)
+                    _buildBottomActionButton(Icons.lock_open_outlined, 'Desbloquear', _unlockSelectedNotes)
+                  else
+                    _buildBottomActionButton(Icons.lock_outline, 'Bloquear', _lockSelectedNotes),
                   _buildBottomActionButton(Icons.share_outlined, 'Compart.', () {}),
                   _buildBottomActionButton(Icons.delete_outline, 'Excluir', () {}),
                   _buildBottomActionButton(Icons.more_vert, 'Mais', () {}),
