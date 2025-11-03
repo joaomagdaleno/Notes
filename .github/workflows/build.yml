@@ -90,7 +90,7 @@ jobs:
       - name: Flutter Build APK
         working-directory: universal_notes_flutter
         run: |
-          flutter pub get --offline
+          flutter pub get
           flutter build apk --release --target-platform=android-arm64
 
       - name: Upload APK Artifact
