@@ -8,43 +8,41 @@ import '../updater.dart';
 
 class UpdateHelper {
   static Future<void> checkForUpdate(BuildContext context, {bool isManual = false}) async {
-    // Use platform-specific update mechanism
-    if (Platform.isWindows) {
-      // For Windows, use the Updater class to download .exe installer
-      final updater = Updater();
-      await updater.checkForUpdates(
-        context: context,
-        onStatusChange: (status) {
-          if (status.isNotEmpty && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(status)),
-            );
-          }
-        },
+    // Show initial feedback
+    if (isManual) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verificando atualizações...')),
       );
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      // For Android/iOS, use the UpdateService to download .apk
-      final updateService = UpdateService();
-      final updateInfo = await updateService.checkForUpdate();
+    }
 
-      if (context.mounted) {
-        if (updateInfo != null) {
-          _showUpdateSnackbar(context, updateInfo);
-        } else {
-          if (isManual) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Você já tem a versão mais recente.')),
-            );
-          }
+    final updateService = UpdateService();
+    final result = await updateService.checkForUpdate();
+
+    if (!context.mounted) return; // Always check mounted status after async gap
+
+    // Hide the "checking" snackbar if it's there
+    if (isManual) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    }
+
+    switch (result.status) {
+      case UpdateCheckStatus.updateAvailable:
+        _showUpdateSnackbar(context, result.updateInfo!);
+        break;
+      case UpdateCheckStatus.noUpdate:
+        if (isManual) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Você já tem a versão mais recente.')),
+          );
         }
-      }
-    } else {
-      // Other platforms (macOS, Linux, etc.) are not supported yet
-      if (isManual && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Atualizações automáticas não disponíveis para esta plataforma.')),
-        );
-      }
+        break;
+      case UpdateCheckStatus.error:
+        if (isManual) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result.errorMessage ?? 'Ocorreu um erro desconhecido.')),
+          );
+        }
+        break;
     }
   }
 
