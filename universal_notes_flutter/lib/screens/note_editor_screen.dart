@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'dart:io' show Platform;
 import '../models/note.dart';
 
 class NoteEditorScreen extends StatefulWidget {
@@ -54,6 +56,62 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isWindows) {
+      return _buildFluentUI(context);
+    } else {
+      return _buildMaterialUI(context);
+    }
+  }
+
+  Widget _buildFluentUI(BuildContext context) {
+    return fluent.ScaffoldPage(
+      header: fluent.CommandBar(
+        leading: fluent.CommandBarButton(
+          icon: const fluent.Icon(fluent.FluentIcons.back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        mainAxisAlignment: fluent.MainAxisAlignment.end,
+        primaryItems: [
+          fluent.CommandBarButton(
+            icon: const fluent.Icon(fluent.FluentIcons.save),
+            label: const Text('Salvar e fechar'),
+            onPressed: () {
+              _saveNote();
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+      content: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: fluent.Column(
+          children: [
+            fluent.TextBox(
+              controller: _titleController,
+              placeholder: 'Título',
+              decoration: const fluent.BoxDecoration(
+                border: null,
+              ),
+              style: fluent.FluentTheme.of(context).typography.title,
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: fluent.TextBox(
+                controller: _contentController,
+                placeholder: 'Conteúdo',
+                maxLines: null,
+                decoration: const fluent.BoxDecoration(
+                  border: null,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMaterialUI(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.note == null ? 'Nova Nota' : 'Editar Nota'),
