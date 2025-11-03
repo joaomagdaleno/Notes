@@ -10,6 +10,8 @@ import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'screens/settings_screen.dart';
+import 'dart:io' show Platform;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 enum ViewMode { gridSmall, gridMedium, gridLarge, list, listSimple }
 
@@ -19,13 +21,39 @@ void main() async {
     debug: true,
   );
   FlutterDownloader.registerCallback(downloadCallback);
-  runApp(const MyApp());
+
+  if (Platform.isWindows) {
+    runApp(const MyFluentApp());
+  } else {
+    runApp(const MyApp());
+  }
 }
 
 @pragma('vm:entry-point')
 void downloadCallback(String id, int status, int progress) {
   final SendPort? send = IsolateNameServer.lookupPortByName('downloader_send_port');
   send?.send([id, status, progress]);
+}
+
+class MyFluentApp extends StatelessWidget {
+  const MyFluentApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return fluent.FluentApp(
+      title: 'Universal Notes',
+      theme: fluent.FluentThemeData(
+        accentColor: fluent.Colors.blue,
+        brightness: fluent.Brightness.light,
+      ),
+      darkTheme: fluent.FluentThemeData(
+        accentColor: fluent.Colors.blue,
+        brightness: fluent.Brightness.dark,
+      ),
+      themeMode: ThemeMode.system,
+      home: const NotesScreen(),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -138,213 +166,266 @@ class _NotesScreenState extends State<NotesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 600;
-
-        return Scaffold(
-          appBar: AppBar(
-            leading: isMobile
-                ? Builder(
-                    builder: (context) => IconButton(
-                      icon: const Icon(Icons.menu),
-                      onPressed: () {
-                        Scaffold.of(context).openDrawer();
-                      },
-                    ),
-                  )
-                : null,
-            title: Center(
-              child: Text(_getAppBarTitle()),
+    if (Platform.isWindows) {
+      return fluent.NavigationView(
+        pane: fluent.NavigationPane(
+          selected: _selectedIndex,
+          onChanged: (index) => setState(() => _selectedIndex = index),
+          displayMode: fluent.PaneDisplayMode.auto,
+          items: [
+            fluent.PaneItem(
+              icon: const fluent.Icon(fluent.FluentIcons.document),
+              title: const Text('Todas as notas'),
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.view_agenda_outlined),
-                onPressed: _cycleViewMode,
-              ),
-              IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {},
-              ),
-              PopupMenuButton<String>(
-                onSelected: (value) {},
-                itemBuilder: (BuildContext context) {
-                  return {'Ordenar por', 'Outra Ação'}.map((String choice) {
-                    return PopupMenuItem<String>(
-                      value: choice,
-                      child: Text(choice),
-                    );
-                  }).toList();
-                },
-              ),
-            ],
-          ),
-          drawer: isMobile
-              ? Drawer(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: [
-                      const DrawerHeader(
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                        ),
-                        child: Text('Universal Notes'),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.notes_outlined),
-                        title: const Text('Todas as notas'),
-                        selected: _selectedIndex == 0,
-                        onTap: () {
-                          setState(() => _selectedIndex = 0);
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.star_outline),
-                        title: const Text('Favoritos'),
-                        selected: _selectedIndex == 1,
-                        onTap: () {
-                          setState(() => _selectedIndex = 1);
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.lock_outline),
-                        title: const Text('Notas bloqueadas'),
-                        selected: _selectedIndex == 2,
-                        onTap: () {
-                          setState(() => _selectedIndex = 2);
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.share_outlined),
-                        title: const Text('Notas compartilhadas'),
-                        selected: _selectedIndex == 3,
-                        onTap: () {
-                          setState(() => _selectedIndex = 3);
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.delete_outline),
-                        title: const Text('Lixeira'),
-                        selected: _selectedIndex == 4,
-                        onTap: () {
-                          setState(() => _selectedIndex = 4);
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.folder_outlined),
-                        title: const Text('Pastas'),
-                        selected: _selectedIndex == 5,
-                        onTap: () {
-                          setState(() => _selectedIndex = 5);
-                          Navigator.pop(context);
-                        },
-                      ),
-                      const Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.settings_outlined),
-                        title: const Text('Configurações'),
-                        onTap: () {
-                          Navigator.pop(context); // Close the drawer
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const SettingsScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                )
-              : null,
-          body: isMobile
-              ? _buildBody()
-              : Row(
-                  children: [
-                    NavigationRail(
-                      leading: IconButton(
-                        icon: Icon(_isNavigationRailExpanded ? Icons.menu_open : Icons.menu),
+            fluent.PaneItem(
+              icon: const fluent.Icon(fluent.FluentIcons.favorite_star),
+              title: const Text('Favoritos'),
+            ),
+            fluent.PaneItem(
+              icon: const fluent.Icon(fluent.FluentIcons.lock),
+              title: const Text('Notas bloqueadas'),
+            ),
+            fluent.PaneItem(
+              icon: const fluent.Icon(fluent.FluentIcons.share),
+              title: const Text('Notas compartilhadas'),
+            ),
+            fluent.PaneItem(
+              icon: const fluent.Icon(fluent.FluentIcons.delete),
+              title: const Text('Lixeira'),
+            ),
+            fluent.PaneItem(
+              icon: const fluent.Icon(fluent.FluentIcons.folder_open),
+              title: const Text('Pastas'),
+            ),
+          ],
+          footerItems: [
+            fluent.PaneItem(
+              icon: const fluent.Icon(fluent.FluentIcons.settings),
+              title: const Text('Configurações'),
+            ),
+          ],
+        ),
+        content: fluent.NavigationBody(
+          index: _selectedIndex,
+          children: [
+            _buildBody(),
+            _buildBody(),
+            _buildBody(),
+            _buildBody(),
+            _buildBody(),
+            _buildBody(),
+          ],
+        ),
+      );
+    } else {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 600;
+
+          return Scaffold(
+            appBar: AppBar(
+              leading: isMobile
+                  ? Builder(
+                      builder: (context) => IconButton(
+                        icon: const Icon(Icons.menu),
                         onPressed: () {
-                          setState(() {
-                            _isNavigationRailExpanded = !_isNavigationRailExpanded;
-                          });
+                          Scaffold.of(context).openDrawer();
                         },
                       ),
-                      extended: _isNavigationRailExpanded,
-                      selectedIndex: _selectedIndex,
-                      onDestinationSelected: (int index) {
-                        setState(() {
-                          _selectedIndex = index;
-                        });
-                        if (index == 6) { // Index of settings
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const SettingsScreen(),
-                            ),
-                          );
-                        }
-                      },
-                      destinations: const <NavigationRailDestination>[
-                        NavigationRailDestination(
-                          icon: Icon(Icons.notes_outlined),
-                          selectedIcon: Icon(Icons.notes),
-                          label: Text('Todas as notas'),
+                    )
+                  : null,
+              title: Center(
+                child: Text(_getAppBarTitle()),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.view_agenda_outlined),
+                  onPressed: _cycleViewMode,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {},
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (value) {},
+                  itemBuilder: (BuildContext context) {
+                    return {'Ordenar por', 'Outra Ação'}.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
+                ),
+              ],
+            ),
+            drawer: isMobile
+                ? Drawer(
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      children: [
+                        const DrawerHeader(
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                          ),
+                          child: Text('Universal Notes'),
                         ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.star_outline),
-                          selectedIcon: Icon(Icons.star),
-                          label: Text('Favoritos'),
+                        ListTile(
+                          leading: const Icon(Icons.notes_outlined),
+                          title: const Text('Todas as notas'),
+                          selected: _selectedIndex == 0,
+                          onTap: () {
+                            setState(() => _selectedIndex = 0);
+                            Navigator.pop(context);
+                          },
                         ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.lock_outline),
-                          selectedIcon: Icon(Icons.lock),
-                          label: Text('Notas bloqueadas'),
+                        ListTile(
+                          leading: const Icon(Icons.star_outline),
+                          title: const Text('Favoritos'),
+                          selected: _selectedIndex == 1,
+                          onTap: () {
+                            setState(() => _selectedIndex = 1);
+                            Navigator.pop(context);
+                          },
                         ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.share_outlined),
-                          selectedIcon: Icon(Icons.share),
-                          label: Text('Notas compartilhadas'),
+                        ListTile(
+                          leading: const Icon(Icons.lock_outline),
+                          title: const Text('Notas bloqueadas'),
+                          selected: _selectedIndex == 2,
+                          onTap: () {
+                            setState(() => _selectedIndex = 2);
+                            Navigator.pop(context);
+                          },
                         ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.delete_outline),
-                          selectedIcon: Icon(Icons.delete),
-                          label: Text('Lixeira'),
+                        ListTile(
+                          leading: const Icon(Icons.share_outlined),
+                          title: const Text('Notas compartilhadas'),
+                          selected: _selectedIndex == 3,
+                          onTap: () {
+                            setState(() => _selectedIndex = 3);
+                            Navigator.pop(context);
+                          },
                         ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.folder_outlined),
-                          selectedIcon: Icon(Icons.folder),
-                          label: Text('Pastas'),
+                        ListTile(
+                          leading: const Icon(Icons.delete_outline),
+                          title: const Text('Lixeira'),
+                          selected: _selectedIndex == 4,
+                          onTap: () {
+                            setState(() => _selectedIndex = 4);
+                            Navigator.pop(context);
+                          },
                         ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.settings_outlined),
-                          selectedIcon: Icon(Icons.settings),
-                          label: Text('Configurações'),
+                        ListTile(
+                          leading: const Icon(Icons.folder_outlined),
+                          title: const Text('Pastas'),
+                          selected: _selectedIndex == 5,
+                          onTap: () {
+                            setState(() => _selectedIndex = 5);
+                            Navigator.pop(context);
+                          },
+                        ),
+                        const Divider(),
+                        ListTile(
+                          leading: const Icon(Icons.settings_outlined),
+                          title: const Text('Configurações'),
+                          onTap: () {
+                            Navigator.pop(context); // Close the drawer
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const SettingsScreen(),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
-                    const VerticalDivider(thickness: 1, width: 1),
-                    Expanded(
-                      child: _buildBody(),
-                    ),
-                  ],
-                ),
-          floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => NoteEditorScreen(onSave: _updateNote),
+                  )
+                : null,
+            body: isMobile
+                ? _buildBody()
+                : Row(
+                    children: [
+                      NavigationRail(
+                        leading: IconButton(
+                          icon: Icon(_isNavigationRailExpanded ? Icons.menu_open : Icons.menu),
+                          onPressed: () {
+                            setState(() {
+                              _isNavigationRailExpanded = !_isNavigationRailExpanded;
+                            });
+                          },
+                        ),
+                        extended: _isNavigationRailExpanded,
+                        selectedIndex: _selectedIndex,
+                        onDestinationSelected: (int index) {
+                          setState(() {
+                            _selectedIndex = index;
+                          });
+                          if (index == 6) { // Index of settings
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const SettingsScreen(),
+                              ),
+                            );
+                          }
+                        },
+                        destinations: const <NavigationRailDestination>[
+                          NavigationRailDestination(
+                            icon: Icon(Icons.notes_outlined),
+                            selectedIcon: Icon(Icons.notes),
+                            label: Text('Todas as notas'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.star_outline),
+                            selectedIcon: Icon(Icons.star),
+                            label: Text('Favoritos'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.lock_outline),
+                            selectedIcon: Icon(Icons.lock),
+                            label: Text('Notas bloqueadas'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.share_outlined),
+                            selectedIcon: Icon(Icons.share),
+                            label: Text('Notas compartilhadas'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.delete_outline),
+                            selectedIcon: Icon(Icons.delete),
+                            label: Text('Lixeira'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.folder_outlined),
+                            selectedIcon: Icon(Icons.folder),
+                            label: Text('Pastas'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.settings_outlined),
+                            selectedIcon: Icon(Icons.settings),
+                            label: Text('Configurações'),
+                          ),
+                        ],
+                      ),
+                      const VerticalDivider(thickness: 1, width: 1),
+                      Expanded(
+                        child: _buildBody(),
+                      ),
+                    ],
+                  ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => NoteEditorScreen(onSave: _updateNote),
+                  ),
+                );
+              },
+              child: const Icon(Icons.add),
             ),
           );
         },
-        child: const Icon(Icons.add),
-      ),
-    );
-      },
-    );
+      );
+    }
   }
 
   Widget _buildBody() {
