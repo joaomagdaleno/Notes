@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'dart:io' show Platform;
-import 'package:intl/intl.dart';
 import '../models/note.dart';
 
 class NoteEditorScreen extends StatefulWidget {
@@ -50,7 +49,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       id: widget.note?.id,
       title: _titleController.text,
       contentPreview: _contentController.text,
-      date: DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now()),
+      date: DateTime.now(),
     );
     widget.onSave(note);
   }
@@ -67,12 +66,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   Widget _buildFluentUI(BuildContext context) {
     return fluent.ScaffoldPage(
       header: fluent.CommandBar(
-        leading: fluent.CommandBarButton(
-          icon: const fluent.Icon(fluent.FluentIcons.back),
-          onPressed: () => Navigator.pop(context),
-        ),
         mainAxisAlignment: fluent.MainAxisAlignment.end,
         primaryItems: [
+          fluent.CommandBarButton(
+            icon: const fluent.Icon(fluent.FluentIcons.back),
+            onPressed: () => Navigator.pop(context),
+          ),
           fluent.CommandBarButton(
             icon: const fluent.Icon(fluent.FluentIcons.save),
             label: const Text('Salvar e fechar'),
