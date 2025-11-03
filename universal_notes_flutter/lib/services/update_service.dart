@@ -48,6 +48,8 @@ class UpdateService {
                   downloadUrl: apkAsset['browser_download_url'] as String,
                 ),
               );
+            } catch (e) {
+              // No APK asset found, return null
             }
           }
         }
