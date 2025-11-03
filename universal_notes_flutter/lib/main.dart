@@ -8,6 +8,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:open_file/open_file.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
+import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'screens/settings_screen.dart';
 import 'dart:io' show Platform;
@@ -175,6 +176,52 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   Widget build(BuildContext context) {
     if (Platform.isWindows) {
+      final notesBody = fluent.ScaffoldPage(
+        header: fluent.CommandBar(
+          mainAxisAlignment: fluent.MainAxisAlignment.end,
+          primaryItems: [
+            fluent.CommandBarButton(
+              icon: const fluent.Icon(fluent.FluentIcons.add),
+              label: const Text('Nova nota'),
+              onPressed: () {
+                Navigator.of(context).push(
+                  fluent.FluentPageRoute(
+                    builder: (context) => NoteEditorScreen(onSave: _updateNote),
+                  ),
+                );
+              },
+            ),
+            fluent.CommandBarButton(
+              icon: const fluent.Icon(fluent.FluentIcons.view),
+              label: const Text('Mudar Visualização'),
+              onPressed: _cycleViewMode,
+            ),
+            fluent.CommandBarButton(
+              icon: const fluent.Icon(fluent.FluentIcons.search),
+              label: const Text('Pesquisar'),
+              onPressed: () {},
+            ),
+            fluent.CommandBarFlyout(
+              flyout: fluent.FlyoutContent(
+                child: fluent.Column(
+                  mainAxisSize: fluent.MainAxisSize.min,
+                  crossAxisAlignment: fluent.CrossAxisAlignment.start,
+                  children: [
+                    fluent.MenuItem(text: const Text('Ordenar por data')),
+                    fluent.MenuItem(text: const Text('Ordenar por título')),
+                  ],
+                ),
+              ),
+              child: fluent.CommandBarButton(
+                icon: const fluent.Icon(fluent.FluentIcons.sort),
+                label: const Text('Ordenar'),
+              ),
+            ),
+          ],
+        ),
+        content: _buildBody(),
+      );
+
       return fluent.NavigationView(
         pane: fluent.NavigationPane(
           selected: _selectedIndex,
@@ -184,32 +231,32 @@ class _NotesScreenState extends State<NotesScreen> {
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.document),
               title: const Text('Todas as notas'),
-              body: _buildBody(),
+              body: notesBody,
             ),
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.favorite_star),
               title: const Text('Favoritos'),
-              body: _buildBody(),
+              body: notesBody,
             ),
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.lock),
               title: const Text('Notas bloqueadas'),
-              body: _buildBody(),
+              body: notesBody,
             ),
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.share),
               title: const Text('Notas compartilhadas'),
-              body: _buildBody(),
+              body: notesBody,
             ),
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.delete),
               title: const Text('Lixeira'),
-              body: _buildBody(),
+              body: notesBody,
             ),
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.folder_open),
               title: const Text('Pastas'),
-              body: _buildBody(),
+              body: notesBody,
             ),
           ],
           footerItems: [
@@ -468,16 +515,30 @@ class _NotesScreenState extends State<NotesScreen> {
           int crossAxisCount;
           double childAspectRatio;
 
-          if (_viewMode == ViewMode.gridSmall) {
-            crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 7);
-            childAspectRatio = 0.75;
-          } else if (_viewMode == ViewMode.gridMedium) {
-            crossAxisCount = (constraints.maxWidth / 200).floor().clamp(2, 7);
-            childAspectRatio = 1 / 1.414; // A4 aspect ratio
+          if (Platform.isWindows) {
+            // Windows-specific responsive logic
+            if (_viewMode == ViewMode.gridSmall) {
+              crossAxisCount = (constraints.maxWidth / 320).floor().clamp(1, 5);
+              childAspectRatio = 0.7;
+            } else if (_viewMode == ViewMode.gridMedium) {
+              crossAxisCount = (constraints.maxWidth / 240).floor().clamp(2, 7);
+              childAspectRatio = 0.7;
+            } else { // gridLarge
+              crossAxisCount = (constraints.maxWidth / 180).floor().clamp(3, 10);
+              childAspectRatio = 0.7;
+            }
           } else {
-            // gridLarge
-            crossAxisCount = (constraints.maxWidth / 150).floor().clamp(1, 5);
-            childAspectRatio = 1 / 1.414; // A4 aspect ratio
+            // Existing logic for Android/other platforms
+            if (_viewMode == ViewMode.gridSmall) {
+              crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 7);
+              childAspectRatio = 0.75;
+            } else if (_viewMode == ViewMode.gridMedium) {
+              crossAxisCount = (constraints.maxWidth / 200).floor().clamp(2, 7);
+              childAspectRatio = 1 / 1.414;
+            } else { // gridLarge
+              crossAxisCount = (constraints.maxWidth / 150).floor().clamp(1, 5);
+              childAspectRatio = 1 / 1.414;
+            }
           }
 
           return _buildGridView(crossAxisCount, childAspectRatio, visibleNotes);
@@ -498,11 +559,19 @@ class _NotesScreenState extends State<NotesScreen> {
       ),
       itemCount: notes.length,
       itemBuilder: (context, index) {
-        return NoteCard(
-          note: notes[index],
-          onSave: _updateNote,
-          onDelete: _deleteNote,
-        );
+        if (Platform.isWindows) {
+          return FluentNoteCard(
+            note: notes[index],
+            onSave: _updateNote,
+            onDelete: _deleteNote,
+          );
+        } else {
+          return NoteCard(
+            note: notes[index],
+            onSave: _updateNote,
+            onDelete: _deleteNote,
+          );
+        }
       },
     );
   }

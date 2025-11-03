@@ -93,11 +93,17 @@ jobs:
           flutter pub get
           flutter build apk --release --target-platform=android-arm64
 
+      - name: Rename APK with version
+        working-directory: universal_notes_flutter
+        run: |
+          VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/universal_notes-v$VERSION.apk
+
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: universal_notes_flutter/build/app/outputs/flutter-apk/app-release.apk
+          path: universal_notes_flutter/build/app/outputs/flutter-apk/universal_notes-v*.apk
 
   release:
     runs-on: ubuntu-latest
@@ -116,5 +122,5 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             artifacts/windows-installer/UniversalNotesSetup-*.exe
-            artifacts/android-apk/app-release.apk
+            artifacts/android-apk/universal_notes-v*.apk
           token: ${{ secrets.GITHUB_TOKEN }}
