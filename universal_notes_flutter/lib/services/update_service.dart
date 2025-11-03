@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pub_semver/pub_semver.dart';
 
 class UpdateService {
   static const String _repo = 'joaomagdaleno/Notes';
@@ -46,10 +47,14 @@ class UpdateService {
   }
 
   bool _isNewerVersion(String latestVersion, String currentVersion) {
-    // This is a simple comparison that might not cover all edge cases
-    // like pre-releases. For a more robust solution, a package like `pub_semver`
-    // would be better, but for this use case, it's likely sufficient.
-    return latestVersion.compareTo(currentVersion) > 0;
+    try {
+      final latest = Version.parse(latestVersion);
+      final current = Version.parse(currentVersion);
+      return latest > current;
+    } catch (e) {
+      print('Error parsing version strings: $e');
+      return false;
+    }
   }
 }
 
