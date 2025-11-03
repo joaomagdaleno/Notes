@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'about_screen.dart';
 import 'dart:io' show Platform;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -38,6 +40,17 @@ class SettingsScreen extends StatelessWidget {
               title: Text('Sobre'),
             ),
           ),
+          fluent.Button(
+            style: fluent.ButtonStyle(
+              backgroundColor: fluent.WidgetStateProperty.all(fluent.Colors.transparent),
+              padding: fluent.WidgetStateProperty.all(EdgeInsets.zero),
+            ),
+            onPressed: () => WindowsUpdateHelper.checkForUpdate(context),
+            child: const fluent.ListTile(
+              leading: fluent.Icon(fluent.FluentIcons.update_restore),
+              title: Text('Verificar atualizações'),
+            ),
+          ),
         ],
       ),
     );
@@ -60,6 +73,11 @@ class SettingsScreen extends StatelessWidget {
                 ),
               );
             },
+          ),
+          ListTile(
+            title: const Text('Verificar atualizações'),
+            leading: const Icon(Icons.update),
+            onTap: () => UpdateHelper.checkForUpdate(context, isManual: true),
           ),
         ],
       ),
