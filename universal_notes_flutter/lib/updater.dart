@@ -28,7 +28,7 @@ class Updater {
       }
 
       final json = jsonDecode(response.body);
-      final latestVersionStr = (json['tag_name'] as String).substring(1);
+      final latestVersionStr = (json['tag_name'] as String).replaceAll('v', '');
       final latestVersion = Version.parse(latestVersionStr);
 
       if (latestVersion <= currentVersion) {

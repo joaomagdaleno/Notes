@@ -10,7 +10,7 @@ class UpdateService {
     try {
       // Get current app version
       final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version;
+      final currentVersion = packageInfo.version.split('+').first;
 
       // Fetch latest release from GitHub API
       final url = Uri.parse('https://api.github.com/repos/$_repo/releases/latest');
