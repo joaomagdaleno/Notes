@@ -52,8 +52,7 @@ class NoteCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Theme.of(context)
                           .colorScheme
-                          .surfaceVariant
-                          .withOpacity(0.5),
+                          .surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Text(

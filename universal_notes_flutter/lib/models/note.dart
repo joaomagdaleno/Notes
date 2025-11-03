@@ -2,7 +2,7 @@ class Note {
   final String id;
   final String title;
   final String contentPreview;
-  final String date;
+  final DateTime date;
   bool isFavorite;
   bool isLocked;
   bool isInTrash;
@@ -16,4 +16,16 @@ class Note {
     this.isLocked = false,
     this.isInTrash = false,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+
+  factory Note.fromJson(Map<String, dynamic> json) {
+    return Note(
+      id: json['id'],
+      title: json['title'],
+      contentPreview: json['contentPreview'],
+      date: DateTime.parse(json['date']),
+      isFavorite: json['isFavorite'] ?? false,
+      isLocked: json['isLocked'] ?? false,
+      isInTrash: json['isInTrash'] ?? false,
+    );
+  }
 }

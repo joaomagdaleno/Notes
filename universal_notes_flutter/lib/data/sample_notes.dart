@@ -1,49 +1,46 @@
-import 'package:intl/intl.dart';
 import '../models/note.dart';
-
-final DateFormat _formatter = DateFormat('dd/MM/yyyy HH:mm');
 
 final List<Note> sampleNotes = [
   Note(
     title: 'Minhas Informações',
     contentPreview: '...',
-    date: _formatter.format(DateTime(2022, 2, 9)),
+    date: DateTime(2022, 2, 9),
     isFavorite: true,
   ),
   Note(
     title: 'Nota escrita à mão 24/10',
     contentPreview: '...',
-    date: _formatter.format(DateTime.now().subtract(const Duration(days: 7))),
+    date: DateTime.now().subtract(const Duration(days: 7)),
   ),
   Note(
     title: 'Enade aula 1',
     contentPreview: '...',
-    date: _formatter.format(DateTime.now().subtract(const Duration(days: 50))),
+    date: DateTime.now().subtract(const Duration(days: 50)),
     isLocked: true,
   ),
   Note(
     title: 'Fabio Giambiagi - Macroeconomia...',
     contentPreview: 'Capa do livro',
-    date: _formatter.format(DateTime.now().subtract(const Duration(days: 70))),
+    date: DateTime.now().subtract(const Duration(days: 70)),
   ),
   Note(
     title: 'Site de musicas',
     contentPreview: '...',
-    date: _formatter.format(DateTime.now().subtract(const Duration(days: 110))),
+    date: DateTime.now().subtract(const Duration(days: 110)),
   ),
   Note(
     title: 'Controle comida cachorros',
     contentPreview: '...',
-    date: _formatter.format(DateTime.now().subtract(const Duration(days: 150))),
+    date: DateTime.now().subtract(const Duration(days: 150)),
   ),
   Note(
     title: 'Inovação nas organizações',
     contentPreview: '...',
-    date: _formatter.format(DateTime.now().subtract(const Duration(days: 160))),
+    date: DateTime.now().subtract(const Duration(days: 160)),
   ),
   Note(
     title: 'Custos da Qualidade',
     contentPreview: '...',
-    date: _formatter.format(DateTime.now().subtract(const Duration(days: 170))),
+    date: DateTime.now().subtract(const Duration(days: 170)),
   ),
 ];

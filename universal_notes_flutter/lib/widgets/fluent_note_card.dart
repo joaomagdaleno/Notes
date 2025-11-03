@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 
 class FluentNoteCard extends StatelessWidget {
@@ -38,7 +39,7 @@ class FluentNoteCard extends StatelessWidget {
           ),
           const SizedBox(height: 8.0),
           Text(
-            note.date,
+            DateFormat('d MMM. yyyy').format(note.date),
             style: fluent.FluentTheme.of(context).typography.caption,
           ),
         ],

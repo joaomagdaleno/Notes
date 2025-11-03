@@ -40,7 +40,6 @@ class UpdateService {
       }
     } catch (e) {
       // Handle exceptions, e.g., no internet connection
-      print('Failed to check for updates: $e');
     }
 
     return null;
@@ -52,7 +51,6 @@ class UpdateService {
       final current = Version.parse(currentVersion);
       return latest > current;
     } catch (e) {
-      print('Error parsing version strings: $e');
       return false;
     }
   }
