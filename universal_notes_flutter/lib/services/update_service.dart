@@ -18,7 +18,9 @@ class UpdateService {
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
-        final latestVersion = (json['tag_name'] as String).replaceAll('v', '');
+        final tagName = json['tag_name'] as String;
+        // Remove 'v' prefix if present (e.g., 'v1.0.0' -> '1.0.0')
+        final latestVersion = tagName.startsWith('v') ? tagName.substring(1) : tagName;
         final assets = json['assets'] as List<dynamic>?;
 
         // Simple version comparison

@@ -28,7 +28,9 @@ class Updater {
       }
 
       final json = jsonDecode(response.body);
-      final latestVersionStr = (json['tag_name'] as String).replaceAll('v', '');
+      final tagName = json['tag_name'] as String;
+      // Remove 'v' prefix if present (e.g., 'v1.0.0' -> '1.0.0')
+      final latestVersionStr = tagName.startsWith('v') ? tagName.substring(1) : tagName;
       final latestVersion = Version.parse(latestVersionStr);
 
       if (latestVersion <= currentVersion) {

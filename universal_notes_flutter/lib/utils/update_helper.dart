@@ -10,7 +10,7 @@ class UpdateHelper {
   static Future<void> checkForUpdate(BuildContext context, {bool isManual = false}) async {
     // Use platform-specific update mechanism
     if (Platform.isWindows) {
-      // For Windows, use the Updater class
+      // For Windows, use the Updater class to download .exe installer
       final updater = Updater();
       await updater.checkForUpdates(
         context: context,
@@ -22,8 +22,8 @@ class UpdateHelper {
           }
         },
       );
-    } else {
-      // For Android/iOS, use the UpdateService
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      // For Android/iOS, use the UpdateService to download .apk
       final updateService = UpdateService();
       final updateInfo = await updateService.checkForUpdate();
 
@@ -37,6 +37,13 @@ class UpdateHelper {
             );
           }
         }
+      }
+    } else {
+      // Other platforms (macOS, Linux, etc.) are not supported yet
+      if (isManual && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Atualizações automáticas não disponíveis para esta plataforma.')),
+        );
       }
     }
   }
