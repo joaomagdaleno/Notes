@@ -6,19 +6,41 @@ import '../services/update_service.dart';
 
 class UpdateHelper {
   static Future<void> checkForUpdate(BuildContext context, {bool isManual = false}) async {
-    final updateService = UpdateService();
-    final updateInfo = await updateService.checkForUpdate();
+    // Show initial feedback
+    if (isManual) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verificando atualizações...')),
+      );
+    }
 
-    if (context.mounted) {
-      if (updateInfo != null) {
-        _showUpdateSnackbar(context, updateInfo);
-      } else {
+    final updateService = UpdateService();
+    final result = await updateService.checkForUpdate();
+
+    if (!context.mounted) return; // Always check mounted status after async gap
+
+    // Hide the "checking" snackbar if it's there
+    if (isManual) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    }
+
+    switch (result.status) {
+      case UpdateCheckStatus.updateAvailable:
+        _showUpdateSnackbar(context, result.updateInfo!);
+        break;
+      case UpdateCheckStatus.noUpdate:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Você já tem a versão mais recente.')),
           );
         }
-      }
+        break;
+      case UpdateCheckStatus.error:
+        if (isManual) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result.errorMessage ?? 'Ocorreu um erro desconhecido.')),
+          );
+        }
+        break;
     }
   }
 
