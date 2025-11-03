@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'dart:io' show Platform;
+import 'package:intl/intl.dart';
 import '../models/note.dart';
 
 class NoteEditorScreen extends StatefulWidget {
@@ -49,7 +50,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       id: widget.note?.id,
       title: _titleController.text,
       contentPreview: _contentController.text,
-      date: DateTime.now(),
+      date: DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now()),
     );
     widget.onSave(note);
   }
@@ -89,9 +90,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             fluent.TextBox(
               controller: _titleController,
               placeholder: 'Título',
-              decoration: const fluent.BoxDecoration(
+              decoration: fluent.WidgetStateProperty.all(const fluent.BoxDecoration(
                 border: null,
-              ),
+              )),
               style: fluent.FluentTheme.of(context).typography.title,
             ),
             const SizedBox(height: 16),
@@ -100,9 +101,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 controller: _contentController,
                 placeholder: 'Conteúdo',
                 maxLines: null,
-                decoration: const fluent.BoxDecoration(
+                decoration: fluent.WidgetStateProperty.all(const fluent.BoxDecoration(
                   border: null,
-                ),
+                )),
               ),
             ),
           ],

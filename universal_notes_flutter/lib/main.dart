@@ -201,21 +201,18 @@ class _NotesScreenState extends State<NotesScreen> {
               label: const Text('Pesquisar'),
               onPressed: () {},
             ),
-            fluent.CommandBarFlyout(
-              flyout: fluent.FlyoutContent(
-                child: fluent.Column(
-                  mainAxisSize: fluent.MainAxisSize.min,
-                  crossAxisAlignment: fluent.CrossAxisAlignment.start,
-                  children: [
-                    fluent.MenuItem(text: const Text('Ordenar por data')),
-                    fluent.MenuItem(text: const Text('Ordenar por título')),
-                  ],
+            fluent.DropDownButton(
+              title: const Text('Ordenar'),
+              items: [
+                fluent.MenuFlyoutItem(
+                  text: const Text('Ordenar por data'),
+                  onPressed: () {},
                 ),
-              ),
-              child: fluent.CommandBarButton(
-                icon: const fluent.Icon(fluent.FluentIcons.sort),
-                label: const Text('Ordenar'),
-              ),
+                fluent.MenuFlyoutItem(
+                  text: const Text('Ordenar por título'),
+                  onPressed: () {},
+                ),
+              ],
             ),
           ],
         ),
@@ -232,31 +229,37 @@ class _NotesScreenState extends State<NotesScreen> {
               icon: const fluent.Icon(fluent.FluentIcons.document),
               title: const Text('Todas as notas'),
               body: notesBody,
+              onPressed: () {},
             ),
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.favorite_star),
               title: const Text('Favoritos'),
               body: notesBody,
+              onPressed: () {},
             ),
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.lock),
               title: const Text('Notas bloqueadas'),
               body: notesBody,
+              onPressed: () {},
             ),
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.share),
               title: const Text('Notas compartilhadas'),
               body: notesBody,
+              onPressed: () {},
             ),
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.delete),
               title: const Text('Lixeira'),
               body: notesBody,
+              onPressed: () {},
             ),
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.folder_open),
               title: const Text('Pastas'),
               body: notesBody,
+              onPressed: () {},
             ),
           ],
           footerItems: [
@@ -264,6 +267,7 @@ class _NotesScreenState extends State<NotesScreen> {
               icon: const fluent.Icon(fluent.FluentIcons.settings),
               title: const Text('Configurações'),
               body: const SettingsScreen(),
+              onPressed: () {},
             ),
           ],
         ),
