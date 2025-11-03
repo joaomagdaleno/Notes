@@ -24,16 +24,16 @@ class UpdateService {
         // Simple version comparison
         if (_isNewerVersion(latestVersion, currentVersion)) {
           if (assets != null && assets.isNotEmpty) {
-            final apkAsset = assets.firstWhere(
-              (asset) => (asset['name'] as String).endsWith('.apk'),
-              orElse: () => null,
-            );
-
-            if (apkAsset != null) {
+            try {
+              final apkAsset = assets.firstWhere(
+                (asset) => (asset['name'] as String).endsWith('.apk'),
+              );
               return UpdateInfo(
                 version: latestVersion,
                 downloadUrl: apkAsset['browser_download_url'] as String,
               );
+            } catch (e) {
+              // No APK asset found, return null
             }
           }
         }

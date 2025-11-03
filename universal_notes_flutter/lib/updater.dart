@@ -37,12 +37,12 @@ class Updater {
       }
 
       final assets = json['assets'] as List;
-      final asset = assets.firstWhere(
-        (asset) => (asset['name'] as String).startsWith('UniversalNotesSetup-'),
-        orElse: () => null,
-      );
-
-      if (asset == null) {
+      dynamic asset;
+      try {
+        asset = assets.firstWhere(
+          (asset) => (asset['name'] as String).startsWith('UniversalNotesSetup-'),
+        );
+      } catch (e) {
         throw Exception('No installer found for the latest version');
       }
 
