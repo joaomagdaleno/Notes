@@ -1,22 +1,41 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../services/update_service.dart';
+import '../updater.dart';
 
 class UpdateHelper {
   static Future<void> checkForUpdate(BuildContext context, {bool isManual = false}) async {
-    final updateService = UpdateService();
-    final updateInfo = await updateService.checkForUpdate();
+    // Use platform-specific update mechanism
+    if (Platform.isWindows) {
+      // For Windows, use the Updater class
+      final updater = Updater();
+      await updater.checkForUpdates(
+        context: context,
+        onStatusChange: (status) {
+          if (status.isNotEmpty && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(status)),
+            );
+          }
+        },
+      );
+    } else {
+      // For Android/iOS, use the UpdateService
+      final updateService = UpdateService();
+      final updateInfo = await updateService.checkForUpdate();
 
-    if (context.mounted) {
-      if (updateInfo != null) {
-        _showUpdateSnackbar(context, updateInfo);
-      } else {
-        if (isManual) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Você já tem a versão mais recente.')),
-          );
+      if (context.mounted) {
+        if (updateInfo != null) {
+          _showUpdateSnackbar(context, updateInfo);
+        } else {
+          if (isManual) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Você já tem a versão mais recente.')),
+            );
+          }
         }
       }
     }

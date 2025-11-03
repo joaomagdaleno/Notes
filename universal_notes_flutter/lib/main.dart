@@ -111,9 +111,8 @@ class _NotesScreenState extends State<NotesScreen> {
     }
     // Use a post-frame callback to ensure the Scaffold is available.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Platform.isAndroid || Platform.isIOS) {
-        UpdateHelper.checkForUpdate(context);
-      }
+      // Check for updates on all platforms
+      UpdateHelper.checkForUpdate(context);
     });
   }
 
