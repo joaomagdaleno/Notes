@@ -3,10 +3,20 @@ import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
 
+enum UpdateCheckStatus { updateAvailable, noUpdate, error }
+
+class UpdateCheckResult {
+  final UpdateCheckStatus status;
+  final UpdateInfo? updateInfo;
+  final String? errorMessage;
+
+  UpdateCheckResult(this.status, {this.updateInfo, this.errorMessage});
+}
+
 class UpdateService {
   static const String _repo = 'joaomagdaleno/Notes';
 
-  Future<UpdateInfo?> checkForUpdate() async {
+  Future<UpdateCheckResult> checkForUpdate() async {
     try {
       // Get current app version
       final packageInfo = await PackageInfo.fromPlatform();
@@ -21,7 +31,6 @@ class UpdateService {
         final latestVersion = (json['tag_name'] as String).replaceAll('v', '');
         final assets = json['assets'] as List<dynamic>?;
 
-        // Simple version comparison
         if (_isNewerVersion(latestVersion, currentVersion)) {
           if (assets != null && assets.isNotEmpty) {
             final apkAsset = assets.firstWhere(
@@ -30,19 +39,26 @@ class UpdateService {
             );
 
             if (apkAsset != null) {
-              return UpdateInfo(
-                version: latestVersion,
-                downloadUrl: apkAsset['browser_download_url'] as String,
+              return UpdateCheckResult(
+                UpdateCheckStatus.updateAvailable,
+                updateInfo: UpdateInfo(
+                  version: latestVersion,
+                  downloadUrl: apkAsset['browser_download_url'] as String,
+                ),
               );
             }
           }
         }
+        // If we reach here, no update is available or the asset wasn't found
+        return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+      } else {
+        // Handle non-200 responses as errors
+        return UpdateCheckResult(UpdateCheckStatus.error, errorMessage: 'Falha ao comunicar com o servidor de atualização.');
       }
     } catch (e) {
       // Handle exceptions, e.g., no internet connection
+      return UpdateCheckResult(UpdateCheckStatus.error, errorMessage: 'Não foi possível verificar as atualizações. Verifique sua conexão com a internet.');
     }
-
-    return null;
   }
 
   bool _isNewerVersion(String latestVersion, String currentVersion) {
