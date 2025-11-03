@@ -2,7 +2,7 @@ class Note {
   final String id;
   final String title;
   final String contentPreview;
-  final DateTime date;
+  final String date;
   bool isFavorite;
   bool isLocked;
   bool isInTrash;
