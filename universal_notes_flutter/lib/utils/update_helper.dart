@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../services/update_service.dart';
+import '../updater.dart';
 
 class UpdateHelper {
   static Future<void> checkForUpdate(BuildContext context, {bool isManual = false}) async {

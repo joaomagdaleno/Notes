@@ -20,7 +20,7 @@ class UpdateService {
     try {
       // Get current app version
       final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version;
+      final currentVersion = packageInfo.version.split('+').first;
 
       // Fetch latest release from GitHub API
       final url = Uri.parse('https://api.github.com/repos/$_repo/releases/latest');
@@ -28,7 +28,9 @@ class UpdateService {
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
-        final latestVersion = (json['tag_name'] as String).replaceAll('v', '');
+        final tagName = json['tag_name'] as String;
+        // Remove 'v' prefix if present (e.g., 'v1.0.0' -> '1.0.0')
+        final latestVersion = tagName.startsWith('v') ? tagName.substring(1) : tagName;
         final assets = json['assets'] as List<dynamic>?;
 
         if (_isNewerVersion(latestVersion, currentVersion)) {
@@ -46,6 +48,8 @@ class UpdateService {
                   downloadUrl: apkAsset['browser_download_url'] as String,
                 ),
               );
+            } catch (e) {
+              // No APK asset found, return null
             }
           }
         }

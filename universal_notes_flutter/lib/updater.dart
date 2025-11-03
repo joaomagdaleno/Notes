@@ -28,7 +28,9 @@ class Updater {
       }
 
       final json = jsonDecode(response.body);
-      final latestVersionStr = (json['tag_name'] as String).substring(1);
+      final tagName = json['tag_name'] as String;
+      // Remove 'v' prefix if present (e.g., 'v1.0.0' -> '1.0.0')
+      final latestVersionStr = tagName.startsWith('v') ? tagName.substring(1) : tagName;
       final latestVersion = Version.parse(latestVersionStr);
 
       if (latestVersion <= currentVersion) {
@@ -37,12 +39,12 @@ class Updater {
       }
 
       final assets = json['assets'] as List;
-      final asset = assets.firstWhere(
-        (asset) => (asset['name'] as String).startsWith('UniversalNotesSetup-'),
-        orElse: () => null,
-      );
-
-      if (asset == null) {
+      dynamic asset;
+      try {
+        asset = assets.firstWhere(
+          (asset) => (asset['name'] as String).startsWith('UniversalNotesSetup-'),
+        );
+      } catch (e) {
         throw Exception('No installer found for the latest version');
       }
 

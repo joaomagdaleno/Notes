@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -16,31 +17,38 @@ class AboutScreen extends StatefulWidget {
 class _AboutScreenState extends State<AboutScreen> {
   String _currentVersion = '...';
   bool _isChecking = false;
-  final ReceivePort _port = ReceivePort();
+  ReceivePort? _port;
 
   @override
   void initState() {
     super.initState();
     _loadVersion();
-    _bindBackgroundIsolate();
+    if (Platform.isAndroid || Platform.isIOS) {
+      _port = ReceivePort();
+      _bindBackgroundIsolate();
+    }
   }
 
   @override
   void dispose() {
-    _unbindBackgroundIsolate();
+    if (Platform.isAndroid || Platform.isIOS) {
+      _unbindBackgroundIsolate();
+    }
     super.dispose();
   }
 
   void _bindBackgroundIsolate() {
-    IsolateNameServer.registerPortWithName(_port.sendPort, 'downloader_send_port');
-    _port.listen((dynamic data) {
-      final status = DownloadTaskStatus.fromInt(data[1]);
-      final String taskId = data[0];
+    if (_port != null) {
+      IsolateNameServer.registerPortWithName(_port!.sendPort, 'downloader_send_port');
+      _port!.listen((dynamic data) {
+        final status = DownloadTaskStatus.fromInt(data[1]);
+        final String taskId = data[0];
 
-      if (status == DownloadTaskStatus.complete) {
-        _openDownloadedFile(taskId);
-      }
-    });
+        if (status == DownloadTaskStatus.complete) {
+          _openDownloadedFile(taskId);
+        }
+      });
+    }
   }
 
   void _unbindBackgroundIsolate() {
