@@ -17,10 +17,12 @@ enum ViewMode { gridSmall, gridMedium, gridLarge, list, listSimple }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(
-    debug: true,
-  );
-  FlutterDownloader.registerCallback(downloadCallback);
+  if (Platform.isAndroid || Platform.isIOS) {
+    await FlutterDownloader.initialize(
+      debug: true,
+    );
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
 
   if (Platform.isWindows) {
     runApp(const MyFluentApp());
@@ -103,16 +105,22 @@ class _NotesScreenState extends State<NotesScreen> {
   void initState() {
     super.initState();
     _notes = List.from(sampleNotes);
-    _bindBackgroundIsolate();
+    if (Platform.isAndroid || Platform.isIOS) {
+      _bindBackgroundIsolate();
+    }
     // Use a post-frame callback to ensure the Scaffold is available.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      UpdateHelper.checkForUpdate(context);
+      if (Platform.isAndroid || Platform.isIOS) {
+        UpdateHelper.checkForUpdate(context);
+      }
     });
   }
 
   @override
   void dispose() {
-    _unbindBackgroundIsolate();
+    if (Platform.isAndroid || Platform.isIOS) {
+      _unbindBackgroundIsolate();
+    }
     super.dispose();
   }
 
