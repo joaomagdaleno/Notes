@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:universal_notes_flutter/data/sample_notes.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'dart:isolate';
 import 'dart:ui';
@@ -96,7 +96,8 @@ class NotesScreen extends StatefulWidget {
 }
 
 class _NotesScreenState extends State<NotesScreen> {
-  late List<Note> _notes;
+  final NoteRepository _noteRepository = NoteRepository();
+  late Future<List<Note>> _notesFuture;
   bool _isNavigationRailExpanded = false;
   int _selectedIndex = 0;
   ViewMode _viewMode = ViewMode.gridMedium;
@@ -105,7 +106,7 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   void initState() {
     super.initState();
-    _notes = List.from(sampleNotes);
+    _loadNotes();
     if (Platform.isAndroid || Platform.isIOS) {
       _bindBackgroundIsolate();
     }
@@ -113,6 +114,12 @@ class _NotesScreenState extends State<NotesScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Check for updates on all platforms
       UpdateHelper.checkForUpdate(context);
+    });
+  }
+
+  void _loadNotes() {
+    setState(() {
+      _notesFuture = _noteRepository.getAllNotes();
     });
   }
 
@@ -148,21 +155,21 @@ class _NotesScreenState extends State<NotesScreen> {
     }
   }
 
-  void _updateNote(Note note) {
-    setState(() {
-      final index = _notes.indexWhere((n) => n.id == note.id);
-      if (index != -1) {
-        _notes[index] = note;
-      } else {
-        _notes.insert(0, note);
-      }
-    });
+  void _updateNote(Note note) async {
+    // Check if the note already exists
+    final notes = await _notesFuture;
+    final index = notes.indexWhere((n) => n.id == note.id);
+    if (index != -1) {
+      await _noteRepository.updateNote(note);
+    } else {
+      await _noteRepository.insertNote(note);
+    }
+    _loadNotes();
   }
 
-  void _deleteNote(Note note) {
-    setState(() {
-      _notes.removeWhere((n) => n.id == note.id);
-    });
+  void _deleteNote(Note note) async {
+    await _noteRepository.deleteNote(note.id);
+    _loadNotes();
   }
 
   void _cycleViewMode() {
@@ -490,69 +497,83 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   Widget _buildBody() {
-    List<Note> visibleNotes;
-
-    switch (_selectedIndex) {
-      case 1: // Favorites
-        visibleNotes =
-            _notes.where((n) => n.isFavorite && !n.isInTrash).toList();
-        break;
-      case 4: // Trash
-        visibleNotes = _notes.where((n) => n.isInTrash).toList();
-        break;
-      default: // All notes
-        visibleNotes = _notes.where((n) => !n.isInTrash).toList();
-        break;
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (_viewMode == ViewMode.list) {
-          return _buildGridView(
-              2, 0.75, visibleNotes); // 2 columns, elongated aspect ratio
-        } else if (_viewMode == ViewMode.listSimple) {
-          return ListView.builder(
-            itemCount: visibleNotes.length,
-            itemBuilder: (context, index) {
-              return NoteSimpleListTile(
-                note: visibleNotes[index],
-                onSave: _updateNote,
-                onDelete: _deleteNote,
-              );
-            },
-          );
-        } else {
-          int crossAxisCount;
-          double childAspectRatio;
-
-          if (Platform.isWindows) {
-            // Windows-specific responsive logic
-            if (_viewMode == ViewMode.gridSmall) {
-              crossAxisCount = (constraints.maxWidth / 320).floor().clamp(1, 5);
-              childAspectRatio = 0.7;
-            } else if (_viewMode == ViewMode.gridMedium) {
-              crossAxisCount = (constraints.maxWidth / 240).floor().clamp(2, 7);
-              childAspectRatio = 0.7;
-            } else { // gridLarge
-              crossAxisCount = (constraints.maxWidth / 180).floor().clamp(3, 10);
-              childAspectRatio = 0.7;
-            }
-          } else {
-            // Existing logic for Android/other platforms
-            if (_viewMode == ViewMode.gridSmall) {
-              crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 7);
-              childAspectRatio = 0.75;
-            } else if (_viewMode == ViewMode.gridMedium) {
-              crossAxisCount = (constraints.maxWidth / 200).floor().clamp(2, 7);
-              childAspectRatio = 1 / 1.414;
-            } else { // gridLarge
-              crossAxisCount = (constraints.maxWidth / 150).floor().clamp(1, 5);
-              childAspectRatio = 1 / 1.414;
-            }
-          }
-
-          return _buildGridView(crossAxisCount, childAspectRatio, visibleNotes);
+    return FutureBuilder<List<Note>>(
+      future: _notesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('Nenhuma nota encontrada.'));
         }
+
+        final allNotes = snapshot.data!;
+        List<Note> visibleNotes;
+
+        switch (_selectedIndex) {
+          case 1: // Favorites
+            visibleNotes =
+                allNotes.where((n) => n.isFavorite && !n.isInTrash).toList();
+            break;
+          case 4: // Trash
+            visibleNotes = allNotes.where((n) => n.isInTrash).toList();
+            break;
+          default: // All notes
+            visibleNotes = allNotes.where((n) => !n.isInTrash).toList();
+            break;
+        }
+
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            if (_viewMode == ViewMode.list) {
+              return _buildGridView(
+                  2, 0.75, visibleNotes); // 2 columns, elongated aspect ratio
+            } else if (_viewMode == ViewMode.listSimple) {
+              return ListView.builder(
+                itemCount: visibleNotes.length,
+                itemBuilder: (context, index) {
+                  return NoteSimpleListTile(
+                    note: visibleNotes[index],
+                    onSave: _updateNote,
+                    onDelete: _deleteNote,
+                  );
+                },
+              );
+            } else {
+              int crossAxisCount;
+              double childAspectRatio;
+
+              if (Platform.isWindows) {
+                // Windows-specific responsive logic
+                if (_viewMode == ViewMode.gridSmall) {
+                  crossAxisCount = (constraints.maxWidth / 320).floor().clamp(1, 5);
+                  childAspectRatio = 0.7;
+                } else if (_viewMode == ViewMode.gridMedium) {
+                  crossAxisCount = (constraints.maxWidth / 240).floor().clamp(2, 7);
+                  childAspectRatio = 0.7;
+                } else { // gridLarge
+                  crossAxisCount = (constraints.maxWidth / 180).floor().clamp(3, 10);
+                  childAspectRatio = 0.7;
+                }
+              } else {
+                // Existing logic for Android/other platforms
+                if (_viewMode == ViewMode.gridSmall) {
+                  crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 7);
+                  childAspectRatio = 0.75;
+                } else if (_viewMode == ViewMode.gridMedium) {
+                  crossAxisCount = (constraints.maxWidth / 200).floor().clamp(2, 7);
+                  childAspectRatio = 1 / 1.414;
+                } else { // gridLarge
+                  crossAxisCount = (constraints.maxWidth / 150).floor().clamp(1, 5);
+                  childAspectRatio = 1 / 1.414;
+                }
+              }
+
+              return _buildGridView(crossAxisCount, childAspectRatio, visibleNotes);
+            }
+          },
+        );
       },
     );
   }
