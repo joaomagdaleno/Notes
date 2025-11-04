@@ -1,14 +1,16 @@
 import 'dart:io';
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../services/update_service.dart';
 import '../updater.dart';
 
 class UpdateHelper {
+  static const _channel = MethodChannel('com.example.universal_notes_flutter/installer');
+
   static Future<void> checkForUpdate(BuildContext context, {bool isManual = false}) async {
-    // Show initial feedback
     if (isManual) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Verificando atualizações...')),
@@ -18,9 +20,8 @@ class UpdateHelper {
     final updateService = UpdateService();
     final result = await updateService.checkForUpdate();
 
-    if (!context.mounted) return; // Always check mounted status after async gap
+    if (!context.mounted) return;
 
-    // Hide the "checking" snackbar if it's there
     if (isManual) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
     }
@@ -53,75 +54,76 @@ class UpdateHelper {
         duration: const Duration(seconds: 10),
         action: SnackBarAction(
           label: 'ATUALIZAR',
-          onPressed: () => _downloadUpdate(context, updateInfo),
+          onPressed: () => _handleUpdate(context, updateInfo),
         ),
       ),
     );
   }
 
-  static Future<void> _downloadUpdate(BuildContext context, UpdateInfo updateInfo) async {
-    // 1. Request Storage Permission
-    var storageStatus = await Permission.storage.request();
+  static Future<void> _handleUpdate(BuildContext context, UpdateInfo updateInfo) async {
+    if (Platform.isAndroid) {
+      final canInstall = await _channel.invokeMethod<bool>('canInstallPackages') ?? false;
+      if (canInstall) {
+        _downloadUpdate(context, updateInfo);
+      } else {
+        _requestInstallPermission(context);
+      }
+    }
+  }
 
-    // Handle denied or permanently denied storage permission
-    if (!storageStatus.isGranted) {
+  static void _requestInstallPermission(BuildContext context) async {
+    if (context.mounted) {
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Permissão Necessária'),
+          content: const Text('Para instalar a atualização, precisamos que você habilite a permissão para "instalar apps desconhecidos". Você será redirecionado para as configurações.'),
+          actions: [
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Abrir Configurações'),
+              onPressed: () {
+                const intent = AndroidIntent(
+                  action: 'android.settings.MANAGE_UNKNOWN_APP_SOURCES',
+                  data: 'package:com.example.universal_notes_flutter',
+                );
+                intent.launch();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  static Future<void> _downloadUpdate(BuildContext context, UpdateInfo updateInfo) async {
+    final cacheDirs = await getExternalCacheDirectories();
+    if (cacheDirs == null || cacheDirs.isEmpty) {
       if (context.mounted) {
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Permissão Necessária'),
-            content: const Text('Para baixar a atualização, precisamos de permissão para acessar seu armazenamento. Por favor, conceda a permissão nas configurações do aplicativo.'),
-            actions: [
-              TextButton(
-                child: const Text('Cancelar'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              TextButton(
-                child: const Text('Abrir Configurações'),
-                onPressed: () {
-                  openAppSettings();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível encontrar o diretório de cache.')),
         );
       }
-      return; // Stop if storage permission is not granted
+      return;
     }
+    final saveDir = cacheDirs.first.path;
 
-    // 2. Request Install Packages Permission
-    var installStatus = await Permission.requestInstallPackages.request();
-    if (!installStatus.isGranted) {
-       if (context.mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(
-           const SnackBar(content: Text('Permissão para instalar aplicativos desconhecidos negada.')),
-         );
-       }
-       return; // Stop if install permission is not granted
-    }
+    await FlutterDownloader.enqueue(
+      url: updateInfo.downloadUrl,
+      savedDir: saveDir,
+      fileName: 'app-release.apk',
+      showNotification: true,
+      openFileFromNotification: true,
+    );
 
-    // 3. Proceed with Download
-    final externalDir = await getExternalStorageDirectory();
-    if (externalDir != null) {
-      await FlutterDownloader.enqueue(
-        url: updateInfo.downloadUrl,
-        savedDir: externalDir.path,
-        fileName: 'app-release.apk',
-        showNotification: true,
-        openFileFromNotification: true,
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Download da atualização iniciado...')),
       );
-       if (context.mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(
-           const SnackBar(content: Text('Download da atualização iniciado...')),
-         );
-       }
-    } else {
-       if (context.mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(
-           const SnackBar(content: Text('Não foi possível encontrar o diretório para download.')),
-         );
-       }
     }
   }
 }
