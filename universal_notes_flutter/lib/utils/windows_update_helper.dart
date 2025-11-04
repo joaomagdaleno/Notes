@@ -102,6 +102,7 @@ class WindowsUpdateHelper {
 
     try {
       final tempDir = await getTemporaryDirectory();
+      await tempDir.create(recursive: true); // Ensure the directory exists
       final filePath = '${tempDir.path}\\notes_installer.exe';
 
       final response = await http.get(Uri.parse(updateInfo.downloadUrl));

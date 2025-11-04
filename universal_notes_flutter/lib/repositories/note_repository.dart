@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 
 class NoteRepository {
@@ -14,8 +15,9 @@ class NoteRepository {
   }
 
   Future<Database> _initDB() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, _dbName);
+    final dir = await getApplicationSupportDirectory();
+    await dir.create(recursive: true);
+    final path = join(dir.path, _dbName);
     return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
