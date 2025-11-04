@@ -112,24 +112,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               style: fluent.FluentTheme.of(context).typography.title,
             ),
             const SizedBox(height: 16),
-            quill.QuillToolbar.simple(
-              configurations: quill.QuillSimpleToolbarConfigurations(
-                controller: _contentController,
-                sharedConfigurations: const quill.QuillSharedConfigurations(
-                  locale: Locale('pt_BR'),
-                ),
-              ),
+            quill.QuillSimpleToolbar(
+              controller: _contentController,
             ),
             const SizedBox(height: 16),
             Expanded(
               child: quill.QuillEditor.basic(
-                configurations: quill.QuillEditorConfigurations(
-                  controller: _contentController,
-                  padding: const EdgeInsets.all(16),
-                  sharedConfigurations: const quill.QuillSharedConfigurations(
-                    locale: Locale('pt_BR'),
-                  ),
-                ),
+                controller: _contentController,
+                readOnly: false,
               ),
             ),
           ],
@@ -156,24 +146,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            quill.QuillToolbar.simple(
-              configurations: quill.QuillSimpleToolbarConfigurations(
-                controller: _contentController,
-                sharedConfigurations: const quill.QuillSharedConfigurations(
-                  locale: Locale('pt_BR'),
-                ),
-              ),
+            quill.QuillSimpleToolbar(
+              controller: _contentController,
             ),
             const SizedBox(height: 16),
             Expanded(
               child: quill.QuillEditor.basic(
-                configurations: quill.QuillEditorConfigurations(
-                  controller: _contentController,
-                  padding: const EdgeInsets.all(16),
-                  sharedConfigurations: const quill.QuillSharedConfigurations(
-                    locale: Locale('pt_BR'),
-                  ),
-                ),
+                controller: _contentController,
+                readOnly: false,
               ),
             ),
           ],
