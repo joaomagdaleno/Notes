@@ -101,6 +101,7 @@ class _NotesScreenState extends State<NotesScreen> {
   int _selectedIndex = 0;
   ViewMode _viewMode = ViewMode.gridMedium;
   final ReceivePort _port = ReceivePort();
+  final FlyoutController _flyoutController = FlyoutController();
 
   @override
   void initState() {
@@ -118,6 +119,7 @@ class _NotesScreenState extends State<NotesScreen> {
 
   @override
   void dispose() {
+    _flyoutController.dispose();
     if (Platform.isAndroid || Platform.isIOS) {
       _unbindBackgroundIsolate();
     }
@@ -200,32 +202,39 @@ class _NotesScreenState extends State<NotesScreen> {
               label: const Text('Pesquisar'),
               onPressed: () {},
             ),
+            fluent.FlyoutTarget(
+              controller: _flyoutController,
+              child: fluent.CommandBarButton(
+                icon: const fluent.Icon(fluent.FluentIcons.sort),
+                label: const Text('Ordenar'),
+                onPressed: () {
+                  _flyoutController.showFlyout(
+                    builder: (context) => fluent.FlyoutContent(
+                      child: fluent.Column(
+                        mainAxisSize: fluent.MainAxisSize.min,
+                        crossAxisAlignment: fluent.CrossAxisAlignment.start,
+                        children: [
+                          fluent.MenuFlyoutItem(
+                            text: const Text('Ordenar por data'),
+                            onPressed: () {},
+                          ),
+                          fluent.MenuFlyoutItem(
+                            text: const Text('Ordenar por título'),
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ],
         ),
         content: _buildBody(),
       );
 
       return fluent.NavigationView(
-        appBar: fluent.NavigationAppBar(
-          actions: fluent.Row(
-            children: [
-              fluent.DropDownButton(
-                title: const Text('Ordenar'),
-                items: [
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Ordenar por data'),
-                    onPressed: () {},
-                  ),
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Ordenar por título'),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-              const SizedBox(width: 16),
-            ],
-          ),
-        ),
         pane: fluent.NavigationPane(
           selected: _selectedIndex,
           onChanged: (index) => setState(() => _selectedIndex = index),

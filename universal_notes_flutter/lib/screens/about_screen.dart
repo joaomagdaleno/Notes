@@ -2,11 +2,9 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 import '../utils/update_helper.dart';
 
 class AboutScreen extends StatefulWidget {
@@ -88,37 +86,6 @@ class _AboutScreenState extends State<AboutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isWindows) {
-      return _buildFluentUI(context);
-    } else {
-      return _buildMaterialUI(context);
-    }
-  }
-
-  Widget _buildFluentUI(BuildContext context) {
-    return fluent.ScaffoldPage(
-      header: const fluent.PageHeader(
-        title: Text('Sobre'),
-      ),
-      content: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Versão atual: $_currentVersion'),
-            const SizedBox(height: 20),
-            _isChecking
-                ? const fluent.ProgressRing()
-                : fluent.FilledButton(
-                    onPressed: () => WindowsUpdateHelper.checkForUpdate(context),
-                    child: const Text('Verificar Atualizações'),
-                  ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMaterialUI(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sobre'),
