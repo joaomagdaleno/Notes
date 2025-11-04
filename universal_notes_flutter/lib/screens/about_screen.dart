@@ -97,8 +97,18 @@ class _AboutScreenState extends State<AboutScreen> {
 
   Widget _buildFluentUI(BuildContext context) {
     return fluent.ScaffoldPage(
-      header: const fluent.PageHeader(
-        title: Text('Sobre'),
+      header: fluent.PageHeader(
+        title: const Text('Sobre'),
+        leading: fluent.CommandBar(
+          mainAxisAlignment: fluent.MainAxisAlignment.start,
+          overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
+          primaryItems: [
+            fluent.CommandBarButton(
+              icon: const fluent.Icon(fluent.FluentIcons.back),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       ),
       content: Center(
         child: Column(

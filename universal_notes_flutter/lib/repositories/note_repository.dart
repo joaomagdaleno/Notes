@@ -3,6 +3,8 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 
+final noteRepository = NoteRepository();
+
 class NoteRepository {
   static const String _dbName = 'notes_database.db';
   static const String _tableName = 'notes';
@@ -69,5 +71,11 @@ class NoteRepository {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<void> close() async {
+    final db = await database;
+    await db.close();
+    _database = null;
   }
 }
