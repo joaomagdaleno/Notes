@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 class Note {
   final String id;
   String title;
@@ -45,10 +43,4 @@ class Note {
       isInTrash: map['isInTrash'] == 1,
     );
   }
-
-  String get contentPreview =>
-      content.replaceAll(RegExp(r'[\n\r]'), ' ').trimLeft().substring(
-            0,
-            math.min(120, content.length),
-          );
 }
