@@ -46,7 +46,10 @@ dependencies:
   permission_handler: ^12.0.1
   sqflite: ^2.3.3
   path: ^1.9.0
-  flutter_quill: ^11.5.0
+  flutter_quill:
+    git:
+      url: https://github.com/singerdmx/flutter-quill.git
+      ref: master
 
 dev_dependencies:
   flutter_test:

@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'dart:io' show Platform;
 import '../models/note.dart';
 
@@ -18,38 +16,20 @@ class NoteEditorScreen extends StatefulWidget {
 
 class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late TextEditingController _titleController;
-  late quill.QuillController _contentController;
+  late TextEditingController _contentController;
   Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.note?.title ?? '');
-    _initializeContentController();
+    _contentController = TextEditingController(text: widget.note?.contentPreview ?? '');
 
     // Inicia o timer para salvamento periódico
-    _debounce = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _debounce = Timer.periodic(const Duration(minutes: 5), (timer) {
       _saveNote();
     });
   }
-
-  void _initializeContentController() {
-    final content = widget.note?.content;
-    if (content != null && content.isNotEmpty) {
-      try {
-        final doc = quill.Document.fromJson(jsonDecode(content));
-        _contentController = quill.QuillController(
-          document: doc,
-          selection: const TextSelection.collapsed(offset: 0),
-        );
-        return;
-      } catch (e) {
-        // Fallback for plain text
-      }
-    }
-    _contentController = quill.QuillController.basic();
-  }
-
 
   @override
   void dispose() {
@@ -61,19 +41,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   void _saveNote() {
-    final title = _titleController.text;
-    final contentJson = jsonEncode(_contentController.document.toDelta().toJson());
-
-    // Não salva notas vazias
-    if (title.isEmpty && _contentController.document.isEmpty()) {
-      return;
+    if (_titleController.text.isEmpty && _contentController.text.isEmpty) {
+      return; // Não salva notas vazias
     }
 
     final note = Note(
       id: widget.note?.id,
-      title: title,
-      content: contentJson,
-      date: widget.note?.date ?? DateTime.now(),
+      title: _titleController.text,
+      contentPreview: _contentController.text,
+      date: DateTime.now(),
     );
     widget.onSave(note);
   }
@@ -94,8 +70,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         primaryItems: [
           fluent.CommandBarButton(
             icon: const fluent.Icon(fluent.FluentIcons.back),
-            label: const Text('Voltar'),
             onPressed: () => Navigator.pop(context),
+          ),
+          fluent.CommandBarButton(
+            icon: const fluent.Icon(fluent.FluentIcons.save),
+            label: const Text('Salvar e fechar'),
+            onPressed: () {
+              _saveNote();
+              Navigator.pop(context);
+            },
           ),
         ],
       ),
@@ -112,14 +95,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               style: fluent.FluentTheme.of(context).typography.title,
             ),
             const SizedBox(height: 16),
-            quill.QuillSimpleToolbar(
-              controller: _contentController,
-            ),
-            const SizedBox(height: 16),
             Expanded(
-              child: quill.QuillEditor.basic(
+              child: fluent.TextBox(
                 controller: _contentController,
-                readOnly: false,
+                placeholder: 'Conteúdo',
+                maxLines: null,
+                decoration: fluent.WidgetStateProperty.all(const fluent.BoxDecoration(
+                  border: null,
+                )),
               ),
             ),
           ],
@@ -146,14 +129,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            quill.QuillSimpleToolbar(
-              controller: _contentController,
-            ),
-            const SizedBox(height: 16),
             Expanded(
-              child: quill.QuillEditor.basic(
+              child: TextField(
                 controller: _contentController,
-                readOnly: false,
+                decoration: const InputDecoration(
+                  hintText: 'Conteúdo',
+                  border: InputBorder.none,
+                ),
+                maxLines: null,
               ),
             ),
           ],
