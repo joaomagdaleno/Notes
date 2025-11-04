@@ -14,12 +14,14 @@ import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'screens/settings_screen.dart';
 import 'dart:io' show Platform;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:window_manager/window_manager.dart';
 
 enum ViewMode { gridSmall, gridMedium, gridLarge, list, listSimple }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    await windowManager.ensureInitialized();
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   }
@@ -30,12 +32,41 @@ void main() async {
     FlutterDownloader.registerCallback(downloadCallback);
   }
 
-  if (Platform.isWindows) {
-    runApp(const MyFluentApp());
-  } else {
-    runApp(const MyApp());
+  runApp(const _MyAppWithWindowListener());
+}
+
+class _MyAppWithWindowListener extends StatefulWidget {
+  const _MyAppWithWindowListener();
+
+  @override
+  State<_MyAppWithWindowListener> createState() => _MyAppWithWindowListenerState();
+}
+
+class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener> with WindowListener {
+  @override
+  void initState() {
+    super.initState();
+    windowManager.addListener(this);
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Platform.isWindows ? const MyFluentApp() : const MyApp();
+  }
+
+  @override
+  Future<void> onWindowClose() async {
+    await noteRepository.close();
+    await windowManager.destroy();
   }
 }
+
 
 @pragma('vm:entry-point')
 void downloadCallback(String id, int status, int progress) {
@@ -101,7 +132,6 @@ class NotesScreen extends StatefulWidget {
 }
 
 class _NotesScreenState extends State<NotesScreen> {
-  final NoteRepository _noteRepository = NoteRepository();
   late Future<List<Note>> _notesFuture;
   bool _isNavigationRailExpanded = false;
   int _selectedIndex = 0;
@@ -124,7 +154,7 @@ class _NotesScreenState extends State<NotesScreen> {
 
   void _loadNotes() {
     setState(() {
-      _notesFuture = _noteRepository.getAllNotes();
+      _notesFuture = noteRepository.getAllNotes();
     });
   }
 
@@ -165,15 +195,15 @@ class _NotesScreenState extends State<NotesScreen> {
     final notes = await _notesFuture;
     final index = notes.indexWhere((n) => n.id == note.id);
     if (index != -1) {
-      await _noteRepository.updateNote(note);
+      await noteRepository.updateNote(note);
     } else {
-      await _noteRepository.insertNote(note);
+      await noteRepository.insertNote(note);
     }
     _loadNotes();
   }
 
   void _deleteNote(Note note) async {
-    await _noteRepository.deleteNote(note.id);
+    await noteRepository.deleteNote(note.id);
     _loadNotes();
   }
 

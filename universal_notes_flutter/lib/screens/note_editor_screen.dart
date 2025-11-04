@@ -19,6 +19,7 @@ class NoteEditorScreen extends StatefulWidget {
 class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late TextEditingController _titleController;
   late quill.QuillController _contentController;
+  final FocusNode _editorFocusNode = FocusNode();
   Timer? _debounce;
 
   @override
@@ -92,7 +93,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         primaryItems: [
           fluent.CommandBarButton(
             icon: const fluent.Icon(fluent.FluentIcons.back),
-            label: const Text('Voltar'),
             onPressed: () => Navigator.pop(context),
           ),
         ],
@@ -123,6 +123,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               child: quill.QuillEditor.basic(
                 configurations: quill.QuillEditorConfigurations(
                   controller: _contentController,
+                  focusNode: _editorFocusNode,
                   padding: const EdgeInsets.all(16),
                   sharedConfigurations: const quill.QuillSharedConfigurations(
                     locale: Locale('pt_BR'),
@@ -167,6 +168,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               child: quill.QuillEditor.basic(
                 configurations: quill.QuillEditorConfigurations(
                   controller: _contentController,
+                  focusNode: _editorFocusNode,
                   padding: const EdgeInsets.all(16),
                   sharedConfigurations: const quill.QuillSharedConfigurations(
                     locale: Locale('pt_BR'),
