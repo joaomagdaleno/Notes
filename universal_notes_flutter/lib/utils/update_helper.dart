@@ -60,27 +60,68 @@ class UpdateHelper {
   }
 
   static Future<void> _downloadUpdate(BuildContext context, UpdateInfo updateInfo) async {
+    // 1. Request Storage Permission
     var storageStatus = await Permission.storage.request();
-    var installStatus = await Permission.requestInstallPackages.request();
 
-    if (storageStatus.isGranted && installStatus.isGranted) {
-      final externalDir = await getExternalStorageDirectory();
-
-      if (externalDir != null) {
-        await FlutterDownloader.enqueue(
-          url: updateInfo.downloadUrl,
-          savedDir: externalDir.path,
-          fileName: 'app-release.apk',
-          showNotification: true,
-          openFileFromNotification: true,
-        );
-      }
-    } else {
+    // Handle denied or permanently denied storage permission
+    if (!storageStatus.isGranted) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Permissão de armazenamento negada.')),
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permissão Necessária'),
+            content: const Text('Para baixar a atualização, precisamos de permissão para acessar seu armazenamento. Por favor, conceda a permissão nas configurações do aplicativo.'),
+            actions: [
+              TextButton(
+                child: const Text('Cancelar'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: const Text('Abrir Configurações'),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
         );
       }
+      return; // Stop if storage permission is not granted
+    }
+
+    // 2. Request Install Packages Permission
+    var installStatus = await Permission.requestInstallPackages.request();
+    if (!installStatus.isGranted) {
+       if (context.mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Permissão para instalar aplicativos desconhecidos negada.')),
+         );
+       }
+       return; // Stop if install permission is not granted
+    }
+
+    // 3. Proceed with Download
+    final externalDir = await getExternalStorageDirectory();
+    if (externalDir != null) {
+      await FlutterDownloader.enqueue(
+        url: updateInfo.downloadUrl,
+        savedDir: externalDir.path,
+        fileName: 'app-release.apk',
+        showNotification: true,
+        openFileFromNotification: true,
+      );
+       if (context.mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Download da atualização iniciado...')),
+         );
+       }
+    } else {
+       if (context.mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Não foi possível encontrar o diretório para download.')),
+         );
+       }
     }
   }
 }

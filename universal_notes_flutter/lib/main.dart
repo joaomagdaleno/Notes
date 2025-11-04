@@ -6,6 +6,7 @@ import 'dart:isolate';
 import 'dart:ui';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:open_file/open_file.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
@@ -18,6 +19,10 @@ enum ViewMode { gridSmall, gridMedium, gridLarge, list, listSimple }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
   if (Platform.isAndroid || Platform.isIOS) {
     await FlutterDownloader.initialize(
       debug: true,
