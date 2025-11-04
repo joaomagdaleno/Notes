@@ -4,7 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
+  gal
+  irondash_engine_context
   permission_handler_windows
+  super_native_extensions
   url_launcher_windows
 )
 
