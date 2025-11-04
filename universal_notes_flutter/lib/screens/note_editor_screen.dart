@@ -65,25 +65,22 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   Widget _buildFluentUI(BuildContext context) {
     return fluent.ScaffoldPage(
-      header: fluent.PageHeader(
-        title: Text(widget.note == null ? 'Nova Nota' : 'Editar Nota'),
-        commandBar: fluent.CommandBar(
-          mainAxisAlignment: fluent.MainAxisAlignment.end,
-          primaryItems: [
-            fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.back),
-              onPressed: () => Navigator.pop(context),
-            ),
-            fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.save),
-              label: const Text('Salvar e fechar'),
-              onPressed: () {
-                _saveNote();
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
+      header: fluent.CommandBar(
+        mainAxisAlignment: fluent.MainAxisAlignment.end,
+        primaryItems: [
+          fluent.CommandBarButton(
+            icon: const fluent.Icon(fluent.FluentIcons.back),
+            onPressed: () => Navigator.pop(context),
+          ),
+          fluent.CommandBarButton(
+            icon: const fluent.Icon(fluent.FluentIcons.save),
+            label: const Text('Salvar e fechar'),
+            onPressed: () {
+              _saveNote();
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
       content: Padding(
         padding: const EdgeInsets.all(16.0),
