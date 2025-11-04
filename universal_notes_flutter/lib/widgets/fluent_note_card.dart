@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -31,7 +32,7 @@ class FluentNoteCard extends StatelessWidget {
           const SizedBox(height: 8.0),
           Expanded(
             child: Text(
-              note.contentPreview,
+              _getPreviewText(note.content),
               style: fluent.FluentTheme.of(context).typography.body,
               overflow: TextOverflow.ellipsis,
               maxLines: 5,
@@ -45,5 +46,18 @@ class FluentNoteCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+String _getPreviewText(String jsonContent) {
+  try {
+    final List<dynamic> delta = jsonDecode(jsonContent);
+    final text = delta
+        .where((op) => op is Map && op.containsKey('insert'))
+        .map((op) => op['insert'].toString())
+        .join('');
+    return text.replaceAll(RegExp(r'\s+'), ' ').trim();
+  } catch (e) {
+    return '...';
   }
 }

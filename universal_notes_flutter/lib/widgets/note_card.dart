@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
@@ -44,7 +45,7 @@ class NoteCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (note.contentPreview.isNotEmpty)
+              if (note.content.isNotEmpty)
                 Expanded(
                   child: Container(
                     width: double.infinity,
@@ -56,7 +57,7 @@ class NoteCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Text(
-                      note.contentPreview,
+                      _getPreviewText(note.content),
                       style: TextStyle(
                           color:
                               Theme.of(context).colorScheme.onSurfaceVariant),
@@ -65,7 +66,7 @@ class NoteCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (note.contentPreview.isNotEmpty) const SizedBox(height: 8),
+              if (note.content.isNotEmpty) const SizedBox(height: 8),
               Text(
                 note.title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -84,5 +85,18 @@ class NoteCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+String _getPreviewText(String jsonContent) {
+  try {
+    final List<dynamic> delta = jsonDecode(jsonContent);
+    final text = delta
+        .where((op) => op is Map && op.containsKey('insert'))
+        .map((op) => op['insert'].toString())
+        .join('');
+    return text.replaceAll(RegExp(r'\s+'), ' ').trim();
+  } catch (e) {
+    return '...';
   }
 }
