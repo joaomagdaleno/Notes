@@ -19,6 +19,14 @@ jobs:
         with:
           channel: stable
 
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: '%LOCALAPPDATA%\Pub\Cache'
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
       - name: Inject version into pubspec
         shell: pwsh
         working-directory: universal_notes_flutter
@@ -63,6 +71,14 @@ jobs:
           channel: stable
           cache: true
           cache-key: flutter-3.35.7
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Set up Java
         uses: actions/setup-java@v4
