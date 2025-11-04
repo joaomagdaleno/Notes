@@ -22,21 +22,16 @@ class SettingsScreen extends StatelessWidget {
       ),
       content: ListView(
         children: [
-          fluent.Button(
-            style: fluent.ButtonStyle(
-              backgroundColor: fluent.WidgetStateProperty.all(fluent.Colors.transparent),
-              padding: fluent.WidgetStateProperty.all(EdgeInsets.zero),
-            ),
+          fluent.ListTile.selectable(
+            title: const Text('Sobre'),
+            leading: const fluent.Icon(fluent.FluentIcons.info),
             onPressed: () {
-              Navigator.push(
-                context,
-                fluent.FluentPageRoute(builder: (_) => const AboutScreen()),
+              Navigator.of(context).push(
+                fluent.FluentPageRoute(
+                  builder: (context) => const AboutScreen(),
+                ),
               );
             },
-            child: const fluent.ListTile(
-              leading: fluent.Icon(fluent.FluentIcons.info),
-              title: Text('Sobre'),
-            ),
           ),
         ],
       ),
