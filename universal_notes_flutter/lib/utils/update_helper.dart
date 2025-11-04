@@ -60,9 +60,10 @@ class UpdateHelper {
   }
 
   static Future<void> _downloadUpdate(BuildContext context, UpdateInfo updateInfo) async {
-    final status = await Permission.storage.request();
+    var storageStatus = await Permission.storage.request();
+    var installStatus = await Permission.requestInstallPackages.request();
 
-    if (status.isGranted) {
+    if (storageStatus.isGranted && installStatus.isGranted) {
       final externalDir = await getExternalStorageDirectory();
 
       if (externalDir != null) {
