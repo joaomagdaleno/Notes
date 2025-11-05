@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -35,17 +36,27 @@ class UpdateService {
 
         if (_isNewerVersion(latestVersion, currentVersion)) {
           if (assets != null && assets.isNotEmpty) {
-            final apkAsset = assets.firstWhere(
-              (asset) => (asset['name'] as String).endsWith('.apk'),
+            final String fileExtension;
+            if (Platform.isWindows) {
+              fileExtension = '.exe';
+            } else if (Platform.isAndroid) {
+              fileExtension = '.apk';
+            } else {
+              // Platform not supported for updates, so no update is available.
+              return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+            }
+
+            final releaseAsset = assets.firstWhere(
+              (asset) => (asset['name'] as String).endsWith(fileExtension),
               orElse: () => null,
             );
 
-            if (apkAsset != null) {
+            if (releaseAsset != null) {
               return UpdateCheckResult(
                 UpdateCheckStatus.updateAvailable,
                 updateInfo: UpdateInfo(
                   version: latestVersion,
-                  downloadUrl: apkAsset['browser_download_url'] as String,
+                  downloadUrl: releaseAsset['browser_download_url'] as String,
                 ),
               );
             }

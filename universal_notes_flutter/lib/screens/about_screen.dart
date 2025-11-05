@@ -19,6 +19,7 @@ class AboutScreen extends StatefulWidget {
 class _AboutScreenState extends State<AboutScreen> {
   String _currentVersion = '...';
   bool _isChecking = false;
+  String _updateStatus = '';
   ReceivePort? _port;
 
   @override
@@ -86,6 +87,27 @@ class _AboutScreenState extends State<AboutScreen> {
     }
   }
 
+  Future<void> _checkForUpdateWindows() async {
+    setState(() {
+      _isChecking = true;
+      _updateStatus = '';
+    });
+    await WindowsUpdateHelper.checkForUpdate(
+      onStatusChange: (message) {
+        if (mounted) setState(() => _updateStatus = message);
+      },
+      onError: (message) {
+        if (mounted) setState(() => _updateStatus = message);
+      },
+      onNoUpdate: () {
+        if (mounted) setState(() => _updateStatus = 'Você já está na versão mais recente.');
+      },
+      onCheckFinished: () {
+        if (mounted) setState(() => _isChecking = false);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (Platform.isWindows) {
@@ -116,16 +138,17 @@ class _AboutScreenState extends State<AboutScreen> {
           children: [
             Text('Versão atual: $_currentVersion'),
             const SizedBox(height: 20),
-            _isChecking
-                ? const fluent.ProgressRing()
-                : fluent.FilledButton(
-                    onPressed: () => WindowsUpdateHelper.checkForUpdate(
-                      context,
-                      onCheckStarted: () => setState(() => _isChecking = true),
-                      onCheckFinished: () => setState(() => _isChecking = false),
-                    ),
-                    child: const Text('Verificar Atualizações'),
-                  ),
+            if (_isChecking)
+              const fluent.ProgressRing(),
+            if (!_isChecking)
+              fluent.FilledButton(
+                onPressed: _checkForUpdateWindows,
+                child: const Text('Verificar Atualizações'),
+              ),
+            if (_updateStatus.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(_updateStatus, textAlign: TextAlign.center),
+            ]
           ],
         ),
       ),
