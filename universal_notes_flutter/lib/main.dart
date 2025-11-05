@@ -190,16 +190,20 @@ class _NotesScreenState extends State<NotesScreen> {
     }
   }
 
-  void _updateNote(Note note) async {
+  Future<Note> _updateNote(Note note) async {
     // Check if the note already exists
     final notes = await _notesFuture;
     final index = notes.indexWhere((n) => n.id == note.id);
+    Note savedNote;
     if (index != -1) {
       await noteRepository.updateNote(note);
+      savedNote = note;
     } else {
-      await noteRepository.insertNote(note);
+      final newId = await noteRepository.insertNote(note);
+      savedNote = note.copyWith(id: newId);
     }
     _loadNotes();
+    return savedNote;
   }
 
   void _deleteNote(Note note) async {
@@ -242,32 +246,18 @@ class _NotesScreenState extends State<NotesScreen> {
               label: const Text('Pesquisar'),
               onPressed: () {},
             ),
+            fluent.CommandBarButton(
+              icon: const fluent.Icon(fluent.FluentIcons.sort),
+              label: const Text('Ordenar'),
+              onPressed: () {},
+            ),
           ],
         ),
         content: _buildBody(),
       );
 
       return fluent.NavigationView(
-        appBar: fluent.NavigationAppBar(
-          actions: fluent.Row(
-            children: [
-              fluent.DropDownButton(
-                title: const Text('Ordenar'),
-                items: [
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Ordenar por data'),
-                    onPressed: () {},
-                  ),
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Ordenar por título'),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-              const SizedBox(width: 16),
-            ],
-          ),
-        ),
+        appBar: fluent.NavigationAppBar(),
         pane: fluent.NavigationPane(
           selected: _selectedIndex,
           onChanged: (index) => setState(() => _selectedIndex = index),

@@ -8,7 +8,7 @@ import '../models/note.dart';
 
 class NoteEditorScreen extends StatefulWidget {
   final Note? note;
-  final Function(Note) onSave;
+  final Future<Note> Function(Note) onSave;
 
   const NoteEditorScreen({super.key, this.note, required this.onSave});
 
@@ -21,11 +21,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late quill.QuillController _contentController;
   final FocusNode _editorFocusNode = FocusNode();
   Timer? _debounce;
+  Note? _currentNote;
 
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.note?.title ?? '');
+    _currentNote = widget.note;
+    _titleController = TextEditingController(text: _currentNote?.title ?? '');
     _initializeContentController();
 
     _debounce = Timer.periodic(const Duration(seconds: 5), (timer) {
@@ -34,7 +36,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   void _initializeContentController() {
-    final content = widget.note?.content;
+    final content = _currentNote?.content;
     if (content != null && content.isNotEmpty) {
       try {
         final doc = quill.Document.fromJson(jsonDecode(content));
@@ -60,7 +62,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     super.dispose();
   }
 
-  void _saveNote() {
+  Future<void> _saveNote() async {
     final title = _titleController.text;
     final contentJson = jsonEncode(_contentController.document.toDelta().toJson());
 
@@ -69,12 +71,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
 
     final note = Note(
-      id: widget.note?.id,
+      id: _currentNote?.id,
       title: title,
       content: contentJson,
-      date: widget.note?.date ?? DateTime.now(),
+      date: _currentNote?.date ?? DateTime.now(),
     );
-    widget.onSave(note);
+    final savedNote = await widget.onSave(note);
+    if (mounted) {
+      setState(() {
+        _currentNote = savedNote;
+      });
+    }
   }
 
   @override
@@ -89,7 +96,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   Widget _buildFluentUI(BuildContext context) {
     return fluent.ScaffoldPage(
       header: fluent.CommandBar(
-        mainAxisAlignment: fluent.MainAxisAlignment.end,
+        mainAxisAlignment: fluent.MainAxisAlignment.start,
         primaryItems: [
           fluent.CommandBarButton(
             icon: const fluent.Icon(fluent.FluentIcons.back),
@@ -119,14 +126,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Expanded(
-              child: quill.QuillEditor.basic(
-                focusNode: _editorFocusNode,
-                configurations: quill.QuillEditorConfigurations(
-                  controller: _contentController,
-                  padding: const EdgeInsets.all(16),
-                  sharedConfigurations: const quill.QuillSharedConfigurations(
-                    locale: Locale('pt_BR'),
+            Flexible(
+              child: Expanded(
+                child: quill.QuillEditor.basic(
+                  focusNode: _editorFocusNode,
+                  configurations: quill.QuillEditorConfigurations(
+                    controller: _contentController,
+                    padding: const EdgeInsets.all(16),
+                    sharedConfigurations: const quill.QuillSharedConfigurations(
+                      locale: Locale('pt_BR'),
+                    ),
                   ),
                 ),
               ),

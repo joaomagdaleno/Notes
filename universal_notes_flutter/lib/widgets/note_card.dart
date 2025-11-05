@@ -7,7 +7,7 @@ import 'context_menu_helper.dart';
 
 class NoteCard extends StatelessWidget {
   final Note note;
-  final Function(Note) onSave;
+  final Future<Note> Function(Note) onSave;
   final Function(Note) onDelete;
 
   const NoteCard(

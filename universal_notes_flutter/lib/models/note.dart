@@ -1,3 +1,7 @@
+import 'package:uuid/uuid.dart';
+
+const uuid = Uuid();
+
 class Note {
   final String id;
   String title;
@@ -15,7 +19,7 @@ class Note {
     this.isFavorite = false,
     this.isLocked = false,
     this.isInTrash = false,
-  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+  }) : id = id ?? uuid.v4();
 
   // Convert a Note into a Map. The keys must correspond to the names of the
   // columns in the database.
@@ -41,6 +45,26 @@ class Note {
       isFavorite: map['isFavorite'] == 1,
       isLocked: map['isLocked'] == 1,
       isInTrash: map['isInTrash'] == 1,
+    );
+  }
+
+  Note copyWith({
+    String? id,
+    String? title,
+    String? content,
+    DateTime? date,
+    bool? isFavorite,
+    bool? isLocked,
+    bool? isInTrash,
+  }) {
+    return Note(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      date: date ?? this.date,
+      isFavorite: isFavorite ?? this.isFavorite,
+      isLocked: isLocked ?? this.isLocked,
+      isInTrash: isInTrash ?? this.isInTrash,
     );
   }
 }
