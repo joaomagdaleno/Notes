@@ -5,20 +5,11 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
+import 'package.flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 
 void main() {
-  // Ensure the test environment is ready for Flutter specifics.
-  TestWidgetsFlutterBinding.ensureInitialized();
-
-  // Set up the downloader initialization before the tests run.
-  setUpAll(() async {
-    await FlutterDownloader.initialize(debug: true);
-  });
-
   testWidgets('AboutScreen UI smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MaterialApp(home: AboutScreen()));

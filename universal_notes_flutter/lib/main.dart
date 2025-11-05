@@ -3,9 +3,6 @@ import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'dart:isolate';
-import 'dart:ui';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:open_file/open_file.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
@@ -24,12 +21,6 @@ void main() async {
     await windowManager.ensureInitialized();
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-  }
-  if (Platform.isAndroid || Platform.isIOS) {
-    await FlutterDownloader.initialize(
-      debug: true,
-    );
-    FlutterDownloader.registerCallback(downloadCallback);
   }
 
   runApp(const _MyAppWithWindowListener());
@@ -65,13 +56,6 @@ class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener> with
     await noteRepository.close();
     await windowManager.destroy();
   }
-}
-
-
-@pragma('vm:entry-point')
-void downloadCallback(String id, int status, int progress) {
-  final SendPort? send = IsolateNameServer.lookupPortByName('downloader_send_port');
-  send?.send([id, status, progress]);
 }
 
 class MyFluentApp extends StatelessWidget {
@@ -136,15 +120,11 @@ class _NotesScreenState extends State<NotesScreen> {
   bool _isNavigationRailExpanded = false;
   int _selectedIndex = 0;
   ViewMode _viewMode = ViewMode.gridMedium;
-  final ReceivePort _port = ReceivePort();
 
   @override
   void initState() {
     super.initState();
     _loadNotes();
-    if (Platform.isAndroid || Platform.isIOS) {
-      _bindBackgroundIsolate();
-    }
     // Use a post-frame callback to ensure the Scaffold is available.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Check for updates on all platforms
@@ -160,34 +140,7 @@ class _NotesScreenState extends State<NotesScreen> {
 
   @override
   void dispose() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      _unbindBackgroundIsolate();
-    }
     super.dispose();
-  }
-
-  void _bindBackgroundIsolate() {
-    IsolateNameServer.registerPortWithName(_port.sendPort, 'downloader_send_port');
-    _port.listen((dynamic data) {
-      final status = DownloadTaskStatus.fromInt(data[1]);
-      final String taskId = data[0];
-
-      if (status == DownloadTaskStatus.complete) {
-        _openDownloadedFile(taskId);
-      }
-    });
-  }
-
-  void _unbindBackgroundIsolate() {
-    IsolateNameServer.removePortNameMapping('downloader_send_port');
-  }
-
-  Future<void> _openDownloadedFile(String taskId) async {
-    final tasks = await FlutterDownloader.loadTasksWithRawQuery(query: 'SELECT * FROM task WHERE task_id="$taskId"');
-    if (tasks != null && tasks.isNotEmpty) {
-      final task = tasks.first;
-      OpenFile.open('${task.savedDir}/${task.filename}');
-    }
   }
 
   Future<Note> _updateNote(Note note) async {
