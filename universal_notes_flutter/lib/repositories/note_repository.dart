@@ -37,13 +37,14 @@ class NoteRepository {
     ''');
   }
 
-  Future<void> insertNote(Note note) async {
+  Future<String> insertNote(Note note) async {
     final db = await database;
     await db.insert(
       _tableName,
       note.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    return note.id;
   }
 
   Future<List<Note>> getAllNotes() async {

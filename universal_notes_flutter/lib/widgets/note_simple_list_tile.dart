@@ -6,7 +6,7 @@ import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 class NoteSimpleListTile extends StatelessWidget {
   final Note note;
-  final Function(Note) onSave;
+  final Future<Note> Function(Note) onSave;
   final Function(Note) onDelete;
 
   const NoteSimpleListTile({
