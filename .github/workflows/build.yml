@@ -91,7 +91,7 @@ jobs:
 
       - name: Get base version from last tag (Windows)
         if: runner.os == 'Windows'
-        id: version
+        id: version-win
         shell: pwsh
         run: |
           git fetch --tags --depth=1
@@ -104,7 +104,7 @@ jobs:
         shell: pwsh
         working-directory: universal_notes_flutter
         run: |
-          (Get-Content pubspec.yaml) -replace '^version:.*',"version: ${{ steps.version.outputs.base }}+${{ github.run_number }}" | Set-Content pubspec.yaml
+          (Get-Content pubspec.yaml) -replace '^version:.*',"version: ${{ steps.version-win.outputs.base }}+${{ github.run_number }}" | Set-Content pubspec.yaml
 
       - name: Get base version from last tag (Linux)
         if: runner.os == 'Linux'
@@ -139,7 +139,7 @@ jobs:
       - name: Build Installer
         if: runner.os == 'Windows'
         run: |
-          (Get-Content installer.iss) -replace '0\.1\.7', '${{ steps.version.outputs.base }}' | Set-Content installer.iss
+          (Get-Content installer.iss) -replace '0\.1\.7', '${{ steps.version-win.outputs.base }}' | Set-Content installer.iss
           & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
 
       - name: Upload Installer Artifact
