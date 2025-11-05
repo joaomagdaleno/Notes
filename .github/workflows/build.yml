@@ -6,20 +6,35 @@ on:
       - 'v*'
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
+      - name: Cache Flutter SDK (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: C:\hostedtoolcache\windows\flutter\stable-3.35.7-x64
+          key: flutter-win-3.35.7
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: '3.35.7'
+          cache: true
+          cache-key: flutter-3.35.7
 
-      - name: Cache Pub dependencies
+      - name: Cache Pub dependencies (Windows)
+        if: runner.os == 'Windows'
         uses: actions/cache@v4
         with:
           path: '%LOCALAPPDATA%\Pub\Cache'
@@ -27,52 +42,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-
 
-      - name: Inject version into pubspec
-        shell: pwsh
-        working-directory: universal_notes_flutter
-        run: |
-          $v = "${{ github.ref_name }}".TrimStart('v')
-          (Get-Content pubspec.yaml) -replace '^version:.*', "version: $v+${{ github.run_number }}" | Set-Content pubspec.yaml
-
-      - name: Flutter Build Windows
-        working-directory: universal_notes_flutter
-        run: |
-          flutter pub get
-          flutter build windows
-
-      - name: Install Inno Setup
-        run: |
-          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile is.exe
-          Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES" -Wait
-
-      - name: Build Installer
-        run: |
-          $version = "${{ github.ref_name }}".TrimStart('v')
-          (Get-Content installer.iss) -replace '0\.1\.7', $version | Set-Content installer.iss
-          & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
-
-      - name: Upload Installer Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-installer
-          path: Output/UniversalNotesSetup-*.exe
-
-  build-android:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-          cache-key: flutter-3.35.7
-
-      - name: Cache Pub dependencies
+      - name: Cache Pub dependencies (Linux)
+        if: runner.os == 'Linux'
         uses: actions/cache@v4
         with:
           path: ~/.pub-cache
@@ -80,42 +51,84 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-
 
-      - name: Set up Java
+      - name: Set up Java (Android)
+        if: runner.os == 'Linux'
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Cache Gradle packages
+      - name: Cache Gradle packages (Android)
+        if: runner.os == 'Linux'
         uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            ~/.android/build-cache
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/gradle-wrapper.properties') }}
+            /usr/local/lib/android/sdk/ndk
+            /usr/local/lib/android/sdk/platforms
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/gradle*', '**/gradlew*') }}
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      - name: Inject version into pubspec
+      - name: Inject version into pubspec (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        working-directory: universal_notes_flutter
+        run: |
+          $v = "${{ github.ref_name }}".TrimStart('v')
+          (Get-Content pubspec.yaml) -replace '^version:.*', "version: $v+${{ github.run_number }}" | Set-Content pubspec.yaml
+
+      - name: Inject version into pubspec (Linux)
+        if: runner.os == 'Linux'
         working-directory: universal_notes_flutter
         run: |
           VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
           sed -i "s/^version:.*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
 
-      - name: Flutter Build APK
+      - name: Flutter Pub Get
         working-directory: universal_notes_flutter
+        run: flutter pub get
+
+      - name: Flutter Build Windows
+        if: runner.os == 'Windows'
+        working-directory: universal_notes_flutter
+        run: flutter build windows
+
+      - name: Install Inno Setup
+        if: runner.os == 'Windows'
         run: |
-          flutter pub get
-          flutter build apk --release --target-platform=android-arm64
+          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile is.exe
+          Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES" -Wait
+
+      - name: Build Installer
+        if: runner.os == 'Windows'
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          (Get-Content installer.iss) -replace '0\.1\.7', $version | Set-Content installer.iss
+          & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
+
+      - name: Upload Installer Artifact
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: Output/UniversalNotesSetup-*.exe
+
+      - name: Flutter Build APK
+        if: runner.os == 'Linux'
+        working-directory: universal_notes_flutter
+        run: flutter build apk --release --target-platform=android-arm64
 
       - name: Rename APK with version
+        if: runner.os == 'Linux'
         working-directory: universal_notes_flutter
         run: |
           VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
           mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/universal_notes-v$VERSION.apk
 
       - name: Upload APK Artifact
+        if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
@@ -123,7 +136,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [build-windows, build-android]
+    needs: build
     permissions:
       contents: write
     steps:
