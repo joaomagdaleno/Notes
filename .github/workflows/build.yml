@@ -96,8 +96,6 @@ jobs:
         if: runner.os == 'Windows'
         id: version-win
         shell: pwsh
-        continue-on-error: false
-        fail-on-stderr: false
         env:
           POWERSHELL_TELEMETRY_OPTOUT: 1
         run: |
