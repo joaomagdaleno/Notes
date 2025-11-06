@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+
+env:
+  ACTIONS_STEP_DEBUG: true
     tags:
       - 'v*'
   pull_request:
@@ -121,7 +124,20 @@ jobs:
         run: |
           sed -i "s/^version:.*/version: ${{ steps.version.outputs.base }}+${GITHUB_RUN_NUMBER}/" pubspec.yaml
 
-      - name: Flutter Pub Get
+      - name: Flutter Doctor (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        working-directory: universal_notes_flutter
+        run: flutter doctor -v || exit 1
+
+      - name: Flutter Pub Get (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        working-directory: universal_notes_flutter
+        run: flutter pub get || exit 1
+
+      - name: Flutter Pub Get (Linux)
+        if: runner.os == 'Linux'
         working-directory: universal_notes_flutter
         run: flutter pub get
 
