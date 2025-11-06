@@ -95,13 +95,12 @@ jobs:
       - name: Get base version from last tag (Windows)
         if: runner.os == 'Windows'
         id: version-win
-        shell: pwsh
+        shell: powershell
         run: |
-          $PSNativeCommandUseErrorActionPreference = $false
           git fetch --tags --depth=1
           $base = (git describe --tags --abbrev=0 2>$null) -replace '^v',''
           if (-not $base) { $base = '0.0.0' }
-          "base=$base" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$base"
 
       - name: Bump pubspec version (Windows)
         if: runner.os == 'Windows'
