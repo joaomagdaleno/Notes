@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - main
-
-env:
-  ACTIONS_STEP_DEBUG: true
     tags:
       - 'v*'
   pull_request:
     branches:
       - main
+
+env:
+  ACTIONS_STEP_DEBUG: true
 
 jobs:
   build:
