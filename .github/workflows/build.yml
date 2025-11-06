@@ -100,7 +100,7 @@ jobs:
           git fetch --tags --depth=1
           $base = (git describe --tags --abbrev=0 2>$null) -replace '^v',''
           if ([string]::IsNullOrEmpty($base)) { $base = '0.0.0' }
-          "base=$base" >> $env:GITHUB_OUTPUT
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$base"
 
       - name: Bump pubspec version (Windows)
         if: runner.os == 'Windows'
