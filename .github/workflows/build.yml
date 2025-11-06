@@ -96,7 +96,11 @@ jobs:
         if: runner.os == 'Windows'
         id: version-win
         shell: pwsh
+        continue-on-error: false
+        env:
+          POWERSHELL_TELEMETRY_OPTOUT: 1
         run: |
+          $ErrorActionPreference = 'Continue'
           git fetch --tags --depth=1
           $base = (git describe --tags --abbrev=0 2>$null) -replace '^v',''
           if ([string]::IsNullOrEmpty($base)) { $base = '0.0.0' }
