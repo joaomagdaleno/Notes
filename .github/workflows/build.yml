@@ -97,7 +97,7 @@ jobs:
         id: version-win
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Continue'
+          $PSNativeCommandUseErrorActionPreference = $false
           git fetch --tags --depth=1
           $base = (git describe --tags --abbrev=0 2>$null) -replace '^v',''
           if (-not $base) { $base = '0.0.0' }
