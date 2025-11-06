@@ -98,8 +98,12 @@ jobs:
         shell: powershell
         run: |
           git fetch --tags --depth=1
-          $base = (git describe --tags --abbrev=0 2>$null) -replace '^v',''
-          if (-not $base) { $base = '0.0.0' }
+          try {
+            $base = (git describe --tags --abbrev=0) -replace '^v',''
+          }
+          catch {
+            $base = '0.0.0'
+          }
           Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$base"
 
       - name: Bump pubspec version (Windows)
