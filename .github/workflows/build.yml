@@ -143,8 +143,9 @@ jobs:
 
       - name: Flutter Build Windows
         if: runner.os == 'Windows'
+        shell: cmd
         working-directory: universal_notes_flutter
-        run: flutter build windows
+        run: flutter build windows || exit 1
 
       - name: Install Inno Setup
         if: runner.os == 'Windows'
