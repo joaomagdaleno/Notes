@@ -95,13 +95,12 @@ jobs:
       - name: Get base version from last tag (Windows)
         if: runner.os == 'Windows'
         id: version-win
-        shell: cmd
-        run: >
-          powershell -NoLogo -NoProfile -Command
-          "git fetch --tags --depth=1 2>&1;
-           $b=(git describe --tags --abbrev=0 2>$null) -replace '^v','';
-           if(!$b){$b='0.0.0'};
-           Add-Content -Path $env:GITHUB_OUTPUT -Value """base=$b""""
+        shell: pwsh
+        run: |
+          git fetch --tags --depth=1
+          $b = (git describe --tags --abbrev=0 2>$null) -replace '^v',''
+          if (!$b) { $b = '0.0.0' }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$b"
 
       - name: Bump pubspec version (Windows)
         if: runner.os == 'Windows'
@@ -127,15 +126,15 @@ jobs:
 
       - name: Flutter Doctor (Windows)
         if: runner.os == 'Windows'
-        shell: cmd
+        shell: pwsh
         working-directory: universal_notes_flutter
-        run: flutter doctor -v || exit 1
+        run: flutter doctor -v
 
       - name: Flutter Pub Get (Windows)
         if: runner.os == 'Windows'
-        shell: cmd
+        shell: pwsh
         working-directory: universal_notes_flutter
-        run: flutter pub get || exit 1
+        run: flutter pub get
 
       - name: Flutter Pub Get (Linux)
         if: runner.os == 'Linux'
@@ -144,9 +143,9 @@ jobs:
 
       - name: Flutter Build Windows
         if: runner.os == 'Windows'
-        shell: cmd
+        shell: pwsh
         working-directory: universal_notes_flutter
-        run: flutter build windows || exit 1
+        run: flutter build windows
 
       - name: Install Inno Setup
         if: runner.os == 'Windows'
