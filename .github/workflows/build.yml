@@ -20,6 +20,9 @@ jobs:
         os: [windows-latest, ubuntu-latest]
       fail-fast: false
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: universal_notes_flutter
 
     steps:
       - name: Checkout
@@ -31,27 +34,10 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
+          flutter-version: '3.31.0'
           cache: true
-          cache-key: flutter-3.24.5
+          cache-key: flutter-3.31.0
 
-      - name: Cache Pub dependencies (Windows)
-        if: runner.os == 'Windows'
-        uses: actions/cache@v4
-        with:
-          path: C:\Users\runneradmin\AppData\Local\Pub\Cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Cache Pub dependencies (Linux)
-        if: runner.os == 'Linux'
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
 
       - name: Set up Java (Android)
         if: runner.os == 'Linux'
@@ -86,61 +72,37 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      - name: Get base version from last tag (Windows)
-        if: runner.os == 'Windows'
-        id: version-win
-        shell: pwsh
-        run: |
-          $b = '0.0.0'
-          $output = git describe --tags --abbrev=0 2>&1
-          if ($LASTEXITCODE -eq 0) {
-            $b = $output -replace '^v',''
-          }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$b"
-
-      - name: Bump pubspec version (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        working-directory: universal_notes_flutter
-        run: |
-          (Get-Content pubspec.yaml) -replace '^version:.*',"version: ${{ steps.version-win.outputs.base }}+${{ github.run_number }}" | Set-Content pubspec.yaml
-
-      - name: Get base version from last tag (Linux)
-        if: runner.os == 'Linux'
+      - name: Get base version from tag
         id: version
         run: |
           git fetch --tags --depth=1
           BASE=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
-          BASE=${BASE#v}          # remove "v" se existir
+          BASE=${BASE#v}
           echo "base=$BASE" >> $GITHUB_OUTPUT
+        shell: bash
 
-      - name: Bump pubspec version (Linux)
-        if: runner.os == 'Linux'
-        working-directory: universal_notes_flutter
+      - name: Bump pubspec version
         run: |
           sed -i "s/^version:.*/version: ${{ steps.version.outputs.base }}+${GITHUB_RUN_NUMBER}/" pubspec.yaml
+        shell: bash
 
       - name: Flutter Doctor (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        working-directory: universal_notes_flutter
         run: flutter doctor -v
 
       - name: Flutter Pub Get (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        working-directory: universal_notes_flutter
         run: flutter pub get
 
       - name: Flutter Pub Get (Linux)
         if: runner.os == 'Linux'
-        working-directory: universal_notes_flutter
         run: flutter pub get
 
       - name: Flutter Build Windows
         if: runner.os == 'Windows'
         shell: pwsh
-        working-directory: universal_notes_flutter
         run: flutter build windows
 
       - name: Install Inno Setup
@@ -152,7 +114,7 @@ jobs:
       - name: Build Installer
         if: runner.os == 'Windows'
         run: |
-          (Get-Content installer.iss) -replace '0\.1\.7', '${{ steps.version-win.outputs.base }}' | Set-Content installer.iss
+          (Get-Content installer.iss) -replace '0\.1\.7', '${{ steps.version.outputs.base }}' | Set-Content installer.iss
           & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
 
       - name: Upload Installer Artifact
@@ -164,12 +126,10 @@ jobs:
 
       - name: Flutter Build APK
         if: runner.os == 'Linux'
-        working-directory: universal_notes_flutter
         run: flutter build apk --release --target-platform=android-arm64
 
       - name: Rename APK with version
         if: runner.os == 'Linux'
-        working-directory: universal_notes_flutter
         run: |
           mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/universal_notes-v${{ steps.version.outputs.base }}.apk
 
