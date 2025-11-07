@@ -20,9 +20,6 @@ jobs:
         os: [windows-latest, ubuntu-latest]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        working-directory: universal_notes_flutter
 
     steps:
       - name: Checkout
@@ -34,10 +31,9 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.31.0'
+          flutter-version: '3.35.7'
           cache: true
-          cache-key: flutter-3.31.0
-
+          cache-key: flutter-3.35.7
 
       - name: Set up Java (Android)
         if: runner.os == 'Linux'
@@ -55,7 +51,7 @@ jobs:
             ~/.gradle/caches/modules-2
             ~/.gradle/wrapper
             ~/.android/build-cache
-          key: gradle-${{ runner.os }}-${{ hashFiles('android/*.gradle*', 'gradle/wrapper/**') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/gradle.properties', '**/*.gradle*') }}
           restore-keys: |
             gradle-${{ runner.os }}-
 
@@ -68,41 +64,36 @@ jobs:
             ~/.gradle/caches/modules-2
             ~/.gradle/wrapper
             ~/.android/build-cache
-          key: gradle-${{ runner.os }}-${{ hashFiles('android/*.gradle*', 'gradle/wrapper/**') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/gradle.properties', '**/*.gradle*') }}
           restore-keys: |
             gradle-${{ runner.os }}-
 
       - name: Get base version from tag
         id: version
+        shell: bash
         run: |
           git fetch --tags --depth=1
           BASE=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
           BASE=${BASE#v}
           echo "base=$BASE" >> $GITHUB_OUTPUT
-        shell: bash
 
       - name: Bump pubspec version
+        shell: bash
+        working-directory: universal_notes_flutter
         run: |
           sed -i "s/^version:.*/version: ${{ steps.version.outputs.base }}+${GITHUB_RUN_NUMBER}/" pubspec.yaml
-        shell: bash
 
-      - name: Flutter Doctor (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
+      - name: Flutter Doctor
+        working-directory: universal_notes_flutter
         run: flutter doctor -v
 
-      - name: Flutter Pub Get (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: flutter pub get
-
-      - name: Flutter Pub Get (Linux)
-        if: runner.os == 'Linux'
+      - name: Flutter Pub Get
+        working-directory: universal_notes_flutter
         run: flutter pub get
 
       - name: Flutter Build Windows
         if: runner.os == 'Windows'
-        shell: pwsh
+        working-directory: universal_notes_flutter
         run: flutter build windows
 
       - name: Install Inno Setup
@@ -126,10 +117,12 @@ jobs:
 
       - name: Flutter Build APK
         if: runner.os == 'Linux'
+        working-directory: universal_notes_flutter
         run: flutter build apk --release --target-platform=android-arm64
 
       - name: Rename APK with version
         if: runner.os == 'Linux'
+        working-directory: universal_notes_flutter
         run: |
           mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/universal_notes-v${{ steps.version.outputs.base }}.apk
 
