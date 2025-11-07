@@ -26,6 +26,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          fetch-tags: true
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
@@ -90,11 +91,10 @@ jobs:
         id: version-win
         shell: pwsh
         run: |
-          git fetch --tags --depth=1
           $b = '0.0.0'
-          git describe --tags --abbrev=0 2>$null
+          $output = git describe --tags --abbrev=0 2>&1
           if ($LASTEXITCODE -eq 0) {
-            $b = (git describe --tags --abbrev=0) -replace '^v',''
+            $b = $output -replace '^v',''
           }
           Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$b"
 
