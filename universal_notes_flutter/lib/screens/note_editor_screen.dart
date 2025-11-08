@@ -119,18 +119,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             const SizedBox(height: 16),
             quill.QuillSimpleToolbar(
               controller: _contentController,
-              sharedConfigurations: const quill.QuillSharedConfigurations(
-                locale: Locale('pt_BR'),
-              ),
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: quill.QuillEditor.basic(
-                controller: _contentController,
-                focusNode: _editorFocusNode,
-                padding: const EdgeInsets.all(16),
-                sharedConfigurations: const quill.QuillSharedConfigurations(
-                  locale: Locale('pt_BR'),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: quill.QuillEditor.basic(
+                  controller: _contentController,
+                  focusNode: _editorFocusNode,
                 ),
               ),
             ),
@@ -160,18 +156,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             const SizedBox(height: 16),
             quill.QuillSimpleToolbar(
               controller: _contentController,
-              sharedConfigurations: const quill.QuillSharedConfigurations(
-                locale: Locale('pt_BR'),
-              ),
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: quill.QuillEditor.basic(
-                controller: _contentController,
-                focusNode: _editorFocusNode,
-                padding: const EdgeInsets.all(16),
-                sharedConfigurations: const quill.QuillSharedConfigurations(
-                  locale: Locale('pt_BR'),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: quill.QuillEditor.basic(
+                  controller: _contentController,
+                  focusNode: _editorFocusNode,
                 ),
               ),
             ),
