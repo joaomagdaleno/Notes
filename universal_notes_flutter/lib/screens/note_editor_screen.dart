@@ -110,7 +110,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         showRedo: true,
         showBoldButton: false,
         showItalicButton: false,
-        showUnderlineButton: false,
+        showUnderLineButton: false,
         showStrikeThrough: false,
         showInlineCode: false,
         showSubscript: false,
