@@ -46,6 +46,8 @@ dependencies:
   sqflite: ^2.3.3
   path: ^1.9.0
   appflowy_editor: ^6.1.0
+  flutter_drawing_board: ^0.5.0
+  flutter_colorpicker: ^1.0.3
   flutter_colorpicker: ^1.0.3
   sqflite_common_ffi: ^2.3.3
   window_manager: ^0.3.9

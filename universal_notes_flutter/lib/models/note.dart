@@ -10,6 +10,8 @@ class Note {
   bool isFavorite;
   bool isLocked;
   bool isInTrash;
+  String? drawingJson;
+  String? prefsJson;
 
   Note({
     String? id,
@@ -19,10 +21,10 @@ class Note {
     this.isFavorite = false,
     this.isLocked = false,
     this.isInTrash = false,
+    this.drawingJson,
+    this.prefsJson,
   }) : id = id ?? uuid.v4();
 
-  // Convert a Note into a Map. The keys must correspond to the names of the
-  // columns in the database.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -32,10 +34,11 @@ class Note {
       'isFavorite': isFavorite ? 1 : 0,
       'isLocked': isLocked ? 1 : 0,
       'isInTrash': isInTrash ? 1 : 0,
+      'drawingJson': drawingJson,
+      'prefsJson': prefsJson,
     };
   }
 
-  // Convert a Map into a Note.
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
       id: map['id'],
@@ -45,6 +48,8 @@ class Note {
       isFavorite: map['isFavorite'] == 1,
       isLocked: map['isLocked'] == 1,
       isInTrash: map['isInTrash'] == 1,
+      drawingJson: map['drawingJson'],
+      prefsJson: map['prefsJson'],
     );
   }
 
@@ -56,6 +61,8 @@ class Note {
     bool? isFavorite,
     bool? isLocked,
     bool? isInTrash,
+    String? drawingJson,
+    String? prefsJson,
   }) {
     return Note(
       id: id ?? this.id,
@@ -65,6 +72,8 @@ class Note {
       isFavorite: isFavorite ?? this.isFavorite,
       isLocked: isLocked ?? this.isLocked,
       isInTrash: isInTrash ?? this.isInTrash,
+      drawingJson: drawingJson ?? this.drawingJson,
+      prefsJson: prefsJson ?? this.prefsJson,
     );
   }
 }
