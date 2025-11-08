@@ -7,7 +7,7 @@ import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 
 class FluentNoteCard extends StatelessWidget {
   final Note note;
-  final Function(Note) onSave;
+  final Future<Note> Function(Note) onSave;
   final Function(Note) onDelete;
 
   const FluentNoteCard({
