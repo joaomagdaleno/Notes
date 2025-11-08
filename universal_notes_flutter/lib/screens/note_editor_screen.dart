@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart'
+    as flutter_colorpicker;
 import 'dart:io' show Platform;
 import '../models/note.dart';
 import '../models/paper_config.dart';
@@ -106,10 +107,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _drawController = DrawingController();
     if (_currentNote?.drawingJson != null) {
       try {
-        final list = (jsonDecode(_currentNote!.drawingJson!) as List)
-            .map((e) => DrawingContent.fromJson(e))
-            .toList();
-        _drawController.addContents(list);
+        final List<Map<String, dynamic>>? data =
+            jsonDecode(_currentNote!.drawingJson!) as List<Map<String, dynamic>>?;
+        if (data == null) return;
+        _drawController.addContents(PaintContent.decode(data));
       } catch (_) {}
     }
   }
@@ -386,10 +387,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           IconButton(
             icon: const Icon(Icons.brush),
             tooltip: 'Pincel',
-            onPressed: () => _drawController.setPaint(Paint()
-              ..color = _drawingColor
-              ..strokeWidth = _drawingStrokeWidth
-              ..style = PaintingStyle.stroke),
+            onPressed: () {
+              _drawController.setPaintContent = SimpleLine();
+              _drawController.setStyle(
+                color: _drawingColor,
+                strokeWidth: _drawingStrokeWidth,
+                style: PaintingStyle.stroke,
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.color_lens),
@@ -401,7 +406,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 builder: (_) => AlertDialog(
                   title: const Text('Selecione a cor'),
                   content: SingleChildScrollView(
-                    child: ColorPicker(
+                    child: flutter_colorpicker.ColorPicker(
                       pickerColor: _drawingColor,
                       onColorChanged: (v) => newColor = v,
                     ),
@@ -420,11 +425,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.cleaning_services),
-            onPressed: () => _drawController.setPaint(Paint()
-              ..color = Colors.white
-              ..strokeWidth = 20
-              ..style = PaintingStyle.stroke
-              ..blendMode = BlendMode.clear),
+            tooltip: 'Borracha',
+            onPressed: () {
+              _drawController.setPaintContent = Eraser();
+              _drawController.setStyle(strokeWidth: 20);
+            },
           ),
           const VerticalDivider(width: 1),
           IconButton(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart'
+    as flutter_colorpicker;
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 class CustomEditorToolbar extends StatelessWidget {
@@ -46,22 +47,30 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   Widget _toggleIcon(BuildContext context, IconData icon, String key) {
-    final isActive = editorState.getAttributeInSelection(key) == true;
-    return IconButton(
-      icon: Icon(icon, color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
-      onPressed: () => _toggleAttribute(key),
+    return ValueListenableBuilder(
+      valueListenable: editorState.selectionNotifier,
+      builder: (context, selection, _) {
+        final isActive = _isTextDecorationActive(editorState, selection, key);
+        return IconButton(
+          icon: Icon(icon,
+              color: isActive
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.black),
+          onPressed: () => _toggleAttribute(key),
+        );
+      },
     );
   }
 
   Widget _headingPopup(BuildContext context) {
-    return PopupMenuButton<HeadingLevel?>(
+    return PopupMenuButton<int?>(
       icon: const Icon(Icons.title),
       onSelected: _toggleHeading,
       itemBuilder: (_) => [
         const PopupMenuItem(value: null, child: Text('Normal')),
-        const PopupMenuItem(value: HeadingLevel.h1, child: Text('Heading 1')),
-        const PopupMenuItem(value: HeadingLevel.h2, child: Text('Heading 2')),
-        const PopupMenuItem(value: HeadingLevel.h3, child: Text('Heading 3')),
+        const PopupMenuItem(value: 1, child: Text('Heading 1')),
+        const PopupMenuItem(value: 2, child: Text('Heading 2')),
+        const PopupMenuItem(value: 3, child: Text('Heading 3')),
       ],
     );
   }
@@ -103,45 +112,67 @@ class CustomEditorToolbar extends StatelessWidget {
     );
   }
 
+  bool _isTextDecorationActive(
+    EditorState editorState,
+    Selection? selection,
+    String name,
+  ) {
+    selection = selection ?? editorState.selection;
+    if (selection == null) {
+      return false;
+    }
+    final nodes = editorState.getNodesInSelection(selection);
+    if (selection.isCollapsed) {
+      return editorState.toggledStyle.containsKey(name);
+    } else {
+      return nodes.allSatisfyInSelection(selection, (delta) {
+        return delta.everyAttributes(
+          (attributes) => attributes[name] == true,
+        );
+      });
+    }
+  }
+
   void _toggleAttribute(String key) {
     final selection = editorState.selection;
     if (selection == null) return;
-    final toggled = editorState.getAttributeInSelection(key) != true;
-    editorState.updateAttribute(key, toggled);
+    editorState.toggleAttribute(key);
   }
 
-  void _toggleHeading(HeadingLevel? level) {
-    final selection = editorState.selection;
-    if (selection == null) return;
-    final node = editorState.getNodeAtPath(selection.start.path);
-    if (node == null) return;
-
-    final attrs = {...node.attributes};
+  void _toggleHeading(int? level) {
     if (level == null) {
-      attrs[ParagraphBlockKeys.type] = ParagraphBlockKeys.type;
-      attrs.remove(HeadingBlockKeys.level);
-    } else {
-      attrs[ParagraphBlockKeys.type] = HeadingBlockKeys.type;
-      attrs[HeadingBlockKeys.level] = level.name;
+      editorState.formatNode(
+        null,
+        (node) => node.copyWith(
+          type: ParagraphBlockKeys.type,
+          attributes: {
+            ...node.attributes,
+            HeadingBlockKeys.level: null,
+          },
+        ),
+      );
+      return;
     }
-    final transaction = editorState.transaction..updateNode(node, attrs);
-    editorState.apply(transaction);
+    editorState.formatNode(
+      null,
+      (node) => node.copyWith(
+        type: HeadingBlockKeys.type,
+        attributes: {
+          ...node.attributes,
+          HeadingBlockKeys.level: level,
+        },
+      ),
+    );
   }
 
   void _toggleList(String listType) {
-    final selection = editorState.selection;
-    if (selection == null) return;
-    final node = editorState.getNodeAtPath(selection.start.path);
-    if (node == null) return;
-
-    final attrs = {...node.attributes};
-    if (attrs[ParagraphBlockKeys.type] == listType) {
-      attrs[ParagraphBlockKeys.type] = ParagraphBlockKeys.type;
-    } else {
-      attrs[ParagraphBlockKeys.type] = listType;
-    }
-    final transaction = editorState.transaction..updateNode(node, attrs);
-    editorState.apply(transaction);
+    editorState.formatNode(null, (node) {
+      if (node.type == listType) {
+        return node.copyWith(type: ParagraphBlockKeys.type);
+      } else {
+        return node.copyWith(type: listType);
+      }
+    });
   }
 
   void _insertLink(BuildContext context) async {
@@ -150,7 +181,7 @@ class CustomEditorToolbar extends StatelessWidget {
 
     final url = await _askUrl(context);
     if (url == null || url.isEmpty) return;
-    editorState.updateAttribute(AppFlowyRichTextKeys.href, url);
+    editorState.toggleAttribute(AppFlowyRichTextKeys.href, extraInfo: {'href': url});
   }
 
   void _pickColor(BuildContext context, {required bool isBackground}) async {
@@ -160,7 +191,7 @@ class CustomEditorToolbar extends StatelessWidget {
       builder: (_) => AlertDialog(
         title: const Text('Escolha a cor'),
         content: SingleChildScrollView(
-          child: ColorPicker(
+          child: flutter_colorpicker.ColorPicker(
             pickerColor: temp,
             onColorChanged: (c) => temp = c,
             showLabel: true,
