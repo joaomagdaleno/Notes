@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'dart:io' show Platform;
 import '../models/note.dart';
 
@@ -125,8 +124,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             ),
             const SizedBox(height: 16),
             quill.QuillToolbar.simple(
+              controller: _contentController,
               configurations: quill.QuillSimpleToolbarConfig(
-                controller: _contentController,
                 showUndo: true,
                 showRedo: true,
                 showBoldButton: false,
@@ -166,8 +165,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             ),
             if (_isToolbarVisible)
               quill.QuillToolbar.simple(
+                controller: _contentController,
                 configurations: quill.QuillSimpleToolbarConfig(
-                  controller: _contentController,
                   embedButtons: FlutterQuillEmbeds.toolbarButtons(),
                   showAlignmentButtons: true,
                 ),
@@ -178,7 +177,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 controller: _contentController,
                 focusNode: _editorFocusNode,
                 scrollController: _scrollController,
-                config: quill.QuillEditorConfig(
+                configurations: quill.QuillEditorConfig(
                   padding: const EdgeInsets.all(16),
                   embedBuilders: FlutterQuillEmbeds.editorBuilders(),
                 ),
@@ -209,8 +208,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             ),
             const SizedBox(height: 16),
             quill.QuillToolbar.simple(
+              controller: _contentController,
               configurations: quill.QuillSimpleToolbarConfig(
-                controller: _contentController,
                 showUndo: true,
                 showRedo: true,
                 showBoldButton: false,
@@ -250,8 +249,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             ),
             if (_isToolbarVisible)
               quill.QuillToolbar.simple(
+                controller: _contentController,
                 configurations: quill.QuillSimpleToolbarConfig(
-                  controller: _contentController,
                   embedButtons: FlutterQuillEmbeds.toolbarButtons(),
                   showAlignmentButtons: true,
                 ),
@@ -262,7 +261,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 controller: _contentController,
                 focusNode: _editorFocusNode,
                 scrollController: _scrollController,
-                config: quill.QuillEditorConfig(
+                configurations: quill.QuillEditorConfig(
                   padding: const EdgeInsets.all(16),
                   embedBuilders: FlutterQuillEmbeds.editorBuilders(),
                 ),
