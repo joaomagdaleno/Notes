@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package.flutter_quill/flutter_quill.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
@@ -65,6 +67,12 @@ class MyFluentApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return fluent.FluentApp(
       title: 'Universal Notes',
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
+      ],
       theme: fluent.FluentThemeData(
         accentColor: fluent.Colors.blue,
         brightness: fluent.Brightness.light,
@@ -86,6 +94,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Universal Notes',
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
+      ],
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.blue,
