@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'dart:io' show Platform;
 import '../models/note.dart';
 
@@ -19,12 +18,9 @@ class NoteEditorScreen extends StatefulWidget {
 
 class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late TextEditingController _titleController;
-  late quill.QuillController _contentController;
-  final FocusNode _editorFocusNode = FocusNode();
-  final ScrollController _scrollController = ScrollController();
+  late EditorState _editorState;
   Timer? _debounce;
   Note? _currentNote;
-  bool _isToolbarVisible = false;
 
   @override
   void initState() {
@@ -36,27 +32,20 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _debounce = Timer.periodic(const Duration(seconds: 5), (timer) {
       _saveNote();
     });
-
-    _contentController.changes.listen((event) {
-      setState(() {});
-    });
   }
 
   void _initializeContentController() {
     final content = _currentNote?.content;
     if (content != null && content.isNotEmpty) {
       try {
-        final doc = quill.Document.fromJson(jsonDecode(content));
-        _contentController = quill.QuillController(
-          document: doc,
-          selection: const TextSelection.collapsed(offset: 0),
-        );
+        final delta = Delta.fromJson(jsonDecode(content));
+        _editorState = EditorState.fromDelta(delta);
         return;
       } catch (e) {
-        // Fallback for plain text
+        // Fallback for plain text or invalid format
       }
     }
-    _contentController = quill.QuillController.basic();
+    _editorState = EditorState.blank(withInitialText: true);
   }
 
   @override
@@ -64,18 +53,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _debounce?.cancel();
     _saveNote();
     _titleController.dispose();
-    _contentController.dispose();
-    _editorFocusNode.dispose();
-    _scrollController.dispose();
+    _editorState.dispose();
     super.dispose();
   }
 
   Future<void> _saveNote() async {
     final title = _titleController.text;
-    final contentJson =
-        jsonEncode(_contentController.document.toDelta().toJson());
+    final contentJson = jsonEncode(_editorState.document.toDelta().toJson());
 
-    if (title.isEmpty && _contentController.document.isEmpty()) {
+    if (title.isEmpty && _editorState.document.isEmpty) {
       return;
     }
 
@@ -102,73 +88,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
   }
 
-  quill.QuillSimpleToolbar _buildToolbar(BuildContext context, {bool isFluent = false}) {
-    return quill.QuillSimpleToolbar(
-      controller: _contentController,
-      config: quill.QuillSimpleToolbarConfig(
-        showUndo: true,
-        showRedo: true,
-        showBoldButton: false,
-        showItalicButton: false,
-        showUnderLineButton: false,
-        showStrikeThrough: false,
-        showInlineCode: false,
-        showSubscript: false,
-        showSuperscript: false,
-        showClearFormat: false,
-        showFontFamily: false,
-        showFontSize: false,
-        showHeaderStyle: false,
-        showListNumbers: false,
-        showListBullets: false,
-        showListCheck: false,
-        showCodeBlock: false,
-        showQuote: false,
-        showIndent: false,
-        showLink: false,
-        showSearchButton: false,
-        showDirection: false,
-        showAlignmentButtons: false,
-        showColorButton: false,
-        showBackgroundColorButton: false,
-        customButtons: [
-          quill.QuillToolbarCustomButtonOptions(
-            icon: Icon(isFluent ? fluent.FluentIcons.keyboard_classic : Icons.keyboard),
-            onPressed: () {
-              setState(() {
-                _isToolbarVisible = !_isToolbarVisible;
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  quill.QuillSimpleToolbar _buildFormattingToolbar(BuildContext context) {
-    return quill.QuillSimpleToolbar(
-      controller: _contentController,
-      config: quill.QuillSimpleToolbarConfig(
-        embedButtons: FlutterQuillEmbeds.toolbarButtons(),
-        showAlignmentButtons: true,
-      ),
-    );
-  }
-
-  Widget _buildEditor(BuildContext context) {
-    return quill.QuillEditor(
-      controller: _contentController,
-      focusNode: _editorFocusNode,
-      scrollController: _scrollController,
-      config: quill.QuillEditorConfig(
-        padding: const EdgeInsets.all(16),
-        embedBuilders: FlutterQuillEmbeds.editorBuilders(),
-        placeholder: 'Comece a escrever...',
-      ),
+  Widget _buildEditor() {
+    return AppFlowyEditor(
+      editorState: _editorState,
+      characterShortcutEvents: standardCharacterShortcutEvents,
     );
   }
 
   Widget _buildFluentUI(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+
     return fluent.ScaffoldPage(
       header: fluent.CommandBar(
         mainAxisAlignment: fluent.MainAxisAlignment.start,
@@ -193,10 +123,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               style: fluent.FluentTheme.of(context).typography.title,
             ),
             const SizedBox(height: 16),
-            _buildToolbar(context, isFluent: true),
-            if (_isToolbarVisible) _buildFormattingToolbar(context),
-            const SizedBox(height: 16),
-            Expanded(child: _buildEditor(context)),
+            if (isDesktop)
+              DesktopToolbar(
+                editorState: _editorState,
+              ),
+            Expanded(child: _buildEditor()),
+            if (!isDesktop)
+              MobileToolbar(
+                editorState: _editorState,
+              ),
           ],
         ),
       ),
@@ -204,6 +139,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   Widget _buildMaterialUI(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.note == null ? 'Nova Nota' : 'Editar Nota'),
@@ -222,10 +160,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                   const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildToolbar(context),
-            if (_isToolbarVisible) _buildFormattingToolbar(context),
-            const SizedBox(height: 16),
-            Expanded(child: _buildEditor(context)),
+            if (isDesktop)
+              DesktopToolbar(
+                editorState: _editorState,
+              ),
+            Expanded(child: _buildEditor()),
+            if (!isDesktop)
+              MobileToolbar(
+                editorState: _editorState,
+              ),
           ],
         ),
       ),
