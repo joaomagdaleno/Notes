@@ -8,51 +8,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-
-// --- Enums and Extensions for PDF Generation ---
-// NOTE: These are duplicated from the editor screen. For a larger app,
-// it would be best to move these to a shared model file.
-
-enum PaperFormat { a4, letter, legal }
-
-extension PaperFormatExtension on PaperFormat {
-  Size get size {
-    const double cm = 72 / 2.54;
-    const double inch = 72;
-    switch (this) {
-      case PaperFormat.a4:
-        return const Size(21.0 * cm, 29.7 * cm);
-      case PaperFormat.letter:
-        return const Size(8.5 * inch, 11.0 * inch);
-      case PaperFormat.legal:
-        return const Size(8.5 * inch, 14.0 * inch);
-    }
-  }
-
-  String get label => name.toUpperCase();
-}
-
-enum PaperMargin { normal, narrow, moderate, wide }
-
-extension PaperMarginExtension on PaperMargin {
-  EdgeInsets get value {
-    const double cm = 72 / 2.54;
-    switch (this) {
-      case PaperMargin.normal:
-        return const EdgeInsets.all(2.54 * cm);
-      case PaperMargin.narrow:
-        return const EdgeInsets.all(1.27 * cm);
-      case PaperMargin.moderate:
-        return EdgeInsets.symmetric(
-            vertical: 2.54 * cm, horizontal: 1.91 * cm);
-      case PaperMargin.wide:
-        return EdgeInsets.symmetric(
-            vertical: 2.54 * cm, horizontal: 5.08 * cm);
-    }
-  }
-
-  String get label => name[0].toUpperCase() + name.substring(1);
-}
+import 'package:universal_notes_flutter/models/paper_config.dart';
 
 // --- Public API ---
 
@@ -184,9 +140,17 @@ pw.Widget _opToPdf(Map<String, dynamic> op) {
 pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
   if (note.drawingJson == null || note.drawingJson!.isEmpty) return pw.SizedBox();
 
-  final drawing = Drawing.fromJson(jsonDecode(note.drawingJson!));
-  final layers = drawing.layers.whereType<PathLayerData>().toList();
-  if (layers.isEmpty) return pw.SizedBox();
+  List<DrawingContent> contents = [];
+  try {
+    contents = (jsonDecode(note.drawingJson!) as List)
+        .map((e) => DrawingContent.fromJson(e))
+        .toList();
+  } catch (e) {
+    return pw.Text('Error parsing drawing content: $e');
+  }
+
+  final lines = contents.whereType<SimpleLine>().toList();
+  if (lines.isEmpty) return pw.SizedBox();
 
   return pw.Container(
     width: format.availableWidth,
@@ -194,13 +158,15 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
     margin: const pw.EdgeInsets.only(top: 16),
     child: pw.CustomPaint(
       painter: (canvas, size) {
-        for (final layer in layers) {
-          final path = layer.path;
+        for (final line in lines) {
+          final path = line.offsets;
           if (path.isEmpty) continue;
 
-          final paint = layer.paint;
+          final paint = line.paint;
+          final isErase = paint.blendMode == BlendMode.clear;
+
           canvas
-            ..setColor(PdfColor.fromInt(paint.color.value))
+            ..setColor(isErase ? PdfColors.white : PdfColor.fromInt(paint.color.value))
             ..setLineWidth(paint.strokeWidth)
             ..setStrokeCap(paint.strokeCap == StrokeCap.round
                 ? PdfStrokeCap.round
