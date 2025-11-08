@@ -3,6 +3,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 
 class FluentNoteCard extends StatelessWidget {
   final Note note;
@@ -18,9 +19,17 @@ class FluentNoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return fluent.Card(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          fluent.FluentPageRoute(
+            builder: (context) => NoteEditorScreen(note: note, onSave: onSave),
+          ),
+        );
+      },
+      child: fluent.Card(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -44,6 +53,7 @@ class FluentNoteCard extends StatelessWidget {
             style: fluent.FluentTheme.of(context).typography.caption,
           ),
         ],
+      ),
       ),
     );
   }
