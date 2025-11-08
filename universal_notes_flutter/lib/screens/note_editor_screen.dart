@@ -7,6 +7,7 @@ import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'dart:io' show Platform;
 import '../models/note.dart';
+import '../utils/pdf_exporter.dart';
 import '../widgets/custom_editor_toolbar.dart';
 
 enum CanvasMode { paper, infinite }
@@ -201,6 +202,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         ],
       ),
       content: Column(children: [
+        _buildTitleBar(context),
         if (isDesktop) _topBar(),
         Expanded(child: _body()),
       ]),
@@ -221,6 +223,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         ],
       ),
       body: Column(children: [
+        _buildTitleBar(context),
         if (Platform.isAndroid || Platform.isIOS) _topBar(),
         Expanded(child: _body()),
       ]),
@@ -230,6 +233,86 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         onPressed: () => _isToolbarVisible.value = !_isToolbarVisible.value,
       ),
     );
+  }
+
+  /* ----------  TITLE BAR  ---------- */
+  Widget _buildTitleBar(BuildContext context) {
+    final isDesktop = Platform.isWindows;
+
+    final titleWidget = isDesktop
+        ? fluent.TextBox(
+            controller: _titleController,
+            placeholder: 'Título da Nota',
+            decoration: const fluent.BoxDecoration(border: null),
+            style: fluent.FluentTheme.of(context).typography.title,
+          )
+        : TextField(
+            controller: _titleController,
+            decoration: const InputDecoration(
+              hintText: 'Título da Nota',
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16),
+            ),
+            style: Theme.of(context).textTheme.headlineSmall,
+          );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      child: Row(
+        children: [
+          Expanded(child: titleWidget),
+          const SizedBox(width: 16),
+          IconButton(
+            icon: Icon(isDesktop ? fluent.FluentIcons.view : Icons.visibility_off_outlined),
+            tooltip: 'Modo Leitura (somente visualização)',
+            onPressed: null, // Placeholder
+          ),
+          IconButton(
+            icon: Icon(isDesktop ? fluent.FluentIcons.add : Icons.add_circle_outline),
+            tooltip: 'Adicionar anexo',
+            onPressed: null, // Placeholder
+          ),
+          _buildSaveAsMenu(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaveAsMenu(BuildContext context) {
+    final isDesktop = Platform.isWindows;
+
+    final onSelected = (String value) {
+      if (value == 'pdf') {
+        if (_currentNote != null) {
+          exportNoteToPdf(_currentNote!, share: true);
+        }
+      }
+    };
+
+    if (isDesktop) {
+      final controller = fluent.FlyoutController();
+      return fluent.DropDownButton(
+        controller: controller,
+        title: const Text('Salvar Como'),
+        items: [
+          fluent.MenuFlyoutItem(text: const Text('PDF'), onPressed: () => onSelected('pdf')),
+          const fluent.MenuFlyoutSeparator(),
+          fluent.MenuFlyoutItem(text: const Text('Word (em breve)'), onPressed: null),
+          fluent.MenuFlyoutItem(text: const Text('Imagem (em breve)'), onPressed: null),
+        ],
+      );
+    } else {
+      return PopupMenuButton<String>(
+        onSelected: onSelected,
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+          const PopupMenuItem<String>(value: 'pdf', child: Text('Salvar como PDF')),
+          const PopupMenuDivider(),
+          const PopupMenuItem<String>(value: 'word', enabled: false, child: Text('Word (em breve)')),
+          const PopupMenuItem<String>(value: 'image', enabled: false, child: Text('Imagem (em breve)')),
+        ],
+        icon: const Icon(Icons.more_vert),
+      );
+    }
   }
 
   /* ----------  TOP / BOTTOM BAR  ---------- */
