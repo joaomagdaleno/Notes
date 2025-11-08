@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -71,7 +71,7 @@ class MyFluentApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
-        FlutterQuillLocalizations.delegate,
+        AppFlowyEditorLocalizations.delegate,
       ],
       theme: fluent.FluentThemeData(
         accentColor: fluent.Colors.blue,
@@ -98,7 +98,7 @@ class MyApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
-        FlutterQuillLocalizations.delegate,
+        AppFlowyEditorLocalizations.delegate,
       ],
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
