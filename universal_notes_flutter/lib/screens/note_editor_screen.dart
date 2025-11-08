@@ -39,7 +39,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     if (content != null && content.isNotEmpty) {
       try {
         final delta = Delta.fromJson(jsonDecode(content));
-        _editorState = EditorState.fromDelta(delta);
+        final document = quillDeltaEncoder.convert(delta);
+        _editorState = EditorState(document: document);
         return;
       } catch (e) {
         // Fallback for plain text or invalid format
@@ -59,7 +60,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   Future<void> _saveNote() async {
     final title = _titleController.text;
-    final contentJson = jsonEncode(_editorState.document.toDelta().toJson());
+    final contentJson = jsonEncode(_editorState.document.toJson());
 
     if (title.isEmpty && _editorState.document.isEmpty) {
       return;
@@ -97,7 +98,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   Widget _buildFluentUI(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
-    final isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
     return fluent.ScaffoldPage(
       header: fluent.CommandBar(
@@ -123,14 +123,29 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               style: fluent.FluentTheme.of(context).typography.title,
             ),
             const SizedBox(height: 16),
-            if (isDesktop)
-              DesktopToolbar(
+            if (!isMobile)
+              FlowyToolbar(
                 editorState: _editorState,
+                toolbarItems: [
+                  ...headingItems,
+                  ...markdownFormatItems,
+                  ...textDecorationMobileToolbarItemV2,
+                  ...listMobileToolbarItem,
+                  ...blocksMobileToolbarItem,
+                  ...linkMobileToolbarItem,
+                ],
               ),
             Expanded(child: _buildEditor()),
-            if (!isDesktop)
-              MobileToolbar(
+            if (isMobile)
+              FlowyToolbar(
                 editorState: _editorState,
+                toolbarItems: [
+                  ...markdownFormatItems,
+                  ...textDecorationMobileToolbarItemV2,
+                  ...listMobileToolbarItem,
+                  ...blocksMobileToolbarItem,
+                  ...linkMobileToolbarItem,
+                ],
               ),
           ],
         ),
@@ -140,7 +155,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   Widget _buildMaterialUI(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
-    final isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
     return Scaffold(
       appBar: AppBar(
@@ -160,14 +174,29 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                   const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            if (isDesktop)
-              DesktopToolbar(
+            if (!isMobile)
+              FlowyToolbar(
                 editorState: _editorState,
+                toolbarItems: [
+                  ...headingItems,
+                  ...markdownFormatItems,
+                  ...textDecorationMobileToolbarItemV2,
+                  ...listMobileToolbarItem,
+                  ...blocksMobileToolbarItem,
+                  ...linkMobileToolbarItem,
+                ],
               ),
             Expanded(child: _buildEditor()),
-            if (!isDesktop)
-              MobileToolbar(
+            if (isMobile)
+              FlowyToolbar(
                 editorState: _editorState,
+                toolbarItems: [
+                  ...markdownFormatItems,
+                  ...textDecorationMobileToolbarItemV2,
+                  ...listMobileToolbarItem,
+                  ...blocksMobileToolbarItem,
+                  ...linkMobileToolbarItem,
+                ],
               ),
           ],
         ),
