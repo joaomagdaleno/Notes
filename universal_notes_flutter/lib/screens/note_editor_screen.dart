@@ -24,6 +24,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
   Note? _currentNote;
+  bool _isToolbarVisible = false;
 
   @override
   void initState() {
@@ -34,6 +35,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
     _debounce = Timer.periodic(const Duration(seconds: 5), (timer) {
       _saveNote();
+    });
+
+    _contentController.changes.listen((event) {
+      setState(() {});
     });
   }
 
@@ -119,12 +124,56 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               style: fluent.FluentTheme.of(context).typography.title,
             ),
             const SizedBox(height: 16),
-            quill.QuillSimpleToolbar(
-              controller: _contentController,
-              config: quill.QuillSimpleToolbarConfig(
-                embedButtons: FlutterQuillEmbeds.toolbarButtons(),
+            quill.QuillToolbar(
+              configurations: quill.QuillToolbarConfigurations(
+                controller: _contentController,
+                showUndo: true,
+                showRedo: true,
+                showDividers: true,
+                customButtons: [
+                  quill.QuillToolbarCustomButton(
+                    icon: fluent.FluentIcons.keyboard_classic,
+                    onPressed: () {
+                      setState(() {
+                        _isToolbarVisible = !_isToolbarVisible;
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
+            if (_isToolbarVisible)
+              quill.QuillSimpleToolbar(
+                controller: _contentController,
+                config: quill.QuillSimpleToolbarConfig(
+                  embedButtons: FlutterQuillEmbeds.toolbarButtons(),
+                  showAlignmentButtons: true,
+                  showBackgroundColorButton: true,
+                  showCenterAlignment: true,
+                  showClearFormat: true,
+                  showCodeBlock: true,
+                  showColorButton: true,
+                  showDirection: true,
+                  showFontFamily: true,
+                  showFontSize: true,
+                  showHeaderStyle: true,
+                  showIndent: true,
+                  showInlineCode: true,
+                  showJustifyAlignment: true,
+                  showLeftAlignment: true,
+                  showLink: true,
+                  showListBullets: true,
+                  showListCheck: true,
+                  showListNumbers: true,
+                  showQuote: true,
+                  showRightAlignment: true,
+                  showSearchButton: true,
+                  showStrikeThrough: true,
+                  showSubscript: true,
+                  showSuperscript: true,
+                  showUnderLine: true,
+                ),
+              ),
             const SizedBox(height: 16),
             Expanded(
               child: quill.QuillEditor(
@@ -161,12 +210,56 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            quill.QuillSimpleToolbar(
-              controller: _contentController,
-              config: quill.QuillSimpleToolbarConfig(
-                embedButtons: FlutterQuillEmbeds.toolbarButtons(),
+            quill.QuillToolbar(
+              configurations: quill.QuillToolbarConfigurations(
+                controller: _contentController,
+                showUndo: true,
+                showRedo: true,
+                showDividers: true,
+                customButtons: [
+                  quill.QuillToolbarCustomButton(
+                    icon: Icons.keyboard,
+                    onPressed: () {
+                      setState(() {
+                        _isToolbarVisible = !_isToolbarVisible;
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
+            if (_isToolbarVisible)
+              quill.QuillSimpleToolbar(
+                controller: _contentController,
+                config: quill.QuillSimpleToolbarConfig(
+                  embedButtons: FlutterQuillEmbeds.toolbarButtons(),
+                  showAlignmentButtons: true,
+                  showBackgroundColorButton: true,
+                  showCenterAlignment: true,
+                  showClearFormat: true,
+                  showCodeBlock: true,
+                  showColorButton: true,
+                  showDirection: true,
+                  showFontFamily: true,
+                  showFontSize: true,
+                  showHeaderStyle: true,
+                  showIndent: true,
+                  showInlineCode: true,
+                  showJustifyAlignment: true,
+                  showLeftAlignment: true,
+                  showLink: true,
+                  showListBullets: true,
+                  showListCheck: true,
+                  showListNumbers: true,
+                  showQuote: true,
+                  showRightAlignment: true,
+                  showSearchButton: true,
+                  showStrikeThrough: true,
+                  showSubscript: true,
+                  showSuperscript: true,
+                  showUnderLine: true,
+                ),
+              ),
             const SizedBox(height: 16),
             Expanded(
               child: quill.QuillEditor(
