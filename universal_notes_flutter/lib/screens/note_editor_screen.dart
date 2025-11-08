@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'dart:io' show Platform;
 import '../models/note.dart';
 
@@ -120,7 +121,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             const SizedBox(height: 16),
             quill.QuillSimpleToolbar(
               controller: _contentController,
-              config: const quill.QuillSimpleToolbarConfig(),
+              config: quill.QuillSimpleToolbarConfig(
+                embedButtons: FlutterQuillEmbeds.toolbarButtons(),
+              ),
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -128,8 +131,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 controller: _contentController,
                 focusNode: _editorFocusNode,
                 scrollController: _scrollController,
-                config: const quill.QuillEditorConfig(
-                  padding: EdgeInsets.all(16),
+                config: quill.QuillEditorConfig(
+                  padding: const EdgeInsets.all(16),
+                  embedBuilders: FlutterQuillEmbeds.editorBuilders(),
                 ),
               ),
             ),
@@ -159,7 +163,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             const SizedBox(height: 16),
             quill.QuillSimpleToolbar(
               controller: _contentController,
-              config: const quill.QuillSimpleToolbarConfig(),
+              config: quill.QuillSimpleToolbarConfig(
+                embedButtons: FlutterQuillEmbeds.toolbarButtons(),
+              ),
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -167,8 +173,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 controller: _contentController,
                 focusNode: _editorFocusNode,
                 scrollController: _scrollController,
-                config: const quill.QuillEditorConfig(
-                  padding: EdgeInsets.all(16),
+                config: quill.QuillEditorConfig(
+                  padding: const EdgeInsets.all(16),
+                  embedBuilders: FlutterQuillEmbeds.editorBuilders(),
                 ),
               ),
             ),
