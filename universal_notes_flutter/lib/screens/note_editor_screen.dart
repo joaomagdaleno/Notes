@@ -119,15 +119,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             const SizedBox(height: 16),
             quill.QuillSimpleToolbar(
               controller: _contentController,
+              config: const quill.QuillSimpleToolbarConfig(),
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: quill.QuillEditor.basic(
-                  controller: _contentController,
-                  focusNode: _editorFocusNode,
-                ),
+              child: quill.QuillEditor.basic(
+                controller: _contentController,
+                focusNode: _editorFocusNode,
+                config: const quill.QuillEditorConfig(),
               ),
             ),
           ],
@@ -156,15 +155,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             const SizedBox(height: 16),
             quill.QuillSimpleToolbar(
               controller: _contentController,
+              config: const quill.QuillSimpleToolbarConfig(),
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: quill.QuillEditor.basic(
-                  controller: _contentController,
-                  focusNode: _editorFocusNode,
-                ),
+              child: quill.QuillEditor.basic(
+                controller: _contentController,
+                focusNode: _editorFocusNode,
+                config: const quill.QuillEditorConfig(),
               ),
             ),
           ],
