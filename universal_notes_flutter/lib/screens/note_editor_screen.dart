@@ -20,6 +20,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late TextEditingController _titleController;
   late quill.QuillController _contentController;
   final FocusNode _editorFocusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
   Note? _currentNote;
 
@@ -123,10 +124,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: quill.QuillEditor.basic(
+              child: quill.QuillEditor(
                 controller: _contentController,
                 focusNode: _editorFocusNode,
-                config: const quill.QuillEditorConfig(),
+                scrollController: _scrollController,
+                config: const quill.QuillEditorConfig(
+                  padding: EdgeInsets.all(16),
+                ),
               ),
             ),
           ],
@@ -159,10 +163,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: quill.QuillEditor.basic(
+              child: quill.QuillEditor(
                 controller: _contentController,
                 focusNode: _editorFocusNode,
-                config: const quill.QuillEditorConfig(),
+                scrollController: _scrollController,
+                config: const quill.QuillEditorConfig(
+                  padding: EdgeInsets.all(16),
+                ),
               ),
             ),
           ],
