@@ -7,44 +7,12 @@ import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'dart:io' show Platform;
 import '../models/note.dart';
+import '../models/paper_config.dart';
 import '../utils/pdf_exporter.dart';
 import '../widgets/custom_editor_toolbar.dart';
+import '../widgets/paper_canvas.dart';
 
 enum CanvasMode { paper, infinite }
-enum PaperFormat { a4, a3, a5, letter, legal, oficio }
-enum PaperMargin { normal, narrow, none }
-
-extension PaperFormatSize on PaperFormat {
-  Size get size {
-    switch (this) {
-      case PaperFormat.a4:
-        return const Size(794, 1123);
-      case PaperFormat.a3:
-        return const Size(1123, 1587);
-      case PaperFormat.a5:
-        return const Size(559, 794);
-      case PaperFormat.letter:
-        return const Size(816, 1056);
-      case PaperFormat.legal:
-        return const Size(816, 1344);
-      case PaperFormat.oficio:
-        return const Size(816, 1240);
-    }
-  }
-}
-
-extension PaperMarginValue on PaperMargin {
-  EdgeInsets get value {
-    switch (this) {
-      case PaperMargin.normal:
-        return const EdgeInsets.fromLTRB(72, 72, 72, 96);
-      case PaperMargin.narrow:
-        return const EdgeInsets.all(36);
-      case PaperMargin.none:
-        return EdgeInsets.zero;
-    }
-  }
-}
 
 class NoteEditorScreen extends StatefulWidget {
   final Note? note;
@@ -71,6 +39,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   // Toolbar visível? (text-mode)  true=texto  false=desenho
   final ValueNotifier<bool> _isToolbarVisible = ValueNotifier<bool>(true);
 
+  // Estado das ferramentas de desenho
+  late Color _drawingColor;
+  late double _drawingStrokeWidth;
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +53,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _canvasMode = _readPrefs('mode', CanvasMode.paper);
     _paperFormat = _readPrefs('format', PaperFormat.a4);
     _paperMargin = _readPrefs('margin', PaperMargin.normal);
+
+    _drawingColor = Colors.black;
+    _drawingStrokeWidth = 3.0;
 
     _initEditor();
     _initDrawing();
@@ -199,6 +174,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             onPressed: _showPaperDialog,
             tooltip: 'Formato do papel',
           ),
+          fluent.CommandBarButton(
+            icon: fluent.Icon(_isToolbarVisible.value ? fluent.FluentIcons.edit : fluent.FluentIcons.edit_off),
+            onPressed: () => setState(() => _isToolbarVisible.value = !_isToolbarVisible.value),
+            tooltip: _isToolbarVisible.value ? 'Modo Desenho' : 'Modo Texto',
+          ),
         ],
       ),
       content: Column(children: [
@@ -224,19 +204,38 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       ),
       body: Column(children: [
         _buildTitleBar(context),
-        if (Platform.isAndroid || Platform.isIOS) _topBar(),
         Expanded(child: _body()),
       ]),
-      floatingActionButton: FloatingActionButton(
-        tooltip: _isToolbarVisible.value ? 'Modo desenho' : 'Modo texto',
-        child: Icon(_isToolbarVisible.value ? Icons.edit : Icons.edit_off),
-        onPressed: () => _isToolbarVisible.value = !_isToolbarVisible.value,
-      ),
+      bottomNavigationBar: _buildMobileToolbar(),
     );
   }
 
+  /* ----------  MOBILE TOOLBAR  ---------- */
+  Widget _buildMobileToolbar() {
+    return ValueListenableBuilder<bool>(
+        valueListenable: _isToolbarVisible,
+        builder: (context, isTextMode, _) {
+          return BottomAppBar(
+            child: Row(
+              children: [
+                Expanded(
+                  child: isTextMode
+                      ? CustomEditorToolbar(editorState: _editorState)
+                      : _miniDrawToolbar(),
+                ),
+                IconButton(
+                  icon: Icon(isTextMode ? Icons.draw_outlined : Icons.notes_outlined),
+                  tooltip: isTextMode ? 'Modo Desenho' : 'Modo Texto',
+                  onPressed: () => _isToolbarVisible.value = !isTextMode,
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   /* ----------  TITLE BAR  ---------- */
-  Widget _buildTitleBar(BuildContext context) {
+  Widget _buildTitleBar(BuildContext.context) {
     final isDesktop = Platform.isWindows;
 
     final titleWidget = isDesktop
@@ -318,13 +317,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   /* ----------  TOP / BOTTOM BAR  ---------- */
   Widget _topBar() {
     final isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+    if (!isDesktop) return const SizedBox.shrink(); // Only for desktop
+
     return ValueListenableBuilder<bool>(
       valueListenable: _isToolbarVisible,
-      builder: (_, visible, __) {
-        if (!visible) return const SizedBox.shrink(); // escondido no desenho
-        return isDesktop
-            ? CustomEditorToolbar(editorState: _editorState)
-            : Container(); // mobile usa bottom
+      builder: (_, isTextMode, __) {
+        if (isTextMode) {
+          return CustomEditorToolbar(editorState: _editorState);
+        } else {
+          return _miniDrawToolbar();
+        }
       },
     );
   }
@@ -375,36 +377,45 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   Widget _miniDrawToolbar() {
-    Color currentColor = Colors.black;
-    double currentWidth = 3;
     return Container(
       height: 56,
-      color: Colors.grey[200],
+      color: Colors.grey.shade200,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
           IconButton(
             icon: const Icon(Icons.brush),
+            tooltip: 'Pincel',
             onPressed: () => _drawController.setPaint(Paint()
-              ..color = currentColor
-              ..strokeWidth = currentWidth
+              ..color = _drawingColor
+              ..strokeWidth = _drawingStrokeWidth
               ..style = PaintingStyle.stroke),
           ),
           IconButton(
             icon: const Icon(Icons.color_lens),
+            tooltip: 'Mudar cor',
             onPressed: () async {
-              Color? c = await showDialog(
+              Color newColor = _drawingColor;
+              await showDialog(
                 context: context,
                 builder: (_) => AlertDialog(
+                  title: const Text('Selecione a cor'),
                   content: SingleChildScrollView(
-                    child: ColorPicker(pickerColor: currentColor, onColorChanged: (v) => currentColor = v),
+                    child: ColorPicker(
+                      pickerColor: _drawingColor,
+                      onColorChanged: (v) => newColor = v,
+                    ),
                   ),
                   actions: [
-                    TextButton(onPressed: () => Navigator.pop(_, currentColor), child: const Text('OK'))
+                    TextButton(
+                        onPressed: () {
+                          setState(() => _drawingColor = newColor);
+                          Navigator.pop(context);
+                        },
+                        child: const Text('OK'))
                   ],
                 ),
               );
-              if (c != null) currentColor = c;
             },
           ),
           IconButton(
