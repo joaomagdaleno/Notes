@@ -6,9 +6,6 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide ColorPicker;
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'dart:io' show Platform;
-import 'package:flutter_drawing_board/src/paint_contents/paint_content.dart';
-import 'package:flutter_drawing_board/src/paint_contents/simple_line.dart';
-import 'package:flutter_drawing_board/src/paint_contents/eraser.dart';
 import '../models/note.dart';
 import '../models/paper_config.dart';
 import '../utils/pdf_exporter.dart';
@@ -93,10 +90,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     if (_currentNote?.drawingJson != null && _currentNote!.drawingJson!.isNotEmpty) {
       try {
         final list = (jsonDecode(_currentNote!.drawingJson!) as List)
-            .cast<Map<String, dynamic>>()
-            .map(PaintContent.fromMap)
+            .map((e) => ContentManager.fromMap(e))
+            .whereType<PaintContent>()
             .toList();
-        _drawController.addContents(list);
+        _drawController.contentManager.addContents(list);
       } catch (e) {
         debugPrint('Erro ao carregar desenho: $e');
       }
@@ -117,7 +114,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     final title = _titleController.text;
     final contentJson = jsonEncode(_editorState.document.toJson());
 
-    final strokesJson = jsonEncode(_drawController.contents.map((e) => e.toMap()).toList(growable: false));
+    final strokesJson = jsonEncode(
+        _drawController.contentManager.contents.map((e) => e.toMap()).toList());
 
     final prefs = {
       'mode': _canvasMode.name,
@@ -343,7 +341,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       _miniDrawToolbar(),
       Expanded(
         child: DrawingBoard(
-          drawingController: _drawController,
+          controller: _drawController,
           background: Container(color: Colors.transparent),
           showDefaultActions: false,
           showDefaultTools: false,
@@ -416,7 +414,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.check),
             tooltip: 'Concluir desenho',
             onPressed: () {
-              final strokes = _drawController.contents.map((e) => e.toMap()).toList();
+              final strokes = _drawController.contentManager.contents.map((e) => e.toMap()).toList();
               _currentNote = _currentNote!.copyWith(drawingJson: jsonEncode(strokes));
               _isToolbarVisible.value = true;
             },
