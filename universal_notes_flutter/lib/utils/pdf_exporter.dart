@@ -5,12 +5,10 @@ import 'dart:ui';
 import 'package:flutter/painting.dart';
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:pdf/pdf.dart';
-import 'package:flutter_drawing_board/src/paint_contents/paint_content.dart';
-import 'package:flutter_drawing_board/src/paint_contents/simple_line.dart';
-import 'package:flutter_drawing_board/src/paint_contents/eraser.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/utils/drawing_deserializer.dart';
 import 'package:universal_notes_flutter/models/paper_config.dart';
 
 // --- Public API ---
@@ -147,7 +145,8 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
   try {
     contents = (jsonDecode(note.drawingJson!) as List)
         .cast<Map<String, dynamic>>()
-        .map(PaintContent.fromMap)
+        .map(paintContentFromJson)
+        .whereType<PaintContent>()
         .toList();
   } catch (e) {
     return pw.Text('Error parsing drawing content: $e');
@@ -163,8 +162,8 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
     child: pw.CustomPaint(
       painter: (canvas, size) {
         for (final line in lines) {
-          final path = line.pointList;
-          if (path == null || path.isEmpty) continue;
+          final path = line.points;
+          if (path.isEmpty) continue;
 
           final isErase = line is Eraser;
 

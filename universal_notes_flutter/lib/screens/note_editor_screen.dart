@@ -6,11 +6,9 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide ColorPicker;
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'dart:io' show Platform;
-import 'package:flutter_drawing_board/src/paint_contents/paint_content.dart';
-import 'package:flutter_drawing_board/src/paint_contents/simple_line.dart';
-import 'package:flutter_drawing_board/src/paint_contents/eraser.dart';
 import '../models/note.dart';
 import '../models/paper_config.dart';
+import '../utils/drawing_deserializer.dart';
 import '../utils/pdf_exporter.dart';
 import '../widgets/custom_editor_toolbar.dart';
 import '../widgets/paper_canvas.dart';
@@ -94,7 +92,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       try {
         final list = (jsonDecode(_currentNote!.drawingJson!) as List)
             .cast<Map<String, dynamic>>()
-            .map(PaintContent.fromMap)
+            .map(paintContentFromJson)
+            .whereType<PaintContent>()
             .toList();
         _drawController.addContents(list);
       } catch (e) {
@@ -117,7 +116,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     final title = _titleController.text;
     final contentJson = jsonEncode(_editorState.document.toJson());
 
-    final strokesJson = jsonEncode(_drawController.contents.map((e) => e.toMap()).toList(growable: false));
+    final strokesJson = jsonEncode(_drawController.getJsonList());
 
     final prefs = {
       'mode': _canvasMode.name,
@@ -343,7 +342,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       _miniDrawToolbar(),
       Expanded(
         child: DrawingBoard(
-          drawingController: _drawController,
+          controller: _drawController,
           background: Container(color: Colors.transparent),
           showDefaultActions: false,
           showDefaultTools: false,
@@ -369,9 +368,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.brush),
             tooltip: 'Pincel',
             onPressed: () {
-              _drawController.paintContentType = PaintContentType.simpleLine;
-              _drawController.paint.color = const Color(0xFF000000);
-              _drawController.paint.strokeWidth = 2.0;
+              _drawController.setPaintContent(SimpleLine());
+              _drawController.setStyle(color: Colors.black, strokeWidth: 2.0);
             },
           ),
           IconButton(
@@ -393,8 +391,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                     TextButton(
                         onPressed: () {
                           setState(() {
-                             _drawingColor = newColor;
-                             _drawController.paint.color = newColor;
+                            _drawingColor = newColor;
+                            _drawController.setStyle(color: newColor);
                           });
                           Navigator.pop(context);
                         },
@@ -407,17 +405,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           IconButton(
             icon: const Icon(Icons.cleaning_services),
             tooltip: 'Borracha',
-            onPressed: () {
-              _drawController.paintContentType = PaintContentType.eraser;
-            },
+            onPressed: () => _drawController.setPaintContent(Eraser()),
           ),
           const VerticalDivider(width: 1),
           IconButton(
             icon: const Icon(Icons.check),
             tooltip: 'Concluir desenho',
             onPressed: () {
-              final strokes = _drawController.contents.map((e) => e.toMap()).toList();
-              _currentNote = _currentNote!.copyWith(drawingJson: jsonEncode(strokes));
+              final strokes = _drawController.getJsonList();
+              _currentNote =
+                  _currentNote!.copyWith(drawingJson: jsonEncode(strokes));
               _isToolbarVisible.value = true;
             },
           ),
