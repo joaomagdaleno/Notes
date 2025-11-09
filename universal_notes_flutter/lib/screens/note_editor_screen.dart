@@ -8,6 +8,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'dart:io' show Platform;
 import '../models/note.dart';
 import '../models/paper_config.dart';
+import '../utils/drawing_deserializer.dart';
 import '../utils/pdf_exporter.dart';
 import '../widgets/custom_editor_toolbar.dart';
 import '../widgets/paper_canvas.dart';
@@ -90,10 +91,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     if (_currentNote?.drawingJson != null && _currentNote!.drawingJson!.isNotEmpty) {
       try {
         final list = (jsonDecode(_currentNote!.drawingJson!) as List)
-            .map((e) => ContentManager.fromMap(e))
+            .cast<Map<String, dynamic>>()
+            .map(paintContentFromJson)
             .whereType<PaintContent>()
             .toList();
-        _drawController.contentManager.addContents(list);
+        _drawController.addContents(list);
       } catch (e) {
         debugPrint('Erro ao carregar desenho: $e');
       }
@@ -114,8 +116,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     final title = _titleController.text;
     final contentJson = jsonEncode(_editorState.document.toJson());
 
-    final strokesJson = jsonEncode(
-        _drawController.contentManager.contents.map((e) => e.toMap()).toList());
+    final strokesJson = jsonEncode(_drawController.getJsonList());
 
     final prefs = {
       'mode': _canvasMode.name,
@@ -367,9 +368,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.brush),
             tooltip: 'Pincel',
             onPressed: () {
-              _drawController.paintContentType = PaintContentType.simpleLine;
-              _drawController.paint.color = const Color(0xFF000000);
-              _drawController.paint.strokeWidth = 2.0;
+              _drawController.setPaintContent(SimpleLine());
+              _drawController.setStyle(color: Colors.black, strokeWidth: 2.0);
             },
           ),
           IconButton(
@@ -391,8 +391,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                     TextButton(
                         onPressed: () {
                           setState(() {
-                             _drawingColor = newColor;
-                             _drawController.paint.color = newColor;
+                            _drawingColor = newColor;
+                            _drawController.setStyle(color: newColor);
                           });
                           Navigator.pop(context);
                         },
@@ -405,17 +405,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           IconButton(
             icon: const Icon(Icons.cleaning_services),
             tooltip: 'Borracha',
-            onPressed: () {
-              _drawController.paintContentType = PaintContentType.eraser;
-            },
+            onPressed: () => _drawController.setPaintContent(Eraser()),
           ),
           const VerticalDivider(width: 1),
           IconButton(
             icon: const Icon(Icons.check),
             tooltip: 'Concluir desenho',
             onPressed: () {
-              final strokes = _drawController.contentManager.contents.map((e) => e.toMap()).toList();
-              _currentNote = _currentNote!.copyWith(drawingJson: jsonEncode(strokes));
+              final strokes = _drawController.getJsonList();
+              _currentNote =
+                  _currentNote!.copyWith(drawingJson: jsonEncode(strokes));
               _isToolbarVisible.value = true;
             },
           ),

@@ -8,6 +8,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/utils/drawing_deserializer.dart';
 import 'package:universal_notes_flutter/models/paper_config.dart';
 
 // --- Public API ---
@@ -143,7 +144,8 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
   List<PaintContent> contents = [];
   try {
     contents = (jsonDecode(note.drawingJson!) as List)
-        .map((e) => ContentManager.fromMap(e))
+        .cast<Map<String, dynamic>>()
+        .map(paintContentFromJson)
         .whereType<PaintContent>()
         .toList();
   } catch (e) {

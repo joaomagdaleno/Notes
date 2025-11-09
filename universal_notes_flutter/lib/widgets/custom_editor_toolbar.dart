@@ -1,4 +1,3 @@
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ColorPicker;
@@ -24,10 +23,11 @@ class CustomEditorToolbar extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _toggleIcon(context, Icons.format_bold, AppFlowyRichTextKeys.bold),
-            _toggleIcon(context, Icons.format_italic, AppFlowyRichTextKeys.italic),
-            _toggleIcon(context, Icons.format_underline, AppFlowyRichTextKeys.underline),
-            _toggleIcon(context, Icons.format_strikethrough, AppFlowyRichTextKeys.strikethrough),
+            _toggleIcon(context, Icons.format_bold, Attribute.bold),
+            _toggleIcon(context, Icons.format_italic, Attribute.italic),
+            _toggleIcon(context, Icons.format_underline, Attribute.underline),
+            _toggleIcon(
+                context, Icons.format_strikethrough, Attribute.strikethrough),
             const VerticalDivider(width: 1),
             _headingPopup(context),
             const VerticalDivider(width: 1),
@@ -46,13 +46,13 @@ class CustomEditorToolbar extends StatelessWidget {
     );
   }
 
-  Widget _toggleIcon(BuildContext context, IconData icon, String key) {
-    final Map<String, dynamic> attrs =
-        editorState.selection == null ? {} : editorState.getAttributes();
-    final isActive = attrs[key] != null;
+  Widget _toggleIcon(BuildContext context, IconData icon, Attribute attribute) {
+    final attrs = editorState.getAttributes();
+    final isActive = attrs[attribute.key] != null;
     return IconButton(
-      icon: Icon(icon, color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
-      onPressed: () => _toggleAttribute(key),
+      icon: Icon(icon,
+          color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
+      onPressed: () => _toggleAttribute(attribute),
     );
   }
 
@@ -76,7 +76,8 @@ class CustomEditorToolbar extends StatelessWidget {
     final isActive = node?.attributes[ParagraphBlockKeys.type] == listType;
 
     return IconButton(
-      icon: Icon(icon, color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
+      icon: Icon(icon,
+          color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
       onPressed: () => _toggleList(listType),
     );
   }
@@ -98,19 +99,20 @@ class CustomEditorToolbar extends StatelessWidget {
   Widget _codeButton(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.code),
-      onPressed: () => _toggleAttribute(AppFlowyRichTextKeys.code),
+      onPressed: () => _toggleAttribute(Attribute.code),
     );
   }
 
   Widget _colorButton(BuildContext context, {required bool isBackground}) {
     return IconButton(
-      icon: Icon(isBackground ? Icons.format_color_fill : Icons.format_color_text),
+      icon: Icon(
+          isBackground ? Icons.format_color_fill : Icons.format_color_text),
       onPressed: () => _pickColor(context, isBackground: isBackground),
     );
   }
 
-  void _toggleAttribute(String key) {
-    editorState.toggleFormat(key);
+  void _toggleAttribute(Attribute attribute) {
+    editorState.toggleMark(attribute);
   }
 
   void _toggleHeading(int? level) {
@@ -120,8 +122,7 @@ class CustomEditorToolbar extends StatelessWidget {
           return node.copyWith(
             type: ParagraphBlockKeys.type,
             attributes: {
-              ...node.attributes
-                ..remove(HeadingBlockKeys.level)
+              ...node.attributes..remove(HeadingBlockKeys.level)
             },
           );
         } else {
@@ -142,13 +143,15 @@ class CustomEditorToolbar extends StatelessWidget {
           return node.copyWith(
             type: ParagraphBlockKeys.type,
             attributes: {
-              ...node.attributes
-                ..remove(ParagraphBlockKeys.type)
+              ...node.attributes..remove(ParagraphBlockKeys.type)
             },
           );
         } else {
           return node.copyWith(
-            attributes: {...node.attributes, ParagraphBlockKeys.type: listType},
+            attributes: {
+              ...node.attributes,
+              ParagraphBlockKeys.type: listType
+            },
           );
         }
       },
@@ -161,12 +164,12 @@ class CustomEditorToolbar extends StatelessWidget {
 
     final url = await _askUrl(context);
     if (url == null || url.isEmpty) return;
-    final transaction = editorState.transaction.insertText(
+
+    editorState.insertText(
       selection,
       url,
-      attributes: {AppFlowyRichTextKeys.link: url},
+      attributes: {Attribute.link.key: url},
     );
-    editorState.apply(transaction);
   }
 
   void _pickColor(BuildContext context, {required bool isBackground}) async {
@@ -184,7 +187,9 @@ class CustomEditorToolbar extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(_), child: const Text('Cancelar')),
+          TextButton(
+              onPressed: () => Navigator.pop(_),
+              child: const Text('Cancelar')),
           ElevatedButton(
             onPressed: () => Navigator.pop(_, temp),
             child: const Text('Aplicar'),
@@ -193,12 +198,9 @@ class CustomEditorToolbar extends StatelessWidget {
       ),
     );
     if (color == null) return;
-
-    final key = isBackground
-        ? AppFlowyRichTextKeys.backgroundColor
-        : AppFlowyRichTextKeys.textColor;
-    final hex = '#${color.value.toRadixString(16).substring(2)}';
-    editorState.toggleFormat(key, hex);
+    final key =
+        isBackground ? Attribute.backgroundColor : Attribute.textColor;
+    editorState.toggleMark(key, '#${color.value.toRadixString(16).substring(2)}');
   }
 
   Future<String?> _askUrl(BuildContext context) async {
