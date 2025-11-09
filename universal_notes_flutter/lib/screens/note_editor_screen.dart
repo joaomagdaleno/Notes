@@ -2,13 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide ColorPicker;
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'dart:io' show Platform;
-import 'package:flutter_drawing_board/src/paint_contents/paint_content.dart';
-import 'package:flutter_drawing_board/src/paint_contents/simple_line.dart';
-import 'package:flutter_drawing_board/src/paint_contents/eraser.dart';
 import '../models/note.dart';
 import '../models/paper_config.dart';
 import '../utils/pdf_exporter.dart';
@@ -53,9 +50,20 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _titleController = TextEditingController(text: _currentNote?.title ?? '');
 
     // lê preferências salvas na nota (ou default)
-    _canvasMode = _readPrefs('mode', CanvasMode.paper);
-    _paperFormat = _readPrefs('format', PaperFormat.a4);
-    _paperMargin = _readPrefs('margin', PaperMargin.normal);
+    final prefs =
+        _currentNote?.prefsJson != null ? jsonDecode(_currentNote!.prefsJson!) : {};
+    _canvasMode = CanvasMode.values.firstWhere(
+      (e) => e.name == prefs['mode'],
+      orElse: () => CanvasMode.paper,
+    );
+    _paperFormat = PaperFormat.values.firstWhere(
+      (e) => e.name == prefs['format'],
+      orElse: () => PaperFormat.a4,
+    );
+    _paperMargin = PaperMargin.values.firstWhere(
+      (e) => e.name == prefs['margin'],
+      orElse: () => PaperMargin.normal,
+    );
 
     _drawingColor = Colors.black;
     _drawingStrokeWidth = 3.0;
@@ -65,29 +73,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
     // auto-save a cada 5 s
     _debounce = Timer.periodic(const Duration(seconds: 5), (_) => _saveNote());
-  }
-
-  T _readPrefs<T>(String key, T defaultValue) {
-    final raw = _currentNote?.prefsJson;
-    if (raw == null) return defaultValue;
-    try {
-      final map = jsonDecode(raw) as Map<String, dynamic>;
-      switch (T) {
-        case CanvasMode:
-          return CanvasMode.values.firstWhere((e) => e.name == map[key],
-              orElse: () => defaultValue as T);
-        case PaperFormat:
-          return PaperFormat.values.firstWhere((e) => e.name == map[key],
-              orElse: () => defaultValue as T);
-        case PaperMargin:
-          return PaperMargin.values.firstWhere((e) => e.name == map[key],
-              orElse: () => defaultValue as T);
-        default:
-          return defaultValue;
-      }
-    } catch (_) {
-      return defaultValue;
-    }
   }
 
   void _initEditor() {
@@ -110,7 +95,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     if (_currentNote?.drawingJson != null) {
       try {
         final list = (jsonDecode(_currentNote!.drawingJson!) as List)
-            .map((e) => PaintContent.fromJson(e))
+            .cast<Map<String, dynamic>>()
+            .map(PaintContent.fromMap)
             .toList();
         _drawController.addContents(list);
       } catch (_) {}
@@ -132,8 +118,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     final contentJson = jsonEncode(_editorState.document.toJson());
 
     // serializa strokes
-    final strokesJson =
-        jsonEncode(_drawController.getContents().map((c) => c.toJson()).toList());
+    final strokesJson = jsonEncode(_drawController.contents);
 
     // prefs do papel
     final prefs = {
@@ -179,7 +164,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             tooltip: 'Formato do papel',
           ),
           fluent.CommandBarButton(
-            icon: fluent.Icon(_isToolbarVisible.value ? fluent.FluentIcons.edit : fluent.FluentIcons.edit_off),
+            icon: fluent.Icon(_isToolbarVisible.value ? fluent.FluentIcons.edit : fluent.FluentIcons.edit),
             onPressed: () => setState(() => _isToolbarVisible.value = !_isToolbarVisible.value),
             tooltip: _isToolbarVisible.value ? 'Modo Desenho' : 'Modo Texto',
           ),
@@ -239,14 +224,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   /* ----------  TITLE BAR  ---------- */
-  Widget _buildTitleBar(BuildContext.context) {
+  Widget _buildTitleBar(BuildContext context) {
     final isDesktop = Platform.isWindows;
 
     final titleWidget = isDesktop
         ? fluent.TextBox(
             controller: _titleController,
             placeholder: 'Título da Nota',
-            decoration: fluent.WidgetStateProperty.all(const BoxDecoration(border: null)),
+            decoration: const fluent.BoxDecoration(border: null),
             style: fluent.FluentTheme.of(context).typography.title,
           )
         : TextField(
@@ -391,10 +376,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.brush),
             tooltip: 'Pincel',
             onPressed: () {
-              _drawController.setPaintContent(SimpleLine(
-                color: _drawingColor,
-                strokeWidth: _drawingStrokeWidth,
-              ));
+              _drawController.paintContentType = PaintContentType.simpleLine;
+              _drawController.paint.color = _drawingColor;
+              _drawController.paint.strokeWidth = _drawingStrokeWidth;
             },
           ),
           IconButton(
@@ -427,17 +411,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           IconButton(
             icon: const Icon(Icons.cleaning_services),
             tooltip: 'Borracha',
-            onPressed: () => _drawController.setPaintContent(Eraser(
-              color: Colors.white,
-              strokeWidth: 20,
-            )),
+            onPressed: () {
+              _drawController.paintContentType = PaintContentType.eraser;
+              _drawController.paint.strokeWidth = 20;
+            },
           ),
           const VerticalDivider(width: 1),
           IconButton(
             icon: const Icon(Icons.check),
             tooltip: 'Concluir desenho',
             onPressed: () {
-              final strokes = _drawController.getContents().map((c) => c.toJson()).toList();
+              final strokes = _drawController.contents;
               _currentNote = _currentNote!.copyWith(drawingJson: jsonEncode(strokes));
               _isToolbarVisible.value = true;
             },

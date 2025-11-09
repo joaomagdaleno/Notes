@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide ColorPicker;
 
 class CustomEditorToolbar extends StatelessWidget {
   final EditorState editorState;
@@ -46,7 +46,7 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   Widget _toggleIcon(BuildContext context, IconData icon, String key) {
-    final isActive = editorState.getMark(key) != null;
+    final isActive = editorState.getNode(key) != null;
     return IconButton(
       icon: Icon(icon, color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
       onPressed: () => _toggleAttribute(key),
@@ -54,14 +54,14 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   Widget _headingPopup(BuildContext context) {
-    return PopupMenuButton<int?>(
+    return PopupMenuButton<HeadingLevel?>(
       icon: const Icon(Icons.title),
       onSelected: _toggleHeading,
       itemBuilder: (_) => [
         const PopupMenuItem(value: null, child: Text('Normal')),
-        const PopupMenuItem(value: 1, child: Text('Heading 1')),
-        const PopupMenuItem(value: 2, child: Text('Heading 2')),
-        const PopupMenuItem(value: 3, child: Text('Heading 3')),
+        const PopupMenuItem(value: HeadingLevel.h1, child: Text('Heading 1')),
+        const PopupMenuItem(value: HeadingLevel.h2, child: Text('Heading 2')),
+        const PopupMenuItem(value: HeadingLevel.h3, child: Text('Heading 3')),
       ],
     );
   }
@@ -104,7 +104,7 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   void _toggleAttribute(String key) {
-    editorState.toggleMark(key);
+    editorState.toggleNode(key);
   }
 
   void _toggleHeading(int? level) {
@@ -147,7 +147,9 @@ class CustomEditorToolbar extends StatelessWidget {
 
     final url = await _askUrl(context);
     if (url == null || url.isEmpty) return;
-    editorState.format(AppFlowyRichTextKeys.href, url);
+    editorState.replaceSelection(
+      (selection) => selection.insertLink(url),
+    );
   }
 
   void _pickColor(BuildContext context, {required bool isBackground}) async {
@@ -175,7 +177,9 @@ class CustomEditorToolbar extends StatelessWidget {
     );
     if (color == null) return;
     final key = isBackground ? AppFlowyRichTextKeys.backgroundColor : AppFlowyRichTextKeys.textColor;
-    editorState.format(key, '#${color.value.toRadixString(16)}');
+    editorState.replaceSelection(
+      (selection) => selection.applyAttribute(key, '#${color.value.toRadixString(16)}'),
+    );
   }
 
   Future<String?> _askUrl(BuildContext context) async {
