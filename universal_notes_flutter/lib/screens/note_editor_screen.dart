@@ -274,9 +274,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     };
 
     if (isDesktop) {
-      final controller = fluent.FlyoutController();
       return fluent.DropDownButton(
-        controller: controller,
         title: const Text('Salvar Como'),
         items: [
           fluent.MenuFlyoutItem(text: const Text('PDF'), onPressed: () => onSelected('pdf')),
