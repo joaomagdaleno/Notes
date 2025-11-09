@@ -54,14 +54,14 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   Widget _headingPopup(BuildContext context) {
-    return PopupMenuButton<HeadingLevel?>(
+    return PopupMenuButton<int?>(
       icon: const Icon(Icons.title),
       onSelected: _toggleHeading,
       itemBuilder: (_) => [
         const PopupMenuItem(value: null, child: Text('Normal')),
-        const PopupMenuItem(value: HeadingLevel.h1, child: Text('Heading 1')),
-        const PopupMenuItem(value: HeadingLevel.h2, child: Text('Heading 2')),
-        const PopupMenuItem(value: HeadingLevel.h3, child: Text('Heading 3')),
+        const PopupMenuItem(value: 1, child: Text('Heading 1')),
+        const PopupMenuItem(value: 2, child: Text('Heading 2')),
+        const PopupMenuItem(value: 3, child: Text('Heading 3')),
       ],
     );
   }
