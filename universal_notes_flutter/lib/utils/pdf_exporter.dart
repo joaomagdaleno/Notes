@@ -152,7 +152,7 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
     return pw.Text('Error parsing drawing content: $e');
   }
 
-  final lines = contents.whereType<Line>().toList();
+  final lines = contents.whereType<SimpleLine>().toList();
   if (lines.isEmpty) return pw.SizedBox();
 
   return pw.Container(

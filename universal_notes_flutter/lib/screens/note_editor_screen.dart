@@ -368,7 +368,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.brush),
             tooltip: 'Pincel',
             onPressed: () {
-              _drawController.setPaintContent(Line());
+              _drawController.setPaintContent(SimpleLine());
               _drawController.setStyle(color: Colors.black, strokeWidth: 2.0);
             },
           ),

@@ -47,11 +47,7 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   Widget _toggleIcon(BuildContext context, IconData icon, Attribute attribute) {
-    final selection = editorState.selection;
-    if (selection == null) {
-      return IconButton(icon: Icon(icon), onPressed: null);
-    }
-    final attrs = editorState.getDeltaAttribute(selection);
+    final attrs = editorState.getSelectionAttributes();
     final isActive = attrs[attribute.key] != null;
     return IconButton(
       icon: Icon(icon,
@@ -208,9 +204,9 @@ class CustomEditorToolbar extends StatelessWidget {
       ),
     );
     if (color == null) return;
-    final key =
+    final attribute =
         isBackground ? Attributes.backgroundColor : Attributes.textColor;
-    editorState.toggleAttribute(key, '#${color.value.toRadixString(16).substring(2)}');
+    editorState.toggleAttribute(attribute, '#${color.value.toRadixString(16).substring(2)}');
   }
 
   Future<String?> _askUrl(BuildContext context) async {
