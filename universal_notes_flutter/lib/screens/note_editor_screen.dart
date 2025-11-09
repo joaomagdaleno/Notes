@@ -93,7 +93,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         final list = (jsonDecode(_currentNote!.drawingJson!) as List)
             .cast<Map<String, dynamic>>()
             .map(paintContentFromJson)
-            .whereType<PaintContent>()
+            .whereType<DrawObject>()
             .toList();
         _drawController.addContents(list);
       } catch (e) {
@@ -368,7 +368,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.brush),
             tooltip: 'Pincel',
             onPressed: () {
-              _drawController.setPaintContent(SimpleLine());
+              _drawController.setPaintContent(DrawLine());
               _drawController.setStyle(color: Colors.black, strokeWidth: 2.0);
             },
           ),
@@ -405,7 +405,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           IconButton(
             icon: const Icon(Icons.cleaning_services),
             tooltip: 'Borracha',
-            onPressed: () => _drawController.setPaintContent(Eraser()),
+            onPressed: () => _drawController.setPaintContent(DrawEraser()),
           ),
           const VerticalDivider(width: 1),
           IconButton(

@@ -23,11 +23,11 @@ class CustomEditorToolbar extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _toggleIcon(context, Icons.format_bold, Attribute.bold),
-            _toggleIcon(context, Icons.format_italic, Attribute.italic),
-            _toggleIcon(context, Icons.format_underline, Attribute.underline),
+            _toggleIcon(context, Icons.format_bold, AppFlowyRichTextKeys.bold),
+            _toggleIcon(context, Icons.format_italic, AppFlowyRichTextKeys.italic),
+            _toggleIcon(context, Icons.format_underline, AppFlowyRichTextKeys.underline),
             _toggleIcon(
-                context, Icons.format_strikethrough, Attribute.strikethrough),
+                context, Icons.format_strikethrough, AppFlowyRichTextKeys.strikethrough),
             const VerticalDivider(width: 1),
             _headingPopup(context),
             const VerticalDivider(width: 1),
@@ -46,13 +46,13 @@ class CustomEditorToolbar extends StatelessWidget {
     );
   }
 
-  Widget _toggleIcon(BuildContext context, IconData icon, Attribute attribute) {
-    final attrs = editorState.getAttributes();
-    final isActive = attrs[attribute.key] != null;
+  Widget _toggleIcon(BuildContext context, IconData icon, String key) {
+    final attrs = editorState.getSelectionAttributes();
+    final isActive = attrs[key] != null;
     return IconButton(
       icon: Icon(icon,
           color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
-      onPressed: () => _toggleAttribute(attribute),
+      onPressed: () => _toggleAttribute(key),
     );
   }
 
@@ -99,7 +99,7 @@ class CustomEditorToolbar extends StatelessWidget {
   Widget _codeButton(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.code),
-      onPressed: () => _toggleAttribute(Attribute.code),
+      onPressed: () => _toggleAttribute(AppFlowyRichTextKeys.code),
     );
   }
 
@@ -111,12 +111,15 @@ class CustomEditorToolbar extends StatelessWidget {
     );
   }
 
-  void _toggleAttribute(Attribute attribute) {
-    editorState.toggleMark(attribute);
+  void _toggleAttribute(String key) {
+    editorState.toggleMark(key);
   }
 
   void _toggleHeading(int? level) {
+    final selection = editorState.selection;
+    if (selection == null) return;
     editorState.formatNode(
+      selection,
       (node) {
         if (level == null) {
           return node.copyWith(
@@ -136,7 +139,10 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   void _toggleList(String listType) {
+    final selection = editorState.selection;
+    if (selection == null) return;
     editorState.formatNode(
+      selection,
       (node) {
         final currentType = node.attributes[ParagraphBlockKeys.type];
         if (currentType == listType) {
@@ -168,7 +174,7 @@ class CustomEditorToolbar extends StatelessWidget {
     editorState.insertText(
       selection,
       url,
-      attributes: {Attribute.link.key: url},
+      attributes: {AppFlowyRichTextKeys.link: url},
     );
   }
 
@@ -188,10 +194,10 @@ class CustomEditorToolbar extends StatelessWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(_),
+              onPressed: () => Navigator.pop(context),
               child: const Text('Cancelar')),
           ElevatedButton(
-            onPressed: () => Navigator.pop(_, temp),
+            onPressed: () => Navigator.pop(context, temp),
             child: const Text('Aplicar'),
           ),
         ],
@@ -199,7 +205,7 @@ class CustomEditorToolbar extends StatelessWidget {
     );
     if (color == null) return;
     final key =
-        isBackground ? Attribute.backgroundColor : Attribute.textColor;
+        isBackground ? AppFlowyRichTextKeys.backgroundColor : AppFlowyRichTextKeys.textColor;
     editorState.toggleMark(key, '#${color.value.toRadixString(16).substring(2)}');
   }
 
@@ -215,8 +221,8 @@ class CustomEditorToolbar extends StatelessWidget {
           keyboardType: TextInputType.url,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(_), child: const Text('Cancelar')),
-          ElevatedButton(onPressed: () => Navigator.pop(_, ctrl.text), child: const Text('OK')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          ElevatedButton(onPressed: () => Navigator.pop(context, ctrl.text), child: const Text('OK')),
         ],
       ),
     );
