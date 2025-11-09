@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ColorPicker;
+import 'package:collection/collection.dart';
 
 class CustomEditorToolbar extends StatelessWidget {
   final EditorState editorState;
@@ -47,12 +48,19 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   Widget _toggleIcon(BuildContext context, IconData icon, Attribute attribute) {
-    final attrs = editorState.getSelectionAttributes();
-    final isActive = attrs[attribute.key] != null;
-    return IconButton(
-      icon: Icon(icon,
-          color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
-      onPressed: () => _toggleAttribute(attribute),
+    return StreamBuilder<Object>(
+      stream: editorState.selectionService.selectionChanges,
+      builder: (context, snapshot) {
+        final nodes = editorState.selectionService.currentSelectedNodes;
+        final attrs = nodes.firstOrNull?.delta?.first.attributes ?? {};
+        final isActive = attrs[attribute.key] != null;
+
+        return IconButton(
+          icon: Icon(icon,
+              color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
+          onPressed: () => _toggleAttribute(attribute),
+        );
+      }
     );
   }
 
