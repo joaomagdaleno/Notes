@@ -1,13 +1,16 @@
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 
-DrawObject? paintContentFromJson(Map<String, dynamic> json) {
+PaintContent? paintContentFromJson(Map<String, dynamic> json) {
   final type = json['type'] as String?;
   switch (type) {
-    case 'SimpleLine':
-      return DrawLine.fromJson(json);
+    case 'Line':
+      return Line.fromJson(json);
     case 'Eraser':
-      return DrawEraser.fromJson(json);
+      return Eraser.fromJson(json);
+    // Add other supported types from the library if needed.
+    // For now, these are the two used in the app.
     default:
+      // Return null or throw an exception for unsupported types.
       return null;
   }
 }

@@ -23,11 +23,11 @@ class CustomEditorToolbar extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _toggleIcon(context, Icons.format_bold, AppFlowyRichTextKeys.bold),
-            _toggleIcon(context, Icons.format_italic, AppFlowyRichTextKeys.italic),
-            _toggleIcon(context, Icons.format_underline, AppFlowyRichTextKeys.underline),
+            _toggleIcon(context, Icons.format_bold, Attributes.bold),
+            _toggleIcon(context, Icons.format_italic, Attributes.italic),
+            _toggleIcon(context, Icons.format_underline, Attributes.underline),
             _toggleIcon(
-                context, Icons.format_strikethrough, AppFlowyRichTextKeys.strikethrough),
+                context, Icons.format_strikethrough, Attributes.strikethrough),
             const VerticalDivider(width: 1),
             _headingPopup(context),
             const VerticalDivider(width: 1),
@@ -46,13 +46,17 @@ class CustomEditorToolbar extends StatelessWidget {
     );
   }
 
-  Widget _toggleIcon(BuildContext context, IconData icon, String key) {
-    final attrs = editorState.getSelectionAttributes();
-    final isActive = attrs[key] != null;
+  Widget _toggleIcon(BuildContext context, IconData icon, Attribute attribute) {
+    final selection = editorState.selection;
+    if (selection == null) {
+      return IconButton(icon: Icon(icon), onPressed: null);
+    }
+    final attrs = editorState.getDeltaAttribute(selection);
+    final isActive = attrs[attribute.key] != null;
     return IconButton(
       icon: Icon(icon,
           color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
-      onPressed: () => _toggleAttribute(key),
+      onPressed: () => _toggleAttribute(attribute),
     );
   }
 
@@ -99,7 +103,7 @@ class CustomEditorToolbar extends StatelessWidget {
   Widget _codeButton(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.code),
-      onPressed: () => _toggleAttribute(AppFlowyRichTextKeys.code),
+      onPressed: () => _toggleAttribute(Attributes.code),
     );
   }
 
@@ -111,8 +115,8 @@ class CustomEditorToolbar extends StatelessWidget {
     );
   }
 
-  void _toggleAttribute(String key) {
-    editorState.toggleMark(key);
+  void _toggleAttribute(Attribute attribute) {
+    editorState.toggleAttribute(attribute);
   }
 
   void _toggleHeading(int? level) {
@@ -174,7 +178,7 @@ class CustomEditorToolbar extends StatelessWidget {
     editorState.insertText(
       selection,
       url,
-      attributes: {AppFlowyRichTextKeys.link: url},
+      attributes: {Attributes.href.key: url},
     );
   }
 
@@ -205,8 +209,8 @@ class CustomEditorToolbar extends StatelessWidget {
     );
     if (color == null) return;
     final key =
-        isBackground ? AppFlowyRichTextKeys.backgroundColor : AppFlowyRichTextKeys.textColor;
-    editorState.toggleMark(key, '#${color.value.toRadixString(16).substring(2)}');
+        isBackground ? Attributes.backgroundColor : Attributes.textColor;
+    editorState.toggleAttribute(key, '#${color.value.toRadixString(16).substring(2)}');
   }
 
   Future<String?> _askUrl(BuildContext context) async {
