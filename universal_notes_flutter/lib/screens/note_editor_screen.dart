@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart'
-    as flutter_colorpicker;
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'dart:io' show Platform;
+import 'package:flutter_drawing_board/src/paint_contents/paint_content.dart';
+import 'package:flutter_drawing_board/src/paint_contents/simple_line.dart';
+import 'package:flutter_drawing_board/src/paint_contents/eraser.dart';
 import '../models/note.dart';
 import '../models/paper_config.dart';
 import '../utils/pdf_exporter.dart';
@@ -107,10 +109,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _drawController = DrawingController();
     if (_currentNote?.drawingJson != null) {
       try {
-        final List<Map<String, dynamic>>? data =
-            jsonDecode(_currentNote!.drawingJson!) as List<Map<String, dynamic>>?;
-        if (data == null) return;
-        _drawController.addContents(PaintContent.decode(data));
+        final list = (jsonDecode(_currentNote!.drawingJson!) as List)
+            .map((e) => PaintContent.fromJson(e))
+            .toList();
+        _drawController.addContents(list);
       } catch (_) {}
     }
   }
@@ -130,7 +132,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     final contentJson = jsonEncode(_editorState.document.toJson());
 
     // serializa strokes
-    final strokesJson = jsonEncode(_drawController.getJsonList());
+    final strokesJson =
+        jsonEncode(_drawController.getContents().map((c) => c.toJson()).toList());
 
     // prefs do papel
     final prefs = {
@@ -176,7 +179,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             tooltip: 'Formato do papel',
           ),
           fluent.CommandBarButton(
-            icon: fluent.Icon(_isToolbarVisible.value ? fluent.FluentIcons.edit : fluent.FluentIcons.edit),
+            icon: fluent.Icon(_isToolbarVisible.value ? fluent.FluentIcons.edit : fluent.FluentIcons.edit_off),
             onPressed: () => setState(() => _isToolbarVisible.value = !_isToolbarVisible.value),
             tooltip: _isToolbarVisible.value ? 'Modo Desenho' : 'Modo Texto',
           ),
@@ -236,14 +239,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   /* ----------  TITLE BAR  ---------- */
-  Widget _buildTitleBar(BuildContext context) {
+  Widget _buildTitleBar(BuildContext.context) {
     final isDesktop = Platform.isWindows;
 
     final titleWidget = isDesktop
         ? fluent.TextBox(
             controller: _titleController,
             placeholder: 'Título da Nota',
-            decoration: const fluent.BoxDecoration(border: null),
+            decoration: fluent.WidgetStateProperty.all(const BoxDecoration(border: null)),
             style: fluent.FluentTheme.of(context).typography.title,
           )
         : TextField(
@@ -388,11 +391,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.brush),
             tooltip: 'Pincel',
             onPressed: () {
-              _drawController.paintType = PaintType.line;
-              _drawController.setStyle(
+              _drawController.setPaintContent(SimpleLine(
                 color: _drawingColor,
                 strokeWidth: _drawingStrokeWidth,
-              );
+              ));
             },
           ),
           IconButton(
@@ -405,7 +407,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 builder: (_) => AlertDialog(
                   title: const Text('Selecione a cor'),
                   content: SingleChildScrollView(
-                    child: flutter_colorpicker.ColorPicker(
+                    child: ColorPicker(
                       pickerColor: _drawingColor,
                       onColorChanged: (v) => newColor = v,
                     ),
@@ -414,7 +416,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                     TextButton(
                         onPressed: () {
                           setState(() => _drawingColor = newColor);
-                          _drawController.setStyle(color: newColor);
                           Navigator.pop(context);
                         },
                         child: const Text('OK'))
@@ -426,17 +427,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           IconButton(
             icon: const Icon(Icons.cleaning_services),
             tooltip: 'Borracha',
-            onPressed: () {
-              _drawController.paintType = PaintType.eraser;
-              _drawController.setStyle(strokeWidth: 20);
-            },
+            onPressed: () => _drawController.setPaintContent(Eraser(
+              color: Colors.white,
+              strokeWidth: 20,
+            )),
           ),
           const VerticalDivider(width: 1),
           IconButton(
             icon: const Icon(Icons.check),
             tooltip: 'Concluir desenho',
             onPressed: () {
-              final strokes = _drawController.getJsonList();
+              final strokes = _drawController.getContents().map((c) => c.toJson()).toList();
               _currentNote = _currentNote!.copyWith(drawingJson: jsonEncode(strokes));
               _isToolbarVisible.value = true;
             },

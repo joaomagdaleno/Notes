@@ -5,6 +5,9 @@ import 'dart:ui';
 import 'package:flutter/painting.dart';
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:pdf/pdf.dart';
+import 'package:flutter_drawing_board/src/paint_contents/paint_content.dart';
+import 'package:flutter_drawing_board/src/paint_contents/simple_line.dart';
+import 'package:flutter_drawing_board/src/paint_contents/eraser.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -142,13 +145,15 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
 
   List<PaintContent> contents = [];
   try {
-    final List<Map<String, dynamic>>? data =
-        jsonDecode(note.drawingJson!) as List<Map<String, dynamic>>?;
-    if (data == null) return pw.SizedBox();
-    contents = PaintContent.decode(data);
+    contents = (jsonDecode(note.drawingJson!) as List)
+        .map((e) => PaintContent.fromJson(e))
+        .toList();
   } catch (e) {
     return pw.Text('Error parsing drawing content: $e');
   }
+
+  final lines = contents.whereType<SimpleLine>().toList();
+  if (lines.isEmpty) return pw.SizedBox();
 
   return pw.Container(
     width: format.availableWidth,
@@ -156,33 +161,22 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
     margin: const pw.EdgeInsets.only(top: 16),
     child: pw.CustomPaint(
       painter: (canvas, size) {
-        for (final content in contents) {
-          List<Offset> path;
-          if (content is SimpleLine) {
-            path = content.points;
-          } else if (content is Eraser) {
-            path = content.points;
-          } else {
-            continue;
-          }
-
+        for (final line in lines) {
+          final path = line.points;
           if (path.isEmpty) continue;
 
-          final paint = content.paint;
-          final isErase = content is Eraser;
+          final isErase = line is Eraser;
 
           canvas
-            ..setColor(isErase
-                ? PdfColors.white
-                : PdfColor.fromInt(paint.color.value))
-            ..setLineWidth(paint.strokeWidth)
-            ..setLineCap(paint.strokeCap == StrokeCap.round
-                ? PdfLineCap.round
-                : PdfLineCap.butt)
-            ..moveTo(path.first.dx, size.height - path.first.dy);
+            ..setColor(isErase ? PdfColors.white : PdfColor.fromInt(line.color.value))
+            ..setLineWidth(line.strokeWidth)
+            ..setStrokeCap(line.strokeCap == StrokeCap.round
+                ? PdfStrokeCap.round
+                : PdfStrokeCap.butt)
+            ..moveTo(path.first.dx, path.first.dy);
 
           for (int i = 1; i < path.length; i++) {
-            canvas.lineTo(path[i].dx, size.height - path[i].dy);
+            canvas.lineTo(path[i].dx, path[i].dy);
           }
           canvas.strokePath();
         }
