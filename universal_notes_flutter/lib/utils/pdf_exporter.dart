@@ -20,8 +20,6 @@ Future<void> exportNoteToPdf(Note note, {bool share = true}) async {
   if (share) {
     await Printing.sharePdf(bytes: bytes, filename: '${note.title}.pdf');
   } else {
-    // Note: This saves to the app's root directory. For a real-world scenario,
-    // using a package like path_provider to find a suitable downloads folder is better.
     final file = File('${note.id}.pdf');
     await file.writeAsBytes(bytes);
   }
@@ -113,7 +111,7 @@ pw.Widget _opToPdf(Map<String, dynamic> op) {
 
   pw.BoxDecoration? decoration;
   if (attrs['background'] != null) {
-      decoration = pw.BoxDecoration(color: _hexToPdfColor(attrs['background']));
+    decoration = pw.BoxDecoration(color: _hexToPdfColor(attrs['background']));
   }
 
   if (attrs['heading'] != null) {
@@ -141,18 +139,18 @@ pw.Widget _opToPdf(Map<String, dynamic> op) {
 pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
   if (note.drawingJson == null || note.drawingJson!.isEmpty) return pw.SizedBox();
 
-  List<PaintContent> contents = [];
+  List<PaintObject> contents = [];
   try {
     contents = (jsonDecode(note.drawingJson!) as List)
         .cast<Map<String, dynamic>>()
         .map(paintContentFromJson)
-        .whereType<PaintContent>()
+        .whereType<PaintObject>()
         .toList();
   } catch (e) {
     return pw.Text('Error parsing drawing content: $e');
   }
 
-  final lines = contents.whereType<StraightLine>().toList();
+  final lines = contents.whereType<Line>().toList();
   if (lines.isEmpty) return pw.SizedBox();
 
   return pw.Container(
@@ -165,7 +163,7 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
           final path = line.points;
           if (path.isEmpty) continue;
 
-          final isErase = line is Eraser;
+          final isErase = line is EraserObject;
 
           canvas
             ..setColor(isErase ? PdfColors.white : PdfColor.fromInt(line.paint.color.value))
