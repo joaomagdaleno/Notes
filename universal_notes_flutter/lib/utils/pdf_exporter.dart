@@ -5,6 +5,9 @@ import 'dart:ui';
 import 'package:flutter/painting.dart';
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:pdf/pdf.dart';
+import 'package:flutter_drawing_board/src/paint_contents/paint_content.dart';
+import 'package:flutter_drawing_board/src/paint_contents/simple_line.dart';
+import 'package:flutter_drawing_board/src/paint_contents/eraser.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -140,10 +143,11 @@ pw.Widget _opToPdf(Map<String, dynamic> op) {
 pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
   if (note.drawingJson == null || note.drawingJson!.isEmpty) return pw.SizedBox();
 
-  List<DrawingContent> contents = [];
+  List<PaintContent> contents = [];
   try {
     contents = (jsonDecode(note.drawingJson!) as List)
-        .map((e) => DrawingContent.fromJson(e))
+        .cast<Map<String, dynamic>>()
+        .map(PaintContent.fromMap)
         .toList();
   } catch (e) {
     return pw.Text('Error parsing drawing content: $e');
@@ -159,18 +163,17 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
     child: pw.CustomPaint(
       painter: (canvas, size) {
         for (final line in lines) {
-          final path = line.offsets;
-          if (path.isEmpty) continue;
+          final path = line.pointList;
+          if (path == null || path.isEmpty) continue;
 
-          final paint = line.paint;
-          final isErase = paint.blendMode == BlendMode.clear;
+          final isErase = line is Eraser;
 
           canvas
-            ..setColor(isErase ? PdfColors.white : PdfColor.fromInt(paint.color.value))
-            ..setLineWidth(paint.strokeWidth)
-            ..setStrokeCap(paint.strokeCap == StrokeCap.round
-                ? PdfStrokeCap.round
-                : PdfStrokeCap.butt)
+            ..setColor(isErase ? PdfColors.white : PdfColor.fromInt(line.paint.color.value))
+            ..setLineWidth(line.paint.strokeWidth)
+            ..setLineCap(line.paint.strokeCap == StrokeCap.round
+                ? PdfLineCap.round
+                : PdfLineCap.butt)
             ..moveTo(path.first.dx, path.first.dy);
 
           for (int i = 1; i < path.length; i++) {

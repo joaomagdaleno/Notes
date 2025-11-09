@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart'
-    as flutter_colorpicker;
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide ColorPicker;
 
 class CustomEditorToolbar extends StatelessWidget {
   final EditorState editorState;
@@ -47,18 +46,10 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   Widget _toggleIcon(BuildContext context, IconData icon, String key) {
-    return ValueListenableBuilder(
-      valueListenable: editorState.selectionNotifier,
-      builder: (context, selection, _) {
-        final isActive = _isTextDecorationActive(editorState, selection, key);
-        return IconButton(
-          icon: Icon(icon,
-              color: isActive
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.black),
-          onPressed: () => _toggleAttribute(key),
-        );
-      },
+    final isActive = editorState.getNode(key) != null;
+    return IconButton(
+      icon: Icon(icon, color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
+      onPressed: () => _toggleAttribute(key),
     );
   }
 
@@ -112,67 +103,42 @@ class CustomEditorToolbar extends StatelessWidget {
     );
   }
 
-  bool _isTextDecorationActive(
-    EditorState editorState,
-    Selection? selection,
-    String name,
-  ) {
-    selection = selection ?? editorState.selection;
-    if (selection == null) {
-      return false;
-    }
-    final nodes = editorState.getNodesInSelection(selection);
-    if (selection.isCollapsed) {
-      return editorState.toggledStyle.containsKey(name);
-    } else {
-      return nodes.allSatisfyInSelection(selection, (delta) {
-        return delta.everyAttributes(
-          (attributes) => attributes[name] == true,
-        );
-      });
-    }
-  }
-
   void _toggleAttribute(String key) {
-    final selection = editorState.selection;
-    if (selection == null) return;
-    editorState.toggleAttribute(key);
+    editorState.toggleNode(key);
   }
 
   void _toggleHeading(int? level) {
+    final selection = editorState.selection;
+    if (selection == null) return;
+    final node = editorState.getNodeAtPath(selection.start.path);
+    if (node == null) return;
+
+    final attrs = {...node.attributes};
     if (level == null) {
-      editorState.formatNode(
-        null,
-        (node) => node.copyWith(
-          type: ParagraphBlockKeys.type,
-          attributes: {
-            ...node.attributes,
-            HeadingBlockKeys.level: null,
-          },
-        ),
-      );
-      return;
+      attrs[ParagraphBlockKeys.type] = ParagraphBlockKeys.type;
+      attrs.remove(HeadingBlockKeys.level);
+    } else {
+      attrs[ParagraphBlock-Keys.type] = HeadingBlockKeys.type;
+      attrs[HeadingBlockKeys.level] = level;
     }
-    editorState.formatNode(
-      null,
-      (node) => node.copyWith(
-        type: HeadingBlockKeys.type,
-        attributes: {
-          ...node.attributes,
-          HeadingBlockKeys.level: level,
-        },
-      ),
-    );
+    final transaction = editorState.transaction..updateNode(node, attrs);
+    editorState.apply(transaction);
   }
 
   void _toggleList(String listType) {
-    editorState.formatNode(null, (node) {
-      if (node.type == listType) {
-        return node.copyWith(type: ParagraphBlockKeys.type);
-      } else {
-        return node.copyWith(type: listType);
-      }
-    });
+    final selection = editorState.selection;
+    if (selection == null) return;
+    final node = editorState.getNodeAtPath(selection.start.path);
+    if (node == null) return;
+
+    final attrs = {...node.attributes};
+    if (attrs[ParagraphBlockKeys.type] == listType) {
+      attrs[ParagraphBlockKeys.type] = ParagraphBlockKeys.type;
+    } else {
+      attrs[ParagraphBlockKeys.type] = listType;
+    }
+    final transaction = editorState.transaction..updateNode(node, attrs);
+    editorState.apply(transaction);
   }
 
   void _insertLink(BuildContext context) async {
@@ -181,7 +147,9 @@ class CustomEditorToolbar extends StatelessWidget {
 
     final url = await _askUrl(context);
     if (url == null || url.isEmpty) return;
-    editorState.toggleAttribute(AppFlowyRichTextKeys.href, extraInfo: {'href': url});
+    editorState.replaceSelection(
+      (selection) => selection.insertLink(url),
+    );
   }
 
   void _pickColor(BuildContext context, {required bool isBackground}) async {
@@ -191,7 +159,7 @@ class CustomEditorToolbar extends StatelessWidget {
       builder: (_) => AlertDialog(
         title: const Text('Escolha a cor'),
         content: SingleChildScrollView(
-          child: flutter_colorpicker.ColorPicker(
+          child: ColorPicker(
             pickerColor: temp,
             onColorChanged: (c) => temp = c,
             showLabel: true,
@@ -209,7 +177,9 @@ class CustomEditorToolbar extends StatelessWidget {
     );
     if (color == null) return;
     final key = isBackground ? AppFlowyRichTextKeys.backgroundColor : AppFlowyRichTextKeys.textColor;
-    editorState.toggleAttribute(key, extraInfo: {key: color.value.toRadixString(16)});
+    editorState.replaceSelection(
+      (selection) => selection.applyAttribute(key, '#${color.value.toRadixString(16)}'),
+    );
   }
 
   Future<String?> _askUrl(BuildContext context) async {
