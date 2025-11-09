@@ -26,8 +26,10 @@ class CustomEditorToolbar extends StatelessWidget {
           children: [
             _toggleIcon(context, Icons.format_bold, AppFlowyRichTextKeys.bold),
             _toggleIcon(context, Icons.format_italic, AppFlowyRichTextKeys.italic),
-            _toggleIcon(context, Icons.format_underline, AppFlowyRichTextKeys.underline),
-            _toggleIcon(context, Icons.format_strikethrough, AppFlowyRichTextKeys.strikethrough),
+            _toggleIcon(
+                context, Icons.format_underline, AppFlowyRichTextKeys.underline),
+            _toggleIcon(context, Icons.format_strikethrough,
+                AppFlowyRichTextKeys.strikethrough),
             const VerticalDivider(width: 1),
             _headingPopup(context),
             const VerticalDivider(width: 1),
@@ -76,10 +78,13 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   Widget _listIcon(BuildContext context, IconData icon, String listType) {
-    final node = editorState.getNodeAtPath(editorState.selection?.start.path ?? []);
+    final node =
+        editorState.getNodeAtPath(editorState.selection?.start.path ?? []);
     final isActive = node?.attributes[ParagraphBlockKeys.type] == listType;
     return IconButton(
-      icon: Icon(icon, color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
+      icon: Icon(icon,
+          color:
+              isActive ? Theme.of(context).colorScheme.primary : Colors.black),
       onPressed: () => _toggleList(listType),
     );
   }
@@ -107,7 +112,8 @@ class CustomEditorToolbar extends StatelessWidget {
 
   Widget _colorButton(BuildContext context, {required bool isBackground}) {
     return IconButton(
-      icon: Icon(isBackground ? Icons.format_color_fill : Icons.format_color_text),
+      icon: Icon(
+          isBackground ? Icons.format_color_fill : Icons.format_color_text),
       onPressed: () => _pickColor(context, isBackground: isBackground),
     );
   }
@@ -199,7 +205,8 @@ class CustomEditorToolbar extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(_), child: const Text('Cancelar')),
+          TextButton(
+              onPressed: () => Navigator.pop(_), child: const Text('Cancelar')),
           ElevatedButton(
             onPressed: () => Navigator.pop(_, temp),
             child: const Text('Aplicar'),
@@ -208,7 +215,9 @@ class CustomEditorToolbar extends StatelessWidget {
       ),
     );
     if (color == null) return;
-    final key = isBackground ? AppFlowyRichTextKeys.backgroundColor : AppFlowyRichTextKeys.textColor;
+    final key = isBackground
+        ? AppFlowyRichTextKeys.backgroundColor
+        : AppFlowyRichTextKeys.textColor;
     editorState.toggleAttribute(key, extraInfo: {key: color.value.toRadixString(16)});
   }
 
@@ -224,8 +233,11 @@ class CustomEditorToolbar extends StatelessWidget {
           keyboardType: TextInputType.url,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(_), child: const Text('Cancelar')),
-          ElevatedButton(onPressed: () => Navigator.pop(_, ctrl.text), child: const Text('OK')),
+          TextButton(
+              onPressed: () => Navigator.pop(_), child: const Text('Cancelar')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(_, ctrl.text),
+              child: const Text('OK')),
         ],
       ),
     );

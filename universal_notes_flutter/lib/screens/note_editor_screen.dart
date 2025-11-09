@@ -176,7 +176,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             tooltip: 'Formato do papel',
           ),
           fluent.CommandBarButton(
-            icon: fluent.Icon(_isToolbarVisible.value ? fluent.FluentIcons.edit : fluent.FluentIcons.edit_off),
+            icon: fluent.Icon(_isToolbarVisible.value ? fluent.FluentIcons.edit : fluent.FluentIcons.edit),
             onPressed: () => setState(() => _isToolbarVisible.value = !_isToolbarVisible.value),
             tooltip: _isToolbarVisible.value ? 'Modo Desenho' : 'Modo Texto',
           ),
@@ -388,7 +388,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.brush),
             tooltip: 'Pincel',
             onPressed: () {
-              _drawController.setPaintContent = SimpleLine();
+              _drawController.paintType = PaintType.line;
               _drawController.setStyle(
                 color: _drawingColor,
                 strokeWidth: _drawingStrokeWidth,
@@ -427,7 +427,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.cleaning_services),
             tooltip: 'Borracha',
             onPressed: () {
-              _drawController.setPaintContent = Eraser(color: Colors.white);
+              _drawController.paintType = PaintType.eraser;
               _drawController.setStyle(strokeWidth: 20);
             },
           ),
