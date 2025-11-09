@@ -209,7 +209,7 @@ class CustomEditorToolbar extends StatelessWidget {
     );
     if (color == null) return;
     final key = isBackground ? AppFlowyRichTextKeys.backgroundColor : AppFlowyRichTextKeys.textColor;
-    editorState.updateAttribute(key, color.value.toRadixString(16));
+    editorState.toggleAttribute(key, extraInfo: {key: color.value.toRadixString(16)});
   }
 
   Future<String?> _askUrl(BuildContext context) async {

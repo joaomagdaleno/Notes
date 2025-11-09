@@ -236,7 +236,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   /* ----------  TITLE BAR  ---------- */
-  Widget _buildTitleBar(BuildContext.context) {
+  Widget _buildTitleBar(BuildContext context) {
     final isDesktop = Platform.isWindows;
 
     final titleWidget = isDesktop
@@ -392,7 +392,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               _drawController.setStyle(
                 color: _drawingColor,
                 strokeWidth: _drawingStrokeWidth,
-                style: PaintingStyle.stroke,
               );
             },
           ),
@@ -415,6 +414,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                     TextButton(
                         onPressed: () {
                           setState(() => _drawingColor = newColor);
+                          _drawController.setStyle(color: newColor);
                           Navigator.pop(context);
                         },
                         child: const Text('OK'))
@@ -427,7 +427,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.cleaning_services),
             tooltip: 'Borracha',
             onPressed: () {
-              _drawController.setPaintContent = Eraser();
+              _drawController.setPaintContent = Eraser(color: Colors.white);
               _drawController.setStyle(strokeWidth: 20);
             },
           ),
