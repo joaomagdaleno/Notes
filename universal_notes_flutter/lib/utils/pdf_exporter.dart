@@ -141,18 +141,18 @@ pw.Widget _opToPdf(Map<String, dynamic> op) {
 pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
   if (note.drawingJson == null || note.drawingJson!.isEmpty) return pw.SizedBox();
 
-  List<PaintContent> contents = [];
+  List<PaintObject> contents = [];
   try {
     contents = (jsonDecode(note.drawingJson!) as List)
         .cast<Map<String, dynamic>>()
         .map(paintContentFromJson)
-        .whereType<PaintContent>()
+        .whereType<PaintObject>()
         .toList();
   } catch (e) {
     return pw.Text('Error parsing drawing content: $e');
   }
 
-  final lines = contents.whereType<SimpleLine>().toList();
+  final lines = contents.whereType<Line>().toList();
   if (lines.isEmpty) return pw.SizedBox();
 
   return pw.Container(
@@ -165,7 +165,7 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
           final path = line.points;
           if (path.isEmpty) continue;
 
-          final isErase = line is Eraser;
+          final isErase = line is EraserObject;
 
           canvas
             ..setColor(isErase ? PdfColors.white : PdfColor.fromInt(line.paint.color.value))
