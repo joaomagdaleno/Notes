@@ -20,6 +20,8 @@ Future<void> exportNoteToPdf(Note note, {bool share = true}) async {
   if (share) {
     await Printing.sharePdf(bytes: bytes, filename: '${note.title}.pdf');
   } else {
+    // Note: This saves to the app's root directory. For a real-world scenario,
+    // using a package like path_provider to find a suitable downloads folder is better.
     final file = File('${note.id}.pdf');
     await file.writeAsBytes(bytes);
   }
@@ -111,7 +113,7 @@ pw.Widget _opToPdf(Map<String, dynamic> op) {
 
   pw.BoxDecoration? decoration;
   if (attrs['background'] != null) {
-    decoration = pw.BoxDecoration(color: _hexToPdfColor(attrs['background']));
+      decoration = pw.BoxDecoration(color: _hexToPdfColor(attrs['background']));
   }
 
   if (attrs['heading'] != null) {
