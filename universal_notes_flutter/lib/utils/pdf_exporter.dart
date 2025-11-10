@@ -141,19 +141,19 @@ pw.Widget _opToPdf(Map<String, dynamic> op) {
 pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
   if (note.drawingJson == null || note.drawingJson!.isEmpty) return pw.SizedBox();
 
-  List<PaintObject> contents = [];
+  List<PaintContent> contents = [];
   try {
     contents = (jsonDecode(note.drawingJson!) as List)
         .cast<Map<String, dynamic>>()
-        .map(paintContentFromJson)
-        .whereType<PaintObject>()
+        .map(deserializeDrawing)
         .toList();
   } catch (e) {
     return pw.Text('Error parsing drawing content: $e');
   }
 
-  final lines = contents.whereType<Line>().toList();
-  if (lines.isEmpty) return pw.SizedBox();
+  final lines = contents.whereType<SimpleLine>().toList();
+  final erasers = contents.whereType<Eraser>().toList();
+  if (lines.isEmpty && erasers.isEmpty) return pw.SizedBox();
 
   return pw.Container(
     width: format.availableWidth,
@@ -161,24 +161,40 @@ pw.Widget _buildDrawing(Note note, PdfPageFormat format) {
     margin: const pw.EdgeInsets.only(top: 16),
     child: pw.CustomPaint(
       painter: (canvas, size) {
-        for (final line in lines) {
-          final path = line.points;
-          if (path.isEmpty) continue;
+        for (final item in contents) {
+          if (item is SimpleLine) {
+            final path = item.points;
+            if (path.isEmpty) continue;
 
-          final isErase = line is EraserObject;
+            canvas
+              ..setColor(PdfColor.fromInt(item.color.value))
+              ..setLineWidth(item.strokeWidth)
+              ..setLineCap(item.strokeCap == StrokeCap.round
+                  ? PdfLineCap.round
+                  : PdfLineCap.butt)
+              ..moveTo(path.first.dx, path.first.dy);
 
-          canvas
-            ..setColor(isErase ? PdfColors.white : PdfColor.fromInt(line.paint.color.value))
-            ..setLineWidth(line.paint.strokeWidth)
-            ..setLineCap(line.paint.strokeCap == StrokeCap.round
-                ? PdfLineCap.round
-                : PdfLineCap.butt)
-            ..moveTo(path.first.dx, path.first.dy);
+            for (int i = 1; i < path.length; i++) {
+              canvas.lineTo(path[i].dx, path[i].dy);
+            }
+            canvas.strokePath();
+          } else if (item is Eraser) {
+            final path = item.points;
+            if (path.isEmpty) continue;
 
-          for (int i = 1; i < path.length; i++) {
-            canvas.lineTo(path[i].dx, path[i].dy);
+            canvas
+              ..setColor(PdfColors.white)
+              ..setLineWidth(item.strokeWidth)
+              ..setLineCap(StrokeCap.round == item.strokeCap
+                  ? PdfLineCap.round
+                  : PdfLineCap.butt)
+              ..moveTo(path.first.dx, path.first.dy);
+
+            for (int i = 1; i < path.length; i++) {
+              canvas.lineTo(path[i].dx, path[i].dy);
+            }
+            canvas.strokePath();
           }
-          canvas.strokePath();
         }
       },
     ),

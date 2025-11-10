@@ -1,13 +1,13 @@
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 
-PaintObject? paintContentFromJson(Map<String, dynamic> json) {
-  final type = json['type'] as String?;
+PaintContent deserializeDrawing(Map<String, dynamic> json) {
+  final type = json['type'];
   switch (type) {
-    case 'Line':
-      return Line.fromJson(json);
-    case 'EraserObject':
-      return EraserObject.fromJson(json);
+    case 'line':
+      return SimpleLine.fromJson(json);
+    case 'eraser':
+      return Eraser.fromJson(json);
     default:
-      return null;
+      throw Exception('Tipo de desenho desconhecido: $type');
   }
 }
