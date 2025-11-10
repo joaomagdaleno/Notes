@@ -47,8 +47,6 @@ class CustomEditorToolbar extends StatelessWidget {
     );
   }
 
-  Stream<dynamic> get selectionStream => Stream.value(editorState.selection);
-
   Widget _toggleIcon(BuildContext context, IconData icon, String key) {
     return StreamBuilder<Object>(
       stream: selectionStream,
@@ -95,7 +93,12 @@ class CustomEditorToolbar extends StatelessWidget {
   Widget _linkButton(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.link),
-      onPressed: () => _insertLink(context),
+      onPressed: () async {
+        final url = await _askUrl(context);
+        if (url != null && url.isNotEmpty) {
+          _insertLink(url);
+        }
+      },
     );
   }
 
@@ -119,11 +122,6 @@ class CustomEditorToolbar extends StatelessWidget {
           isBackground ? Icons.format_color_fill : Icons.format_color_text),
       onPressed: () => _pickColor(context, isBackground: isBackground),
     );
-  }
-
-  void _transactionFormat(dynamic format) {
-    // TODO: Implementar API appflowy_editor correta
-    print('Format stub: $format');
   }
 
   void _toggleHeading(int? level) {
@@ -175,14 +173,6 @@ class CustomEditorToolbar extends StatelessWidget {
     );
   }
 
-  void _insertLink(BuildContext context) async {
-    // TODO: Implementar API appflowy_editor correta
-    final url = await _askUrl(context);
-    if (url != null && url.isNotEmpty) {
-      print('Insert link stub: $url');
-    }
-  }
-
   void _pickColor(BuildContext context, {required bool isBackground}) async {
     Color temp = isBackground ? Colors.yellow : Colors.black;
     final color = await showDialog<Color>(
@@ -231,5 +221,19 @@ class CustomEditorToolbar extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // STUB temporário para selection
+  Stream<dynamic> get selectionStream => Stream.value(editorState.selection);
+
+  // STUBS temporários para formatação
+  void _transactionFormat(dynamic format) {
+    // TODO: Implementar API appflowy_editor correta
+    print('Format stub: $format');
+  }
+
+  void _insertLink(String url) {
+    // TODO: Implementar API appflowy_editor correta
+    print('Insert link stub: $url');
   }
 }
