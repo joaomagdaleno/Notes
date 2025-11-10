@@ -40,7 +40,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   late Color _drawingColor;
   late double _drawingStrokeWidth;
-  List<PaintContent> _drawingObjects = [];
 
   @override
   void initState() {
@@ -91,11 +90,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _drawController = DrawingController();
     if (_currentNote?.drawingJson != null && _currentNote!.drawingJson!.isNotEmpty) {
       try {
-        _drawingObjects = (jsonDecode(_currentNote!.drawingJson!) as List)
+        final list = (jsonDecode(_currentNote!.drawingJson!) as List)
             .cast<Map<String, dynamic>>()
-            .map(deserializeDrawing)
+            .map(paintContentFromJson)
+            .whereType<PaintObject>()
             .toList();
-        _drawController.addContents(_drawingObjects);
+        _drawController.addContents(list);
       } catch (e) {
         debugPrint('Erro ao carregar desenho: $e');
       }
@@ -357,21 +357,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     );
   }
 
-  SimpleLine _createLine(List<Offset> points, double strokeWidth, Color color) {
-    return SimpleLine(
-      points: points,
-      strokeWidth: strokeWidth,
-      color: color,
-    );
-  }
-
-  Eraser _createEraserObject(List<Offset> points, double strokeWidth) {
-    return Eraser(
-      points: points,
-      strokeWidth: strokeWidth,
-    );
-  }
-
   Widget _miniDrawToolbar() {
     return Container(
       height: 56,
@@ -383,8 +368,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             icon: const Icon(Icons.brush),
             tooltip: 'Pincel',
             onPressed: () {
-              _drawController.setPaintContent(
-                  _createLine([], _drawingStrokeWidth, _drawingColor));
+              _drawController.setPaintContent(Line());
+              _drawController.setStyle(color: Colors.black, strokeWidth: 2.0);
             },
           ),
           IconButton(
@@ -420,10 +405,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           IconButton(
             icon: const Icon(Icons.cleaning_services),
             tooltip: 'Borracha',
-            onPressed: () {
-              _drawController.setPaintContent(
-                  _createEraserObject([], _drawingStrokeWidth));
-            },
+            onPressed: () => _drawController.setPaintContent(EraserObject()),
           ),
           const VerticalDivider(width: 1),
           IconButton(
