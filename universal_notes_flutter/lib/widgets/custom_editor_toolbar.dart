@@ -60,7 +60,7 @@ class CustomEditorToolbar extends StatelessWidget {
         return IconButton(
           icon: Icon(icon,
               color: isActive ? Theme.of(context).colorScheme.primary : Colors.black),
-          onPressed: () => _toggleFormat(key),
+          onPressed: () => _transactionFormat(key),
         );
       }
     );
@@ -109,7 +109,7 @@ class CustomEditorToolbar extends StatelessWidget {
   Widget _codeButton(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.code),
-      onPressed: () => _toggleFormat(AppFlowyRichTextKeys.code),
+      onPressed: () => _transactionFormat(AppFlowyRichTextKeys.code),
     );
   }
 
@@ -121,9 +121,9 @@ class CustomEditorToolbar extends StatelessWidget {
     );
   }
 
-  void _toggleFormat(String key, [dynamic value]) {
-    // TODO: Implement proper appflowy_editor formatting
-    print('Formatting would be applied for: $key');
+  void _transactionFormat(dynamic format) {
+    // TODO: Implementar API appflowy_editor correta
+    print('Format stub: $format');
   }
 
   void _toggleHeading(int? level) {
@@ -176,10 +176,10 @@ class CustomEditorToolbar extends StatelessWidget {
   }
 
   void _insertLink(BuildContext context) async {
-    // TODO: Implement proper appflowy_editor link insertion
+    // TODO: Implementar API appflowy_editor correta
     final url = await _askUrl(context);
     if (url != null && url.isNotEmpty) {
-      print('Link would be inserted: $url');
+      print('Insert link stub: $url');
     }
   }
 
@@ -211,7 +211,7 @@ class CustomEditorToolbar extends StatelessWidget {
     if (color == null) return;
     final key =
         isBackground ? AppFlowyRichTextKeys.backgroundColor : AppFlowyRichTextKeys.textColor;
-    _toggleFormat(key, '#${color.value.toRadixString(16).substring(2)}');
+    _transactionFormat(key, '#${color.value.toRadixString(16).substring(2)}');
   }
 
   Future<String?> _askUrl(BuildContext context) async {
