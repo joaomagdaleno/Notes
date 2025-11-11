@@ -160,6 +160,21 @@ jobs:
         working-directory: universal_notes_flutter
         run: flutter build windows || exit 1
 
+      - name: Smoke Test Windows Build
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Start-Process -FilePath "universal_notes_flutter/build/windows/x64/runner/Release/universal_notes_flutter.exe"
+          Start-Sleep -Seconds 10
+          $process = Get-Process -Name "universal_notes_flutter" -ErrorAction SilentlyContinue
+          if ($null -eq $process) {
+            Write-Error "Smoke test failed: Application process not found after launch."
+            exit 1
+          } else {
+            Write-Host "Smoke test passed: Application is running."
+            Stop-Process -Name "universal_notes_flutter"
+          }
+
       - name: Install Inno Setup
         if: runner.os == 'Windows'
         run: |
