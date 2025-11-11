@@ -149,6 +149,11 @@ jobs:
         working-directory: universal_notes_flutter
         run: flutter pub get
 
+      - name: Run Tests
+        if: github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: flutter test
+
       - name: Flutter Build Windows
         if: runner.os == 'Windows'
         shell: cmd
