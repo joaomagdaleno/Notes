@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -67,11 +66,10 @@ class MyFluentApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return fluent.FluentApp(
       title: 'Universal Notes',
-      localizationsDelegates: const [
+      localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
-        AppFlowyEditorLocalizations.delegate,
       ],
       theme: fluent.FluentThemeData(
         accentColor: fluent.Colors.blue,
@@ -94,11 +92,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Universal Notes',
-      localizationsDelegates: const [
+      localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
-        AppFlowyEditorLocalizations.delegate,
       ],
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
