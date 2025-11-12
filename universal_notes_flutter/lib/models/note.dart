@@ -2,27 +2,8 @@ import 'package:uuid/uuid.dart';
 
 const uuid = Uuid();
 
-/// Represents a note in the app.
+/// Represents a single note entry.
 class Note {
-  /// The unique identifier of the note.
-  final String id;
-  /// The title of the note.
-  String title;
-  /// The content of the note.
-  String content;
-  /// The date and time when the note was created or last modified.
-  final DateTime date;
-  /// Whether the note is marked as a favorite.
-  bool isFavorite;
-  /// Whether the note is locked.
-  bool isLocked;
-  /// Whether the note is in the trash.
-  bool isInTrash;
-  /// The drawing data associated with the note, in JSON format.
-  String? drawingJson;
-  /// The preferences associated with the note, in JSON format.
-  String? prefsJson;
-
   /// Creates a new instance of [Note].
   Note({
     required this.title,
@@ -50,6 +31,25 @@ class Note {
       prefsJson: map['prefsJson'] as String?,
     );
   }
+
+  /// The unique identifier of the note.
+  final String id;
+  /// The title of the note.
+  String title;
+  /// The content of the note.
+  String content;
+  /// The date and time when the note was created or last modified.
+  final DateTime date;
+  /// Whether the note is marked as a favorite.
+  bool isFavorite;
+  /// Whether the note is locked.
+  bool isLocked;
+  /// Whether the note is in the trash.
+  bool isInTrash;
+  /// The drawing data associated with the note, in JSON format.
+  String? drawingJson;
+  /// The preferences associated with the note, in JSON format.
+  String? prefsJson;
 
   /// Converts the [Note] to a map.
   Map<String, dynamic> toMap() {

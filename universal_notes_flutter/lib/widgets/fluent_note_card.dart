@@ -61,7 +61,7 @@ class FluentNoteCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 

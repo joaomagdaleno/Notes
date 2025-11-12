@@ -16,25 +16,26 @@ enum UpdateCheckStatus {
 
 /// The result of an update check.
 class UpdateCheckResult {
+  /// Creates a new instance of [UpdateCheckResult].
+  UpdateCheckResult(this.status, {this.updateInfo, this.errorMessage});
+
   /// The status of the update check.
   final UpdateCheckStatus status;
   /// Information about the update, if available.
   final UpdateInfo? updateInfo;
   /// The error message, if an error occurred.
   final String? errorMessage;
-
-  /// Creates a new instance of [UpdateCheckResult].
-  UpdateCheckResult(this.status, {this.updateInfo, this.errorMessage});
 }
 
 /// A service for checking for updates.
 class UpdateService {
   /// Creates a new instance of [UpdateService].
   UpdateService();
+
   static const String _repo = 'joaomagdaleno/Notes';
 
   /// Checks for updates.
-  Future<UpdateCheckResult> checkForUpdate() async {
+  Future<UpdateCheck_Result> checkForUpdate() async {
     try {
       // Get current app version
       final packageInfo = await PackageInfo.fromPlatform();
@@ -65,8 +66,8 @@ class UpdateService {
             }
 
             final releaseAsset = assets.firstWhere(
-              (dynamic asset) =>
-                  (asset['name'] as String).endsWith(fileExtension),
+              (dynamic asset) => ((asset as Map<String, dynamic>)['name'] as String)
+                  .endsWith(fileExtension),
               orElse: () => null,
             ) as Map<String, dynamic>?;
 
@@ -94,8 +95,8 @@ class UpdateService {
       // Handle exceptions, e.g., no internet connection
       return UpdateCheckResult(
         UpdateCheckStatus.error,
-        errorMessage:
-            'Não foi possível verificar as atualizações. Verifique sua conexão com a internet.',
+        errorMessage: 'Não foi possível verificar as atualizações. '
+            'Verifique sua conexão com a internet.',
       );
     }
   }

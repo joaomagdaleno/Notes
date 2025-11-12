@@ -7,11 +7,11 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/screens/settings_screen.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
-import 'package:universal_notes_flutter/screens/settings_screen.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// The different view modes for the notes screen.
@@ -203,7 +203,7 @@ class _NotesScreenState extends State<NotesScreen> {
   Widget build(BuildContext context) {
     if (Platform.isWindows) {
       final notesBody = fluent.ScaffoldPage(
-        header: fluent.CommandBar(
+        header: const fluent.CommandBar(
           mainAxisAlignment: fluent.MainAxisAlignment.end,
           primaryItems: [
             fluent.CommandBarButton(
