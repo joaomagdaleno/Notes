@@ -157,7 +157,7 @@ jobs:
       - name: Run Dependency Audit
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
         working-directory: universal_notes_flutter
-        run: flutter pub audit
+        run: dart pub audit
 
       - name: Run Tests
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
