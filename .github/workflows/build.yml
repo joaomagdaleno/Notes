@@ -149,6 +149,21 @@ jobs:
         working-directory: universal_notes_flutter
         run: flutter pub get
 
+      - name: Run Flutter Analyzer
+        if: runner.os == 'Linux' && github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: flutter analyze
+
+      - name: Run Dependency Audit
+        if: runner.os == 'Linux' && github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: flutter pub audit
+
+      - name: Run Tests
+        if: runner.os == 'Linux' && github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: flutter test
+
       - name: Flutter Build Windows
         if: runner.os == 'Windows'
         shell: cmd
@@ -226,3 +241,17 @@ jobs:
             artifacts/windows-installer/UniversalNotesSetup-*.exe
             artifacts/android-apk/universal_notes-v*.apk
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  security:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflehog/trufflehog-actions@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
