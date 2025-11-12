@@ -40,10 +40,10 @@ class FluentNoteCard extends StatelessWidget {
             children: [
               Text(
                 note.title,
-              style: fluent.FluentTheme.of(context).typography.bodyLarge,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
+                style: fluent.FluentTheme.of(context).typography.bodyLarge,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             const SizedBox(height: 8),
             Expanded(
               child: Text(
@@ -72,7 +72,7 @@ String _getPreviewText(String jsonContent) {
         .where(
           (dynamic op) => op is Map && op.containsKey('insert'),
         )
-        .map((dynamic op) => op['insert'].toString())
+        .map((dynamic op) => (op as Map)['insert'].toString())
         .join();
     return text.replaceAll(RegExp(r'\s+'), ' ').trim();
   } catch (e) {
