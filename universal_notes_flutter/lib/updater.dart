@@ -16,7 +16,8 @@ class Updater {
   }) async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = Version.parse(packageInfo.version.split('+').first);
+      final currentVersion =
+          Version.parse(packageInfo.version.split('+').first);
 
       final response = await http.get(
         Uri.parse(

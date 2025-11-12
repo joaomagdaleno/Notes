@@ -1,5 +1,6 @@
 import 'package:uuid/uuid.dart';
 
+/// A generator for creating unique identifiers.
 const uuid = Uuid();
 
 /// Represents a single note entry.
