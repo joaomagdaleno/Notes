@@ -2,15 +2,25 @@ import 'package:uuid/uuid.dart';
 
 const uuid = Uuid();
 
+/// Represents a note in the app.
 class Note {
+  /// The unique identifier of the note.
   final String id;
+  /// The title of the note.
   String title;
+  /// The content of the note.
   String content;
+  /// The date and time when the note was created or last modified.
   final DateTime date;
+  /// Whether the note is marked as a favorite.
   bool isFavorite;
+  /// Whether the note is locked.
   bool isLocked;
+  /// Whether the note is in the trash.
   bool isInTrash;
+  /// The drawing data associated with the note, in JSON format.
   String? drawingJson;
+  /// The preferences associated with the note, in JSON format.
   String? prefsJson;
 
   Note({
@@ -41,15 +51,15 @@ class Note {
 
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
-      id: map['id'],
-      title: map['title'],
-      content: map['content'],
-      date: DateTime.fromMillisecondsSinceEpoch(map['date']),
-      isFavorite: map['isFavorite'] == 1,
-      isLocked: map['isLocked'] == 1,
-      isInTrash: map['isInTrash'] == 1,
-      drawingJson: map['drawingJson'],
-      prefsJson: map['prefsJson'],
+      id: map['id'] as String?,
+      title: map['title'] as String,
+      content: map['content'] as String,
+      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
+      isFavorite: (map['isFavorite'] as int) == 1,
+      isLocked: (map['isLocked'] as int) == 1,
+      isInTrash: (map['isInTrash'] as int) == 1,
+      drawingJson: map['drawingJson'] as String?,
+      prefsJson: map['prefsJson'] as String?,
     );
   }
 

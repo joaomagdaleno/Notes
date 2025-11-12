@@ -1,19 +1,33 @@
+import 'dart:io' show Platform;
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
-import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
+import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
-import 'screens/settings_screen.dart';
-import 'dart:io' show Platform;
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:window_manager/window_manager.dart';
 
-enum ViewMode { gridSmall, gridMedium, gridLarge, list, listSimple }
+import 'screens/settings_screen.dart';
+
+/// The different view modes for the notes screen.
+enum ViewMode {
+  /// A small grid view.
+  gridSmall,
+  /// A medium grid view.
+  gridMedium,
+  /// A large grid view.
+  gridLarge,
+  /// A list view.
+  list,
+  /// A simple list view.
+  listSimple
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,10 +44,12 @@ class _MyAppWithWindowListener extends StatefulWidget {
   const _MyAppWithWindowListener();
 
   @override
-  State<_MyAppWithWindowListener> createState() => _MyAppWithWindowListenerState();
+  State<_MyAppWithWindowListener> createState() =>
+      _MyAppWithWindowListenerState();
 }
 
-class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener> with WindowListener {
+class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener>
+    with WindowListener {
   @override
   void initState() {
     super.initState();
@@ -58,14 +74,16 @@ class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener> with
   }
 }
 
+/// The main application widget for the Fluent UI design.
 class MyFluentApp extends StatelessWidget {
+  /// Creates a new instance of [MyFluentApp].
   const MyFluentApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return fluent.FluentApp(
       title: 'Universal Notes',
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -84,14 +102,16 @@ class MyFluentApp extends StatelessWidget {
   }
 }
 
+/// The main application widget for the Material Design.
 class MyApp extends StatelessWidget {
+  /// Creates a new instance of [MyApp].
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Universal Notes',
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -118,7 +138,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// The main screen that displays the list of notes.
 class NotesScreen extends StatefulWidget {
+  /// Creates a new instance of [NotesScreen].
   const NotesScreen({super.key});
 
   @override
@@ -387,7 +409,7 @@ class _NotesScreenState extends State<NotesScreen> {
                           onTap: () {
                             Navigator.pop(context); // Close the drawer
                             Navigator.of(context).push(
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
                                 builder: (context) => const SettingsScreen(),
                               ),
                             );
@@ -418,7 +440,7 @@ class _NotesScreenState extends State<NotesScreen> {
                           });
                           if (index == 6) { // Index of settings
                             Navigator.of(context).push(
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
                                 builder: (context) => const SettingsScreen(),
                               ),
                             );
@@ -471,7 +493,7 @@ class _NotesScreenState extends State<NotesScreen> {
             floatingActionButton: FloatingActionButton(
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
+                  MaterialPageRoute<void>(
                     builder: (context) => NoteEditorScreen(onSave: _updateNote),
                   ),
                 );
@@ -503,13 +525,10 @@ class _NotesScreenState extends State<NotesScreen> {
           case 1: // Favorites
             visibleNotes =
                 allNotes.where((n) => n.isFavorite && !n.isInTrash).toList();
-            break;
           case 4: // Trash
             visibleNotes = allNotes.where((n) => n.isInTrash).toList();
-            break;
           default: // All notes
             visibleNotes = allNotes.where((n) => !n.isInTrash).toList();
-            break;
         }
 
         return LayoutBuilder(
@@ -535,25 +554,33 @@ class _NotesScreenState extends State<NotesScreen> {
               if (Platform.isWindows) {
                 // Windows-specific responsive logic
                 if (_viewMode == ViewMode.gridSmall) {
-                  crossAxisCount = (constraints.maxWidth / 320).floor().clamp(1, 5);
+                  crossAxisCount =
+                      (constraints.maxWidth / 320).floor().clamp(1, 5);
                   childAspectRatio = 0.7;
                 } else if (_viewMode == ViewMode.gridMedium) {
-                  crossAxisCount = (constraints.maxWidth / 240).floor().clamp(2, 7);
+                  crossAxisCount =
+                      (constraints.maxWidth / 240).floor().clamp(2, 7);
                   childAspectRatio = 0.7;
-                } else { // gridLarge
-                  crossAxisCount = (constraints.maxWidth / 180).floor().clamp(3, 10);
+                } else {
+                  // gridLarge
+                  crossAxisCount =
+                      (constraints.maxWidth / 180).floor().clamp(3, 10);
                   childAspectRatio = 0.7;
                 }
               } else {
                 // Existing logic for Android/other platforms
                 if (_viewMode == ViewMode.gridSmall) {
-                  crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 7);
+                  crossAxisCount =
+                      (constraints.maxWidth / 300).floor().clamp(2, 7);
                   childAspectRatio = 0.75;
                 } else if (_viewMode == ViewMode.gridMedium) {
-                  crossAxisCount = (constraints.maxWidth / 200).floor().clamp(2, 7);
+                  crossAxisCount =
+                      (constraints.maxWidth / 200).floor().clamp(2, 7);
                   childAspectRatio = 1 / 1.414;
-                } else { // gridLarge
-                  crossAxisCount = (constraints.maxWidth / 150).floor().clamp(1, 5);
+                } else {
+                  // gridLarge
+                  crossAxisCount =
+                      (constraints.maxWidth / 150).floor().clamp(1, 5);
                   childAspectRatio = 1 / 1.414;
                 }
               }

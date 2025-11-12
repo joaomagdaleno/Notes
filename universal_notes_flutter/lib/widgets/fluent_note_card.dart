@@ -5,11 +5,16 @@ import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 
+/// A widget that displays a note as a card with a fluent design.
 class FluentNoteCard extends StatelessWidget {
+  /// The note to display.
   final Note note;
+  /// The function to call when the note is saved.
   final Future<Note> Function(Note) onSave;
+  /// The function to call when the note is deleted.
   final Function(Note) onDelete;
 
+  /// Creates a new instance of [FluentNoteCard].
   const FluentNoteCard({
     super.key,
     required this.note,
@@ -61,7 +66,7 @@ class FluentNoteCard extends StatelessWidget {
 
 String _getPreviewText(String jsonContent) {
   try {
-    final List<dynamic> delta = jsonDecode(jsonContent);
+    final delta = jsonDecode(jsonContent) as List<dynamic>;
     final text = delta
         .where((op) => op is Map && op.containsKey('insert'))
         .map((op) => op['insert'].toString())
