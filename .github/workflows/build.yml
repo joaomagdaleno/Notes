@@ -246,3 +246,32 @@ jobs:
             artifacts/windows-installer/UniversalNotesSetup-*.exe
             artifacts/android-apk/universal_notes-v*.apk
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    if: always()
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord Notification on Failure
+        if: needs.build.result == 'failure'
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          severity: error
+          heading: "❌ Build Failed: Universal Notes"
+          text: "The build for commit `${{ github.sha }}` failed."
+          description: "Check the workflow run for more details."
+          color: "15158332" # Red
+          run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Send Discord Notification on Success
+        if: needs.build.result == 'success'
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          severity: info
+          heading: "✅ Build Succeeded: Universal Notes"
+          text: "A new build for commit `${{ github.sha }}` is ready."
+          description: "Artifacts have been generated and are available for download."
+          color: "3066993" # Green
+          run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
