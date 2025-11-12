@@ -162,7 +162,15 @@ jobs:
       - name: Run Tests
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
         working-directory: universal_notes_flutter
-        run: flutter test
+        run: flutter test --coverage
+
+      - name: Upload to Codecov
+        if: runner.os == 'Linux' && github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: universal_notes_flutter/coverage
+          fail_ci_if_error: true
 
       - name: Flutter Build Windows
         if: runner.os == 'Windows'
