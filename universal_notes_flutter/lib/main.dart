@@ -1,19 +1,32 @@
+import 'dart:io' show Platform;
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
-import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
+import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
-import 'screens/settings_screen.dart';
-import 'dart:io' show Platform;
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:universal_notes_flutter/screens/settings_screen.dart';
 import 'package:window_manager/window_manager.dart';
 
-enum ViewMode { gridSmall, gridMedium, gridLarge, list, listSimple }
+/// The different view modes for the notes screen.
+enum ViewMode {
+  /// A small grid view.
+  gridSmall,
+  /// A medium grid view.
+  gridMedium,
+  /// A large grid view.
+  gridLarge,
+  /// A list view.
+  list,
+  /// A simple list view.
+  listSimple
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,10 +43,12 @@ class _MyAppWithWindowListener extends StatefulWidget {
   const _MyAppWithWindowListener();
 
   @override
-  State<_MyAppWithWindowListener> createState() => _MyAppWithWindowListenerState();
+  State<_MyAppWithWindowListener> createState() =>
+      _MyAppWithWindowListenerState();
 }
 
-class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener> with WindowListener {
+class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener>
+    with WindowListener {
   @override
   void initState() {
     super.initState();
@@ -58,21 +73,22 @@ class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener> with
   }
 }
 
+/// The main application widget for the Fluent UI design.
 class MyFluentApp extends StatelessWidget {
+  /// Creates a new instance of [MyFluentApp].
   const MyFluentApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return fluent.FluentApp(
       title: 'Universal Notes',
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
       theme: fluent.FluentThemeData(
         accentColor: fluent.Colors.blue,
-        brightness: fluent.Brightness.light,
       ),
       darkTheme: fluent.FluentThemeData(
         accentColor: fluent.Colors.blue,
@@ -84,14 +100,16 @@ class MyFluentApp extends StatelessWidget {
   }
 }
 
+/// The main application widget for the Material Design.
 class MyApp extends StatelessWidget {
+  /// Creates a new instance of [MyApp].
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Universal Notes',
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -99,7 +117,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.blue,
-          brightness: Brightness.light,
         ),
         useMaterial3: true,
         fontFamily: 'Roboto',
@@ -112,13 +129,14 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      themeMode: ThemeMode.system,
       home: const NotesScreen(),
     );
   }
 }
 
+/// The main screen that displays the list of notes.
 class NotesScreen extends StatefulWidget {
+  /// Creates a new instance of [NotesScreen].
   const NotesScreen({super.key});
 
   @override
@@ -169,7 +187,7 @@ class _NotesScreenState extends State<NotesScreen> {
     return savedNote;
   }
 
-  void _deleteNote(Note note) async {
+  Future<void> _deleteNote(Note note) async {
     await noteRepository.deleteNote(note.id);
     _loadNotes();
   }
@@ -193,7 +211,7 @@ class _NotesScreenState extends State<NotesScreen> {
               label: const Text('Nova nota'),
               onPressed: () {
                 Navigator.of(context).push(
-                  fluent.FluentPageRoute(
+                  fluent.FluentPageRoute<void>(
                     builder: (context) => NoteEditorScreen(onSave: _updateNote),
                   ),
                 );
@@ -224,7 +242,6 @@ class _NotesScreenState extends State<NotesScreen> {
         pane: fluent.NavigationPane(
           selected: _selectedIndex,
           onChanged: (index) => setState(() => _selectedIndex = index),
-          displayMode: fluent.PaneDisplayMode.auto,
           items: [
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.document),
@@ -387,7 +404,7 @@ class _NotesScreenState extends State<NotesScreen> {
                           onTap: () {
                             Navigator.pop(context); // Close the drawer
                             Navigator.of(context).push(
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
                                 builder: (context) => const SettingsScreen(),
                               ),
                             );
@@ -403,10 +420,15 @@ class _NotesScreenState extends State<NotesScreen> {
                     children: [
                       NavigationRail(
                         leading: IconButton(
-                          icon: Icon(_isNavigationRailExpanded ? Icons.menu_open : Icons.menu),
+                          icon: Icon(
+                            _isNavigationRailExpanded
+                                ? Icons.menu_open
+                                : Icons.menu,
+                          ),
                           onPressed: () {
                             setState(() {
-                              _isNavigationRailExpanded = !_isNavigationRailExpanded;
+                              _isNavigationRailExpanded =
+                                  !_isNavigationRailExpanded;
                             });
                           },
                         ),
@@ -416,9 +438,10 @@ class _NotesScreenState extends State<NotesScreen> {
                           setState(() {
                             _selectedIndex = index;
                           });
-                          if (index == 6) { // Index of settings
+                          if (index == 6) {
+                            // Index of settings
                             Navigator.of(context).push(
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
                                 builder: (context) => const SettingsScreen(),
                               ),
                             );
@@ -471,7 +494,7 @@ class _NotesScreenState extends State<NotesScreen> {
             floatingActionButton: FloatingActionButton(
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
+                  MaterialPageRoute<void>(
                     builder: (context) => NoteEditorScreen(onSave: _updateNote),
                   ),
                 );
@@ -503,20 +526,20 @@ class _NotesScreenState extends State<NotesScreen> {
           case 1: // Favorites
             visibleNotes =
                 allNotes.where((n) => n.isFavorite && !n.isInTrash).toList();
-            break;
           case 4: // Trash
             visibleNotes = allNotes.where((n) => n.isInTrash).toList();
-            break;
           default: // All notes
             visibleNotes = allNotes.where((n) => !n.isInTrash).toList();
-            break;
         }
 
         return LayoutBuilder(
           builder: (context, constraints) {
             if (_viewMode == ViewMode.list) {
               return _buildGridView(
-                  2, 0.75, visibleNotes); // 2 columns, elongated aspect ratio
+                2,
+                0.75,
+                visibleNotes,
+              ); // 2 columns, elongated aspect ratio
             } else if (_viewMode == ViewMode.listSimple) {
               return ListView.builder(
                 itemCount: visibleNotes.length,
@@ -535,30 +558,42 @@ class _NotesScreenState extends State<NotesScreen> {
               if (Platform.isWindows) {
                 // Windows-specific responsive logic
                 if (_viewMode == ViewMode.gridSmall) {
-                  crossAxisCount = (constraints.maxWidth / 320).floor().clamp(1, 5);
+                  crossAxisCount =
+                      (constraints.maxWidth / 320).floor().clamp(1, 5);
                   childAspectRatio = 0.7;
                 } else if (_viewMode == ViewMode.gridMedium) {
-                  crossAxisCount = (constraints.maxWidth / 240).floor().clamp(2, 7);
+                  crossAxisCount =
+                      (constraints.maxWidth / 240).floor().clamp(2, 7);
                   childAspectRatio = 0.7;
-                } else { // gridLarge
-                  crossAxisCount = (constraints.maxWidth / 180).floor().clamp(3, 10);
+                } else {
+                  // gridLarge
+                  crossAxisCount =
+                      (constraints.maxWidth / 180).floor().clamp(3, 10);
                   childAspectRatio = 0.7;
                 }
               } else {
                 // Existing logic for Android/other platforms
                 if (_viewMode == ViewMode.gridSmall) {
-                  crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 7);
+                  crossAxisCount =
+                      (constraints.maxWidth / 300).floor().clamp(2, 7);
                   childAspectRatio = 0.75;
                 } else if (_viewMode == ViewMode.gridMedium) {
-                  crossAxisCount = (constraints.maxWidth / 200).floor().clamp(2, 7);
+                  crossAxisCount =
+                      (constraints.maxWidth / 200).floor().clamp(2, 7);
                   childAspectRatio = 1 / 1.414;
-                } else { // gridLarge
-                  crossAxisCount = (constraints.maxWidth / 150).floor().clamp(1, 5);
+                } else {
+                  // gridLarge
+                  crossAxisCount =
+                      (constraints.maxWidth / 150).floor().clamp(1, 5);
                   childAspectRatio = 1 / 1.414;
                 }
               }
 
-              return _buildGridView(crossAxisCount, childAspectRatio, visibleNotes);
+              return _buildGridView(
+                crossAxisCount,
+                childAspectRatio,
+                visibleNotes,
+              );
             }
           },
         );
@@ -567,13 +602,16 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   Widget _buildGridView(
-      int crossAxisCount, double childAspectRatio, List<Note> notes) {
+    int crossAxisCount,
+    double childAspectRatio,
+    List<Note> notes,
+  ) {
     return GridView.builder(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 8.0,
-        mainAxisSpacing: 8.0,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
         childAspectRatio: childAspectRatio,
       ),
       itemCount: notes.length,

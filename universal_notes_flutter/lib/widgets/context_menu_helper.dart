@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 
+/// A helper class for showing a context menu for a note.
 class ContextMenuHelper {
+  /// Shows the context menu.
   static void showContextMenu({
     required BuildContext context,
     required Offset position,
     required Note note,
-    required Function(Note) onSave,
-    required Function(Note) onDelete,
+    required void Function(Note) onSave,
+    required void Function(Note) onDelete,
   }) {
-    final RenderBox overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox?;
+    if (overlay == null) {
+      return;
+    }
 
-    showMenu(
+    showMenu<void>(
       context: context,
       position: RelativeRect.fromRect(
         position & const Size(40, 40),
@@ -24,8 +29,11 @@ class ContextMenuHelper {
     );
   }
 
-  static List<PopupMenuEntry> _buildDefaultContextMenu(
-      BuildContext context, Note note, Function(Note) onSave) {
+  static List<PopupMenuEntry<void>> _buildDefaultContextMenu(
+    BuildContext context,
+    Note note,
+    void Function(Note) onSave,
+  ) {
     return [
       PopupMenuItem(
         onTap: () {
@@ -62,8 +70,12 @@ class ContextMenuHelper {
     ];
   }
 
-  static List<PopupMenuEntry> _buildTrashContextMenu(BuildContext context,
-      Note note, Function(Note) onSave, Function(Note) onDelete) {
+  static List<PopupMenuEntry<void>> _buildTrashContextMenu(
+    BuildContext context,
+    Note note,
+    void Function(Note) onSave,
+    void Function(Note) onDelete,
+  ) {
     return [
       PopupMenuItem(
         onTap: () {

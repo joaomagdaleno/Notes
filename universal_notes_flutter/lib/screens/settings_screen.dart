@@ -1,9 +1,12 @@
-import 'package:flutter/material.dart';
-import 'about_screen.dart';
 import 'dart:io' show Platform;
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/material.dart';
+import 'package:universal_notes_flutter/screens/about_screen.dart';
+
+/// The screen that displays the application settings.
 class SettingsScreen extends StatelessWidget {
+  /// Creates a new instance of [SettingsScreen].
   const SettingsScreen({super.key});
 
   @override
@@ -27,7 +30,7 @@ class SettingsScreen extends StatelessWidget {
             leading: const fluent.Icon(fluent.FluentIcons.info),
             onPressed: () {
               Navigator.of(context).push(
-                fluent.FluentPageRoute(
+                fluent.FluentPageRoute<void>(
                   builder: (context) => const AboutScreen(),
                 ),
               );
@@ -50,7 +53,7 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.info_outline),
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
+                MaterialPageRoute<void>(
                   builder: (context) => const AboutScreen(),
                 ),
               );

@@ -1,11 +1,14 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
-import '../utils/update_helper.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:universal_notes_flutter/utils/update_helper.dart';
+import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
+
+/// The screen that displays information about the application.
 class AboutScreen extends StatefulWidget {
+  /// Creates a new instance of [AboutScreen].
   const AboutScreen({super.key});
 
   @override
@@ -57,7 +60,11 @@ class _AboutScreenState extends State<AboutScreen> {
         if (mounted) setState(() => _updateStatus = message);
       },
       onNoUpdate: () {
-        if (mounted) setState(() => _updateStatus = 'Você já está na versão mais recente.');
+        if (mounted) {
+          setState(
+            () => _updateStatus = 'Você já está na versão mais recente.',
+          );
+        }
       },
       onCheckFinished: () {
         if (mounted) setState(() => _isChecking = false);
@@ -79,7 +86,6 @@ class _AboutScreenState extends State<AboutScreen> {
       header: fluent.PageHeader(
         title: const Text('Sobre'),
         leading: fluent.CommandBar(
-          mainAxisAlignment: fluent.MainAxisAlignment.start,
           overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
           primaryItems: [
             fluent.CommandBarButton(
@@ -123,12 +129,13 @@ class _AboutScreenState extends State<AboutScreen> {
           children: [
             Text('Versão atual: $_currentVersion'),
             const SizedBox(height: 20),
-            _isChecking
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _checkForUpdate,
-                    child: const Text('Verificar Atualizações'),
-                  ),
+            if (_isChecking)
+              const CircularProgressIndicator()
+            else
+              ElevatedButton(
+                onPressed: _checkForUpdate,
+                child: const Text('Verificar Atualizações'),
+              ),
           ],
         ),
       ),

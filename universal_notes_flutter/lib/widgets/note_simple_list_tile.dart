@@ -4,24 +4,28 @@ import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
+/// A widget that displays a note as a simple list tile.
 class NoteSimpleListTile extends StatelessWidget {
-  final Note note;
-  final Future<Note> Function(Note) onSave;
-  final Function(Note) onDelete;
-
+  /// Creates a new instance of [NoteSimpleListTile].
   const NoteSimpleListTile({
-    super.key,
     required this.note,
     required this.onSave,
     required this.onDelete,
+    super.key,
   });
+  /// The note to display.
+  final Note note;
+  /// The function to call when the note is saved.
+  final Future<Note> Function(Note) onSave;
+  /// The function to call when the note is deleted.
+  final void Function(Note) onDelete;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
+          MaterialPageRoute<void>(
             builder: (context) => NoteEditorScreen(
               note: note,
               onSave: onSave,
