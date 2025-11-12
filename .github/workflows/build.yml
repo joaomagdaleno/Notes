@@ -252,6 +252,6 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog OSS
-        uses: trufflehog/trufflehog-actions@main
+        uses: trufflesecurity/trufflehog@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
