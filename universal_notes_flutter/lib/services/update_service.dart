@@ -43,10 +43,11 @@ class UpdateService {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
         final tagName = json['tag_name'] as String;
         // Remove 'v' prefix if present (e.g., 'v1.0.0' -> '1.0.0')
-        final latestVersion = tagName.startsWith('v') ? tagName.substring(1) : tagName;
+        final latestVersion =
+            tagName.startsWith('v') ? tagName.substring(1) : tagName;
         final assets = json['assets'] as List<dynamic>?;
 
         if (_isNewerVersion(latestVersion, currentVersion)) {
@@ -62,9 +63,10 @@ class UpdateService {
             }
 
             final releaseAsset = assets.firstWhere(
-              (asset) => (asset['name'] as String).endsWith(fileExtension),
+              (dynamic asset) =>
+                  (asset['name'] as String).endsWith(fileExtension),
               orElse: () => null,
-            );
+            ) as Map<String, dynamic>?;
 
             if (releaseAsset != null) {
               return UpdateCheckResult(

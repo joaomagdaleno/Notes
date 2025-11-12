@@ -20,13 +20,18 @@ class Updater {
 
       final response = await http.get(
         Uri.parse(
-            'https://api.github.com/repos/joaomagdaleno/Notes/releases/latest'),
+          'https://api.github.com/repos/joaomagdaleno/Notes/releases/latest',
+        ),
       );
 
       if (response.statusCode == 404) {
-        throw Exception('Nenhum release encontrado. Verifique se um release público foi criado no repositório.');
+        throw Exception(
+          'Nenhum release encontrado. Verifique se um release público foi criado no repositório.',
+        );
       } else if (response.statusCode != 200) {
-        throw Exception('Falha ao verificar atualizações. Código de status: ${response.statusCode}');
+        throw Exception(
+          'Falha ao verificar atualizações. Código de status: ${response.statusCode}',
+        );
       }
 
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -42,12 +47,12 @@ class Updater {
       }
 
       final assets = json['assets'] as List;
-      dynamic asset;
+      Map<String, dynamic> asset;
       try {
         asset = assets.firstWhere(
           (dynamic asset) =>
               (asset['name'] as String).startsWith('UniversalNotesSetup-'),
-        );
+        ) as Map<String, dynamic>;
       } catch (e) {
         throw Exception('No installer found for the latest version');
       }

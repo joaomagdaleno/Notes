@@ -11,9 +11,8 @@ import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
-import 'package:window_manager/window_manager.dart';
-
 import 'package:universal_notes_flutter/screens/settings_screen.dart';
+import 'package:window_manager/window_manager.dart';
 
 /// The different view modes for the notes screen.
 enum ViewMode {
@@ -244,7 +243,6 @@ class _NotesScreenState extends State<NotesScreen> {
         pane: fluent.NavigationPane(
           selected: _selectedIndex,
           onChanged: (index) => setState(() => _selectedIndex = index),
-          displayMode: fluent.PaneDisplayMode.auto,
           items: [
             fluent.PaneItem(
               icon: const fluent.Icon(fluent.FluentIcons.document),
@@ -339,61 +337,61 @@ class _NotesScreenState extends State<NotesScreen> {
                 ? Drawer(
                     child: ListView(
                       padding: EdgeInsets.zero,
-                      children: const [
+                      children: [
                         const DrawerHeader(
                           decoration: BoxDecoration(
                             color: Colors.blue,
                           ),
                           child: Text('Universal Notes'),
                         ),
-                        const ListTile(
-                          leading: Icon(Icons.notes_outlined),
-                          title: Text('Todas as notas'),
+                        ListTile(
+                          leading: const Icon(Icons.notes_outlined),
+                          title: const Text('Todas as notas'),
                           selected: _selectedIndex == 0,
                           onTap: () {
                             setState(() => _selectedIndex = 0);
                             Navigator.pop(context);
                           },
                         ),
-                        const ListTile(
-                          leading: Icon(Icons.star_outline),
-                          title: Text('Favoritos'),
+                        ListTile(
+                          leading: const Icon(Icons.star_outline),
+                          title: const Text('Favoritos'),
                           selected: _selectedIndex == 1,
                           onTap: () {
                             setState(() => _selectedIndex = 1);
                             Navigator.pop(context);
                           },
                         ),
-                        const ListTile(
-                          leading: Icon(Icons.lock_outline),
-                          title: Text('Notas bloqueadas'),
+                        ListTile(
+                          leading: const Icon(Icons.lock_outline),
+                          title: const Text('Notas bloqueadas'),
                           selected: _selectedIndex == 2,
                           onTap: () {
                             setState(() => _selectedIndex = 2);
                             Navigator.pop(context);
                           },
                         ),
-                        const ListTile(
-                          leading: Icon(Icons.share_outlined),
-                          title: Text('Notas compartilhadas'),
+                        ListTile(
+                          leading: const Icon(Icons.share_outlined),
+                          title: const Text('Notas compartilhadas'),
                           selected: _selectedIndex == 3,
                           onTap: () {
                             setState(() => _selectedIndex = 3);
                             Navigator.pop(context);
                           },
                         ),
-                        const ListTile(
-                          leading: Icon(Icons.delete_outline),
-                          title: Text('Lixeira'),
+                        ListTile(
+                          leading: const Icon(Icons.delete_outline),
+                          title: const Text('Lixeira'),
                           selected: _selectedIndex == 4,
                           onTap: () {
                             setState(() => _selectedIndex = 4);
                             Navigator.pop(context);
                           },
                         ),
-                        const ListTile(
-                          leading: Icon(Icons.folder_outlined),
-                          title: Text('Pastas'),
+                        ListTile(
+                          leading: const Icon(Icons.folder_outlined),
+                          title: const Text('Pastas'),
                           selected: _selectedIndex == 5,
                           onTap: () {
                             setState(() => _selectedIndex = 5);
@@ -401,9 +399,9 @@ class _NotesScreenState extends State<NotesScreen> {
                           },
                         ),
                         const Divider(),
-                        const ListTile(
-                          leading: Icon(Icons.settings_outlined),
-                          title: Text('Configurações'),
+                        ListTile(
+                          leading: const Icon(Icons.settings_outlined),
+                          title: const Text('Configurações'),
                           onTap: () {
                             Navigator.pop(context); // Close the drawer
                             Navigator.of(context).push(
@@ -423,10 +421,15 @@ class _NotesScreenState extends State<NotesScreen> {
                     children: [
                       NavigationRail(
                         leading: IconButton(
-                          icon: Icon(_isNavigationRailExpanded ? Icons.menu_open : Icons.menu),
+                          icon: Icon(
+                            _isNavigationRailExpanded
+                                ? Icons.menu_open
+                                : Icons.menu,
+                          ),
                           onPressed: () {
                             setState(() {
-                              _isNavigationRailExpanded = !_isNavigationRailExpanded;
+                              _isNavigationRailExpanded =
+                                  !_isNavigationRailExpanded;
                             });
                           },
                         ),
@@ -436,7 +439,8 @@ class _NotesScreenState extends State<NotesScreen> {
                           setState(() {
                             _selectedIndex = index;
                           });
-                          if (index == 6) { // Index of settings
+                          if (index == 6) {
+                            // Index of settings
                             Navigator.of(context).push(
                               MaterialPageRoute<void>(
                                 builder: (context) => const SettingsScreen(),
@@ -586,7 +590,11 @@ class _NotesScreenState extends State<NotesScreen> {
                 }
               }
 
-              return _buildGridView(crossAxisCount, childAspectRatio, visibleNotes);
+              return _buildGridView(
+                crossAxisCount,
+                childAspectRatio,
+                visibleNotes,
+              );
             }
           },
         );

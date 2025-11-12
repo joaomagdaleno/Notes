@@ -11,7 +11,11 @@ class ContextMenuHelper {
     required void Function(Note) onSave,
     required void Function(Note) onDelete,
   }) {
-    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox?;
+    if (overlay == null) {
+      return;
+    }
 
     showMenu<void>(
       context: context,

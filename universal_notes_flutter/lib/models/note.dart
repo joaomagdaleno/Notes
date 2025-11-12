@@ -66,20 +66,6 @@ class Note {
     };
   }
 
-  factory Note.fromMap(Map<String, dynamic> map) {
-    return Note(
-      id: map['id'] as String?,
-      title: map['title'] as String,
-      content: map['content'] as String,
-      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
-      isFavorite: (map['isFavorite'] as int) == 1,
-      isLocked: (map['isLocked'] as int) == 1,
-      isInTrash: (map['isInTrash'] as int) == 1,
-      drawingJson: map['drawingJson'] as String?,
-      prefsJson: map['prefsJson'] as String?,
-    );
-  }
-
   /// Creates a copy of the [Note] with the given fields replaced with the new values.
   Note copyWith({
     String? id,

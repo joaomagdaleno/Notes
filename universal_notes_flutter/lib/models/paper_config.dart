@@ -18,8 +18,8 @@ enum PaperFormat {
 extension PaperFormatExtension on PaperFormat {
   /// The size of the paper.
   Size get size {
-    const double cm = 72 / 2.54;
-    const double inch = 72;
+    const cm = 72 / 2.54;
+    const inch = 72;
     switch (this) {
       case PaperFormat.a4:
         return const Size(21.0 * cm, 29.7 * cm);
@@ -56,10 +56,10 @@ extension PaperMarginExtension on PaperMargin {
       case PaperMargin.narrow:
         return const EdgeInsets.all(1.27 * cm);
       case PaperMargin.moderate:
-        return EdgeInsets.symmetric(
+        return const EdgeInsets.symmetric(
             vertical: 2.54 * cm, horizontal: 1.91 * cm);
       case PaperMargin.wide:
-        return EdgeInsets.symmetric(
+        return const EdgeInsets.symmetric(
             vertical: 2.54 * cm, horizontal: 5.08 * cm);
     }
   }
