@@ -7,11 +7,10 @@ import 'package:pub_semver/pub_semver.dart';
 enum UpdateCheckStatus { updateAvailable, noUpdate, error }
 
 class UpdateCheckResult {
+  UpdateCheckResult(this.status, {this.updateInfo, this.errorMessage});
   final UpdateCheckStatus status;
   final UpdateInfo? updateInfo;
   final String? errorMessage;
-
-  UpdateCheckResult(this.status, {this.updateInfo, this.errorMessage});
 }
 
 class UpdateService {
@@ -48,10 +47,10 @@ class UpdateService {
 
             final releaseAsset = assets.firstWhere(
               (asset) => (asset['name'] as String).endsWith(fileExtension),
-              orElse: () => null,
-            );
+              orElse: () => <String, dynamic>{},
+            ) as Map<String, dynamic>?;
 
-            if (releaseAsset != null) {
+            if (releaseAsset != null && releaseAsset.isNotEmpty) {
               return UpdateCheckResult(
                 UpdateCheckStatus.updateAvailable,
                 updateInfo: UpdateInfo(
@@ -66,11 +65,14 @@ class UpdateService {
         return UpdateCheckResult(UpdateCheckStatus.noUpdate);
       } else {
         // Handle non-200 responses as errors
-        return UpdateCheckResult(UpdateCheckStatus.error, errorMessage: 'Falha ao comunicar com o servidor de atualização.');
+        return UpdateCheckResult(UpdateCheckStatus.error,
+            errorMessage: 'Falha ao comunicar com o servidor de atualização.');
       }
     } catch (e) {
       // Handle exceptions, e.g., no internet connection
-      return UpdateCheckResult(UpdateCheckStatus.error, errorMessage: 'Não foi possível verificar as atualizações. Verifique sua conexão com a internet.');
+      return UpdateCheckResult(UpdateCheckStatus.error,
+          errorMessage:
+              'Não foi possível verificar as atualizações. Verifique sua conexão com a internet.');
     }
   }
 
@@ -86,8 +88,7 @@ class UpdateService {
 }
 
 class UpdateInfo {
+  UpdateInfo({required this.version, required this.downloadUrl});
   final String version;
   final String downloadUrl;
-
-  UpdateInfo({required this.version, required this.downloadUrl});
 }

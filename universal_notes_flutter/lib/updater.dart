@@ -22,15 +22,18 @@ class Updater {
       );
 
       if (response.statusCode == 404) {
-        throw Exception('Nenhum release encontrado. Verifique se um release público foi criado no repositório.');
+        throw Exception(
+            'Nenhum release encontrado. Verifique se um release público foi criado no repositório.');
       } else if (response.statusCode != 200) {
-        throw Exception('Falha ao verificar atualizações. Código de status: ${response.statusCode}');
+        throw Exception(
+            'Falha ao verificar atualizações. Código de status: ${response.statusCode}');
       }
 
       final json = jsonDecode(response.body);
       final tagName = json['tag_name'] as String;
       // Remove 'v' prefix if present (e.g., 'v1.0.0' -> '1.0.0')
-      final latestVersionStr = tagName.startsWith('v') ? tagName.substring(1) : tagName;
+      final latestVersionStr =
+          tagName.startsWith('v') ? tagName.substring(1) : tagName;
       final latestVersion = Version.parse(latestVersionStr);
 
       if (latestVersion <= currentVersion) {
@@ -39,11 +42,12 @@ class Updater {
       }
 
       final assets = json['assets'] as List;
-      dynamic asset;
+      Map<String, dynamic>? asset;
       try {
         asset = assets.firstWhere(
-          (asset) => (asset['name'] as String).startsWith('UniversalNotesSetup-'),
-        );
+          (asset) =>
+              (asset['name'] as String).startsWith('UniversalNotesSetup-'),
+        ) as Map<String, dynamic>?;
       } catch (e) {
         throw Exception('No installer found for the latest version');
       }
@@ -57,7 +61,8 @@ class Updater {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Atualização Disponível'),
-          content: Text('Uma nova versão ($latestVersionStr) está disponível. Deseja atualizar agora?'),
+          content: Text(
+              'Uma nova versão ($latestVersionStr) está disponível. Deseja atualizar agora?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),

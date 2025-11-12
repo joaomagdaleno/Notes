@@ -1,17 +1,19 @@
+import 'dart:io' show Platform;
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
-import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
+import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
-import 'screens/settings_screen.dart';
-import 'dart:io' show Platform;
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:window_manager/window_manager.dart';
+
+import 'screens/settings_screen.dart';
 
 enum ViewMode { gridSmall, gridMedium, gridLarge, list, listSimple }
 
@@ -220,7 +222,7 @@ class _NotesScreenState extends State<NotesScreen> {
       );
 
       return fluent.NavigationView(
-        appBar: fluent.NavigationAppBar(),
+        appBar: const fluent.NavigationAppBar(),
         pane: fluent.NavigationPane(
           selected: _selectedIndex,
           onChanged: (index) => setState(() => _selectedIndex = index),

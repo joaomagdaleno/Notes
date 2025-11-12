@@ -37,7 +37,9 @@ class UpdateHelper {
       case UpdateCheckStatus.error:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.errorMessage ?? 'Ocorreu um erro desconhecido.')),
+            SnackBar(
+                content:
+                    Text(result.errorMessage ?? 'Ocorreu um erro desconhecido.')),
           );
         }
         break;
@@ -79,7 +81,9 @@ class UpdateHelper {
         _downloadAndInstallUpdate(context, updateInfo);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Permissão para instalar pacotes é necessária para a atualização.')),
+          const SnackBar(
+              content: Text(
+                  'Permissão para instalar pacotes é necessária para a atualização.')),
         );
       }
     }
