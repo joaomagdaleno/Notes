@@ -203,12 +203,12 @@ class _NotesScreenState extends State<NotesScreen> {
   Widget build(BuildContext context) {
     if (Platform.isWindows) {
       final notesBody = fluent.ScaffoldPage(
-        header: const fluent.CommandBar(
+        header: fluent.CommandBar(
           mainAxisAlignment: fluent.MainAxisAlignment.end,
           primaryItems: [
             fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.add),
-              label: const Text('Nova nota'),
+              icon: fluent.Icon(fluent.FluentIcons.add),
+              label: Text('Nova nota'),
               onPressed: () {
                 Navigator.of(context).push(
                   fluent.FluentPageRoute<void>(
@@ -218,18 +218,18 @@ class _NotesScreenState extends State<NotesScreen> {
               },
             ),
             fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.view),
-              label: const Text('Mudar Visualização'),
+              icon: fluent.Icon(fluent.FluentIcons.view),
+              label: Text('Mudar Visualização'),
               onPressed: _cycleViewMode,
             ),
             fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.search),
-              label: const Text('Pesquisar'),
+              icon: fluent.Icon(fluent.FluentIcons.search),
+              label: Text('Pesquisar'),
               onPressed: () {},
             ),
             fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.sort),
-              label: const Text('Ordenar'),
+              icon: fluent.Icon(fluent.FluentIcons.sort),
+              label: Text('Ordenar'),
               onPressed: () {},
             ),
           ],
@@ -244,46 +244,46 @@ class _NotesScreenState extends State<NotesScreen> {
           onChanged: (index) => setState(() => _selectedIndex = index),
           items: [
             fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.document),
-              title: const Text('Todas as notas'),
+              icon: Icon(fluent.FluentIcons.document),
+              title: Text('Todas as notas'),
               body: notesBody,
               onTap: () {},
             ),
             fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.favorite_star),
-              title: const Text('Favoritos'),
+              icon: Icon(fluent.FluentIcons.favorite_star),
+              title: Text('Favoritos'),
               body: notesBody,
               onTap: () {},
             ),
             fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.lock),
-              title: const Text('Notas bloqueadas'),
+              icon: Icon(fluent.FluentIcons.lock),
+              title: Text('Notas bloqueadas'),
               body: notesBody,
               onTap: () {},
             ),
             fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.share),
-              title: const Text('Notas compartilhadas'),
+              icon: Icon(fluent.FluentIcons.share),
+              title: Text('Notas compartilhadas'),
               body: notesBody,
               onTap: () {},
             ),
             fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.delete),
-              title: const Text('Lixeira'),
+              icon: Icon(fluent.FluentIcons.delete),
+              title: Text('Lixeira'),
               body: notesBody,
               onTap: () {},
             ),
             fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.folder_open),
-              title: const Text('Pastas'),
+              icon: Icon(fluent.FluentIcons.folder_open),
+              title: Text('Pastas'),
               body: notesBody,
               onTap: () {},
             ),
           ],
           footerItems: [
             fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.settings),
-              title: const Text('Configurações'),
+              icon: Icon(fluent.FluentIcons.settings),
+              title: Text('Configurações'),
               body: const SettingsScreen(),
               onTap: () {},
             ),
