@@ -57,7 +57,8 @@ class UpdateHelper {
       builder: (context) => AlertDialog(
         title: const Text('Atualização Disponível'),
         content: Text(
-          'Uma nova versão (${updateInfo.version}) está disponível. Deseja baixar e instalar?',
+          'Uma nova versão (${updateInfo.version}) está disponível. Deseja '
+          'baixar e instalar?',
         ),
         actions: [
           TextButton(
@@ -92,9 +93,8 @@ class UpdateHelper {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-              'Permissão para instalar pacotes é necessária para a atualização.',
-            ),
+            content: Text('Permissão para instalar pacotes é necessária para a '
+                'atualização.'),
           ),
         );
       }
