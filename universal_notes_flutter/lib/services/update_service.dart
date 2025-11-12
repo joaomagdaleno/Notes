@@ -66,8 +66,8 @@ class UpdateService {
             }
 
             final releaseAsset = assets.firstWhere(
-              (dynamic asset) => ((asset as Map<String, dynamic>)['name'] as String)
-                  .endsWith(fileExtension),
+              (dynamic asset) =>
+                  (asset['name'] as String).endsWith(fileExtension),
               orElse: () => null,
             ) as Map<String, dynamic>?;
 

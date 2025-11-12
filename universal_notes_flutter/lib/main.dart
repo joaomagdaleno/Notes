@@ -207,8 +207,8 @@ class _NotesScreenState extends State<NotesScreen> {
           mainAxisAlignment: fluent.MainAxisAlignment.end,
           primaryItems: [
             fluent.CommandBarButton(
-              icon: fluent.Icon(fluent.FluentIcons.add),
-              label: Text('Nova nota'),
+              icon: const fluent.Icon(fluent.FluentIcons.add),
+              label: const Text('Nova nota'),
               onPressed: () {
                 Navigator.of(context).push(
                   fluent.FluentPageRoute<void>(
@@ -218,18 +218,18 @@ class _NotesScreenState extends State<NotesScreen> {
               },
             ),
             fluent.CommandBarButton(
-              icon: fluent.Icon(fluent.FluentIcons.view),
-              label: Text('Mudar Visualização'),
+              icon: const fluent.Icon(fluent.FluentIcons.view),
+              label: const Text('Mudar Visualização'),
               onPressed: _cycleViewMode,
             ),
             fluent.CommandBarButton(
-              icon: fluent.Icon(fluent.FluentIcons.search),
-              label: Text('Pesquisar'),
+              icon: const fluent.Icon(fluent.FluentIcons.search),
+              label: const Text('Pesquisar'),
               onPressed: () {},
             ),
             fluent.CommandBarButton(
-              icon: fluent.Icon(fluent.FluentIcons.sort),
-              label: Text('Ordenar'),
+              icon: const fluent.Icon(fluent.FluentIcons.sort),
+              label: const Text('Ordenar'),
               onPressed: () {},
             ),
           ],
@@ -238,52 +238,52 @@ class _NotesScreenState extends State<NotesScreen> {
       );
 
       return fluent.NavigationView(
-        appBar: fluent.NavigationAppBar(),
+        appBar: const fluent.NavigationAppBar(),
         pane: fluent.NavigationPane(
           selected: _selectedIndex,
           onChanged: (index) => setState(() => _selectedIndex = index),
           items: [
             fluent.PaneItem(
-              icon: Icon(fluent.FluentIcons.document),
-              title: Text('Todas as notas'),
+              icon: const fluent.Icon(fluent.FluentIcons.document),
+              title: const Text('Todas as notas'),
               body: notesBody,
               onTap: () {},
             ),
             fluent.PaneItem(
-              icon: Icon(fluent.FluentIcons.favorite_star),
-              title: Text('Favoritos'),
+              icon: const fluent.Icon(fluent.FluentIcons.favorite_star),
+              title: const Text('Favoritos'),
               body: notesBody,
               onTap: () {},
             ),
             fluent.PaneItem(
-              icon: Icon(fluent.FluentIcons.lock),
-              title: Text('Notas bloqueadas'),
+              icon: const fluent.Icon(fluent.FluentIcons.lock),
+              title: const Text('Notas bloqueadas'),
               body: notesBody,
               onTap: () {},
             ),
             fluent.PaneItem(
-              icon: Icon(fluent.FluentIcons.share),
-              title: Text('Notas compartilhadas'),
+              icon: const fluent.Icon(fluent.FluentIcons.share),
+              title: const Text('Notas compartilhadas'),
               body: notesBody,
               onTap: () {},
             ),
             fluent.PaneItem(
-              icon: Icon(fluent.FluentIcons.delete),
-              title: Text('Lixeira'),
+              icon: const fluent.Icon(fluent.FluentIcons.delete),
+              title: const Text('Lixeira'),
               body: notesBody,
               onTap: () {},
             ),
             fluent.PaneItem(
-              icon: Icon(fluent.FluentIcons.folder_open),
-              title: Text('Pastas'),
+              icon: const fluent.Icon(fluent.FluentIcons.folder_open),
+              title: const Text('Pastas'),
               body: notesBody,
               onTap: () {},
             ),
           ],
           footerItems: [
             fluent.PaneItem(
-              icon: Icon(fluent.FluentIcons.settings),
-              title: Text('Configurações'),
+              icon: const fluent.Icon(fluent.FluentIcons.settings),
+              title: const Text('Configurações'),
               body: const SettingsScreen(),
               onTap: () {},
             ),
@@ -449,39 +449,39 @@ class _NotesScreenState extends State<NotesScreen> {
                         },
                         destinations: const <NavigationRailDestination>[
                           NavigationRailDestination(
-                            icon: Icon(Icons.notes_outlined),
-                            selectedIcon: Icon(Icons.notes),
-                            label: Text('Todas as notas'),
+                            icon: const Icon(Icons.notes_outlined),
+                            selectedIcon: const Icon(Icons.notes),
+                            label: const Text('Todas as notas'),
                           ),
                           NavigationRailDestination(
-                            icon: Icon(Icons.star_outline),
-                            selectedIcon: Icon(Icons.star),
-                            label: Text('Favoritos'),
+                            icon: const Icon(Icons.star_outline),
+                            selectedIcon: const Icon(Icons.star),
+                            label: const Text('Favoritos'),
                           ),
                           NavigationRailDestination(
-                            icon: Icon(Icons.lock_outline),
-                            selectedIcon: Icon(Icons.lock),
-                            label: Text('Notas bloqueadas'),
+                            icon: const Icon(Icons.lock_outline),
+                            selectedIcon: const Icon(Icons.lock),
+                            label: const Text('Notas bloqueadas'),
                           ),
                           NavigationRailDestination(
-                            icon: Icon(Icons.share_outlined),
-                            selectedIcon: Icon(Icons.share),
-                            label: Text('Notas compartilhadas'),
+                            icon: const Icon(Icons.share_outlined),
+                            selectedIcon: const Icon(Icons.share),
+                            label: const Text('Notas compartilhadas'),
                           ),
                           NavigationRailDestination(
-                            icon: Icon(Icons.delete_outline),
-                            selectedIcon: Icon(Icons.delete),
-                            label: Text('Lixeira'),
+                            icon: const Icon(Icons.delete_outline),
+                            selectedIcon: const Icon(Icons.delete),
+                            label: const Text('Lixeira'),
                           ),
                           NavigationRailDestination(
-                            icon: Icon(Icons.folder_outlined),
-                            selectedIcon: Icon(Icons.folder),
-                            label: Text('Pastas'),
+                            icon: const Icon(Icons.folder_outlined),
+                            selectedIcon: const Icon(Icons.folder),
+                            label: const Text('Pastas'),
                           ),
                           NavigationRailDestination(
-                            icon: Icon(Icons.settings_outlined),
-                            selectedIcon: Icon(Icons.settings),
-                            label: Text('Configurações'),
+                            icon: const Icon(Icons.settings_outlined),
+                            selectedIcon: const Icon(Icons.settings),
+                            label: const Text('Configurações'),
                           ),
                         ],
                       ),
