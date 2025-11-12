@@ -158,7 +158,20 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         working-directory: universal_notes_flutter
-        run: flutter build windows || exit 1
+        run: flutter build windows > ../build.log 2>&1 || exit 1
+
+      - name: Extract Windows Build Errors
+        if: failure() && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-Content -Path "build.log" -Tail 30 | Out-File -FilePath "error_summary.txt"
+
+      - name: Upload Windows Error Log
+        if: failure() && runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-error-log
+          path: error_summary.txt
 
       - name: Smoke Test Windows Build
         if: runner.os == 'Windows'
@@ -211,7 +224,19 @@ jobs:
       - name: Flutter Build APK
         if: runner.os == 'Linux'
         working-directory: universal_notes_flutter
-        run: flutter build apk --release --target-platform=android-arm64
+        run: flutter build apk --release --target-platform=android-arm64 > ../build.log 2>&1
+
+      - name: Extract Linux Build Errors
+        if: failure() && runner.os == 'Linux'
+        run: |
+          tail -n 30 ../build.log > error_summary.txt
+
+      - name: Upload Linux Error Log
+        if: failure() && runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-error-log
+          path: error_summary.txt
 
       - name: Rename APK with version
         if: runner.os == 'Linux'
@@ -252,6 +277,21 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Download error logs
+        if: needs.build.result == 'failure'
+        uses: actions/download-artifact@v4
+        with:
+          path: error-logs
+
+      - name: Read error logs
+        if: needs.build.result == 'failure'
+        id: read_logs
+        run: |
+          WINDOWS_LOG=$(cat error-logs/windows-error-log/error_summary.txt || echo "No Windows error log found.")
+          LINUX_LOG=$(cat error-logs/linux-error-log/error_summary.txt || echo "No Linux error log found.")
+          echo "windows_log=$WINDOWS_LOG" >> $GITHUB_OUTPUT
+          echo "linux_log=$LINUX_LOG" >> $GITHUB_OUTPUT
+
       - name: Send Discord Notification on Failure
         if: needs.build.result == 'failure'
         uses: rjstone/discord-webhook-notify@v1
@@ -260,7 +300,15 @@ jobs:
           severity: error
           heading: "❌ Build Failed: Universal Notes"
           text: "The build for commit `${{ github.sha }}` failed."
-          description: "Check the workflow run for more details."
+          description: |
+            **Windows Build Errors:**
+            ```
+            ${{ steps.read_logs.outputs.windows_log }}
+            ```
+            **Linux/Android Build Errors:**
+            ```
+            ${{ steps.read_logs.outputs.linux_log }}
+            ```
           color: "15158332" # Red
           run_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
