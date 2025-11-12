@@ -35,6 +35,12 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Secret Scanning
+        if: github.event_name == 'pull_request'
+        uses: trufflehog/trufflehog-actions@main
+        with:
+          path: ./
+
       - name: Cache Flutter SDK (Windows)
         if: runner.os == 'Windows'
         uses: actions/cache@v4
@@ -149,10 +155,47 @@ jobs:
         working-directory: universal_notes_flutter
         run: flutter pub get
 
-      - name: Run Tests
+      - name: Run Tests with Coverage
         if: github.event_name == 'pull_request'
         working-directory: universal_notes_flutter
-        run: flutter test
+        run: flutter test --coverage
+
+      - name: Install lcov
+        if: github.event_name == 'pull_request' && runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y lcov
+
+      - name: Generate Coverage Report
+        if: github.event_name == 'pull_request' && runner.os == 'Linux'
+        working-directory: universal_notes_flutter
+        run: genhtml coverage/lcov.info -o coverage/html
+
+      - name: Upload Coverage Report
+        if: github.event_name == 'pull_request' && runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: universal_notes_flutter/coverage/html
+
+      - name: Dependency Audit
+        if: github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: flutter pub audit
+
+      - name: Activate Dart Code Metrics
+        if: github.event_name == 'pull_request'
+        run: dart pub global activate dcm
+
+      - name: Run Dart Code Metrics Analysis
+        if: github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: dcm analyze lib --reporter=html
+
+      - name: Upload DCM Report
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcm-report
+          path: universal_notes_flutter/dcm_report.html
 
       - name: Flutter Build Windows
         if: runner.os == 'Windows'
@@ -283,14 +326,20 @@ jobs:
         with:
           path: error-logs
 
-      - name: Read error logs
+      - name: Prepare error logs
         if: needs.build.result == 'failure'
         id: read_logs
         run: |
           WINDOWS_LOG=$(cat error-logs/windows-error-log/error_summary.txt || echo "No Windows error log found.")
           LINUX_LOG=$(cat error-logs/linux-error-log/error_summary.txt || echo "No Linux error log found.")
-          echo "windows_log=$WINDOWS_LOG" >> $GITHUB_OUTPUT
-          echo "linux_log=$LINUX_LOG" >> $GITHUB_OUTPUT
+
+          echo "windows_log<<EOF" >> $GITHUB_OUTPUT
+          echo "$WINDOWS_LOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "linux_log<<EOF" >> $GITHUB_OUTPUT
+          echo "$LINUX_LOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Send Discord Notification on Failure
         if: needs.build.result == 'failure'
