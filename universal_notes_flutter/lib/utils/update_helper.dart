@@ -58,7 +58,9 @@ class UpdateHelper {
           TextButton(
             child: const Text('Sim, atualizar'),
             onPressed: () {
-              Navigator.of(context).pop();
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
               _handleUpdate(context, updateInfo);
             },
           ),
@@ -70,14 +72,15 @@ class UpdateHelper {
   static Future<void> _handleUpdate(BuildContext context, UpdateInfo updateInfo) async {
     if (Platform.isAndroid) {
       final status = await Permission.requestInstallPackages.request();
+
+      if (!context.mounted) return;
+
       if (status.isGranted) {
         _downloadAndInstallUpdate(context, updateInfo);
       } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Permissão para instalar pacotes é necessária para a atualização.')),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Permissão para instalar pacotes é necessária para a atualização.')),
+        );
       }
     }
   }
