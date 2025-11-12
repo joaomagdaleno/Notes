@@ -48,8 +48,8 @@ class Updater {
       Map<String, dynamic> asset;
       try {
         asset = assets.firstWhere(
-          (dynamic asset) =>
-              (asset['name'] as String).startsWith('UniversalNotesSetup-'),
+          (dynamic asset) => ((asset as Map<String, dynamic>)['name'] as String)
+              .startsWith('UniversalNotesSetup-'),
         ) as Map<String, dynamic>;
       } catch (e) {
         throw Exception('No installer found for the latest version');
@@ -65,7 +65,8 @@ class Updater {
         builder: (context) => AlertDialog(
           title: const Text('Atualização Disponível'),
           content: Text(
-            'Uma nova versão ($latestVersionStr) está disponível. Deseja atualizar agora?',
+            'Uma nova versão ($latestVersionStr) está disponível. Deseja '
+            'atualizar agora?',
           ),
           actions: [
             TextButton(

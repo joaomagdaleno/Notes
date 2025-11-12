@@ -238,7 +238,7 @@ class _NotesScreenState extends State<NotesScreen> {
       );
 
       return fluent.NavigationView(
-        appBar: const fluent.NavigationAppBar(),
+        appBar: fluent.NavigationAppBar(),
         pane: fluent.NavigationPane(
           selected: _selectedIndex,
           onChanged: (index) => setState(() => _selectedIndex = index),

@@ -51,6 +51,34 @@ class Note {
   /// The preferences associated with the note, in JSON format.
   String? prefsJson;
 
+  /// Creates a new instance of [Note].
+  Note({
+    required this.title,
+    required this.content,
+    required this.date,
+    String? id,
+    this.isFavorite = false,
+    this.isLocked = false,
+    this.isInTrash = false,
+    this.drawingJson,
+    this.prefsJson,
+  }) : id = id ?? uuid.v4();
+
+  /// Creates a new instance of [Note] from a map.
+  factory Note.fromMap(Map<String, dynamic> map) {
+    return Note(
+      id: map['id'] as String?,
+      title: map['title'] as String,
+      content: map['content'] as String,
+      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
+      isFavorite: (map['isFavorite'] as int) == 1,
+      isLocked: (map['isLocked'] as int) == 1,
+      isInTrash: (map['isInTrash'] as int) == 1,
+      drawingJson: map['drawingJson'] as String?,
+      prefsJson: map['prefsJson'] as String?,
+    );
+  }
+
   /// Converts the [Note] to a map.
   Map<String, dynamic> toMap() {
     return {
