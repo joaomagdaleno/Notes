@@ -7,13 +7,6 @@ import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 /// A widget that displays a note as a card.
 class NoteCard extends StatelessWidget {
-  /// The note to display.
-  final Note note;
-  /// The function to call when the note is saved.
-  final Future<Note> Function(Note) onSave;
-  /// The function to call when the note is deleted.
-  final void Function(Note) onDelete;
-
   /// Creates a new instance of [NoteCard].
   const NoteCard({
     required this.note,
@@ -21,6 +14,12 @@ class NoteCard extends StatelessWidget {
     required this.onDelete,
     super.key,
   });
+  /// The note to display.
+  final Note note;
+  /// The function to call when the note is saved.
+  final Future<Note> Function(Note) onSave;
+  /// The function to call when the note is deleted.
+  final void Function(Note) onDelete;
 
   @override
   Widget build(BuildContext context) {

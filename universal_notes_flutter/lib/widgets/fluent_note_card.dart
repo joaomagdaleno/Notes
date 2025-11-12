@@ -7,14 +7,6 @@ import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 
 /// A widget that displays a note as a card with a fluent design.
 class FluentNoteCard extends StatelessWidget {
-  /// The note to display.
-  final Note note;
-  /// The function to call when the note is saved.
-  final Future<Note> Function(Note) onSave;
-
-  /// The function to call when the note is deleted.
-  final void Function(Note) onDelete;
-
   /// Creates a new instance of [FluentNoteCard].
   const FluentNoteCard({
     required this.note,
@@ -22,6 +14,13 @@ class FluentNoteCard extends StatelessWidget {
     required this.onDelete,
     super.key,
   });
+  /// The note to display.
+  final Note note;
+  /// The function to call when the note is saved.
+  final Future<Note> Function(Note) onSave;
+
+  /// The function to call when the note is deleted.
+  final void Function(Note) onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +37,9 @@ class FluentNoteCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              note.title,
+            children: [
+              Text(
+                note.title,
               style: fluent.FluentTheme.of(context).typography.bodyLarge,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

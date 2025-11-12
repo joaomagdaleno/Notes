@@ -29,6 +29,8 @@ class UpdateCheckResult {
 
 /// A service for checking for updates.
 class UpdateService {
+  /// Creates a new instance of [UpdateService].
+  UpdateService();
   static const String _repo = 'joaomagdaleno/Notes';
 
   /// Checks for updates.

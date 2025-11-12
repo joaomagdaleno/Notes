@@ -66,7 +66,8 @@ class Note {
     };
   }
 
-  /// Creates a copy of the [Note] with the given fields replaced with the new values.
+  /// Creates a copy of the [Note] with the given fields replaced with the new
+  /// values.
   Note copyWith({
     String? id,
     String? title,

@@ -10,8 +10,8 @@ import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
-import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'package:universal_notes_flutter/screens/settings_screen.dart';
+import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// The different view modes for the notes screen.
@@ -129,7 +129,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      themeMode: ThemeMode.system,
       home: const NotesScreen(),
     );
   }

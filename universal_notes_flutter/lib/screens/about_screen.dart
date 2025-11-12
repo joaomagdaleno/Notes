@@ -61,7 +61,9 @@ class _AboutScreenState extends State<AboutScreen> {
       },
       onNoUpdate: () {
         if (mounted) {
-          setState(() => _updateStatus = 'Você já está na versão mais recente.');
+          setState(
+            () => _updateStatus = 'Você já está na versão mais recente.',
+          );
         }
       },
       onCheckFinished: () {
@@ -84,7 +86,6 @@ class _AboutScreenState extends State<AboutScreen> {
       header: fluent.PageHeader(
         title: const Text('Sobre'),
         leading: fluent.CommandBar(
-          mainAxisAlignment: fluent.MainAxisAlignment.start,
           overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
           primaryItems: [
             fluent.CommandBarButton(
@@ -128,12 +129,13 @@ class _AboutScreenState extends State<AboutScreen> {
           children: [
             Text('Versão atual: $_currentVersion'),
             const SizedBox(height: 20),
-            _isChecking
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _checkForUpdate,
-                    child: const Text('Verificar Atualizações'),
-                  ),
+            if (_isChecking)
+              const CircularProgressIndicator()
+            else
+              ElevatedButton(
+                onPressed: _checkForUpdate,
+                child: const Text('Verificar Atualizações'),
+              ),
           ],
         ),
       ),

@@ -6,13 +6,6 @@ import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 /// A widget that displays a note as a simple list tile.
 class NoteSimpleListTile extends StatelessWidget {
-  /// The note to display.
-  final Note note;
-  /// The function to call when the note is saved.
-  final Future<Note> Function(Note) onSave;
-  /// The function to call when the note is deleted.
-  final void Function(Note) onDelete;
-
   /// Creates a new instance of [NoteSimpleListTile].
   const NoteSimpleListTile({
     required this.note,
@@ -20,6 +13,12 @@ class NoteSimpleListTile extends StatelessWidget {
     required this.onDelete,
     super.key,
   });
+  /// The note to display.
+  final Note note;
+  /// The function to call when the note is saved.
+  final Future<Note> Function(Note) onSave;
+  /// The function to call when the note is deleted.
+  final void Function(Note) onDelete;
 
   @override
   Widget build(BuildContext context) {
