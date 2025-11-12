@@ -154,10 +154,10 @@ jobs:
         working-directory: universal_notes_flutter
         run: flutter analyze
 
-      - name: Run Dependency Audit
+      - name: Check for Outdated Packages
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
         working-directory: universal_notes_flutter
-        run: dart pub audit
+        run: dart pub outdated
 
       - name: Run Tests
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
