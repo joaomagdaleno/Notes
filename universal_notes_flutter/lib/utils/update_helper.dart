@@ -4,10 +4,15 @@ import 'package:http/http.dart' as http;
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../services/update_service.dart';
+import 'package:universal_notes_flutter/services/update_service.dart';
 
+/// A helper class for handling application updates.
 class UpdateHelper {
-  static Future<void> checkForUpdate(BuildContext context, {bool isManual = false}) async {
+  /// Checks for updates and prompts the user to install them.
+  static Future<void> checkForUpdate(
+    BuildContext context, {
+    bool isManual = false,
+  }) async {
     if (isManual) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Verificando atualizações...')),
@@ -26,30 +31,34 @@ class UpdateHelper {
     switch (result.status) {
       case UpdateCheckStatus.updateAvailable:
         _showUpdateDialog(context, result.updateInfo!);
-        break;
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Você já tem a versão mais recente.')),
+            const SnackBar(
+              content: Text('Você já tem a versão mais recente.'),
+            ),
           );
         }
-        break;
       case UpdateCheckStatus.error:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.errorMessage ?? 'Ocorreu um erro desconhecido.')),
+            SnackBar(
+              content:
+                  Text(result.errorMessage ?? 'Ocorreu um erro desconhecido.'),
+            ),
           );
         }
-        break;
     }
   }
 
   static void _showUpdateDialog(BuildContext context, UpdateInfo updateInfo) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Atualização Disponível'),
-        content: Text('Uma nova versão (${updateInfo.version}) está disponível. Deseja baixar e instalar?'),
+        content: Text(
+          'Uma nova versão (${updateInfo.version}) está disponível. Deseja baixar e instalar?',
+        ),
         actions: [
           TextButton(
             child: const Text('Agora não'),
@@ -69,25 +78,37 @@ class UpdateHelper {
     );
   }
 
-  static Future<void> _handleUpdate(BuildContext context, UpdateInfo updateInfo) async {
+  static Future<void> _handleUpdate(
+    BuildContext context,
+    UpdateInfo updateInfo,
+  ) async {
     if (Platform.isAndroid) {
       final status = await Permission.requestInstallPackages.request();
 
       if (!context.mounted) return;
 
       if (status.isGranted) {
-        _downloadAndInstallUpdate(context, updateInfo);
+        await _downloadAndInstallUpdate(context, updateInfo);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Permissão para instalar pacotes é necessária para a atualização.')),
+          const SnackBar(
+            content: Text(
+              'Permissão para instalar pacotes é necessária para a atualização.',
+            ),
+          ),
         );
       }
     }
   }
 
-  static Future<void> _downloadAndInstallUpdate(BuildContext context, UpdateInfo updateInfo) async {
+  static Future<void> _downloadAndInstallUpdate(
+    BuildContext context,
+    UpdateInfo updateInfo,
+  ) async {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Baixando atualização... Por favor, aguarde.')),
+      const SnackBar(
+        content: Text('Baixando atualização... Por favor, aguarde.'),
+      ),
     );
 
     try {
@@ -107,7 +128,9 @@ class UpdateHelper {
         // Open the downloaded file to trigger installation
         final result = await OpenFile.open(filePath);
         if (result.type != ResultType.done) {
-          throw Exception('Não foi possível abrir o arquivo de instalação: ${result.message}');
+          throw Exception(
+            'Não foi possível abrir o arquivo de instalação: ${result.message}',
+          );
         }
       } else {
         throw Exception('Falha no download. Status: ${response.statusCode}');
@@ -116,7 +139,7 @@ class UpdateHelper {
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro na atualização: ${e.toString()}')),
+          SnackBar(content: Text('Erro na atualização: $e')),
         );
       }
     }

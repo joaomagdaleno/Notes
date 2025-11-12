@@ -1,11 +1,14 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
-import '../utils/update_helper.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package.universal_notes_flutter/utils/update_helper.dart';
+import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
+
+/// The screen that displays information about the application.
 class AboutScreen extends StatefulWidget {
+  /// Creates a new instance of [AboutScreen].
   const AboutScreen({super.key});
 
   @override
@@ -57,7 +60,9 @@ class _AboutScreenState extends State<AboutScreen> {
         if (mounted) setState(() => _updateStatus = message);
       },
       onNoUpdate: () {
-        if (mounted) setState(() => _updateStatus = 'Você já está na versão mais recente.');
+        if (mounted) {
+          setState(() => _updateStatus = 'Você já está na versão mais recente.');
+        }
       },
       onCheckFinished: () {
         if (mounted) setState(() => _isChecking = false);

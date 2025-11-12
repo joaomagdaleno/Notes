@@ -1,27 +1,33 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import '../models/note.dart';
-import 'context_menu_helper.dart';
+import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
+/// A widget that displays a note as a card.
 class NoteCard extends StatelessWidget {
+  /// The note to display.
   final Note note;
+  /// The function to call when the note is saved.
   final Future<Note> Function(Note) onSave;
-  final Function(Note) onDelete;
+  /// The function to call when the note is deleted.
+  final void Function(Note) onDelete;
 
-  const NoteCard(
-      {super.key,
-      required this.note,
-      required this.onSave,
-      required this.onDelete});
+  /// Creates a new instance of [NoteCard].
+  const NoteCard({
+    required this.note,
+    required this.onSave,
+    required this.onDelete,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
+          MaterialPageRoute<void>(
             builder: (context) => NoteEditorScreen(note: note, onSave: onSave),
           ),
         );
@@ -36,12 +42,12 @@ class NoteCard extends StatelessWidget {
         );
       },
       child: Card(
-        elevation: 1.0,
+        elevation: 1,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -49,18 +55,18 @@ class NoteCard extends StatelessWidget {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Theme.of(context)
                           .colorScheme
                           .surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       _getPreviewText(note.content),
                       style: TextStyle(
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 5,
                     ),
@@ -90,11 +96,11 @@ class NoteCard extends StatelessWidget {
 
 String _getPreviewText(String jsonContent) {
   try {
-    final List<dynamic> delta = jsonDecode(jsonContent);
+    final delta = jsonDecode(jsonContent) as List;
     final text = delta
-        .where((op) => op is Map && op.containsKey('insert'))
-        .map((op) => op['insert'].toString())
-        .join('');
+        .where((dynamic op) => op is Map && op.containsKey('insert'))
+        .map((dynamic op) => op['insert'].toString())
+        .join();
     return text.replaceAll(RegExp(r'\s+'), ' ').trim();
   } catch (e) {
     return '...';

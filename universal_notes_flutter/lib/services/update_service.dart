@@ -4,19 +4,34 @@ import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-enum UpdateCheckStatus { updateAvailable, noUpdate, error }
+/// The status of the update check.
+enum UpdateCheckStatus {
+  /// An update is available.
+  updateAvailable,
+  /// No update is available.
+  noUpdate,
+  /// An error occurred during the update check.
+  error
+}
 
+/// The result of an update check.
 class UpdateCheckResult {
+  /// The status of the update check.
   final UpdateCheckStatus status;
+  /// Information about the update, if available.
   final UpdateInfo? updateInfo;
+  /// The error message, if an error occurred.
   final String? errorMessage;
 
+  /// Creates a new instance of [UpdateCheckResult].
   UpdateCheckResult(this.status, {this.updateInfo, this.errorMessage});
 }
 
+/// A service for checking for updates.
 class UpdateService {
   static const String _repo = 'joaomagdaleno/Notes';
 
+  /// Checks for updates.
   Future<UpdateCheckResult> checkForUpdate() async {
     try {
       // Get current app version
@@ -66,11 +81,18 @@ class UpdateService {
         return UpdateCheckResult(UpdateCheckStatus.noUpdate);
       } else {
         // Handle non-200 responses as errors
-        return UpdateCheckResult(UpdateCheckStatus.error, errorMessage: 'Falha ao comunicar com o servidor de atualização.');
+        return UpdateCheckResult(
+          UpdateCheckStatus.error,
+          errorMessage: 'Falha ao comunicar com o servidor de atualização.',
+        );
       }
     } catch (e) {
       // Handle exceptions, e.g., no internet connection
-      return UpdateCheckResult(UpdateCheckStatus.error, errorMessage: 'Não foi possível verificar as atualizações. Verifique sua conexão com a internet.');
+      return UpdateCheckResult(
+        UpdateCheckStatus.error,
+        errorMessage:
+            'Não foi possível verificar as atualizações. Verifique sua conexão com a internet.',
+      );
     }
   }
 
@@ -85,9 +107,13 @@ class UpdateService {
   }
 }
 
+/// Information about an update.
 class UpdateInfo {
+  /// The version of the update.
   final String version;
+  /// The URL to download the update from.
   final String downloadUrl;
 
+  /// Creates a new instance of [UpdateInfo].
   UpdateInfo({required this.version, required this.downloadUrl});
 }

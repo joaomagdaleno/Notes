@@ -3,12 +3,14 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
+/// A helper class for handling application updates on Windows.
 class WindowsUpdateHelper {
+  /// Checks for updates and prompts the user to install them.
   static Future<void> checkForUpdate({
-    required Function(String) onStatusChange,
-    required Function(String) onError,
-    required Function() onNoUpdate,
-    required Function() onCheckFinished,
+    required void Function(String) onStatusChange,
+    required void Function(String) onError,
+    required void Function() onNoUpdate,
+    required void Function() onCheckFinished,
   }) async {
     onStatusChange('Verificando atualizações...');
     final updateService = UpdateService();
@@ -23,23 +25,20 @@ class WindowsUpdateHelper {
           onError: onError,
           onCheckFinished: onCheckFinished,
         );
-        break;
       case UpdateCheckStatus.noUpdate:
         onNoUpdate();
         onCheckFinished();
-        break;
       case UpdateCheckStatus.error:
         onError(result.errorMessage ?? 'Ocorreu um erro desconhecido.');
         onCheckFinished();
-        break;
     }
   }
 
   static Future<void> _downloadAndInstallUpdate(
     UpdateInfo updateInfo, {
-    required Function(String) onStatusChange,
-    required Function(String) onError,
-    required Function() onCheckFinished,
+    required void Function(String) onStatusChange,
+    required void Function(String) onError,
+    required void Function() onCheckFinished,
   }) async {
     try {
       final tempDir = await getTemporaryDirectory();
@@ -57,7 +56,9 @@ class WindowsUpdateHelper {
           onCheckFinished();
         }
       } else {
-        throw Exception('Falha ao baixar o arquivo: Status ${response.statusCode}');
+        throw Exception(
+          'Falha ao baixar o arquivo: Status ${response.statusCode}',
+        );
       }
     } catch (e) {
       onError('Erro durante o download: $e');
