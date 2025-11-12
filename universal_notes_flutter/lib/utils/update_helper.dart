@@ -58,7 +58,9 @@ class UpdateHelper {
           TextButton(
             child: const Text('Sim, atualizar'),
             onPressed: () {
-              Navigator.of(context).pop();
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
               _handleUpdate(context, updateInfo);
             },
           ),
