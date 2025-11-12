@@ -25,11 +25,15 @@ class Updater {
       );
 
       if (response.statusCode == 404) {
-        throw Exception('Nenhum release encontrado. '
-            'Verifique se um release público foi criado no repositório.');
+        throw Exception(
+          'Nenhum release encontrado. Verifique se um release público foi '
+          'criado no repositório.',
+        );
       } else if (response.statusCode != 200) {
         throw Exception(
-            'Falha ao verificar atualizações. Código de status: ${response.statusCode}');
+          'Falha ao verificar atualizações. '
+          'Código de status: ${response.statusCode}',
+        );
       }
 
       final json = jsonDecode(response.body) as Map<String, dynamic>;
