@@ -35,7 +35,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   http: ^1.6.0
-  intl: ^0.19.0
+  intl: ^0.20.2
   meta: ^1.15.0
   open_file: ^3.5.10
   package_info_plus: ^9.0.0
@@ -61,9 +61,6 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-
-dependency_overrides:
-  intl: ^0.19.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
