@@ -28,8 +28,8 @@ class SettingsScreen extends StatelessWidget {
           fluent.ListTile.selectable(
             title: const Text('Sobre'),
             leading: const fluent.Icon(fluent.FluentIcons.info),
-            onPressed: () {
-              Navigator.of(context).push(
+            onPressed: () async {
+              await Navigator.of(context).push(
                 fluent.FluentPageRoute<void>(
                   builder: (context) => const AboutScreen(),
                 ),
@@ -51,8 +51,8 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             title: const Text('Sobre'),
             leading: const Icon(Icons.info_outline),
-            onTap: () {
-              Navigator.of(context).push(
+            onTap: () async {
+              await Navigator.of(context).push(
                 MaterialPageRoute<void>(
                   builder: (context) => const AboutScreen(),
                 ),

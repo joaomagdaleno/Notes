@@ -30,7 +30,7 @@ class UpdateHelper {
 
     switch (result.status) {
       case UpdateCheckStatus.updateAvailable:
-        _showUpdateDialog(context, result.updateInfo!);
+        await _showUpdateDialog(context, result.updateInfo!);
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -51,8 +51,11 @@ class UpdateHelper {
     }
   }
 
-  static void _showUpdateDialog(BuildContext context, UpdateInfo updateInfo) {
-    showDialog<void>(
+  static Future<void> _showUpdateDialog(
+    BuildContext context,
+    UpdateInfo updateInfo,
+  ) async {
+    return showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Atualização Disponível'),
@@ -71,7 +74,7 @@ class UpdateHelper {
               if (context.mounted) {
                 Navigator.of(context).pop();
               }
-              _handleUpdate(context, updateInfo);
+              unawaited(_handleUpdate(context, updateInfo));
             },
           ),
         ],
@@ -135,7 +138,7 @@ class UpdateHelper {
       } else {
         throw Exception('Falha no download. Status: ${response.statusCode}');
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(

@@ -51,7 +51,7 @@ class WindowsUpdateHelper {
         try {
           await Process.run(filePath, [], runInShell: true);
           exit(0); // App closes to allow the installer to run.
-        } catch (e) {
+        } on Exception catch (e) {
           onError('Falha ao iniciar o instalador: $e');
           onCheckFinished();
         }
@@ -60,7 +60,7 @@ class WindowsUpdateHelper {
           'Falha ao baixar o arquivo: Status ${response.statusCode}',
         );
       }
-    } catch (e) {
+    } on Exception catch (e) {
       onError('Erro durante o download: $e');
       onCheckFinished();
     }

@@ -154,9 +154,9 @@ class _NotesScreenState extends State<NotesScreen> {
     super.initState();
     _loadNotes();
     // Use a post-frame callback to ensure the Scaffold is available.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Check for updates on all platforms
-      UpdateHelper.checkForUpdate(context);
+      await UpdateHelper.checkForUpdate(context);
     });
   }
 
@@ -209,8 +209,8 @@ class _NotesScreenState extends State<NotesScreen> {
             fluent.CommandBarButton(
               icon: const fluent.Icon(fluent.FluentIcons.add),
               label: const Text('Nova nota'),
-              onPressed: () {
-                Navigator.of(context).push(
+              onPressed: () async {
+                await Navigator.of(context).push(
                   fluent.FluentPageRoute<void>(
                     builder: (context) => NoteEditorScreen(onSave: _updateNote),
                   ),
@@ -401,9 +401,9 @@ class _NotesScreenState extends State<NotesScreen> {
                         ListTile(
                           leading: const Icon(Icons.settings_outlined),
                           title: const Text('Configurações'),
-                          onTap: () {
+                          onTap: () async {
                             Navigator.pop(context); // Close the drawer
-                            Navigator.of(context).push(
+                            await Navigator.of(context).push(
                               MaterialPageRoute<void>(
                                 builder: (context) => const SettingsScreen(),
                               ),
@@ -434,13 +434,13 @@ class _NotesScreenState extends State<NotesScreen> {
                         ),
                         extended: _isNavigationRailExpanded,
                         selectedIndex: _selectedIndex,
-                        onDestinationSelected: (int index) {
+                        onDestinationSelected: (int index) async {
                           setState(() {
                             _selectedIndex = index;
                           });
                           if (index == 6) {
                             // Index of settings
-                            Navigator.of(context).push(
+                            await Navigator.of(context).push(
                               MaterialPageRoute<void>(
                                 builder: (context) => const SettingsScreen(),
                               ),
@@ -492,8 +492,8 @@ class _NotesScreenState extends State<NotesScreen> {
                     ],
                   ),
             floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).push(
+              onPressed: () async {
+                await Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (context) => NoteEditorScreen(onSave: _updateNote),
                   ),

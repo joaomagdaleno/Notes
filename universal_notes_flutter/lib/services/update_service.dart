@@ -92,7 +92,7 @@ class UpdateService {
           errorMessage: 'Falha ao comunicar com o servidor de atualização.',
         );
       }
-    } catch (e) {
+    } on Exception {
       // Handle exceptions, e.g., no internet connection
       return UpdateCheckResult(
         UpdateCheckStatus.error,
@@ -107,7 +107,7 @@ class UpdateService {
       final latest = Version.parse(latestVersion);
       final current = Version.parse(currentVersion);
       return latest > current;
-    } catch (e) {
+    } on Exception {
       return false;
     }
   }

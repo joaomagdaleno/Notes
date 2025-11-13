@@ -56,13 +56,12 @@ class Updater {
           (dynamic asset) => ((asset as Map<String, dynamic>)['name'] as String)
               .startsWith('UniversalNotesSetup-'),
         ) as Map<String, dynamic>;
-      } catch (e) {
+      } on Exception {
         throw Exception('No installer found for the latest version');
       }
 
       final downloadUrl = asset['browser_download_url'] as String;
 
-      // ignore: use_build_context_synchronously
       if (!context.mounted) return;
 
       final shouldUpdate = await showDialog<bool>(
@@ -111,10 +110,9 @@ class Updater {
       } else {
         throw Exception('Could not launch installer');
       }
-    } catch (e) {
+    } on Exception catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
       onStatusChange('Erro: $errorMessage');
-      // ignore: use_build_context_synchronously
       if (!context.mounted) return;
       await showDialog<void>(
         context: context,
