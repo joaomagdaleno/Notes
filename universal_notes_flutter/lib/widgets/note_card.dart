@@ -24,8 +24,8 @@ class NoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
+      onTap: () async {
+        await Navigator.of(context).push(
           MaterialPageRoute<void>(
             builder: (context) => NoteEditorScreen(note: note, onSave: onSave),
           ),
@@ -101,7 +101,7 @@ String _getPreviewText(String jsonContent) {
         .map((dynamic op) => (op as Map)['insert'].toString())
         .join();
     return text.replaceAll(RegExp(r'\s+'), ' ').trim();
-  } catch (e) {
+  } on Exception catch (e) {
     return '...';
   }
 }

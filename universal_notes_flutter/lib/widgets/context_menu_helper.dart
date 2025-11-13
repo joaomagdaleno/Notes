@@ -10,7 +10,7 @@ class ContextMenuHelper {
     required Note note,
     required void Function(Note) onSave,
     required void Function(Note) onDelete,
-  }) {
+  }) async {
     final overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox?;
     if (overlay == null) {
