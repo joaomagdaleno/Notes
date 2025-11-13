@@ -31,8 +31,8 @@ class NoteCard extends StatelessWidget {
           ),
         );
       },
-      onLongPressDown: (details) {
-        ContextMenuHelper.showContextMenu(
+      onLongPressDown: (details) async {
+        await ContextMenuHelper.showContextMenu(
           context: context,
           position: details.globalPosition,
           note: note,
