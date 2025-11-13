@@ -56,7 +56,7 @@ class Updater {
           (dynamic asset) => ((asset as Map<String, dynamic>)['name'] as String)
               .startsWith('UniversalNotesSetup-'),
         ) as Map<String, dynamic>;
-      } on Exception catch (e) {
+      } on Exception {
         throw Exception('No installer found for the latest version');
       }
 

@@ -74,7 +74,7 @@ class UpdateHelper {
               if (context.mounted) {
                 Navigator.of(context).pop();
               }
-              _handleUpdate(context, updateInfo);
+              unawaited(_handleUpdate(context, updateInfo));
             },
           ),
         ],

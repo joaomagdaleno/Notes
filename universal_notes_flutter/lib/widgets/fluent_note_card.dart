@@ -75,7 +75,7 @@ String _getPreviewText(String jsonContent) {
         .map((dynamic op) => (op as Map)['insert'].toString())
         .join();
     return text.replaceAll(RegExp(r'\s+'), ' ').trim();
-  } on Exception catch (e) {
+  } on Exception {
     return '...';
   }
 }

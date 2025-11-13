@@ -4,7 +4,7 @@ import 'package:universal_notes_flutter/models/note.dart';
 /// A helper class for showing a context menu for a note.
 class ContextMenuHelper {
   /// Shows the context menu.
-  static void showContextMenu({
+  static Future<void> showContextMenu({
     required BuildContext context,
     required Offset position,
     required Note note,
@@ -17,7 +17,7 @@ class ContextMenuHelper {
       return;
     }
 
-    showMenu<void>(
+    await showMenu<void>(
       context: context,
       position: RelativeRect.fromRect(
         position & const Size(40, 40),
