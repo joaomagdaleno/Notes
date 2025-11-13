@@ -164,13 +164,25 @@ jobs:
         working-directory: universal_notes_flutter
         run: flutter test --coverage
 
-      - name: Upload to Codecov
+      - name: Calculate code coverage
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        uses: codecov/codecov-action@v4
+        id: coverage
+        run: |
+          HIT=$(grep "^LH:" universal_notes_flutter/coverage/lcov.info | awk '{s+=$1} END {print s}' FS=":")
+          FOUND=$(grep "^LF:" universal_notes_flutter/coverage/lcov.info | awk '{s+=$1} END {print s}' FS=":")
+          if [ "$FOUND" -eq 0 ]; then
+            COVERAGE="0.0"
+          else
+            COVERAGE=$(echo "scale=2; 100 * $HIT / $FOUND" | bc)
+          fi
+          echo "percentage=${COVERAGE}" >> $GITHUB_OUTPUT
+
+      - name: Post coverage comment
+        if: runner.os == 'Linux' && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: universal_notes_flutter/coverage
-          fail_ci_if_error: true
+          message: "📊 **Code Coverage:** `${{ steps.coverage.outputs.percentage }}%`"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Flutter Build Windows
         if: runner.os == 'Windows'
