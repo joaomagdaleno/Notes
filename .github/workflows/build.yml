@@ -162,16 +162,11 @@ jobs:
         working-directory: universal_notes_flutter
         run: dart pub outdated
 
-      - name: Install Snyk CLI
+      - name: TruffleHog OSS
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        run: npm install -g snyk
-
-      - name: Snyk Vulnerability Scan (SCA)
-        if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        working-directory: universal_notes_flutter
-        run: snyk monitor --all-projects
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        uses: trufflesecurity/trufflehog@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Dependency Vulnerability Check (SCA)
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
         working-directory: universal_notes_flutter
@@ -326,13 +321,30 @@ jobs:
   security:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
-          fetch-depth: 0
+          path: artifacts
 
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
+      - name: Delete existing latest tag and release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete ${{ github.ref_name }}-latest --yes || echo "Release not found, proceeding."
+          git push origin --delete ${{ github.ref_name }}-latest || echo "Tag not found, proceeding."
+
+      - name: Create or Update Pre-release
+        uses: softprops/action-gh-release@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.ref_name }}-latest
+          name: Pre-release ${{ github.ref_name }}
+          body: "Automated pre-release for the ${{ github.ref_name }} branch. [Commit: ${{ github.sha }}]"
+          prerelease: true
+          files: |
+            artifacts/windows-installer/UniversalNotesSetup-*.exe
+            artifacts/android-apk/universal_notes-v*.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
