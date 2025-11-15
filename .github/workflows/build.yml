@@ -162,6 +162,16 @@ jobs:
         working-directory: universal_notes_flutter
         run: dart pub outdated
 
+      - name: Install Snyk CLI
+        if: runner.os == 'Linux' && github.event_name == 'pull_request'
+        run: npm install -g snyk
+
+      - name: Snyk Vulnerability Scan (SCA)
+        if: runner.os == 'Linux' && github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: snyk monitor --all-projects
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - name: Dependency Vulnerability Check (SCA)
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
         working-directory: universal_notes_flutter
