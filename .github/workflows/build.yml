@@ -172,6 +172,10 @@ jobs:
         run: snyk monitor --all-projects
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Dependency Vulnerability Check (SCA)
+        if: runner.os == 'Linux' && github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: dart pub outdated --show-vulnerabilities
 
       - name: Run Tests
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
