@@ -1,0 +1,243 @@
+name: Build & Release
+
+on:
+  push:
+    branches:
+      - dev
+      - beta
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - dev
+      - beta
+
+env:
+  ACTIONS_STEP_DEBUG: true
+
+jobs:
+  quality:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+          cache: true
+      - name: Flutter Pub Get
+        working-directory: universal_notes_flutter
+        run: flutter pub get
+      - name: Run Flutter Analyzer
+        if: github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: flutter analyze
+      - name: Check for Outdated Packages
+        if: github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: dart pub outdated
+      - name: TruffleHog OSS
+        if: github.event_name == 'pull_request'
+        uses: trufflesecurity/trufflehog@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Tests
+        if: github.event_name == 'pull_request'
+        working-directory: universal_notes_flutter
+        run: flutter test --coverage
+      - name: Calculate code coverage
+        if: github.event_name == 'pull_request'
+        id: coverage
+        run: |
+          HIT=$(grep "^LH:" universal_notes_flutter/coverage/lcov.info | awk '{s+=$1} END {print s}' FS=":")
+          FOUND=$(grep "^LF:" universal_notes_flutter/coverage/lcov.info | awk '{s+=$1} END {print s}' FS=":")
+          if [ "$FOUND" -eq 0 ]; then
+            COVERAGE="0.0"
+          else
+            COVERAGE=$(echo "scale=2; 100 * $HIT / $FOUND" | bc)
+          fi
+          echo "percentage=${COVERAGE}" >> $GITHUB_OUTPUT
+      - name: Post coverage comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: "📊 **Code Coverage:** `${{ steps.coverage.outputs.percentage }}%`"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check code coverage
+        if: github.event_name == 'pull_request'
+        run: |
+          MIN_COVERAGE=80
+          COVERAGE_PERCENTAGE=$(echo "${{ steps.coverage.outputs.percentage }}" | awk '{print int($1)}')
+          if (( COVERAGE_PERCENTAGE < MIN_COVERAGE )); then
+            echo "Error: Code coverage is ${{ steps.coverage.outputs.percentage }}%, which is below the required minimum of ${MIN_COVERAGE}%."
+            exit 1
+          fi
+
+  build_windows:
+    name: Build Windows
+    needs: quality
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+      - name: Get base version from last tag
+        id: version-win
+        shell: powershell
+        run: |
+          git fetch --tags --depth=1
+          $base = (git tag --sort=-version:refname | Select-Object -First 1) -replace '^v',''
+          if (-not $base) { $base = "0.0.0" }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$base"
+      - name: Bump pubspec version
+        shell: pwsh
+        working-directory: universal_notes_flutter
+        run: |
+          (Get-Content pubspec.yaml) -replace '^version:.*',"version: ${{ steps.version-win.outputs.base }}+${{ github.run_number }}" | Set-Content pubspec.yaml
+      - name: Flutter Pub Get
+        working-directory: universal_notes_flutter
+        run: flutter pub get
+      - name: Flutter Build Windows
+        working-directory: universal_notes_flutter
+        run: flutter build windows
+      - name: Install Inno Setup
+        run: |
+          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile is.exe
+          Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES" -Wait
+      - name: Build Installer
+        run: |
+          (Get-Content installer.iss) -replace '0\.1\.7', '${{ steps.version-win.outputs.base }}' | Set-Content installer.iss
+          & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: Output/UniversalNotesSetup-*.exe
+
+  build_android:
+    name: Build Android
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Restore Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Get base version from last tag
+        id: version
+        run: |
+          git fetch --tags --depth=1
+          BASE=$(git tag --sort=-version:refname | head -n1)
+          BASE=${BASE#v}
+          echo "base=${BASE:-0.0.0}" >> $GITHUB_OUTPUT
+      - name: Bump pubspec version
+        working-directory: universal_notes_flutter
+        run: |
+          sed -i "s/^version:.*/version: ${{ steps.version.outputs.base }}+${GITHUB_RUN_NUMBER}/" pubspec.yaml
+      - name: Flutter Pub Get
+        working-directory: universal_notes_flutter
+        run: flutter pub get
+      - name: Setup Android Signing
+        env:
+          UPLOAD_SIGNING_KEY: ${{ secrets.UPLOAD_SIGNING_KEY }}
+          UPLOAD_STORE_PASSWORD: ${{ secrets.UPLOAD_STORE_PASSWORD }}
+          UPLOAD_KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
+          UPLOAD_KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
+        run: |
+          echo $UPLOAD_SIGNING_KEY | base64 --decode > universal_notes_flutter/android/app/upload-keystore.jks
+          echo "storePassword=$UPLOAD_STORE_PASSWORD" > universal_notes_flutter/android/key.properties
+          echo "keyPassword=$UPLOAD_KEY_PASSWORD" >> universal_notes_flutter/android/key.properties
+          echo "keyAlias=$UPLOAD_KEY_ALIAS" >> universal_notes_flutter/android/key.properties
+          echo "storeFile=../app/upload-keystore.jks" >> universal_notes_flutter/android/key.properties
+      - name: Flutter Build APK
+        working-directory: universal_notes_flutter
+        run: flutter build apk --release
+      - name: Rename APK with version
+        working-directory: universal_notes_flutter
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/universal_notes-v${{ steps.version.outputs.base }}.apk
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: universal_notes_flutter/build/app/outputs/flutter-apk/universal_notes-v*.apk
+
+  build_complete:
+    name: Build Complete
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: [build_windows, build_android]
+    steps:
+      - run: echo "All platform builds finished."
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    needs: build_complete
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            artifacts/windows-installer/UniversalNotesSetup-*.exe
+            artifacts/android-apk/universal_notes-v*.apk
+
+  pre-release:
+    if: github.event_name == 'push' && (github.ref_name == 'dev' || github.ref_name == 'beta')
+    runs-on: ubuntu-latest
+    needs: build_complete
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Delete existing latest tag and release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete ${{ github.ref_name }}-latest --yes || echo "Release not found, proceeding."
+          git push origin --delete ${{ github.ref_name }}-latest || echo "Tag not found, proceeding."
+      - name: Create or Update Pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}-latest
+          name: Pre-release ${{ github.ref_name }}
+          body: "Automated pre-release for the ${{ github.ref_name }} branch. [Commit: ${{ github.sha }}]"
+          prerelease: true
+          files: |
+            artifacts/windows-installer/UniversalNotesSetup-*.exe
+            artifacts/android-apk/universal_notes-v*.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
