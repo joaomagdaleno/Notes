@@ -80,6 +80,7 @@ jobs:
 
   build_windows:
     name: Build Windows
+    if: github.event_name == 'push'
     needs: quality
     runs-on: windows-latest
     steps:
@@ -124,6 +125,7 @@ jobs:
 
   build_android:
     name: Build Android
+    if: github.event_name == 'push'
     needs: quality
     runs-on: ubuntu-latest
     steps:
