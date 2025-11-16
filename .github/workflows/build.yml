@@ -22,11 +22,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
         with:
           fetch-depth: 0
       - name: Install Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
           flutter-version: '3.35.7'
           cache: true
@@ -43,7 +43,7 @@ jobs:
         run: dart pub outdated
       - name: TruffleHog OSS
         if: github.event_name == 'pull_request'
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@df31a0e53a1efa49f2396699d51254455bb81868 # main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Tests
@@ -64,7 +64,7 @@ jobs:
           echo "percentage=${COVERAGE}" >> $GITHUB_OUTPUT
       - name: Post coverage comment
         if: github.event_name == 'pull_request'
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2
         with:
           message: "📊 **Code Coverage:** `${{ steps.coverage.outputs.percentage }}%`"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -84,9 +84,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - name: Install Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
           flutter-version: '3.35.7'
       - name: Get base version from last tag
@@ -117,7 +117,7 @@ jobs:
           (Get-Content installer.iss) -replace '0\.1\.7', '${{ steps.version-win.outputs.base }}' | Set-Content installer.iss
           & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
       - name: Upload Installer Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: windows-installer
           path: Output/UniversalNotesSetup-*.exe
@@ -128,18 +128,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - name: Install Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
           flutter-version: '3.35.7'
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
         with:
           distribution: 'zulu'
           java-version: '17'
       - name: Restore Gradle cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.gradle/caches
@@ -181,7 +181,7 @@ jobs:
         run: |
           mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/universal_notes-v${{ steps.version.outputs.base }}.apk
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: android-apk
           path: universal_notes_flutter/build/app/outputs/flutter-apk/universal_notes-v*.apk
@@ -202,11 +202,11 @@ jobs:
       contents: write
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: artifacts
       - name: Create Release and Upload Assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
@@ -221,7 +221,7 @@ jobs:
       contents: write
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: artifacts
       - name: Delete existing latest tag and release
@@ -231,7 +231,7 @@ jobs:
           gh release delete ${{ github.ref_name }}-latest --yes || echo "Release not found, proceeding."
           git push origin --delete ${{ github.ref_name }}-latest || echo "Tag not found, proceeding."
       - name: Create or Update Pre-release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2
         with:
           tag_name: ${{ github.ref_name }}-latest
           name: Pre-release ${{ github.ref_name }}
