@@ -1,0 +1,34 @@
+name: Build & Release
+
+on:
+  push:
+    branches:
+      - dev
+      - beta
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - dev
+      - beta
+
+jobs:
+  quality_gate:
+    name: Quality Gate
+    uses: ./.github/workflows/quality-gate.yml
+    secrets: inherit
+
+  build:
+    name: Build & Package
+    if: github.event_name == 'push'
+    needs: quality_gate
+    uses: ./.github/workflows/build-and-package.yml
+    secrets: inherit
+
+  release:
+    name: Release
+    if: github.event_name == 'push'
+    needs: build
+    uses: ./.github/workflows/release.yml
+    secrets: inherit
