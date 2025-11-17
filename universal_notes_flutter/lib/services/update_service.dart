@@ -30,7 +30,9 @@ class UpdateCheckResult {
 /// A service for checking for updates.
 class UpdateService {
   /// Creates a new instance of [UpdateService].
-  UpdateService();
+  UpdateService({http.Client? client}) : _client = client ?? http.Client();
+
+  final http.Client _client;
 
   static const String _repo = 'joaomagdaleno/Notes';
 
@@ -42,8 +44,9 @@ class UpdateService {
       final currentVersion = packageInfo.version.split('+').first;
 
       // Fetch latest release from GitHub API
-      final url = Uri.parse('https://api.github.com/repos/$_repo/releases/latest');
-      final response = await http.get(url);
+      final url =
+          Uri.parse('https://api.github.com/repos/$_repo/releases/latest');
+      final response = await _client.get(url);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
