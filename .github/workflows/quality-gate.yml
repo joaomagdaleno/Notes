@@ -33,6 +33,11 @@ jobs:
       - name: Run Tests
         working-directory: universal_notes_flutter
         run: flutter test --coverage
+      - name: Show coverage report
+        run: |
+          echo "--- Coverage Report (lcov.info) ---"
+          cat universal_notes_flutter/coverage/lcov.info
+          echo "-------------------------------------"
       - name: Calculate code coverage
         id: coverage
         run: |
