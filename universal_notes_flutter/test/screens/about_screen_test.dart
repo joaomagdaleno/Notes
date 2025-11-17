@@ -17,6 +17,7 @@ void main() {
 
   testWidgets('AboutScreen builds', (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: AboutScreen()));
+    await tester.pumpAndSettle();
 
     // Verify that the screen shows the version number.
     expect(find.text('Versão atual: 1.0.0'), findsOneWidget);
