@@ -23,8 +23,6 @@ import 'package:universal_notes_flutter/services/update_service.dart' as _i2;
 // ignore_for_file: top_level_function_literal_block
 // ignore_for_file: avoid_unused_constructor_parameters
 // ignore_for_file: unused_import
-// ignore_for_file: invalid_use_of_visible_for_testing_member
-// ignore_for_file: prefer_const_constructors
 
 /// A class which mocks [UpdateService].
 ///

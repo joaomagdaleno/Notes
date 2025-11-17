@@ -3,13 +3,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 
-/// The repository for the notes.
-final noteRepository = NoteRepository();
-
 /// A repository for managing notes in a local database.
 class NoteRepository {
   /// Creates a new instance of [NoteRepository].
-  NoteRepository({this.dbPath});
+  NoteRepository._({this.dbPath});
+
+  /// The shared instance of the [NoteRepository].
+  static final NoteRepository instance = NoteRepository._();
 
   /// The path to the database. If null, the default path is used.
   final String? dbPath;

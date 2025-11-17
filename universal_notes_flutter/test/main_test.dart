@@ -11,7 +11,7 @@ void main() {
     // Use FFI database factory
     databaseFactory = databaseFactoryFfi;
     // Provide an in-memory database for testing
-    noteRepository.dbPath = inMemoryDatabasePath;
+    NoteRepository.instance.dbPath = inMemoryDatabasePath;
   });
 
   testWidgets('MyApp builds', (WidgetTester tester) async {
