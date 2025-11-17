@@ -12,7 +12,7 @@ class NoteRepository {
   static final NoteRepository instance = NoteRepository._();
 
   /// The path to the database. If null, the default path is used.
-  final String? dbPath;
+  String? dbPath;
 
   static const String _dbName = 'notes_database.db';
   static const String _tableName = 'notes';

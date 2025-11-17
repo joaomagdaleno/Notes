@@ -68,7 +68,7 @@ class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener>
 
   @override
   Future<void> onWindowClose() async {
-    await noteRepository.close();
+    await NoteRepository.instance.close();
     await windowManager.destroy();
   }
 }
@@ -162,7 +162,7 @@ class _NotesScreenState extends State<NotesScreen> {
 
   void _loadNotes() {
     setState(() {
-      _notesFuture = noteRepository.getAllNotes();
+      _notesFuture = NoteRepository.instance.getAllNotes();
     });
   }
 
@@ -177,10 +177,10 @@ class _NotesScreenState extends State<NotesScreen> {
     final index = notes.indexWhere((n) => n.id == note.id);
     Note savedNote;
     if (index != -1) {
-      await noteRepository.updateNote(note);
+      await NoteRepository.instance.updateNote(note);
       savedNote = note;
     } else {
-      final newId = await noteRepository.insertNote(note);
+      final newId = await NoteRepository.instance.insertNote(note);
       savedNote = note.copyWith(id: newId);
     }
     _loadNotes();
@@ -188,7 +188,7 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   Future<void> _deleteNote(Note note) async {
-    await noteRepository.deleteNote(note.id);
+    await NoteRepository.instance.deleteNote(note.id);
     _loadNotes();
   }
 

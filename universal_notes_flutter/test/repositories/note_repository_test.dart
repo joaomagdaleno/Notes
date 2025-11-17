@@ -16,7 +16,8 @@ void main() {
     late Note note;
 
     setUp(() {
-      noteRepository = NoteRepository(dbPath: inMemoryDatabasePath);
+      noteRepository = NoteRepository.instance;
+      noteRepository.dbPath = inMemoryDatabasePath;
       note = Note(
         title: 'Test Note',
         content: 'This is a test note.',
