@@ -223,23 +223,23 @@ jobs:
           echo "keyAlias=$UPLOAD_KEY_ALIAS" >> universal_notes_flutter/android/key.properties
           echo "storeFile=../app/upload-keystore.jks" >> universal_notes_flutter/android/key.properties
 
-      - name: Flutter Build AAB
+      - name: Flutter Build APK
         if: runner.os == 'Linux'
         working-directory: universal_notes_flutter
-        run: flutter build appbundle --release
+        run: flutter build apk --release --target-platform=android-arm64
 
-      - name: Rename AAB with version
+      - name: Rename APK with version
         if: runner.os == 'Linux'
         working-directory: universal_notes_flutter
         run: |
-          mv build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/universal_notes-v${{ steps.version.outputs.base }}.aab
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/universal_notes-v${{ steps.version.outputs.base }}.apk
 
-      - name: Upload AAB Artifact
+      - name: Upload APK Artifact
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
-          name: android-aab
-          path: universal_notes_flutter/build/app/outputs/bundle/release/universal_notes-v*.aab
+          name: android-apk
+          path: universal_notes_flutter/build/app/outputs/flutter-apk/universal_notes-v*.apk
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -259,7 +259,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             artifacts/windows-installer/UniversalNotesSetup-*.exe
-            artifacts/android-aab/universal_notes-v*.aab
+            artifacts/android-apk/universal_notes-v*.apk
           token: ${{ secrets.GITHUB_TOKEN }}
 
   security:

@@ -1,0 +1,111 @@
+name: Build and Package
+
+on:
+  workflow_call:
+
+jobs:
+  build_windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - name: Install Flutter
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
+        with:
+          flutter-version: '3.35.7'
+      - name: Get base version from last tag
+        id: version-win
+        shell: powershell
+        run: |
+          git fetch --tags --depth=1
+          $base = (git tag --sort=-version:refname | Select-Object -First 1) -replace '^v',''
+          if (-not $base) { $base = "0.0.0" }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$base"
+      - name: Bump pubspec version
+        shell: pwsh
+        working-directory: universal_notes_flutter
+        run: |
+          (Get-Content pubspec.yaml) -replace '^version:.*',"version: ${{ steps.version-win.outputs.base }}+${{ github.run_number }}" | Set-Content pubspec.yaml
+      - name: Flutter Pub Get
+        working-directory: universal_notes_flutter
+        run: flutter pub get
+      - name: Flutter Build Windows
+        working-directory: universal_notes_flutter
+        run: flutter build windows
+      - name: Install Inno Setup
+        run: |
+          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile is.exe
+          Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES" -Wait
+      - name: Build Installer
+        run: |
+          (Get-Content installer.iss) -replace '0\.1\.7', '${{ steps.version-win.outputs.base }}' | Set-Content installer.iss
+          & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-installer
+          path: Output/UniversalNotesSetup-*.exe
+
+  build_android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - name: Install Flutter
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
+        with:
+          flutter-version: '3.35.7'
+      - name: Setup Java
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Restore Gradle cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Get base version from last tag
+        id: version
+        run: |
+          git fetch --tags --depth=1
+          BASE=$(git tag --sort=-version:refname | head -n1)
+          BASE=${BASE#v}
+          echo "base=${BASE:-0.0.0}" >> $GITHUB_OUTPUT
+      - name: Bump pubspec version
+        working-directory: universal_notes_flutter
+        run: |
+          sed -i "s/^version:.*/version: ${{ steps.version.outputs.base }}+${GITHUB_RUN_NUMBER}/" pubspec.yaml
+      - name: Flutter Pub Get
+        working-directory: universal_notes_flutter
+        run: flutter pub get
+      - name: Setup Android Signing
+        env:
+          UPLOAD_SIGNING_KEY: ${{ secrets.UPLOAD_SIGNING_KEY }}
+          UPLOAD_STORE_PASSWORD: ${{ secrets.UPLOAD_STORE_PASSWORD }}
+          UPLOAD_KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
+          UPLOAD_KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
+        run: |
+          echo $UPLOAD_SIGNING_KEY | base64 --decode > universal_notes_flutter/android/app/upload-keystore.jks
+          echo "storePassword=$UPLOAD_STORE_PASSWORD" > universal_notes_flutter/android/key.properties
+          echo "keyPassword=$UPLOAD_KEY_PASSWORD" >> universal_notes_flutter/android/key.properties
+          echo "keyAlias=$UPLOAD_KEY_ALIAS" >> universal_notes_flutter/android/key.properties
+          echo "storeFile=../app/upload-keystore.jks" >> universal_notes_flutter/android/key.properties
+      - name: Flutter Build AAB
+        working-directory: universal_notes_flutter
+        run: flutter build appbundle --release
+      - name: Rename AAB with version
+        working-directory: universal_notes_flutter
+        run: |
+          mv build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/universal_notes-v${{ steps.version.outputs.base }}.aab
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: android-aab
+          path: universal_notes_flutter/build/app/outputs/bundle/release/universal_notes-v*.aab
