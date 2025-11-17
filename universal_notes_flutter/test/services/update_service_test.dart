@@ -6,7 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
 class TestUpdateService extends UpdateService {
-  TestUpdateService({http.Client? client}) : super(client: client);
+  TestUpdateService({super.client});
 
   @override
   String? getPlatformFileExtension() {
