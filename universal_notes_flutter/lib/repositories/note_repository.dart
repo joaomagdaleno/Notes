@@ -46,7 +46,9 @@ class NoteRepository {
         date INTEGER,
         isFavorite INTEGER,
         isLocked INTEGER,
-        isInTrash INTEGER
+        isInTrash INTEGER,
+        drawingJson TEXT,
+        prefsJson TEXT
       )
     ''');
   }
