@@ -8,6 +8,12 @@ final noteRepository = NoteRepository();
 
 /// A repository for managing notes in a local database.
 class NoteRepository {
+  /// Creates a new instance of [NoteRepository].
+  NoteRepository({this.dbPath});
+
+  /// The path to the database. If null, the default path is used.
+  final String? dbPath;
+
   static const String _dbName = 'notes_database.db';
   static const String _tableName = 'notes';
   Database? _database;
@@ -20,9 +26,14 @@ class NoteRepository {
   }
 
   Future<Database> _initDB() async {
-    final dir = await getApplicationSupportDirectory();
-    await dir.create(recursive: true);
-    final path = join(dir.path, _dbName);
+    String path;
+    if (dbPath != null) {
+      path = dbPath!;
+    } else {
+      final dir = await getApplicationSupportDirectory();
+      await dir.create(recursive: true);
+      path = join(dir.path, _dbName);
+    }
     return openDatabase(path, version: 1, onCreate: _createDB);
   }
 

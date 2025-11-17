@@ -58,12 +58,8 @@ class UpdateService {
 
         if (_isNewerVersion(latestVersion, currentVersion)) {
           if (assets != null && assets.isNotEmpty) {
-            final String fileExtension;
-            if (Platform.isWindows) {
-              fileExtension = '.exe';
-            } else if (Platform.isAndroid) {
-              fileExtension = '.apk';
-            } else {
+            final fileExtension = getPlatformFileExtension();
+            if (fileExtension == null) {
               // Platform not supported for updates, so no update is available.
               return UpdateCheckResult(UpdateCheckStatus.noUpdate);
             }
@@ -112,6 +108,17 @@ class UpdateService {
       return latest > current;
     } on Exception {
       return false;
+    }
+  }
+
+  /// Returns the file extension for the current platform.
+  String? getPlatformFileExtension() {
+    if (Platform.isWindows) {
+      return '.exe';
+    } else if (Platform.isAndroid) {
+      return '.apk';
+    } else {
+      return null;
     }
   }
 }

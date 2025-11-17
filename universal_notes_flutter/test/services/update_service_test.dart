@@ -1,17 +1,24 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
+class TestUpdateService extends UpdateService {
+  TestUpdateService({http.Client? client}) : super(client: client);
+
+  @override
+  String? getPlatformFileExtension() {
+    return '.apk';
+  }
+}
+
 void main() {
   group('UpdateService', () {
-    late UpdateService updateService;
+    late TestUpdateService updateService;
 
     setUp(() {
-      debugDefaultTargetPlatformOverride = TargetPlatform.android;
       PackageInfo.setMockInitialValues(
         appName: 'universal_notes',
         packageName: 'com.example.universal_notes',
@@ -20,10 +27,6 @@ void main() {
         buildSignature: '',
         installerStore: '',
       );
-    });
-
-    tearDown(() {
-      debugDefaultTargetPlatformOverride = null;
     });
 
     test(
@@ -41,7 +44,7 @@ void main() {
         };
         return http.Response(jsonEncode(response), 200);
       });
-      updateService = UpdateService(client: mockClient);
+      updateService = TestUpdateService(client: mockClient);
       final result = await updateService.checkForUpdate();
       expect(result.status, UpdateCheckStatus.updateAvailable);
       expect(result.updateInfo?.version, '1.0.1');
@@ -69,7 +72,7 @@ void main() {
         };
         return http.Response(jsonEncode(response), 200);
       });
-      updateService = UpdateService(client: mockClient);
+      updateService = TestUpdateService(client: mockClient);
       final result = await updateService.checkForUpdate();
       expect(result.status, UpdateCheckStatus.noUpdate);
     });
@@ -78,7 +81,7 @@ void main() {
       final mockClient = MockClient((request) async {
         return http.Response('Server Error', 500);
       });
-      updateService = UpdateService(client: mockClient);
+      updateService = TestUpdateService(client: mockClient);
       final result = await updateService.checkForUpdate();
       expect(result.status, UpdateCheckStatus.error);
     });
