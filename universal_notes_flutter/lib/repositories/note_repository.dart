@@ -3,11 +3,17 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 
-/// The repository for the notes.
-final noteRepository = NoteRepository();
-
 /// A repository for managing notes in a local database.
 class NoteRepository {
+  /// Creates a new instance of [NoteRepository].
+  NoteRepository._({this.dbPath});
+
+  /// The shared instance of the [NoteRepository].
+  static final NoteRepository instance = NoteRepository._();
+
+  /// The path to the database. If null, the default path is used.
+  String? dbPath;
+
   static const String _dbName = 'notes_database.db';
   static const String _tableName = 'notes';
   Database? _database;
@@ -20,9 +26,14 @@ class NoteRepository {
   }
 
   Future<Database> _initDB() async {
-    final dir = await getApplicationSupportDirectory();
-    await dir.create(recursive: true);
-    final path = join(dir.path, _dbName);
+    String path;
+    if (dbPath != null) {
+      path = dbPath!;
+    } else {
+      final dir = await getApplicationSupportDirectory();
+      await dir.create(recursive: true);
+      path = join(dir.path, _dbName);
+    }
     return openDatabase(path, version: 1, onCreate: _createDB);
   }
 
@@ -35,7 +46,9 @@ class NoteRepository {
         date INTEGER,
         isFavorite INTEGER,
         isLocked INTEGER,
-        isInTrash INTEGER
+        isInTrash INTEGER,
+        drawingJson TEXT,
+        prefsJson TEXT
       )
     ''');
   }
