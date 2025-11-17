@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 // This file is used to generate coverage reports.
 // It imports all the files in the lib folder.
 
