@@ -41,8 +41,8 @@ jobs:
       - name: Calculate code coverage
         id: coverage
         run: |
-          HIT=$(grep "^LH:" universal_notes_flutter/coverage/lcov.info | awk '{s+=$1} END {print s}' FS=":")
-          FOUND=$(grep "^LF:" universal_notes_flutter/coverage/lcov.info | awk '{s+=$1} END {print s}' FS=":")
+          HIT=$(grep "^LH:" universal_notes_flutter/coverage/lcov.info | awk '{s+=$2} END {print s}' FS=":")
+          FOUND=$(grep "^LF:" universal_notes_flutter/coverage/lcov.info | awk '{s+=$2} END {print s}' FS=":")
           if [ "$FOUND" -eq 0 ]; then
             COVERAGE="0.0"
           else
