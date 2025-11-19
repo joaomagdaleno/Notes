@@ -14,7 +14,6 @@ class MockUpdateService extends UpdateService {
 }
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() {
     // Initialize FFI
     sqfliteFfiInit();
@@ -34,7 +33,7 @@ void main() {
 
   setUp(() async {
     // Clear the database before each test
-    await NoteRepository.instance.deleteAllNotes();
+    await NoteRepository.instance.close();
   });
 
   testWidgets('MyApp builds', (WidgetTester tester) async {
@@ -45,13 +44,7 @@ void main() {
   });
 
   testWidgets('NotesScreen displays notes', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: NotesScreen(
-          updateService: MockUpdateService(),
-        ),
-      ),
-    );
+    await tester.pumpWidget(const MaterialApp(home: NotesScreen()));
     // Pump once to trigger the FutureBuilder's initial state (loading).
     // Then pump again to resolve the future and build the final UI.
     await tester.pump();

@@ -27,9 +27,7 @@ class NoteRepository {
 
   Future<Database> _initDB() async {
     String path;
-    if (dbPath == inMemoryDatabasePath) {
-      path = inMemoryDatabasePath;
-    } else if (dbPath != null) {
+    if (dbPath != null) {
       path = dbPath!;
     } else {
       final dir = await getApplicationSupportDirectory();
@@ -94,12 +92,6 @@ class NoteRepository {
       where: 'id = ?',
       whereArgs: [id],
     );
-  }
-
-  /// Deletes all notes from the database.
-  Future<void> deleteAllNotes() async {
-    final db = await database;
-    await db.delete(_tableName);
   }
 
   /// Closes the database.
