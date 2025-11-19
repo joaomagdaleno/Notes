@@ -8,7 +8,6 @@ import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'update_helper_test.mocks.dart';
 
 @GenerateMocks([UpdateService])
-
 void main() {
   group('UpdateHelper', () {
     late MockUpdateService mockUpdateService;
@@ -17,8 +16,9 @@ void main() {
       mockUpdateService = MockUpdateService();
     });
 
-    testWidgets('shows update dialog when update is available',
-        (WidgetTester tester) async {
+    testWidgets('shows update dialog when update is available', (
+      WidgetTester tester,
+    ) async {
       when(mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.updateAvailable,
@@ -34,7 +34,10 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) => ElevatedButton(
-                onPressed: () => UpdateHelper.checkForUpdate(context),
+                onPressed: () => UpdateHelper.checkForUpdate(
+                  context,
+                  updateService: mockUpdateService,
+                ),
                 child: const Text('Check for Update'),
               ),
             ),

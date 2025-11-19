@@ -7,7 +7,7 @@ void main() {
   testWidgets('NoteCard displays note', (WidgetTester tester) async {
     final note = Note(
       title: 'Test Note',
-      content: r'{"insert":"This is a test note.\n"}',
+      content: r'[{"insert":"This is a test note.\n"}]',
       date: DateTime.now(),
     );
 

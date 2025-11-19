@@ -13,6 +13,7 @@ class UpdateHelper {
   static Future<void> checkForUpdate(
     BuildContext context, {
     bool isManual = false,
+    UpdateService? updateService,
   }) async {
     if (isManual) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -20,8 +21,8 @@ class UpdateHelper {
       );
     }
 
-    final updateService = UpdateService();
-    final result = await updateService.checkForUpdate();
+    final service = updateService ?? UpdateService();
+    final result = await service.checkForUpdate();
 
     if (!context.mounted) return;
 
@@ -44,8 +45,9 @@ class UpdateHelper {
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content:
-                  Text(result.errorMessage ?? 'Ocorreu um erro desconhecido.'),
+              content: Text(
+                result.errorMessage ?? 'Ocorreu um erro desconhecido.',
+              ),
             ),
           );
         }
@@ -97,8 +99,10 @@ class UpdateHelper {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Permissão para instalar pacotes é necessária para a '
-                'atualização.'),
+            content: Text(
+              'Permissão para instalar pacotes é necessária para a '
+              'atualização.',
+            ),
           ),
         );
       }
