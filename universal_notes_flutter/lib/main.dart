@@ -155,8 +155,10 @@ class _NotesScreenState extends State<NotesScreen> {
     _loadNotes();
     // Use a post-frame callback to ensure the Scaffold is available.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Check for updates on all platforms
-      await UpdateHelper.checkForUpdate(context);
+      // Check for updates on all platforms, but not in a test environment
+      if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+        await UpdateHelper.checkForUpdate(context);
+      }
     });
   }
 
