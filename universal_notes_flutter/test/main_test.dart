@@ -14,6 +14,7 @@ class MockUpdateService extends UpdateService {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() {
     // Initialize FFI
     sqfliteFfiInit();
@@ -48,7 +49,8 @@ void main() {
     );
     // Pump once to trigger the FutureBuilder's initial state (loading).
     // Then pump again to resolve the future and build the final UI.
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
 
     // Verify that the "No notes found" message is displayed.
     expect(find.text('Nenhuma nota encontrada.'), findsOneWidget);
