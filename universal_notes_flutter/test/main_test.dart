@@ -4,6 +4,14 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/services/update_service.dart';
+
+class MockUpdateService extends UpdateService {
+  @override
+  Future<UpdateCheckResult> checkForUpdate() async {
+    return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+  }
+}
 
 void main() {
   setUpAll(() {
