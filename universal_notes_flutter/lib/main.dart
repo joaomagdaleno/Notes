@@ -13,6 +13,7 @@ import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:universal_notes_flutter/services/update_service.dart';
 
 /// The different view modes for the notes screen.
 enum ViewMode {
@@ -137,7 +138,13 @@ class MyApp extends StatelessWidget {
 /// The main screen that displays the list of notes.
 class NotesScreen extends StatefulWidget {
   /// Creates a new instance of [NotesScreen].
-  const NotesScreen({super.key});
+  const NotesScreen({
+    super.key,
+    this.updateService,
+  });
+
+  /// The service to use for checking for updates.
+  final UpdateService? updateService;
 
   @override
   State<NotesScreen> createState() => _NotesScreenState();
@@ -155,10 +162,11 @@ class _NotesScreenState extends State<NotesScreen> {
     _loadNotes();
     // Use a post-frame callback to ensure the Scaffold is available.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Check for updates on all platforms, but not in a test environment
-      if (!Platform.environment.containsKey('FLUTTER_TEST')) {
-        await UpdateHelper.checkForUpdate(context);
-      }
+      // Check for updates on all platforms
+      await UpdateHelper.checkForUpdate(
+        context,
+        updateService: widget.updateService,
+      );
     });
   }
 
