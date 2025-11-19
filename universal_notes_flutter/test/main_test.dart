@@ -6,13 +6,6 @@ import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
-class MockUpdateService extends UpdateService {
-  @override
-  Future<UpdateCheckResult> checkForUpdate() async {
-    return UpdateCheckResult(UpdateCheckStatus.noUpdate);
-  }
-}
-
 void main() {
   setUpAll(() {
     // Initialize FFI
@@ -44,7 +37,20 @@ void main() {
   });
 
   testWidgets('NotesScreen displays notes', (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(home: NotesScreen()));
+    class MockUpdateService extends UpdateService {
+      @override
+      Future<UpdateCheckResult> checkForUpdate() async {
+        return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+      }
+    }
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NotesScreen(
+          updateService: MockUpdateService(),
+        ),
+      ),
+    );
     // Pump once to trigger the FutureBuilder's initial state (loading).
     // Then pump again to resolve the future and build the final UI.
     await tester.pump();
