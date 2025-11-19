@@ -27,7 +27,9 @@ class NoteRepository {
 
   Future<Database> _initDB() async {
     String path;
-    if (dbPath != null) {
+    if (dbPath == inMemoryDatabasePath) {
+      path = inMemoryDatabasePath;
+    } else if (dbPath != null) {
       path = dbPath!;
     } else {
       final dir = await getApplicationSupportDirectory();
