@@ -96,6 +96,12 @@ class NoteRepository {
     );
   }
 
+  /// Deletes all notes from the database.
+  Future<void> deleteAllNotes() async {
+    final db = await database;
+    await db.delete(_tableName);
+  }
+
   /// Closes the database.
   Future<void> close() async {
     final db = await database;

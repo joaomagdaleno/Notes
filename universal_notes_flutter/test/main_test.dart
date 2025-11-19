@@ -32,6 +32,11 @@ void main() {
     );
   });
 
+  setUp(() async {
+    // Clear the database before each test
+    await NoteRepository.instance.deleteAllNotes();
+  });
+
   testWidgets('MyApp builds', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
 
