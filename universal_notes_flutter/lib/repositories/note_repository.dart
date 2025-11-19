@@ -6,7 +6,7 @@ import 'package:universal_notes_flutter/models/note.dart';
 /// A repository for managing notes in a local database.
 class NoteRepository {
   /// Creates a new instance of [NoteRepository].
-  NoteRepository._({this.dbPath});
+  NoteRepository._();
 
   /// The shared instance of the [NoteRepository].
   static final NoteRepository instance = NoteRepository._();

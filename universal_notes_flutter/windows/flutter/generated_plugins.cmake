@@ -3,12 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  file_selector_windows
-  gal
-  irondash_engine_context
   permission_handler_windows
-  screen_retriever
-  super_native_extensions
+  screen_retriever_windows
   url_launcher_windows
   window_manager
 )
