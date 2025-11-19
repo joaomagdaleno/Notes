@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -12,6 +13,14 @@ void main() {
     databaseFactory = databaseFactoryFfi;
     // Provide an in-memory database for testing
     NoteRepository.instance.dbPath = inMemoryDatabasePath;
+
+    PackageInfo.setMockInitialValues(
+      appName: 'Universal Notes',
+      packageName: 'com.example.universal_notes_flutter',
+      version: '1.0.0',
+      buildNumber: '1',
+      buildSignature: '',
+    );
   });
 
   testWidgets('MyApp builds', (WidgetTester tester) async {
