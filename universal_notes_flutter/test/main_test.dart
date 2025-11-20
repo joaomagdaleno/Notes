@@ -6,8 +6,7 @@ import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
-// Mock class for testing purposes.
-// ignore: unreachable_from_main
+// ignore: unreachable_from_main, Mock class for testing purposes.
 class MockUpdateService extends UpdateService {
   @override
   Future<UpdateCheckResult> checkForUpdate() async {
@@ -23,7 +22,6 @@ void main() {
     databaseFactory = databaseFactoryFfi;
     // Provide an in-memory database for testing
     NoteRepository.instance.dbPath = inMemoryDatabasePath;
-    addTearDown(NoteRepository.instance.close);
 
     PackageInfo.setMockInitialValues(
       appName: 'Universal Notes',
@@ -32,6 +30,11 @@ void main() {
       buildNumber: '1',
       buildSignature: '',
     );
+  });
+
+  setUp(() async {
+    // Close the database before each test to ensure a clean state
+    await NoteRepository.instance.close();
   });
 
   testWidgets('MyApp builds', (WidgetTester tester) async {
