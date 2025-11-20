@@ -525,9 +525,11 @@ class _NotesScreenState extends State<NotesScreen> {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('Nenhuma nota encontrada.'));
         }
 
-        final allNotes = snapshot.data ?? [];
+        final allNotes = snapshot.data!;
         List<Note> visibleNotes;
 
         switch (_selectedIndex) {
@@ -538,10 +540,6 @@ class _NotesScreenState extends State<NotesScreen> {
             visibleNotes = allNotes.where((n) => n.isInTrash).toList();
           default: // All notes
             visibleNotes = allNotes.where((n) => !n.isInTrash).toList();
-        }
-
-        if (visibleNotes.isEmpty) {
-          return const Center(child: Text('Nenhuma nota encontrada.'));
         }
 
         return LayoutBuilder(

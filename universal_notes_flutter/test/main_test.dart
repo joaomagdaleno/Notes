@@ -15,6 +15,9 @@ class MockUpdateService extends UpdateService {
 }
 
 void main() {
+  // This is the solution to the test hanging issue.
+  // It ensures that the Flutter binding is initialized before any tests are run.
+  TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() {
     // Initialize FFI
     sqfliteFfiInit();
