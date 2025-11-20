@@ -51,7 +51,8 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: NotesScreen()));
     // Pump once to trigger the FutureBuilder's initial state (loading).
     await tester.pump();
-    // Pump again with zero duration to resolve the future and build the final UI.
+    // Pump again with zero duration to resolve the future
+    // and build the final UI.
     await tester.pump(Duration.zero);
 
     // Verify that the "No notes found" message is displayed.
