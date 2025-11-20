@@ -6,6 +6,7 @@ import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
+// ignore: unreachable_from_main, Mock class for testing purposes.
 class MockUpdateService extends UpdateService {
   @override
   Future<UpdateCheckResult> checkForUpdate() async {
@@ -29,6 +30,11 @@ void main() {
       buildNumber: '1',
       buildSignature: '',
     );
+  });
+
+  setUp(() async {
+    // Close the database before each test to ensure a clean state
+    await NoteRepository.instance.close();
   });
 
   testWidgets('MyApp builds', (WidgetTester tester) async {
