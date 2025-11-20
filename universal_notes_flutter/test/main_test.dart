@@ -38,6 +38,8 @@ void main() {
   setUp(() async {
     // Close the database before each test to ensure a clean state
     await NoteRepository.instance.close();
+    // Re-assign the dbPath to ensure a fresh in-memory database for each test.
+    NoteRepository.instance.dbPath = inMemoryDatabasePath;
   });
 
   testWidgets('MyApp builds', (WidgetTester tester) async {
