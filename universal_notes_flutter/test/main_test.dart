@@ -49,10 +49,8 @@ void main() {
 
   testWidgets('NotesScreen displays notes', (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: NotesScreen()));
-    // Pump once to trigger the FutureBuilder's initial state (loading).
-    // Then pump again to resolve the future and build the final UI.
-    await tester.pump();
-    await tester.pump();
+    // Wait for all animations and asynchronous operations to complete.
+    await tester.pumpAndSettle();
 
     // Verify that the "No notes found" message is displayed.
     expect(find.text('Nenhuma nota encontrada.'), findsOneWidget);
