@@ -50,13 +50,11 @@ void main() {
   });
 
   testWidgets('NotesScreen displays notes', (WidgetTester tester) async {
-    // Ensure the database is empty before the test runs.
-    final notes = await NoteRepository.instance.getAllNotes();
-    for (final note in notes) {
-      await NoteRepository.instance.deleteNote(note.id);
-    }
-
-    await tester.pumpWidget(const MaterialApp(home: NotesScreen()));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NotesScreen(updateService: MockUpdateService()),
+      ),
+    );
     // Pump once to trigger the FutureBuilder's initial state (loading).
     await tester.pump();
     // Pump again with zero duration to resolve the future
