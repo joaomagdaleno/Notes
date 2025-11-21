@@ -49,10 +49,10 @@ void main() {
     await tester.tap(
       find.descendant(
         of: find.byKey(const ValueKey('tile_under_test')),
-        matching: find.byType(InkWell),
-      ).first,
+        matching: find.byType(ListTile),
+      ),
     );
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(tapped, isTrue);
   });
