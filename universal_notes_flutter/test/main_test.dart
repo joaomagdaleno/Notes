@@ -6,7 +6,7 @@ import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
-// ignore: unreachable_from_main, Mock class for testing purposes.
+// Mock class for testing purposes.
 class MockUpdateService extends UpdateService {
   @override
   Future<UpdateCheckResult> checkForUpdate() async {
