@@ -7,9 +7,7 @@ import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
-// This mock is required for the test but isn't referenced from the main
-// function, which would normally cause an "unreachable_from_main" lint error.
-// ignore: unreachable_from_main
+// Mock class for testing purposes.
 class MockUpdateService extends UpdateService {
   @override
   Future<UpdateCheckResult> checkForUpdate() async {
@@ -17,33 +15,10 @@ class MockUpdateService extends UpdateService {
   }
 }
 
-// This mock is required for the test but isn't referenced from the main
-// function, which would normally cause an "unreachable_from_main" lint error.
-// ignore: unreachable_from_main
-class NotesScreenMock extends NotesScreen {
-  final Future<List<Note>> mockNotes;
-
-  const NotesScreenMock({
-    required this.mockNotes,
-    super.updateService,
-  });
-
-  @override
-  State<NotesScreen> createState() => _NotesScreenMockState();
-}
-
-// This mock is required for the test but isn't referenced from the main
-// function, which would normally cause an "unreachable_from_main" lint error.
-// ignore: unreachable_from_main
-class _NotesScreenMockState extends _NotesScreenState {
-  @override
-  void initState() {
-    _notesFuture = (widget as NotesScreenMock).mockNotes;
-    super.initState();
-  }
-}
-
 void main() {
+  // Solves test hanging issues by ensuring the Flutter binding is initialized.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   setUpAll(() {
     // Initialize FFI
     sqfliteFfiInit();
@@ -76,8 +51,8 @@ void main() {
   testWidgets('NotesScreen displays notes', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: NotesScreenMock(
-          mockNotes: Future.value([]),
+        home: NotesScreen(
+          notesFuture: Future.value(<Note>[]),
           updateService: MockUpdateService(),
         ),
       ),
@@ -86,6 +61,7 @@ void main() {
     await tester.pump();
     await tester.pump(Duration.zero);
 
+    // Verify that the "No notes found" message is displayed.
     expect(find.text('Nenhuma nota encontrada.'), findsOneWidget);
   });
 }
