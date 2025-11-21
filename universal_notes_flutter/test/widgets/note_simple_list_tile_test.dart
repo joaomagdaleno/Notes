@@ -34,6 +34,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: NoteSimpleListTile(
+            key: const ValueKey('tile_under_test'),
             note: note,
             onDelete: (note) {},
             onSave: (note) async => note,
@@ -45,7 +46,12 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byType(InkWell));
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('tile_under_test')),
+        matching: find.byType(InkWell),
+      ),
+    );
     await tester.pump();
 
     expect(tapped, isTrue);
