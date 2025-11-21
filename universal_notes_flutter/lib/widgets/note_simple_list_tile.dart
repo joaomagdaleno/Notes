@@ -37,7 +37,7 @@ class NoteSimpleListTile extends StatelessWidget {
           onDelete: onDelete,
         );
       },
-      child: ListTile(
+      child: InkWell(
         onTap: onTap ??
             () async {
               await Navigator.of(context).push(
@@ -49,14 +49,16 @@ class NoteSimpleListTile extends StatelessWidget {
                 ),
               );
             },
-        leading: Container(
-          width: 40,
-          height: 40,
+        child: ListTile(
+          leading: Container(
+            width: 40,
+            height: 40,
           color: Colors.grey[300],
           child: const Icon(Icons.image_outlined, color: Colors.grey),
         ),
         title: Text(note.title),
         trailing: Text(DateFormat('d MMM').format(note.date)),
+        ),
       ),
     );
   }
