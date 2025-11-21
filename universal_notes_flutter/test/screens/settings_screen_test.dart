@@ -1,4 +1,3 @@
-// try-finally fix applied – debug variable restored
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

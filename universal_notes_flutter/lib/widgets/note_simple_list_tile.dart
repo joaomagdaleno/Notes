@@ -27,6 +27,7 @@ class NoteSimpleListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap ??
           () async {
             await Navigator.of(context).push(

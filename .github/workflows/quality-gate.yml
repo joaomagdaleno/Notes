@@ -30,9 +30,6 @@ jobs:
         uses: trufflesecurity/trufflehog@df31a0e53a1efa49f2396699d51254455bb81868 # main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: DEBUG – show settings_screen_test.dart
-        working-directory: universal_notes_flutter
-        run: cat test/screens/settings_screen_test.dart
       - name: Run Tests
         working-directory: universal_notes_flutter
         run: flutter test --coverage
