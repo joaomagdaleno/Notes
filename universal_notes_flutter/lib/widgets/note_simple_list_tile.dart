@@ -49,6 +49,10 @@ class NoteSimpleListTile extends StatelessWidget {
               );
             },
         child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
           leading: Container(
             width: 40,
             height: 40,

@@ -34,6 +34,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: NoteSimpleListTile(
+            key: const ValueKey('tile_under_test'),
             note: note,
             onDelete: (note) {},
             onSave: (note) async => note,
@@ -45,8 +46,8 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byType(NoteSimpleListTile));
-    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('tile_under_test')));
+    await tester.pumpAndSettle();
 
     expect(tapped, isTrue);
   });
