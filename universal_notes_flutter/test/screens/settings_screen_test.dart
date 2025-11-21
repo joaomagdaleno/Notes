@@ -10,57 +10,57 @@ void main() {
     testWidgets('builds Material UI on Android', (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      addTearDown(() {
+
+      try {
+        await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
+        await tester.pumpAndSettle();
+        expect(find.byType(Scaffold), findsOneWidget);
+      } finally {
         debugDefaultTargetPlatformOverride = original;
-      });
-
-      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(Scaffold), findsOneWidget);
+      }
     });
 
     testWidgets('navigates to AboutScreen on Android',
         (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      addTearDown(() {
+
+      try {
+        await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
+        await tester.tap(find.text('Sobre'));
+        await tester.pumpAndSettle();
+        expect(find.byType(AboutScreen), findsOneWidget);
+      } finally {
         debugDefaultTargetPlatformOverride = original;
-      });
-
-      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
-      await tester.tap(find.text('Sobre'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(AboutScreen), findsOneWidget);
+      }
     });
 
     testWidgets('builds Fluent UI on Windows', (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      addTearDown(() {
+
+      try {
+        await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
+        await tester.pumpAndSettle();
+        expect(find.byType(fluent.ScaffoldPage), findsOneWidget);
+      } finally {
         debugDefaultTargetPlatformOverride = original;
-      });
-
-      await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(fluent.ScaffoldPage), findsOneWidget);
+      }
     });
 
     testWidgets('navigates to AboutScreen on Windows',
         (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      addTearDown(() {
+
+      try {
+        await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
+        await tester.tap(find.text('Sobre'));
+        await tester.pumpAndSettle();
+        expect(find.byType(AboutScreen), findsOneWidget);
+      } finally {
         debugDefaultTargetPlatformOverride = original;
-      });
-
-      await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
-      await tester.tap(find.text('Sobre'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(AboutScreen), findsOneWidget);
+      }
     });
   });
 }
