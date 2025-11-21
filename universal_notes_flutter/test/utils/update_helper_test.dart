@@ -17,7 +17,7 @@ void main() {
     });
 
     // Helper widget to test the UpdateHelper functionality
-    Widget buildTestApp(bool isManualCheck) {
+    Widget buildTestApp({required bool isManualCheck}) {
       return MaterialApp(
         home: Scaffold(
           body: Builder(
@@ -47,7 +47,7 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(buildTestApp(true));
+      await tester.pumpWidget(buildTestApp(isManualCheck: true));
 
       await tester.tap(find.text('Check for Update'));
       await tester.pump(); // Show "Verificando..."
@@ -65,7 +65,7 @@ void main() {
       when(mockUpdateService.checkForUpdate()).thenAnswer(
           (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
 
-      await tester.pumpWidget(buildTestApp(true));
+      await tester.pumpWidget(buildTestApp(isManualCheck: true));
 
       await tester.tap(find.text('Check for Update'));
       await tester.pumpAndSettle();
@@ -82,7 +82,7 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(buildTestApp(true));
+      await tester.pumpWidget(buildTestApp(isManualCheck: true));
 
       await tester.tap(find.text('Check for Update'));
       await tester.pumpAndSettle();
@@ -96,7 +96,7 @@ void main() {
       when(mockUpdateService.checkForUpdate()).thenAnswer(
           (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
 
-      await tester.pumpWidget(buildTestApp(false));
+      await tester.pumpWidget(buildTestApp(isManualCheck: false));
 
       await tester.tap(find.text('Check for Update'));
       await tester.pumpAndSettle();
