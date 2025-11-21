@@ -36,31 +36,33 @@ class NoteSimpleListTile extends StatelessWidget {
           onDelete: onDelete,
         );
       },
-      child: InkWell(
-        onTap: onTap ??
-            () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (context) => NoteEditorScreen(
-                    note: note,
-                    onSave: onSave,
+      child: Container(
+        child: InkWell(
+          onTap: onTap ??
+              () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => NoteEditorScreen(
+                      note: note,
+                      onSave: onSave,
+                    ),
                   ),
-                ),
-              );
-            },
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
+                );
+              },
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
+            leading: Container(
+              width: 40,
+              height: 40,
+              color: Colors.grey[300],
+              child: const Icon(Icons.image_outlined, color: Colors.grey),
+            ),
+            title: Text(note.title),
+            trailing: Text(DateFormat('d MMM').format(note.date)),
           ),
-          leading: Container(
-            width: 40,
-            height: 40,
-            color: Colors.grey[300],
-            child: const Icon(Icons.image_outlined, color: Colors.grey),
-          ),
-          title: Text(note.title),
-          trailing: Text(DateFormat('d MMM').format(note.date)),
         ),
       ),
     );
