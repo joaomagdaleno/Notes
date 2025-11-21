@@ -28,17 +28,6 @@ class NoteSimpleListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap ??
-          () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (context) => NoteEditorScreen(
-                  note: note,
-                  onSave: onSave,
-                ),
-              ),
-            );
-          },
       onLongPressDown: (details) async {
         await ContextMenuHelper.showContextMenu(
           context: context,
@@ -49,6 +38,17 @@ class NoteSimpleListTile extends StatelessWidget {
         );
       },
       child: ListTile(
+        onTap: onTap ??
+            () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (context) => NoteEditorScreen(
+                    note: note,
+                    onSave: onSave,
+                  ),
+                ),
+              );
+            },
         leading: Container(
           width: 40,
           height: 40,
