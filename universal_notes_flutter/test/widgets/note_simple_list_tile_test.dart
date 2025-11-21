@@ -11,8 +11,7 @@ void main() {
     date: DateTime.now(),
   );
 
-  testWidgets('NoteSimpleListTile displays title and date',
-      (WidgetTester tester) async {
+  testWidgets('NoteSimpleListTile displays title', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(

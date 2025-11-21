@@ -13,7 +13,6 @@ void main() {
 
   testWidgets('NoteEditorScreen builds without crashing',
       (WidgetTester tester) async {
-    // Build our app and trigger a frame.
     await tester.pumpWidget(MaterialApp(
       home: NoteEditorScreen(
         note: mockNote,
@@ -21,7 +20,6 @@ void main() {
       ),
     ));
 
-    // Verify that our screen is rendered.
     expect(find.byType(NoteEditorScreen), findsOneWidget);
   });
 }
