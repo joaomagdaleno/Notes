@@ -7,14 +7,14 @@ import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 void main() {
   group('FluentNoteCard', () {
     final noteWithValidContent = Note(
-      id: 1,
+      id: '1',
       title: 'Test Note',
-      content: '[{"insert":"This is a test note.\\n"}]',
+      content: r'[{"insert":"This is a test note.\n"}]',
       date: DateTime.now(),
     );
 
     final noteWithInvalidContent = Note(
-      id: 2,
+      id: '2',
       title: 'Test Note 2',
       content: 'invalid json',
       date: DateTime.now(),

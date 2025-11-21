@@ -35,7 +35,7 @@ void main() {
     }
 
     testWidgets(
-        'shows "checking" snackbar and then update dialog when update is available (manual)',
+        'shows update dialog when update is available (manual check)',
         (WidgetTester tester) async {
       when(mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
@@ -59,10 +59,11 @@ void main() {
       expect(find.text('Atualização Disponível'), findsOneWidget);
     });
 
-    testWidgets('shows "no update" snackbar when no update is available (manual)',
+    testWidgets(
+        'shows "no update" snackbar on manual check',
         (WidgetTester tester) async {
-      when(mockUpdateService.checkForUpdate())
-          .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+          (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
 
       await tester.pumpWidget(buildTestApp(true));
 
@@ -72,7 +73,8 @@ void main() {
       expect(find.text('Você já tem a versão mais recente.'), findsOneWidget);
     });
 
-    testWidgets('shows error snackbar on error (manual)', (WidgetTester tester) async {
+    testWidgets('shows error snackbar on error (manual)',
+        (WidgetTester tester) async {
       when(mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.error,
@@ -88,10 +90,11 @@ void main() {
       expect(find.text('Failed to check'), findsOneWidget);
     });
 
-    testWidgets('shows nothing when no update is available (automatic)',
+    testWidgets(
+        'shows nothing when no update is available (automatic)',
         (WidgetTester tester) async {
-      when(mockUpdateService.checkForUpdate())
-          .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+          (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
 
       await tester.pumpWidget(buildTestApp(false));
 

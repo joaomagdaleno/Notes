@@ -5,7 +5,7 @@ import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 
 void main() {
   final mockNote = Note(
-    id: 1,
+    id: '1',
     title: 'Test',
     content: 'Test content',
     date: DateTime.now(),
