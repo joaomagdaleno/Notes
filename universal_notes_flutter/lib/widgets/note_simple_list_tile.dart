@@ -11,6 +11,7 @@ class NoteSimpleListTile extends StatelessWidget {
     required this.note,
     required this.onSave,
     required this.onDelete,
+    this.onTap,
     super.key,
   });
   /// The note to display.
@@ -19,20 +20,25 @@ class NoteSimpleListTile extends StatelessWidget {
   final Future<Note> Function(Note) onSave;
   /// The function to call when the note is deleted.
   final void Function(Note) onDelete;
+  /// The function to call when the widget is tapped.
+  /// If null, it will navigate to the [NoteEditorScreen].
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        await Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (context) => NoteEditorScreen(
-              note: note,
-              onSave: onSave,
-            ),
-          ),
-        );
-      },
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap ??
+          () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => NoteEditorScreen(
+                  note: note,
+                  onSave: onSave,
+                ),
+              ),
+            );
+          },
       onLongPressDown: (details) async {
         await ContextMenuHelper.showContextMenu(
           context: context,

@@ -33,6 +33,16 @@ jobs:
       - name: Run Tests
         working-directory: universal_notes_flutter
         run: flutter test --coverage
+      - name: Generate HTML coverage report
+        working-directory: universal_notes_flutter
+        run: |
+          sudo apt-get install -y lcov
+          genhtml coverage/lcov.info -o coverage/html
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: universal_notes_flutter/coverage/html
       - name: Show coverage report
         run: |
           echo "--- Coverage Report (lcov.info) ---"
