@@ -45,12 +45,7 @@ void main() {
       ),
     );
 
-    await tester.tap(
-      find.ancestor(
-        of: find.byType(ListTile),
-        matching: find.byType(InkWell),
-      ),
-    );
+    await tester.tap(find.byType(ListTile));
     await tester.pumpAndSettle();
 
     expect(tapped, isTrue);
