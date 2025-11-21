@@ -50,7 +50,7 @@ void main() {
       find.descendant(
         of: find.byKey(const ValueKey('tile_under_test')),
         matching: find.byType(InkWell),
-      ),
+      ).first,
     );
     await tester.pump();
 
