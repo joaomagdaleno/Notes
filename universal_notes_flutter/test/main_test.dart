@@ -3,11 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/main.dart';
-import 'package:universal_notes_flutter/models/note_model.dart';
+import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
-// Mock class for testing purposes.
+// This mock is required for the test but isn't referenced from the main
+// function, which would normally cause an "unreachable_from_main" lint error.
+// ignore: unreachable_from_main
 class MockUpdateService extends UpdateService {
   @override
   Future<UpdateCheckResult> checkForUpdate() async {
@@ -18,15 +20,30 @@ class MockUpdateService extends UpdateService {
 // This mock is required for the test but isn't referenced from the main
 // function, which would normally cause an "unreachable_from_main" lint error.
 // ignore: unreachable_from_main
-class MockNoteRepository extends NoteRepository {
+class NotesScreenMock extends NotesScreen {
+  final Future<List<Note>> mockNotes;
+
+  const NotesScreenMock({
+    required this.mockNotes,
+    super.updateService,
+  });
+
   @override
-  Future<List<Note>> getAllNotes() async => [];
+  State<NotesScreen> createState() => _NotesScreenMockState();
+}
+
+// This mock is required for the test but isn't referenced from the main
+// function, which would normally cause an "unreachable_from_main" lint error.
+// ignore: unreachable_from_main
+class _NotesScreenMockState extends _NotesScreenState {
+  @override
+  void initState() {
+    _notesFuture = (widget as NotesScreenMock).mockNotes;
+    super.initState();
+  }
 }
 
 void main() {
-  // Solves the test hanging issue by ensuring the Flutter binding
-  // is initialized before any tests are run.
-  TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() {
     // Initialize FFI
     sqfliteFfiInit();
@@ -57,20 +74,18 @@ void main() {
   });
 
   testWidgets('NotesScreen displays notes', (WidgetTester tester) async {
-    NoteRepository.instance = MockNoteRepository();
-
     await tester.pumpWidget(
       MaterialApp(
-        home: NotesScreen(updateService: MockUpdateService()),
+        home: NotesScreenMock(
+          mockNotes: Future.value([]),
+          updateService: MockUpdateService(),
+        ),
       ),
     );
-    // Pump once to trigger the FutureBuilder's initial state (loading).
+
     await tester.pump();
-    // Pump again with zero duration to resolve the future
-    // and build the final UI.
     await tester.pump(Duration.zero);
 
-    // Verify that the "No notes found" message is displayed.
     expect(find.text('Nenhuma nota encontrada.'), findsOneWidget);
   });
 }
