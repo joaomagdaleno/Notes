@@ -45,7 +45,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byType(NoteSimpleListTile));
+    await tester.tap(find.byType(InkWell));
     await tester.pump();
 
     expect(tapped, isTrue);
