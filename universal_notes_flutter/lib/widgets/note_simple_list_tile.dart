@@ -28,17 +28,6 @@ class NoteSimpleListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap ??
-          () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (context) => NoteEditorScreen(
-                  note: note,
-                  onSave: onSave,
-                ),
-              ),
-            );
-          },
       onLongPressDown: (details) async {
         await ContextMenuHelper.showContextMenu(
           context: context,
@@ -48,15 +37,28 @@ class NoteSimpleListTile extends StatelessWidget {
           onDelete: onDelete,
         );
       },
-      child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
+      child: InkWell(
+        onTap: onTap ??
+            () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (context) => NoteEditorScreen(
+                    note: note,
+                    onSave: onSave,
+                  ),
+                ),
+              );
+            },
+        child: ListTile(
+          leading: Container(
+            width: 40,
+            height: 40,
           color: Colors.grey[300],
           child: const Icon(Icons.image_outlined, color: Colors.grey),
         ),
         title: Text(note.title),
         trailing: Text(DateFormat('d MMM').format(note.date)),
+        ),
       ),
     );
   }
