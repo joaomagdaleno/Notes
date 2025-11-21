@@ -16,9 +16,27 @@ void main() {
       mockUpdateService = MockUpdateService();
     });
 
-    testWidgets('shows update dialog when update is available', (
-      WidgetTester tester,
-    ) async {
+    // Helper widget to test the UpdateHelper functionality
+    Widget buildTestApp(bool isManualCheck) {
+      return MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => UpdateHelper.checkForUpdate(
+                context,
+                isManual: isManualCheck,
+                updateService: mockUpdateService,
+              ),
+              child: const Text('Check for Update'),
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets(
+        'shows "checking" snackbar and then update dialog when update is available (manual)',
+        (WidgetTester tester) async {
       when(mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.updateAvailable,
@@ -29,26 +47,59 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => UpdateHelper.checkForUpdate(
-                  context,
-                  updateService: mockUpdateService,
-                ),
-                child: const Text('Check for Update'),
-              ),
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(buildTestApp(true));
+
+      await tester.tap(find.text('Check for Update'));
+      await tester.pump(); // Show "Verificando..."
+
+      expect(find.text('Verificando atualizações...'), findsOneWidget);
+
+      await tester.pumpAndSettle(); // Complete the check
+
+      expect(find.text('Atualização Disponível'), findsOneWidget);
+    });
+
+    testWidgets('shows "no update" snackbar when no update is available (manual)',
+        (WidgetTester tester) async {
+      when(mockUpdateService.checkForUpdate())
+          .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
+
+      await tester.pumpWidget(buildTestApp(true));
 
       await tester.tap(find.text('Check for Update'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Atualização Disponível'), findsOneWidget);
+      expect(find.text('Você já tem a versão mais recente.'), findsOneWidget);
+    });
+
+    testWidgets('shows error snackbar on error (manual)', (WidgetTester tester) async {
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async => UpdateCheckResult(
+          UpdateCheckStatus.error,
+          errorMessage: 'Failed to check',
+        ),
+      );
+
+      await tester.pumpWidget(buildTestApp(true));
+
+      await tester.tap(find.text('Check for Update'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Failed to check'), findsOneWidget);
+    });
+
+    testWidgets('shows nothing when no update is available (automatic)',
+        (WidgetTester tester) async {
+      when(mockUpdateService.checkForUpdate())
+          .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
+
+      await tester.pumpWidget(buildTestApp(false));
+
+      await tester.tap(find.text('Check for Update'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AlertDialog), findsNothing);
     });
   });
 }
