@@ -47,7 +47,9 @@ class ContextMenuHelper {
               color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 8),
-            Expanded(child: Text(note.isFavorite ? 'Desfavoritar' : 'Favoritar')),
+            Expanded(
+              child: Text(note.isFavorite ? 'Desfavoritar' : 'Favoritar'),
+            ),
           ],
         ),
       ),
@@ -63,7 +65,9 @@ class ContextMenuHelper {
               color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(width: 8),
-            const Expanded(child: Text('Mover para a lixeira')),
+            const Expanded(
+              child: Text('Mover para a lixeira'),
+            ),
           ],
         ),
       ),
@@ -104,7 +108,9 @@ class ContextMenuHelper {
               color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(width: 8),
-            const Expanded(child: Text('Excluir permanentemente')),
+            const Expanded(
+              child: Text('Excluir permanentemente'),
+            ),
           ],
         ),
       ),
