@@ -1,6 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
-import 'package.flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 
@@ -14,8 +14,8 @@ void main() {
     );
 
     final noteWithInvalidContent = Note(
-      id: 1,
-      title: 'Test Note',
+      id: 2,
+      title: 'Test Note 2',
       content: 'invalid json',
       date: DateTime.now(),
     );
@@ -52,7 +52,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Test Note'), findsOneWidget);
+      expect(find.text('Test Note 2'), findsOneWidget);
       expect(find.text('...'), findsOneWidget);
     });
   });
