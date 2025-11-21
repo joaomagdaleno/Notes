@@ -141,10 +141,14 @@ class NotesScreen extends StatefulWidget {
   const NotesScreen({
     super.key,
     this.updateService,
+    this.notesFuture,
   });
 
   /// The service to use for checking for updates.
   final UpdateService? updateService;
+
+  /// An optional future for the notes, used for testing.
+  final Future<List<Note>>? notesFuture;
 
   @override
   State<NotesScreen> createState() => _NotesScreenState();
@@ -159,7 +163,7 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   void initState() {
     super.initState();
-    _loadNotes();
+    _notesFuture = widget.notesFuture ?? NoteRepository.instance.getAllNotes();
     // Use a post-frame callback to ensure the Scaffold is available.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Check for updates on all platforms
@@ -167,12 +171,6 @@ class _NotesScreenState extends State<NotesScreen> {
         context,
         updateService: widget.updateService,
       );
-    });
-  }
-
-  void _loadNotes() {
-    setState(() {
-      _notesFuture = NoteRepository.instance.getAllNotes();
     });
   }
 
@@ -193,13 +191,17 @@ class _NotesScreenState extends State<NotesScreen> {
       final newId = await NoteRepository.instance.insertNote(note);
       savedNote = note.copyWith(id: newId);
     }
-    _loadNotes();
+    setState(() {
+      _notesFuture = NoteRepository.instance.getAllNotes();
+    });
     return savedNote;
   }
 
   Future<void> _deleteNote(Note note) async {
     await NoteRepository.instance.deleteNote(note.id);
-    _loadNotes();
+    setState(() {
+      _notesFuture = NoteRepository.instance.getAllNotes();
+    });
   }
 
   void _cycleViewMode() {

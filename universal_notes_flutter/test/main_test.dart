@@ -3,10 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/main.dart';
+import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
-// ignore: unreachable_from_main, Mock class for testing purposes.
+// Mock class for testing purposes.
 class MockUpdateService extends UpdateService {
   @override
   Future<UpdateCheckResult> checkForUpdate() async {
@@ -15,6 +16,9 @@ class MockUpdateService extends UpdateService {
 }
 
 void main() {
+  // Solves test hanging issues by ensuring the Flutter binding is initialized.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   setUpAll(() {
     // Initialize FFI
     sqfliteFfiInit();
@@ -45,11 +49,17 @@ void main() {
   });
 
   testWidgets('NotesScreen displays notes', (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(home: NotesScreen()));
-    // Pump once to trigger the FutureBuilder's initial state (loading).
-    // Then pump again to resolve the future and build the final UI.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NotesScreen(
+          notesFuture: Future.value(<Note>[]),
+          updateService: MockUpdateService(),
+        ),
+      ),
+    );
+
     await tester.pump();
-    await tester.pump();
+    await tester.pump(Duration.zero);
 
     // Verify that the "No notes found" message is displayed.
     expect(find.text('Nenhuma nota encontrada.'), findsOneWidget);
