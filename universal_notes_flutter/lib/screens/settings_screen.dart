@@ -1,6 +1,5 @@
-import 'dart:io' show Platform;
-
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
 
@@ -11,7 +10,7 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isWindows) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
       return _buildFluentUI(context);
     } else {
       return _buildMaterialUI(context);
