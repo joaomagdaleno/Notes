@@ -30,9 +30,22 @@ jobs:
         uses: trufflesecurity/trufflehog@df31a0e53a1efa49f2396699d51254455bb81868 # main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: DEBUG – show settings_screen_test.dart
+        working-directory: universal_notes_flutter
+        run: cat test/screens/settings_screen_test.dart
       - name: Run Tests
         working-directory: universal_notes_flutter
         run: flutter test --coverage
+      - name: Generate HTML coverage report
+        working-directory: universal_notes_flutter
+        run: |
+          sudo apt-get install -y lcov
+          genhtml coverage/lcov.info -o coverage/html
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: universal_notes_flutter/coverage/html
       - name: Show coverage report
         run: |
           echo "--- Coverage Report (lcov.info) ---"

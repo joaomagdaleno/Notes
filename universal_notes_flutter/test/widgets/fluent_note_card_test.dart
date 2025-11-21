@@ -55,5 +55,29 @@ void main() {
       expect(find.text('Test Note 2'), findsOneWidget);
       expect(find.text('...'), findsOneWidget);
     });
+
+    testWidgets('tapping FluentNoteCard calls onTap',
+        (WidgetTester tester) async {
+      var tapped = false;
+      await tester.pumpWidget(
+        fluent.FluentApp(
+          home: Scaffold(
+            body: FluentNoteCard(
+              note: noteWithValidContent,
+              onDelete: (note) {},
+              onSave: (note) async => note,
+              onTap: () {
+                tapped = true;
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(FluentNoteCard));
+      await tester.pump();
+
+      expect(tapped, isTrue);
+    });
   });
 }

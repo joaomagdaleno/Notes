@@ -55,6 +55,29 @@ void main() {
       expect(find.text('Atualização Disponível'), findsOneWidget);
     });
 
+    testWidgets('user cancels the update dialog', (WidgetTester tester) async {
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async => UpdateCheckResult(
+          UpdateCheckStatus.updateAvailable,
+          updateInfo: UpdateInfo(
+            version: '1.0.1',
+            downloadUrl: 'https://example.com/test.apk',
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(buildTestApp(isManualCheck: true));
+      await tester.tap(find.text('Check for Update'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Atualização Disponível'), findsOneWidget);
+
+      await tester.tap(find.text('Agora não'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Atualização Disponível'), findsNothing);
+    });
+
     testWidgets(
         'shows "no update" snackbar on manual check',
         (WidgetTester tester) async {
@@ -84,6 +107,38 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Failed to check'), findsOneWidget);
+    });
+
+    testWidgets('shows specific error snackbar for 404 (manual)',
+        (WidgetTester tester) async {
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async => UpdateCheckResult(
+          UpdateCheckStatus.error,
+          errorMessage: 'Server returned 404',
+        ),
+      );
+
+      await tester.pumpWidget(buildTestApp(isManualCheck: true));
+      await tester.tap(find.text('Check for Update'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Server returned 404'), findsOneWidget);
+    });
+
+    testWidgets('shows timeout error snackbar on manual check',
+        (WidgetTester tester) async {
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async => UpdateCheckResult(
+          UpdateCheckStatus.error,
+          errorMessage: 'Connection timed out',
+        ),
+      );
+
+      await tester.pumpWidget(buildTestApp(isManualCheck: true));
+      await tester.tap(find.text('Check for Update'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Connection timed out'), findsOneWidget);
     });
 
     testWidgets(

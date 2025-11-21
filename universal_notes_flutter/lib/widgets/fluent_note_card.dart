@@ -12,26 +12,31 @@ class FluentNoteCard extends StatelessWidget {
     required this.note,
     required this.onSave,
     required this.onDelete,
+    this.onTap,
     super.key,
   });
   /// The note to display.
   final Note note;
   /// The function to call when the note is saved.
   final Future<Note> Function(Note) onSave;
-
   /// The function to call when the note is deleted.
   final void Function(Note) onDelete;
+  /// The function to call when the widget is tapped.
+  /// If null, it will navigate to the [NoteEditorScreen].
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        await Navigator.of(context).push(
-          fluent.FluentPageRoute<void>(
-            builder: (context) => NoteEditorScreen(note: note, onSave: onSave),
-          ),
-        );
-      },
+      onTap: onTap ??
+          () async {
+            await Navigator.of(context).push(
+              fluent.FluentPageRoute<void>(
+                builder: (context) =>
+                    NoteEditorScreen(note: note, onSave: onSave),
+              ),
+            );
+          },
       child: fluent.Card(
         child: Padding(
           padding: const EdgeInsets.all(12),
