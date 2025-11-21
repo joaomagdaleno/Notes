@@ -8,8 +8,9 @@ import 'package:universal_notes_flutter/screens/settings_screen.dart';
 void main() {
   group('SettingsScreen', () {
     testWidgets('builds Material UI on Android', (WidgetTester tester) async {
+      final originalPlatform = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      addTearDown(() => debugDefaultTargetPlatformOverride = originalPlatform);
 
       await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
@@ -20,8 +21,9 @@ void main() {
 
     testWidgets('navigates to AboutScreen on Android',
         (WidgetTester tester) async {
+      final originalPlatform = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      addTearDown(() => debugDefaultTargetPlatformOverride = originalPlatform);
 
       await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
@@ -32,8 +34,9 @@ void main() {
     });
 
     testWidgets('builds Fluent UI on Windows', (WidgetTester tester) async {
+      final originalPlatform = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      addTearDown(() => debugDefaultTargetPlatformOverride = originalPlatform);
 
       await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
 
@@ -44,8 +47,9 @@ void main() {
 
     testWidgets('navigates to AboutScreen on Windows',
         (WidgetTester tester) async {
+      final originalPlatform = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      addTearDown(() => debugDefaultTargetPlatformOverride = originalPlatform);
 
       await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
 

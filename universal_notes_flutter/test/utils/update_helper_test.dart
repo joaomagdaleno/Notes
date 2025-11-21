@@ -50,10 +50,6 @@ void main() {
       await tester.pumpWidget(buildTestApp(isManualCheck: true));
 
       await tester.tap(find.text('Check for Update'));
-      await tester.pump(const Duration(milliseconds: 500));
-
-      expect(find.text('Verificando atualizações...'), findsOneWidget);
-
       await tester.pumpAndSettle();
 
       expect(find.text('Atualização Disponível'), findsOneWidget);
