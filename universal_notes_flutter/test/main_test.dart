@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/main.dart';
+import 'package:universal_notes_flutter/models/note_model.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
@@ -12,6 +13,14 @@ class MockUpdateService extends UpdateService {
   Future<UpdateCheckResult> checkForUpdate() async {
     return UpdateCheckResult(UpdateCheckStatus.noUpdate);
   }
+}
+
+// This mock is required for the test but isn't referenced from the main
+// function, which would normally cause an "unreachable_from_main" lint error.
+// ignore: unreachable_from_main
+class MockNoteRepository extends NoteRepository {
+  @override
+  Future<List<Note>> getAllNotes() async => [];
 }
 
 void main() {
@@ -48,8 +57,7 @@ void main() {
   });
 
   testWidgets('NotesScreen displays notes', (WidgetTester tester) async {
-    await NoteRepository.instance.close();
-    NoteRepository.instance.dbPath = inMemoryDatabasePath;
+    NoteRepository.instance = MockNoteRepository();
 
     await tester.pumpWidget(
       MaterialApp(
