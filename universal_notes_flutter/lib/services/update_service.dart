@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -30,37 +31,52 @@ class UpdateCheckResult {
 /// A service for checking for updates.
 class UpdateService {
   /// Creates a new instance of [UpdateService].
-  UpdateService({http.Client? client}) : _client = client ?? http.Client();
+  UpdateService({http.Client? client, this.packageInfo})
+      : _client = client ?? http.Client();
 
   final http.Client _client;
+  final PackageInfo? packageInfo;
 
   static const String _repo = 'joaomagdaleno/Notes';
 
   /// Checks for updates.
   Future<UpdateCheckResult> checkForUpdate() async {
     try {
-      // Get current app version
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.split('+').first;
+      // 1. Get current app version info
+      final info = packageInfo ?? await PackageInfo.fromPlatform();
+      final currentVersionStr = info.version; // e.g., 1.0.0+123-dev
 
-      // Fetch latest release from GitHub API
-      final url =
-          Uri.parse('https://api.github.com/repos/$_repo/releases/latest');
+      // 2. Determine channel and build URL
+      final channel = _getChannel(currentVersionStr);
+      final url = _getUpdateUrl(channel);
+
+      // 3. Fetch latest release from GitHub API
       final response = await _client.get(url);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
-        final tagName = json['tag_name'] as String;
-        // Remove 'v' prefix if present (e.g., 'v1.0.0' -> '1.0.0')
-        final latestVersion =
-            tagName.startsWith('v') ? tagName.substring(1) : tagName;
-        final assets = json['assets'] as List<dynamic>?;
 
-        if (_isNewerVersion(latestVersion, currentVersion)) {
+        // 4. Extract latest version info from release
+        String latestVersionStr;
+        if (channel == 'stable') {
+          final tagName = json['tag_name'] as String;
+          latestVersionStr =
+              tagName.startsWith('v') ? tagName.substring(1) : tagName;
+        } else {
+          // For dev/beta, parse from the release body, which will be added in CI
+          final body = json['body'] as String? ?? '';
+          latestVersionStr = _parseVersionFromBody(body);
+          if (latestVersionStr.isEmpty) {
+            return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+          }
+        }
+
+        // 5. Compare versions
+        if (_isNewerVersion(latestVersionStr, currentVersionStr)) {
+          final assets = json['assets'] as List<dynamic>?;
           if (assets != null && assets.isNotEmpty) {
             final fileExtension = getPlatformFileExtension();
             if (fileExtension == null) {
-              // Platform not supported for updates, so no update is available.
               return UpdateCheckResult(UpdateCheckStatus.noUpdate);
             }
 
@@ -75,24 +91,21 @@ class UpdateService {
               return UpdateCheckResult(
                 UpdateCheckStatus.updateAvailable,
                 updateInfo: UpdateInfo(
-                  version: latestVersion,
+                  version: latestVersionStr,
                   downloadUrl: releaseAsset['browser_download_url'] as String,
                 ),
               );
             }
           }
         }
-        // If we reach here, no update is available or the asset wasn't found
         return UpdateCheckResult(UpdateCheckStatus.noUpdate);
       } else {
-        // Handle non-200 responses as errors
         return UpdateCheckResult(
           UpdateCheckStatus.error,
           errorMessage: 'Falha ao comunicar com o servidor de atualização.',
         );
       }
     } on Exception {
-      // Handle exceptions, e.g., no internet connection
       return UpdateCheckResult(
         UpdateCheckStatus.error,
         errorMessage: 'Não foi possível verificar as atualizações. '
@@ -101,11 +114,53 @@ class UpdateService {
     }
   }
 
-  bool _isNewerVersion(String latestVersion, String currentVersion) {
+  @visibleForTesting
+  String getChannel(String version) {
+    if (version.endsWith('-dev')) {
+      return 'dev';
+    } else if (version.endsWith('-beta')) {
+      return 'beta';
+    } else {
+      return 'stable';
+    }
+  }
+
+  Uri _getUpdateUrl(String channel) {
+    if (channel == 'dev') {
+      return Uri.parse(
+          'https://api.github.com/repos/$_repo/releases/tags/dev-latest');
+    } else if (channel == 'beta') {
+      return Uri.parse(
+          'https://api.github.com/repos/$_repo/releases/tags/beta-latest');
+    } else {
+      return Uri.parse('https://api.github.com/repos/$_repo/releases/latest');
+    }
+  }
+
+  String _parseVersionFromBody(String body) {
+    final match = RegExp(r'Version: ([\w\.\+\-]+)').firstMatch(body);
+    return match?.group(1) ?? '';
+  }
+
+  @visibleForTesting
+  bool isNewerVersion(String latestVersionStr, String currentVersionStr) {
     try {
-      final latest = Version.parse(latestVersion);
-      final current = Version.parse(currentVersion);
-      return latest > current;
+      final currentChannel = getChannel(currentVersionStr);
+      final latestChannel = getChannel(latestVersionStr);
+
+      if (currentChannel != latestChannel) return false;
+
+      if (currentChannel == 'stable') {
+        final latest = Version.parse(latestVersionStr.split('+').first);
+        final current = Version.parse(currentVersionStr.split('+').first);
+        return latest > current;
+      } else {
+        final latestBuild =
+            int.parse(latestVersionStr.split('+').last.split('-').first);
+        final currentBuild =
+            int.parse(currentVersionStr.split('+').last.split('-').first);
+        return latestBuild > currentBuild;
+      }
     } on Exception {
       return false;
     }
