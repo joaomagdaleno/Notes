@@ -117,7 +117,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const CoverageReportScreen(),
+                      builder: (context) => CoverageReportScreen(),
                     ),
                   );
                 },
@@ -157,7 +157,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const CoverageReportScreen(),
+                      builder: (context) => CoverageReportScreen(),
                     ),
                   );
                 },

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_syntax_view/flutter_syntax_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:universal_notes_flutter/models/coverage_report.dart';
 
 class CoverageDetailScreen extends StatefulWidget {
-  const CoverageDetailScreen({
+  CoverageDetailScreen({
     super.key,
     required this.fileCoverage,
     http.Client? client,
-  }) : client = client ?? const http.Client();
+  }) : client = client ?? http.Client();
 
   final FileCoverage fileCoverage;
   final http.Client client;
@@ -53,22 +52,47 @@ class _CoverageDetailScreenState extends State<CoverageDetailScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
-            final code = snapshot.data!;
+            final codeLines = snapshot.data!.split('\n');
             final lineHits = { for (var v in widget.fileCoverage.lines.details) v.line : v.hit };
 
-            return SyntaxView(
-              code: code,
-              syntax: Syntax.DART,
-              syntaxTheme: SyntaxTheme.vscodeDark(),
-              expanded: true,
-              withLinesCount: true,
-              lineCountColor: Colors.white,
-              lineCountBackground: Colors.grey[800],
-              lineHighlighter: (int line) {
-                if (lineHits.containsKey(line)) {
-                  return lineHits[line]! > 0 ? Colors.green.withOpacity(0.3) : Colors.red.withOpacity(0.3);
+            return ListView.builder(
+              itemCount: codeLines.length,
+              itemBuilder: (context, index) {
+                final lineNumber = index + 1;
+                final lineCode = codeLines[index];
+                Color? highlightColor;
+
+                if (lineHits.containsKey(lineNumber)) {
+                  highlightColor = lineHits[lineNumber]! > 0
+                      ? Colors.green.withOpacity(0.3)
+                      : Colors.red.withOpacity(0.3);
                 }
-                return null; // No highlight
+
+                return Container(
+                  color: highlightColor,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        padding: const EdgeInsets.only(right: 8.0),
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          lineNumber.toString(),
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            lineCode,
+                            style: const TextStyle(fontFamily: 'monospace', color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
               },
             );
           } else {

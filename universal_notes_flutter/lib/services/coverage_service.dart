@@ -6,7 +6,7 @@ class CoverageService {
   final http.Client client;
   static const String _url = 'https://raw.githubusercontent.com/joaomagdaleno/Notes/coverage-data/coverage.json';
 
-  const CoverageService({http.Client? client}) : this.client = client ?? const http.Client();
+  CoverageService({http.Client? client}) : client = client ?? http.Client();
 
   Future<CoverageReport> getCoverageReport() async {
     final response = await client.get(Uri.parse(_url));

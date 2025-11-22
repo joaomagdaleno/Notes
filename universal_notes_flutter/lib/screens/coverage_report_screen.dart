@@ -5,8 +5,8 @@ import 'package:universal_notes_flutter/screens/coverage_detail_screen.dart';
 import 'package:universal_notes_flutter/services/coverage_service.dart';
 
 class CoverageReportScreen extends StatefulWidget {
-  const CoverageReportScreen({super.key, CoverageService? service})
-      : service = service ?? const CoverageService();
+  CoverageReportScreen({super.key, CoverageService? service})
+      : service = service ?? CoverageService();
 
   final CoverageService service;
 
