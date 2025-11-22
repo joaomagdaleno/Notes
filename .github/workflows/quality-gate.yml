@@ -118,11 +118,11 @@ jobs:
           name: coverage-lcov
           path: coverage
 
-      - name: Install lcov-to-json tool
-        run: npm install -g lcov-to-json
+      - name: Install lcov-parse tool
+        run: npm install -g lcov-parse
 
       - name: Convert lcov to json
-        run: lcov-to-json coverage/lcov.info > coverage.json
+        run: lcov-parse coverage/lcov.info > coverage.json
 
       - name: Commit coverage.json
         run: |
