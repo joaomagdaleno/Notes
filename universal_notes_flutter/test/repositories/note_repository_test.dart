@@ -49,5 +49,14 @@ void main() {
       final notes = await noteRepository.getAllNotes();
       expect(notes.length, 0);
     });
+
+    test('uses default path when dbPath is not set', () async {
+      // Ensure no custom path is set
+      NoteRepository.instance.dbPath = null;
+
+      // Any operation triggers _initDB
+      final notes = await NoteRepository.instance.getAllNotes();
+      expect(notes, isA<List<Note>>());
+    });
   });
 }
