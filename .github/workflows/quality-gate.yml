@@ -14,10 +14,9 @@ jobs:
   quality:
     name: Quality Gate
     runs-on: ubuntu-latest
-    # Defina as permissões mínimas necessárias para o job
     permissions:
-      contents: read # Permissão padrão para checkout
-      pull-requests: write # Essencial para o TruffleHog poder comentar na PR
+      contents: write # Needed to push to the coverage-data branch
+      pull-requests: write # Needed for TruffleHog to comment on PRs
     steps:
       - name: Checkout
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
@@ -58,13 +57,19 @@ jobs:
           sudo apt-get install -y lcov
           genhtml coverage/lcov.info -o coverage/html
 
-      # Este step de upload de artefato ainda é útil como backup
-      - name: Upload coverage report artifact
+      - name: Upload HTML coverage report artifact
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report-pr-${{ github.event.number }}
+          name: coverage-report-html
           path: universal_notes_flutter/coverage/html
-          retention-days: 15 # Mantém o artefato por 15 dias
+          retention-days: 15
+
+      - name: Upload lcov artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: universal_notes_flutter/coverage/lcov.info
+          retention-days: 1
 
       # Este step pode ser removido, pois o link para o HTML é muito melhor
       # - name: Show coverage report
@@ -94,4 +99,52 @@ jobs:
           if (( COVERAGE_PERCENTAGE < MIN_COVERAGE )); then
             echo "Error: Code coverage is ${{ steps.coverage.outputs.percentage }}%, which is below the required minimum of ${MIN_COVERAGE}%."
             exit 1
+          fi
+
+  update-coverage-data:
+    name: Update Coverage Data Branch
+    needs: quality
+    runs-on: ubuntu-latest
+    # This job only runs on pushes to the main branch, not on PRs
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/beta')
+
+    steps:
+      - name: Download lcov artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-lcov
+          path: coverage
+
+      - name: Install lcov-to-json tool
+        run: npm install -g lcov-to-json
+
+      - name: Convert lcov to json
+        run: lcov-to-json coverage/lcov.info > coverage.json
+
+      - name: Commit coverage.json
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Clone the coverage-data branch or create it if it doesn't exist
+          git clone --branch coverage-data --single-branch https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} coverage-data || \
+          (git init coverage-data && \
+           cd coverage-data && \
+           git checkout -b coverage-data && \
+           git remote add origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} && \
+           echo "{}" > coverage.json && \
+           git add coverage.json && \
+           git commit -m "feat: Initial commit for coverage data" && \
+           git push -u origin coverage-data)
+
+          mv coverage.json coverage-data/coverage.json
+          cd coverage-data
+
+          git add coverage.json
+          # Commit only if there are changes
+          if ! git diff --staged --quiet; then
+            git commit -m "docs: Update code coverage report"
+            git push
+          else
+            echo "No changes to coverage data."
           fi
