@@ -10,16 +10,15 @@ on:
         default: '80'
         type: string
 
-# Adicione um bloco de permissões no nível do job para permitir a escrita no GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
   quality:
     name: Quality Gate
     runs-on: ubuntu-latest
+    # Adicione um bloco de permissões no nível do job para permitir a escrita no GitHub Pages
+    permissions:
+      contents: write # Permite escrever no repositório (necessário para o push)
+      pages: write      # Permite escrever no GitHub Pages
+      id-token: write   # Necessário para autenticação avançada do Pages
     steps:
       - name: Checkout
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
