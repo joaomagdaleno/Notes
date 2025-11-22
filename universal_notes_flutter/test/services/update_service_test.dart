@@ -5,6 +5,16 @@ import 'package:http/testing.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
+class TestUpdateService extends UpdateService {
+  TestUpdateService({http.Client? client, PackageInfo? packageInfo})
+      : super(client: client, packageInfo: packageInfo);
+
+  @override
+  String? getPlatformFileExtension() {
+    return '.apk';
+  }
+}
+
 void main() {
   group('UpdateService', () {
     late http.Client mockClient;
@@ -41,7 +51,7 @@ void main() {
           return mockReleaseResponse(tagName: 'v1.0.1');
         });
         final service =
-            UpdateService(client: mockClient, packageInfo: packageInfo);
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
         final result = await service.checkForUpdate();
         expect(result.status, UpdateCheckStatus.updateAvailable);
         expect(result.updateInfo?.version, '1.0.1');
@@ -56,7 +66,7 @@ void main() {
           return mockReleaseResponse(tagName: 'v1.0.1');
         });
         final service =
-            UpdateService(client: mockClient, packageInfo: packageInfo);
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
         final result = await service.checkForUpdate();
         expect(result.status, UpdateCheckStatus.noUpdate);
       });
@@ -76,7 +86,7 @@ void main() {
               tagName: 'dev-latest', body: 'Version: 1.0.0-dev.124');
         });
         final service =
-            UpdateService(client: mockClient, packageInfo: packageInfo);
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
         final result = await service.checkForUpdate();
         expect(result.status, UpdateCheckStatus.updateAvailable);
         expect(result.updateInfo?.version, '1.0.0-dev.124');
@@ -95,7 +105,7 @@ void main() {
               tagName: 'dev-latest', body: 'Version: 1.0.0-dev.124');
         });
         final service =
-            UpdateService(client: mockClient, packageInfo: packageInfo);
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
         final result = await service.checkForUpdate();
         expect(result.status, UpdateCheckStatus.noUpdate);
       });
@@ -114,7 +124,7 @@ void main() {
               tagName: 'beta-latest', body: 'Version: 1.0.0-beta.124');
         });
         final service =
-            UpdateService(client: mockClient, packageInfo: packageInfo);
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
         final result = await service.checkForUpdate();
         expect(result.status, UpdateCheckStatus.updateAvailable);
         expect(result.updateInfo?.version, '1.0.0-beta.124');
@@ -132,7 +142,7 @@ void main() {
               tagName: 'beta-latest', body: 'Version: 1.0.0-beta.124');
         });
         final service =
-            UpdateService(client: mockClient, packageInfo: packageInfo);
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
         final result = await service.checkForUpdate();
         expect(result.status, UpdateCheckStatus.noUpdate);
       });
@@ -145,7 +155,7 @@ void main() {
         return http.Response('Server Error', 500);
       });
       final service =
-          UpdateService(client: mockClient, packageInfo: packageInfo);
+          TestUpdateService(client: mockClient, packageInfo: packageInfo);
       final result = await service.checkForUpdate();
       expect(result.status, UpdateCheckStatus.error);
     });
