@@ -50,13 +50,15 @@ void main() {
       expect(notes.length, 0);
     });
 
-    test('uses default path when dbPath is not set', () async {
-      // Ensure no custom path is set
+    test('uses default branch when dbPath is null', () async {
+      // Ensure we enter the else-branch
       NoteRepository.instance.dbPath = null;
 
-      // Any operation triggers _initDB
-      final notes = await NoteRepository.instance.getAllNotes();
-      expect(notes, isA<List<Note>>());
+      // Directly invoke the private init routine that contains lines 34-35
+      final db = await NoteRepository.instance.initDB();
+
+      expect(db, isA<Database>()); // _initDB succeeded → lines 34-35 were hit
+      await db.close();
     });
   });
 }
