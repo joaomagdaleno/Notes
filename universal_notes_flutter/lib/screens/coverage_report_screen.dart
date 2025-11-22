@@ -72,7 +72,11 @@ class _CoverageReportScreenState extends State<CoverageReportScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('${overallCoverage.toStringAsFixed(2)}%', style: const TextStyle(fontSize: 32)),
+                Text(
+                  '${overallCoverage.toStringAsFixed(2)}%',
+                  key: const Key('overall_coverage_percentage'),
+                  style: const TextStyle(fontSize: 32),
+                ),
                 const SizedBox(width: 16.0),
                 SizedBox(
                   width: 100,

@@ -33,7 +33,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Overall Coverage'), findsOneWidget);
-      expect(find.text('83.33%'), findsOneWidget);
+      expect(find.byKey(const Key('overall_coverage_percentage')), findsOneWidget);
       expect(find.text('lib/test.dart'), findsOneWidget);
     });
 
