@@ -108,6 +108,8 @@ jobs:
     name: Update Coverage Data Branch
     needs: quality
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     # This job only runs on pushes to the main branch, not on PRs
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/beta')
 
@@ -130,11 +132,11 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
           # Clone the coverage-data branch or create it if it doesn't exist
-          git clone --branch coverage-data --single-branch https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} coverage-data || \
+          git clone --branch coverage-data --single-branch https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} coverage-data || \
           (git init coverage-data && \
            cd coverage-data && \
            git checkout -b coverage-data && \
-           git remote add origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} && \
+           git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} && \
            echo "{}" > coverage.json && \
            git add coverage.json && \
            git commit -m "feat: Initial commit for coverage data" && \
