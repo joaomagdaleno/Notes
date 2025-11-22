@@ -47,8 +47,8 @@ void main() {
     );
 
     await tester.tap(find.byKey(const ValueKey('tile_under_test')));
-    await tester.pumpAndSettle();
-
+    await tester.pump(); // process the tap
+    await tester.pump(Duration.zero); // let the callback fire
     expect(tapped, isTrue);
   });
 
