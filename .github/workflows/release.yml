@@ -1,51 +1,28 @@
 name: Release
 
 on:
-  workflow_call:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
+  build:
+    uses: ./.github/workflows/build-and-package.yml
+
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Create Release and Upload Assets
-        uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
             artifacts/windows-installer/UniversalNotesSetup-*.exe
             artifacts/android-apk/universal_notes-v*.apk
-
-  pre-release:
-    if: github.ref_name == 'dev' || github.ref_name == 'beta'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          path: artifacts
-      - name: Delete existing latest tag and release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release delete ${{ github.ref_name }}-latest --yes || echo "Release not found, proceeding."
-          git push origin --delete ${{ github.ref_name }}-latest || echo "Tag not found, proceeding."
-      - name: Create or Update Pre-release
-        uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2
-        with:
-          tag_name: ${{ github.ref_name }}-latest
-          name: Pre-release ${{ github.ref_name }}
-          body: "Automated pre-release for the ${{ github.ref_name }} branch. [Commit: ${{ github.sha }}]"
-          prerelease: true
-          files: |
-            artifacts/windows-installer/UniversalNotesSetup-*.exe
-            artifacts/android-apk/universal_notes-v*.apk
-          token: ${{ secrets.GITHUB_TOKEN }}
