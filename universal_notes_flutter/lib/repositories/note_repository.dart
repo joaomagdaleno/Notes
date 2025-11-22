@@ -26,6 +26,7 @@ class NoteRepository {
     return _database!;
   }
 
+  /// Initializes the database.
   @visibleForTesting
   Future<Database> initDB() async {
     String path;
