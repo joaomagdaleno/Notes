@@ -13,10 +13,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+      - name: Get version from tag
+        id: version
+        run: |
+          VERSION=${{ github.ref_name }}
+          VERSION=${VERSION#v}
+          echo "tag_version=$VERSION" >> $GITHUB_OUTPUT
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/windows-installer/UniversalNotesSetup-*.exe
-            artifacts/android-apk/universal_notes-v*.apk
+            artifacts/windows-installer/UniversalNotesSetup-v${{ steps.version.outputs.tag_version }}.exe
+            artifacts/android-apk/universal_notes-v${{ steps.version.outputs.tag_version }}.apk

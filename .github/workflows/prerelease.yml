@@ -13,10 +13,22 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+      - name: Download version artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/version-info
+          name: version-info-windows
+          ignore-no-artifacts-found: true
+      - name: Download version artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/version-info
+          name: version-info-android
+          ignore-no-artifacts-found: true
       - name: Read version
         id: version
         run: |
-          VERSION=$(cat artifacts/version-info/version.txt)
+          VERSION=$(find artifacts/version-info -type f -name "*.txt" | head -n 1 | xargs cat)
           echo "full_version=$VERSION" >> $GITHUB_OUTPUT
       - name: Delete existing latest tag and release
         env:

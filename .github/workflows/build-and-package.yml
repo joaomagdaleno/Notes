@@ -61,7 +61,7 @@ jobs:
       - name: Upload Version Artifact (Windows)
         uses: actions/upload-artifact@v4
         with:
-          name: version-info
+          name: version-info-windows
           path: universal_notes_flutter/version.txt
 
   build_android:
@@ -139,5 +139,5 @@ jobs:
       - name: Upload Version Artifact (Android)
         uses: actions/upload-artifact@v4
         with:
-          name: version-info
+          name: version-info-android
           path: universal_notes_flutter/version.txt
