@@ -26,7 +26,13 @@ jobs:
         shell: pwsh
         working-directory: universal_notes_flutter
         run: |
-          (Get-Content pubspec.yaml) -replace '^version:.*',"version: ${{ steps.version-win.outputs.base }}+${{ github.run_number }}" | Set-Content pubspec.yaml
+          $version = "${{ steps.version-win.outputs.base }}"
+          if ("${{ github.ref_name }}" -eq "dev") {
+            $version = "$version-dev"
+          } elseif ("${{ github.ref_name }}" -eq "beta") {
+            $version = "$version-beta"
+          }
+          (Get-Content pubspec.yaml) -replace '^version:.*',"version: $version+${{ github.run_number }}" | Set-Content pubspec.yaml
       - name: Flutter Pub Get
         working-directory: universal_notes_flutter
         run: flutter pub get
@@ -81,7 +87,13 @@ jobs:
       - name: Bump pubspec version
         working-directory: universal_notes_flutter
         run: |
-          sed -i "s/^version:.*/version: ${{ steps.version.outputs.base }}+${GITHUB_RUN_NUMBER}/" pubspec.yaml
+          VERSION="${{ steps.version.outputs.base }}"
+          if [ "${{ github.ref_name }}" = "dev" ]; then
+            VERSION="$VERSION-dev"
+          elif [ "${{ github.ref_name }}" = "beta" ]; then
+            VERSION="$VERSION-beta"
+          fi
+          sed -i "s/^version:.*/version: $VERSION+${GITHUB_RUN_NUMBER}/" pubspec.yaml
       - name: Flutter Pub Get
         working-directory: universal_notes_flutter
         run: flutter pub get
