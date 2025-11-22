@@ -47,9 +47,9 @@ void main() {
 
     await tester.tap(
       find.ancestor(
-        of: find.byType(ListTile), // start from the ListTile
-        matching: find.byType(InkWell), // walk **up** to its immediate InkWell parent
-      ).first, // the first (closest) ancestor is the one we want
+        of: find.byType(ListTile),
+        matching: find.byType(InkWell),
+      ).first,
     );
     await tester.pumpAndSettle();
 
