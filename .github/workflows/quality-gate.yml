@@ -19,6 +19,7 @@ jobs:
       contents: write # Permite escrever no repositório (necessário para o push)
       pages: write      # Permite escrever no GitHub Pages
       id-token: write   # Necessário para autenticação avançada do Pages
+      pull-requests: write # <-- Essencial para comentar na PR
     steps:
       - name: Checkout
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
