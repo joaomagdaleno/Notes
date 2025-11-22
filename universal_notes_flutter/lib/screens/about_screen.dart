@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:universal_notes_flutter/screens/coverage_report_screen.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 
@@ -109,6 +110,19 @@ class _AboutScreenState extends State<AboutScreen> {
                 onPressed: _checkForUpdateWindows,
                 child: const Text('Verificar Atualizações'),
               ),
+            const SizedBox(height: 20),
+            if (!_isChecking)
+              fluent.FilledButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CoverageReportScreen(),
+                    ),
+                  );
+                },
+                child: const Text('Ver Relatório de Cobertura'),
+              ),
             if (_updateStatus.isNotEmpty) ...[
               const SizedBox(height: 10),
               Text(_updateStatus, textAlign: TextAlign.center),
@@ -136,6 +150,18 @@ class _AboutScreenState extends State<AboutScreen> {
               ElevatedButton(
                 onPressed: _checkForUpdate,
                 child: const Text('Verificar Atualizações'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CoverageReportScreen(),
+                    ),
+                  );
+                },
+                child: const Text('Ver Relatório de Cobertura'),
               ),
           ],
         ),
