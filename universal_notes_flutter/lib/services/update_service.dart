@@ -47,7 +47,7 @@ class UpdateService {
       final currentVersionStr = info.version; // e.g., 1.0.0+123-dev
 
       // 2. Determine channel and build URL
-      final channel = _getChannel(currentVersionStr);
+      final channel = getChannel(currentVersionStr);
       final url = _getUpdateUrl(channel);
 
       // 3. Fetch latest release from GitHub API
@@ -72,7 +72,7 @@ class UpdateService {
         }
 
         // 5. Compare versions
-        if (_isNewerVersion(latestVersionStr, currentVersionStr)) {
+        if (isNewerVersion(latestVersionStr, currentVersionStr)) {
           final assets = json['assets'] as List<dynamic>?;
           if (assets != null && assets.isNotEmpty) {
             final fileExtension = getPlatformFileExtension();
