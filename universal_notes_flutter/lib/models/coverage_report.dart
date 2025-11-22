@@ -2,24 +2,26 @@ import 'package:flutter/foundation.dart';
 
 class CoverageReport {
   const CoverageReport({
+    required this.totalLines,
+    required this.totalHit,
+    required this.percentage,
     required this.files,
   });
 
+  final int totalLines;
+  final int totalHit;
+  final double percentage;
   final List<FileCoverage> files;
 
-  factory CoverageReport.fromJson(List<dynamic> json) {
+  factory CoverageReport.fromJson(Map<String, dynamic> json) {
     return CoverageReport(
-      files: json.map((file) => FileCoverage.fromJson(file as Map<String, dynamic>)).toList(),
+      totalLines: json['totalLines'] as int,
+      totalHit: json['totalHit'] as int,
+      percentage: (json['percentage'] as num).toDouble(),
+      files: (json['files'] as List<dynamic>)
+          .map((file) => FileCoverage.fromJson(file as Map<String, dynamic>))
+          .toList(),
     );
-  }
-
-  double get overallCoverage {
-    if (files.isEmpty) {
-      return 0.0;
-    }
-    final totalLines = files.fold<int>(0, (sum, file) => sum + file.lines.found);
-    final totalHits = files.fold<int>(0, (sum, file) => sum + file.lines.hit);
-    return totalLines > 0 ? (totalHits / totalLines) * 100 : 0.0;
   }
 }
 

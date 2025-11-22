@@ -14,14 +14,19 @@ void main() {
       final client = MockClient();
       final service = CoverageService(client: client);
       const jsonResponse = '''
-      [
-        {
-          "title": "Test File",
-          "file": "lib/test.dart",
-          "functions": {"hit": 1, "found": 1, "details": []},
-          "lines": {"hit": 10, "found": 12, "details": [{"line": 1, "hit": 1}]}
-        }
-      ]
+      {
+        "totalLines": 12,
+        "totalHit": 10,
+        "percentage": 83.33,
+        "files": [
+          {
+            "title": "Test File",
+            "file": "lib/test.dart",
+            "functions": {"hit": 1, "found": 1, "details": []},
+            "lines": {"hit": 10, "found": 12, "details": [{"line": 1, "hit": 1}]}
+          }
+        ]
+      }
       ''';
 
       when(client.get(any)).thenAnswer((_) async => http.Response(jsonResponse, 200));

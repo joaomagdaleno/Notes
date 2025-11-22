@@ -124,7 +124,17 @@ jobs:
         run: npm install -g lcov-parse
 
       - name: Convert lcov to json
-        run: lcov-parse coverage/lcov.info > coverage.json
+        run: lcov-parse coverage/lcov.info > coverage-list.json
+
+      - name: Restructure coverage JSON
+        id: restructure
+        run: |
+          jq '{
+            totalLines: (map(.lines.found) | add),
+            totalHit: (map(.lines.hit) | add),
+            percentage: ((map(.lines.hit) | add) / (map(.lines.found) | add) * 100),
+            files: .
+          }' coverage-list.json > coverage.json
 
       - name: Commit coverage.json
         run: |

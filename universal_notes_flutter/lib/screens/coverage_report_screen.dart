@@ -40,7 +40,7 @@ class _CoverageReportScreenState extends State<CoverageReportScreen> {
             final report = snapshot.data!;
             return Column(
               children: [
-                _buildSummaryCard(report.overallCoverage),
+                _buildSummaryCard(report.percentage),
                 Expanded(
                   child: ListView.builder(
                     itemCount: report.files.length,

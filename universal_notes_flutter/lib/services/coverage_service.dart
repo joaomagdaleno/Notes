@@ -12,8 +12,8 @@ class CoverageService {
     final response = await client.get(Uri.parse(_url));
 
     if (response.statusCode == 200) {
-      // The response is a list of json objects
-      final List<dynamic> jsonResponse = json.decode(response.body) as List<dynamic>;
+      // The response is a single json object
+      final Map<String, dynamic> jsonResponse = json.decode(response.body) as Map<String, dynamic>;
       return CoverageReport.fromJson(jsonResponse);
     } else {
       throw Exception('Failed to load coverage report');

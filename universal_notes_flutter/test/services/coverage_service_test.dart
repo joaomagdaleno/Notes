@@ -14,14 +14,19 @@ void main() {
       final client = MockClient();
       final service = CoverageService(client: client);
       const jsonResponse = '''
-      [
-        {
-          "title": "Test File",
-          "file": "lib/test.dart",
-          "functions": {"hit": 1, "found": 1, "details": []},
-          "lines": {"hit": 10, "found": 12, "details": [{"line": 1, "hit": 1}]}
-        }
-      ]
+      {
+        "totalLines": 12,
+        "totalHit": 10,
+        "percentage": 83.33,
+        "files": [
+          {
+            "title": "Test File",
+            "file": "lib/test.dart",
+            "functions": {"hit": 1, "found": 1, "details": []},
+            "lines": {"hit": 10, "found": 12, "details": [{"line": 1, "hit": 1}]}
+          }
+        ]
+      }
       ''';
 
       when(client.get(Uri.parse('https://raw.githubusercontent.com/joaomagdaleno/Notes/coverage-data/coverage.json')))
@@ -30,10 +35,11 @@ void main() {
       final report = await service.getCoverageReport();
 
       expect(report, isA<CoverageReport>());
+      expect(report.totalLines, 12);
+      expect(report.totalHit, 10);
+      expect(report.percentage, 83.33);
       expect(report.files.length, 1);
       expect(report.files.first.file, 'lib/test.dart');
-      expect(report.files.first.lines.found, 12);
-      expect(report.files.first.lines.hit, 10);
     });
 
     test('throws an exception if the http call completes with an error', () {
