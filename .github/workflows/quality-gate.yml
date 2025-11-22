@@ -2,6 +2,19 @@ name: Quality Gate
 
 on:
   workflow_call:
+    # Se quiser, pode passar inputs para o workflow, como o nível mínimo de cobertura
+    inputs:
+      min_coverage:
+        description: 'Minimum code coverage percentage'
+        required: false
+        default: '80'
+        type: string
+
+# Adicione um bloco de permissões no nível do job para permitir a escrita no GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   quality:
@@ -11,43 +24,57 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Necessário para o git history em alguns casos
+
       - name: Install Flutter
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
-          flutter-version: '3.38.2'
+          flutter-version: '3.38.2' # Verifique se esta versão é a correta (3.19.x é a mais recente estável)
           cache: true
+
       - name: Flutter Pub Get
         working-directory: universal_notes_flutter
         run: flutter pub get
+
       - name: Run Flutter Analyzer
         working-directory: universal_notes_flutter
         run: flutter analyze
+
       - name: Check for Outdated Packages
         working-directory: universal_notes_flutter
         run: dart pub outdated
+
       - name: TruffleHog OSS
         uses: trufflesecurity/trufflehog@df31a0e53a1efa49f2396699d51254455bb81868 # main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run Tests
         working-directory: universal_notes_flutter
         run: flutter test --coverage
+
       - name: Generate HTML coverage report
         working-directory: universal_notes_flutter
         run: |
+          sudo apt-get update
           sudo apt-get install -y lcov
           genhtml coverage/lcov.info -o coverage/html
-      - name: Upload coverage report
+
+      # Este step de upload de artefato ainda é útil como backup
+      - name: Upload coverage report artifact
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: coverage-report-pr-${{ github.event.number }}
           path: universal_notes_flutter/coverage/html
-      - name: Show coverage report
-        run: |
-          echo "--- Coverage Report (lcov.info) ---"
-          cat universal_notes_flutter/coverage/lcov.info
-          echo "-------------------------------------"
+          retention-days: 15 # Mantém o artefato por 15 dias
+
+      # Este step pode ser removido, pois o link para o HTML é muito melhor
+      # - name: Show coverage report
+      #   run: |
+      #     echo "--- Coverage Report (lcov.info) ---"
+      #     cat universal_notes_flutter/coverage/lcov.info
+      #     echo "-------------------------------------"
+
       - name: Calculate code coverage
         id: coverage
         run: |
@@ -59,14 +86,38 @@ jobs:
             COVERAGE=$(echo "scale=2; 100 * $HIT / $FOUND" | bc)
           fi
           echo "percentage=${COVERAGE}" >> $GITHUB_OUTPUT
+
+      # === NOVO STEP DEPLOY PARA O GITHUB PAGES ===
+      - name: Deploy coverage report to GitHub Pages
+        # Este step só será executado em Pull Requests
+        if: github.event_name == 'pull_request'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          # O GITHUB_TOKEN é gerado automaticamente e com as permissões que definimos acima, ele funciona.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # O diretório onde seu relatório HTML foi gerado
+          publish_dir: ./universal_notes_flutter/coverage/html
+          # Cria uma pasta única para cada Pull Request para evitar conflitos
+          destination_dir: pr-${{ github.event.number }}
+
+      # === STEP ATUALIZADO PARA POSTAR O COMENTÁRIO COM O LINK ===
       - name: Post coverage comment
+        # Usa a action para postar/editar um comentário "sticky" na PR
         uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2
         with:
-          message: "📊 **Code Coverage:** `${{ steps.coverage.outputs.percentage }}%`"
+          # Constrói a mensagem com a porcentagem e o link para o relatório
+          message: |
+            📊 **Code Coverage:** `${{ steps.coverage.outputs.percentage }}%`
+
+            📈 **[Ver relatório de cobertura detalhado](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.number }}/)**
+
+            _Este relatório é atualizado a cada novo commit na Pull Request._
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check code coverage
         run: |
-          MIN_COVERAGE=80
+          # Usa o valor do input ou o padrão 80
+          MIN_COVERAGE=${{ inputs.min_coverage }}
           COVERAGE_PERCENTAGE=$(echo "${{ steps.coverage.outputs.percentage }}" | awk '{print int($1)}')
           if (( COVERAGE_PERCENTAGE < MIN_COVERAGE )); then
             echo "Error: Code coverage is ${{ steps.coverage.outputs.percentage }}%, which is below the required minimum of ${MIN_COVERAGE}%."
