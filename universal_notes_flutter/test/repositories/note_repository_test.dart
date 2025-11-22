@@ -77,7 +77,8 @@ void main() {
 }
 
 // You need to define the FakePathProviderPlatform class
-// This class implements the methods of PathProviderPlatform and returns fake values.
+// This class implements the methods of PathProviderPlatform and
+// returns fake values.
 class FakePathProviderPlatform extends PathProviderPlatform {
   @override
   Future<String?> getApplicationDocumentsPath() async {
