@@ -1,17 +1,10 @@
 name: Pre-release
 
 on:
-  push:
-    branches:
-      - dev
-      - beta
+  workflow_call:
 
 jobs:
-  build:
-    uses: ./.github/workflows/build-and-package.yml
-
   pre-release:
-    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write

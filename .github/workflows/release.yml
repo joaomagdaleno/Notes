@@ -1,16 +1,10 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_call:
 
 jobs:
-  build:
-    uses: ./.github/workflows/build-and-package.yml
-
   release:
-    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
