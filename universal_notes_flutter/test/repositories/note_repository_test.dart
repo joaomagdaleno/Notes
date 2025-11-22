@@ -69,7 +69,8 @@ void main() {
       // Directly invoke the private init routine that contains lines 34-35
       final db = await NoteRepository.instance.initDB();
 
-      expect(db, isA<Database>()); // _initDB succeeded → lines 34-35 were hit
+      // _initDB succeeded → lines 34-35 were hit
+      expect(db, isA<Database>());
       await db.close();
     });
   });
