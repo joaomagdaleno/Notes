@@ -42,28 +42,22 @@ class UpdateService {
   /// Checks for updates.
   Future<UpdateCheckResult> checkForUpdate() async {
     try {
-      // 1. Get current app version info
       final info = packageInfo ?? await PackageInfo.fromPlatform();
-      final currentVersionStr = info.version; // e.g., 1.0.0+123-dev
+      final currentVersionStr = info.version;
 
-      // 2. Determine channel and build URL
-      final channel = getChannel(currentVersionStr);
-      final url = _getUpdateUrl(channel);
+      final url = _getUpdateUrl(currentVersionStr);
 
-      // 3. Fetch latest release from GitHub API
       final response = await _client.get(url);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
 
-        // 4. Extract latest version info from release
         String latestVersionStr;
-        if (channel == 'stable') {
+        if (url.path.endsWith('/latest')) {
           final tagName = json['tag_name'] as String;
           latestVersionStr =
               tagName.startsWith('v') ? tagName.substring(1) : tagName;
         } else {
-          // For dev/beta, parse from the release body, which will be added in CI
           final body = json['body'] as String? ?? '';
           latestVersionStr = _parseVersionFromBody(body);
           if (latestVersionStr.isEmpty) {
@@ -71,7 +65,6 @@ class UpdateService {
           }
         }
 
-        // 5. Compare versions
         if (isNewerVersion(latestVersionStr, currentVersionStr)) {
           final assets = json['assets'] as List<dynamic>?;
           if (assets != null && assets.isNotEmpty) {
@@ -114,22 +107,11 @@ class UpdateService {
     }
   }
 
-  @visibleForTesting
-  String getChannel(String version) {
-    if (version.endsWith('-dev')) {
-      return 'dev';
-    } else if (version.endsWith('-beta')) {
-      return 'beta';
-    } else {
-      return 'stable';
-    }
-  }
-
-  Uri _getUpdateUrl(String channel) {
-    if (channel == 'dev') {
+  Uri _getUpdateUrl(String version) {
+    if (version.contains('-dev')) {
       return Uri.parse(
           'https://api.github.com/repos/$_repo/releases/tags/dev-latest');
-    } else if (channel == 'beta') {
+    } else if (version.contains('-beta')) {
       return Uri.parse(
           'https://api.github.com/repos/$_repo/releases/tags/beta-latest');
     } else {
@@ -138,30 +120,18 @@ class UpdateService {
   }
 
   String _parseVersionFromBody(String body) {
-    final match = RegExp(r'Version: ([\w\.\+\-]+)').firstMatch(body);
+    final match = RegExp(r'Version: ([\w\.\-\+]+)').firstMatch(body);
     return match?.group(1) ?? '';
   }
 
   @visibleForTesting
   bool isNewerVersion(String latestVersionStr, String currentVersionStr) {
     try {
-      final currentChannel = getChannel(currentVersionStr);
-      final latestChannel = getChannel(latestVersionStr);
-
-      if (currentChannel != latestChannel) return false;
-
-      if (currentChannel == 'stable') {
-        final latest = Version.parse(latestVersionStr.split('+').first);
-        final current = Version.parse(currentVersionStr.split('+').first);
-        return latest > current;
-      } else {
-        final latestBuild =
-            int.parse(latestVersionStr.split('+').last.split('-').first);
-        final currentBuild =
-            int.parse(currentVersionStr.split('+').last.split('-').first);
-        return latestBuild > currentBuild;
-      }
-    } on Exception {
+      final latest = Version.parse(latestVersionStr);
+      final current = Version.parse(currentVersionStr);
+      return latest > current;
+    } on FormatException {
+      // If the version string is invalid, treat as not newer.
       return false;
     }
   }

@@ -28,11 +28,11 @@ jobs:
         working-directory: universal_notes_flutter
         run: |
           $baseVersion = "${{ steps.version-win.outputs.base }}"
-          $fullVersion = "$baseVersion+${{ github.run_number }}"
+          $fullVersion = $baseVersion
           if ("${{ github.ref_name }}" -eq "dev") {
-            $fullVersion = "$fullVersion-dev"
+            $fullVersion = "$baseVersion-dev.${{ github.run_number }}"
           } elseif ("${{ github.ref_name }}" -eq "beta") {
-            $fullVersion = "$fullVersion-beta"
+            $fullVersion = "$baseVersion-beta.${{ github.run_number }}"
           }
           (Get-Content pubspec.yaml) -replace '^version:.*',"version: $fullVersion" | Set-Content pubspec.yaml
           Set-Content -Path "version.txt" -Value $fullVersion
@@ -100,11 +100,11 @@ jobs:
         working-directory: universal_notes_flutter
         run: |
           BASE_VERSION="${{ steps.version.outputs.base }}"
-          FULL_VERSION="$BASE_VERSION+${GITHUB_RUN_NUMBER}"
+          FULL_VERSION="$BASE_VERSION"
           if [ "${{ github.ref_name }}" = "dev" ]; then
-            FULL_VERSION="$FULL_VERSION-dev"
+            FULL_VERSION="$BASE_VERSION-dev.${GITHUB_RUN_NUMBER}"
           elif [ "${{ github.ref_name }}" = "beta" ]; then
-            FULL_VERSION="$FULL_VERSION-beta"
+            FULL_VERSION="$BASE_VERSION-beta.${GITHUB_RUN_NUMBER}"
           fi
           sed -i "s/^version:.*/version: $FULL_VERSION/" pubspec.yaml
           echo "$FULL_VERSION" > version.txt
