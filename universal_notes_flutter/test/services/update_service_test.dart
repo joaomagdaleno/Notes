@@ -6,7 +6,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
 class TestUpdateService extends UpdateService {
-  TestUpdateService({super.client});
+  TestUpdateService({http.Client? client, PackageInfo? packageInfo})
+      : super(client: client, packageInfo: packageInfo);
 
   @override
   String? getPlatformFileExtension() {
@@ -16,73 +17,146 @@ class TestUpdateService extends UpdateService {
 
 void main() {
   group('UpdateService', () {
-    late TestUpdateService updateService;
+    late http.Client mockClient;
 
-    setUp(() {
-      PackageInfo.setMockInitialValues(
-        appName: 'universal_notes',
-        packageName: 'com.example.universal_notes',
-        version: '1.0.0',
-        buildNumber: '1',
-        buildSignature: '',
-        installerStore: '',
-      );
-    });
-
-    test(
-        'checkForUpdate returns updateAvailable when a new version is '
-        'available', () async {
-      final mockClient = MockClient((request) async {
-        final response = {
-          'tag_name': 'v1.0.1',
+    // Helper to create a mock response for a specific channel
+    http.Response mockReleaseResponse({
+      String tagName = 'v1.0.0',
+      String body = '',
+      String assetName = 'test.apk',
+    }) {
+      return http.Response(
+        jsonEncode({
+          'tag_name': tagName,
+          'body': body,
           'assets': [
             {
-              'name': 'test.apk',
-              'browser_download_url': 'https://example.com/test.apk',
+              'name': assetName,
+              'browser_download_url': 'https://example.com/$assetName',
             }
-          ]
-        };
-        return http.Response(jsonEncode(response), 200);
-      });
-      updateService = TestUpdateService(client: mockClient);
-      final result = await updateService.checkForUpdate();
-      expect(result.status, UpdateCheckStatus.updateAvailable);
-      expect(result.updateInfo?.version, '1.0.1');
-    });
-
-    test('checkForUpdate returns noUpdate when current version is the latest',
-        () async {
-      PackageInfo.setMockInitialValues(
-        appName: 'universal_notes',
-        packageName: 'com.example.universal_notes',
-        version: '1.0.1',
-        buildNumber: '1',
-        buildSignature: '',
-        installerStore: '',
+          ],
+        }),
+        200,
       );
-      final mockClient = MockClient((request) async {
-        final response = {
-          'tag_name': 'v1.0.1',
-          'assets': [
-            {
-              'name': 'test.apk',
-              'browser_download_url': 'https://example.com/test.apk',
-            }
-          ]
-        };
-        return http.Response(jsonEncode(response), 200);
+    }
+
+    group('Stable Channel', () {
+      test(
+          'returns updateAvailable when a newer stable version is '
+          'available', () async {
+        final packageInfo = PackageInfo(
+            version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+        mockClient = MockClient((request) async {
+          expect(request.url.path, contains('/releases/latest'));
+          return mockReleaseResponse(tagName: 'v1.0.1');
+        });
+        final service =
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
+        final result = await service.checkForUpdate();
+        expect(result.status, UpdateCheckStatus.updateAvailable);
+        expect(result.updateInfo?.version, '1.0.1');
       });
-      updateService = TestUpdateService(client: mockClient);
-      final result = await updateService.checkForUpdate();
-      expect(result.status, UpdateCheckStatus.noUpdate);
+
+      test('returns noUpdate when the current stable version is the latest',
+          () async {
+        final packageInfo = PackageInfo(
+            version: '1.0.1', appName: '', buildNumber: '', packageName: '');
+        mockClient = MockClient((request) async {
+          expect(request.url.path, contains('/releases/latest'));
+          return mockReleaseResponse(tagName: 'v1.0.1');
+        });
+        final service =
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
+        final result = await service.checkForUpdate();
+        expect(result.status, UpdateCheckStatus.noUpdate);
+      });
     });
 
-    test('checkForUpdate returns error on server error', () async {
-      final mockClient = MockClient((request) async {
+    group('Dev Channel', () {
+      test('returns updateAvailable when a newer dev build is available',
+          () async {
+        final packageInfo = PackageInfo(
+            version: '1.0.0-dev.123',
+            appName: '',
+            buildNumber: '',
+            packageName: '');
+        mockClient = MockClient((request) async {
+          expect(request.url.path, contains('/releases/tags/dev-latest'));
+          return mockReleaseResponse(
+              tagName: 'dev-latest', body: 'Version: 1.0.0-dev.124');
+        });
+        final service =
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
+        final result = await service.checkForUpdate();
+        expect(result.status, UpdateCheckStatus.updateAvailable);
+        expect(result.updateInfo?.version, '1.0.0-dev.124');
+      });
+
+      test('returns noUpdate when the current dev build is the latest',
+          () async {
+        final packageInfo = PackageInfo(
+            version: '1.0.0-dev.124',
+            appName: '',
+            buildNumber: '',
+            packageName: '');
+        mockClient = MockClient((request) async {
+          expect(request.url.path, contains('/releases/tags/dev-latest'));
+          return mockReleaseResponse(
+              tagName: 'dev-latest', body: 'Version: 1.0.0-dev.124');
+        });
+        final service =
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
+        final result = await service.checkForUpdate();
+        expect(result.status, UpdateCheckStatus.noUpdate);
+      });
+    });
+    group('Beta Channel', () {
+      test('returns updateAvailable when a newer beta build is available',
+          () async {
+        final packageInfo = PackageInfo(
+            version: '1.0.0-beta.123',
+            appName: '',
+            buildNumber: '',
+            packageName: '');
+        mockClient = MockClient((request) async {
+          expect(request.url.path, contains('/releases/tags/beta-latest'));
+          return mockReleaseResponse(
+              tagName: 'beta-latest', body: 'Version: 1.0.0-beta.124');
+        });
+        final service =
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
+        final result = await service.checkForUpdate();
+        expect(result.status, UpdateCheckStatus.updateAvailable);
+        expect(result.updateInfo?.version, '1.0.0-beta.124');
+      });
+      test('returns noUpdate when the current beta build is the latest',
+          () async {
+        final packageInfo = PackageInfo(
+            version: '1.0.0-beta.124',
+            appName: '',
+            buildNumber: '',
+            packageName: '');
+        mockClient = MockClient((request) async {
+          expect(request.url.path, contains('/releases/tags/beta-latest'));
+          return mockReleaseResponse(
+              tagName: 'beta-latest', body: 'Version: 1.0.0-beta.124');
+        });
+        final service =
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
+        final result = await service.checkForUpdate();
+        expect(result.status, UpdateCheckStatus.noUpdate);
+      });
+    });
+
+    test('returns error on server error', () async {
+      final packageInfo =
+          PackageInfo(version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+      mockClient = MockClient((request) async {
         return http.Response('Server Error', 500);
       });
-      updateService = TestUpdateService(client: mockClient);
-      final result = await updateService.checkForUpdate();
+      final service =
+          TestUpdateService(client: mockClient, packageInfo: packageInfo);
+      final result = await service.checkForUpdate();
       expect(result.status, UpdateCheckStatus.error);
     });
   });

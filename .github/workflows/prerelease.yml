@@ -1,0 +1,51 @@
+name: Pre-release
+
+on:
+  workflow_call:
+
+jobs:
+  pre-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Download version artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/version-info
+          name: version-info-windows
+          ignore-no-artifacts-found: true
+      - name: Download version artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/version-info
+          name: version-info-android
+          ignore-no-artifacts-found: true
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(find artifacts/version-info -type f -name "*.txt" | head -n 1 | xargs cat)
+          echo "full_version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Delete existing latest tag and release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete ${{ github.ref_name }}-latest --yes || echo "Release not found, proceeding."
+          git push origin --delete ${{ github.ref_name }}-latest || echo "Tag not found, proceeding."
+      - name: Create or Update Pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}-latest
+          name: Pre-release ${{ github.ref_name }}
+          body: |
+            Automated pre-release for the ${{ github.ref_name }} branch. [Commit: ${{ github.sha }}]
+            Version: ${{ steps.version.outputs.full_version }}
+          prerelease: true
+          files: |
+            artifacts/windows-installer/UniversalNotesSetup-v${{ steps.version.outputs.full_version }}.exe
+            artifacts/android-apk/universal_notes-v${{ steps.version.outputs.full_version }}.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
