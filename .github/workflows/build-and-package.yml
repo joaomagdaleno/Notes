@@ -19,7 +19,7 @@ jobs:
         shell: powershell
         run: |
           git fetch --tags
-          $base = (git tag --sort=-version:refname | Select-Object -First 1) -replace '^v',''
+          $base = (git tag --sort=-version:refname | Where-Object { $_ -match '^v\\d+\\.\\d+\\.\\d+$' } | Select-Object -First 1) -replace '^v',''
           if (-not $base) { $base = "0.0.0" }
           Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$base"
       - name: Generate Version and Update Pubspec
@@ -91,7 +91,7 @@ jobs:
         id: version
         run: |
           git fetch --tags
-          BASE=$(git tag --sort=-version:refname | head -n1)
+          BASE=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
           BASE=${BASE#v}
           echo "base=${BASE:-0.0.0}" >> $GITHUB_OUTPUT
       - name: Generate Version and Update Pubspec
