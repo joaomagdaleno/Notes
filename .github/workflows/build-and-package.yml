@@ -56,7 +56,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: windows-installer
-          path: Output/UniversalNotesSetup-v${{ steps.generate_version_win.outputs.full_version }}.exe
+          path: Output/UniversalNotesSetup-${{ steps.generate_version_win.outputs.full_version }}.exe
       - name: Upload Version Artifact (Windows)
         uses: actions/upload-artifact@v4
         with:
