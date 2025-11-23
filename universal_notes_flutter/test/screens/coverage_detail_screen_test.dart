@@ -10,7 +10,6 @@ import '../services/coverage_service_test.mocks.dart';
 void main() {
   group('CoverageDetailScreen', () {
     final mockFileCoverage = FileCoverage(
-      title: 'Test File',
       file: 'lib/test.dart',
       functions: CoverageDetails(hit: 1, found: 1, details: []),
       lines: CoverageDetails(hit: 1, found: 2, details: [

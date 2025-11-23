@@ -20,7 +20,6 @@ void main() {
         "percentage": 83.33,
         "files": [
           {
-            "title": "Test File",
             "file": "lib/test.dart",
             "functions": {"hit": 1, "found": 1, "details": []},
             "lines": {"hit": 10, "found": 12, "details": [{"line": 1, "hit": 1}]}
