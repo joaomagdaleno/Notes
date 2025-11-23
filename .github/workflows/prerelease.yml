@@ -46,6 +46,6 @@ jobs:
             Version: ${{ steps.version.outputs.full_version }}
           prerelease: true
           files: |
-            artifacts/windows-installer/UniversalNotesSetup-v${{ steps.version.outputs.full_version }}.exe
+            artifacts/windows-installer/UniversalNotesSetup-${{ steps.version.outputs.full_version }}.exe
             artifacts/android-apk/universal_notes-v${{ steps.version.outputs.full_version }}.apk
           token: ${{ secrets.GITHUB_TOKEN }}
