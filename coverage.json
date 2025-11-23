@@ -1,7 +1,7 @@
 {
-  "totalLines": 922,
-  "totalHit": 492,
-  "percentage": 53.36225596529284,
+  "totalLines": 921,
+  "totalHit": 491,
+  "percentage": 53.31161780673182,
   "files": [
     {
       "lines": {
@@ -164,8 +164,8 @@
     },
     {
       "lines": {
-        "found": 32,
-        "hit": 32,
+        "found": 31,
+        "hit": 31,
         "details": [
           {
             "line": 4,
@@ -208,44 +208,52 @@
             "hit": 3
           },
           {
+            "line": 39,
+            "hit": 2
+          },
+          {
+            "line": 40,
+            "hit": 2
+          },
+          {
             "line": 41,
             "hit": 2
           },
           {
             "line": 42,
-            "hit": 2
+            "hit": 4
           },
           {
             "line": 43,
-            "hit": 2
-          },
-          {
-            "line": 44,
-            "hit": 2
-          },
-          {
-            "line": 45,
             "hit": 4
           },
           {
-            "line": 46,
-            "hit": 4
-          },
-          {
-            "line": 50,
+            "line": 47,
             "hit": 1
           },
           {
-            "line": 51,
+            "line": 48,
             "hit": 3
           },
           {
-            "line": 54,
+            "line": 51,
             "hit": 6
           },
           {
-            "line": 59,
+            "line": 56,
             "hit": 3
+          },
+          {
+            "line": 66,
+            "hit": 2
+          },
+          {
+            "line": 67,
+            "hit": 2
+          },
+          {
+            "line": 68,
+            "hit": 2
           },
           {
             "line": 69,
@@ -257,42 +265,30 @@
           },
           {
             "line": 71,
-            "hit": 2
+            "hit": 6
           },
           {
             "line": 72,
             "hit": 2
           },
           {
-            "line": 73,
-            "hit": 2
-          },
-          {
-            "line": 74,
-            "hit": 6
-          },
-          {
-            "line": 75,
-            "hit": 2
-          },
-          {
-            "line": 81,
+            "line": 78,
             "hit": 3
           },
           {
+            "line": 86,
+            "hit": 2
+          },
+          {
+            "line": 87,
+            "hit": 2
+          },
+          {
+            "line": 88,
+            "hit": 2
+          },
+          {
             "line": 89,
-            "hit": 2
-          },
-          {
-            "line": 90,
-            "hit": 2
-          },
-          {
-            "line": 91,
-            "hit": 2
-          },
-          {
-            "line": 92,
             "hit": 2
           }
         ]
