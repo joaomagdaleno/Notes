@@ -27,20 +27,17 @@ class CoverageReport {
 
 class FileCoverage {
   const FileCoverage({
-    required this.title,
     required this.file,
     required this.functions,
     required this.lines,
   });
 
-  final String title;
   final String file;
   final CoverageDetails functions;
   final CoverageDetails lines;
 
   factory FileCoverage.fromJson(Map<String, dynamic> json) {
     return FileCoverage(
-      title: json['title'] as String,
       file: json['file'] as String,
       functions: CoverageDetails.fromJson(json['functions'] as Map<String, dynamic>),
       lines: CoverageDetails.fromJson(json['lines'] as Map<String, dynamic>),
