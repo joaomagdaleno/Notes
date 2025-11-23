@@ -50,8 +50,7 @@ jobs:
       - name: Build Installer
         shell: pwsh
         run: |
-          (Get-Content installer.iss) -replace 'MyAppVersion ".*"','MyAppVersion "${{ steps.generate_version_win.outputs.full_version }}"' | Set-Content installer.iss
-          (Get-Content installer.iss) -replace 'OutputBaseFilename ".*"','OutputBaseFilename "UniversalNotesSetup-v${{ steps.generate_version_win.outputs.full_version }}"' | Set-Content installer.iss
+          (Get-Content installer.iss) -replace '#define MyAppVersion ".*"','#define MyAppVersion "${{ steps.generate_version_win.outputs.full_version }}"' | Set-Content installer.iss
           & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
       - name: Upload Installer Artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
