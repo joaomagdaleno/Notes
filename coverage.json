@@ -1,7 +1,7 @@
 {
-  "totalLines": 921,
-  "totalHit": 508,
-  "percentage": 55.157437567861024,
+  "totalLines": 775,
+  "totalHit": 381,
+  "percentage": 49.16129032258065,
   "files": [
     {
       "lines": {
@@ -224,196 +224,6 @@
         "details": []
       },
       "file": "lib/models/paper_config.dart"
-    },
-    {
-      "lines": {
-        "found": 31,
-        "hit": 31,
-        "details": [
-          {
-            "line": 4,
-            "hit": 2
-          },
-          {
-            "line": 16,
-            "hit": 2
-          },
-          {
-            "line": 17,
-            "hit": 2
-          },
-          {
-            "line": 18,
-            "hit": 2
-          },
-          {
-            "line": 19,
-            "hit": 2
-          },
-          {
-            "line": 20,
-            "hit": 4
-          },
-          {
-            "line": 21,
-            "hit": 2
-          },
-          {
-            "line": 22,
-            "hit": 6
-          },
-          {
-            "line": 23,
-            "hit": 2
-          },
-          {
-            "line": 29,
-            "hit": 3
-          },
-          {
-            "line": 39,
-            "hit": 2
-          },
-          {
-            "line": 40,
-            "hit": 2
-          },
-          {
-            "line": 41,
-            "hit": 2
-          },
-          {
-            "line": 42,
-            "hit": 4
-          },
-          {
-            "line": 43,
-            "hit": 4
-          },
-          {
-            "line": 47,
-            "hit": 1
-          },
-          {
-            "line": 48,
-            "hit": 3
-          },
-          {
-            "line": 51,
-            "hit": 6
-          },
-          {
-            "line": 56,
-            "hit": 3
-          },
-          {
-            "line": 66,
-            "hit": 2
-          },
-          {
-            "line": 67,
-            "hit": 2
-          },
-          {
-            "line": 68,
-            "hit": 2
-          },
-          {
-            "line": 69,
-            "hit": 2
-          },
-          {
-            "line": 70,
-            "hit": 2
-          },
-          {
-            "line": 71,
-            "hit": 6
-          },
-          {
-            "line": 72,
-            "hit": 2
-          },
-          {
-            "line": 78,
-            "hit": 3
-          },
-          {
-            "line": 86,
-            "hit": 2
-          },
-          {
-            "line": 87,
-            "hit": 2
-          },
-          {
-            "line": 88,
-            "hit": 2
-          },
-          {
-            "line": 89,
-            "hit": 2
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/models/coverage_report.dart"
-    },
-    {
-      "lines": {
-        "found": 7,
-        "hit": 7,
-        "details": [
-          {
-            "line": 9,
-            "hit": 2
-          },
-          {
-            "line": 11,
-            "hit": 2
-          },
-          {
-            "line": 12,
-            "hit": 6
-          },
-          {
-            "line": 14,
-            "hit": 4
-          },
-          {
-            "line": 16,
-            "hit": 4
-          },
-          {
-            "line": 17,
-            "hit": 2
-          },
-          {
-            "line": 19,
-            "hit": 2
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/services/coverage_service.dart"
     },
     {
       "lines": {
@@ -920,7 +730,7 @@
           },
           {
             "line": 44,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 46,
@@ -976,7 +786,7 @@
           },
           {
             "line": 80,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 82,
@@ -1004,7 +814,7 @@
           },
           {
             "line": 107,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 109,
@@ -1032,7 +842,7 @@
           },
           {
             "line": 141,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 153,
@@ -2133,7 +1943,7 @@
         "details": [
           {
             "line": 9,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 11,
@@ -2696,11 +2506,15 @@
     },
     {
       "lines": {
-        "found": 78,
-        "hit": 25,
+        "found": 65,
+        "hit": 23,
         "details": [
           {
-            "line": 14,
+            "line": 13,
+            "hit": 1
+          },
+          {
+            "line": 15,
             "hit": 2
           },
           {
@@ -2708,20 +2522,20 @@
             "hit": 2
           },
           {
-            "line": 17,
+            "line": 24,
             "hit": 2
           },
           {
-            "line": 25,
+            "line": 26,
             "hit": 2
           },
           {
             "line": 27,
-            "hit": 2
+            "hit": 4
           },
           {
-            "line": 28,
-            "hit": 4
+            "line": 30,
+            "hit": 2
           },
           {
             "line": 31,
@@ -2736,8 +2550,8 @@
             "hit": 2
           },
           {
-            "line": 34,
-            "hit": 2
+            "line": 37,
+            "hit": 0
           },
           {
             "line": 38,
@@ -2748,11 +2562,11 @@
             "hit": 0
           },
           {
-            "line": 40,
+            "line": 42,
             "hit": 0
           },
           {
-            "line": 43,
+            "line": 44,
             "hit": 0
           },
           {
@@ -2764,7 +2578,7 @@
             "hit": 0
           },
           {
-            "line": 47,
+            "line": 51,
             "hit": 0
           },
           {
@@ -2780,7 +2594,7 @@
             "hit": 0
           },
           {
-            "line": 55,
+            "line": 56,
             "hit": 0
           },
           {
@@ -2792,7 +2606,7 @@
             "hit": 0
           },
           {
-            "line": 59,
+            "line": 60,
             "hit": 0
           },
           {
@@ -2800,7 +2614,7 @@
             "hit": 0
           },
           {
-            "line": 62,
+            "line": 63,
             "hit": 0
           },
           {
@@ -2816,7 +2630,7 @@
             "hit": 0
           },
           {
-            "line": 67,
+            "line": 70,
             "hit": 0
           },
           {
@@ -2824,24 +2638,24 @@
             "hit": 0
           },
           {
-            "line": 72,
-            "hit": 0
+            "line": 76,
+            "hit": 2
           },
           {
-            "line": 77,
+            "line": 78,
             "hit": 2
           },
           {
             "line": 79,
-            "hit": 2
-          },
-          {
-            "line": 80,
             "hit": 0
           },
           {
-            "line": 82,
+            "line": 81,
             "hit": 2
+          },
+          {
+            "line": 85,
+            "hit": 0
           },
           {
             "line": 86,
@@ -2852,11 +2666,11 @@
             "hit": 0
           },
           {
-            "line": 88,
+            "line": 89,
             "hit": 0
           },
           {
-            "line": 90,
+            "line": 91,
             "hit": 0
           },
           {
@@ -2864,354 +2678,23 @@
             "hit": 0
           },
           {
-            "line": 93,
+            "line": 94,
             "hit": 0
-          },
-          {
-            "line": 95,
-            "hit": 0
-          },
-          {
-            "line": 100,
-            "hit": 0
-          },
-          {
-            "line": 101,
-            "hit": 0
-          },
-          {
-            "line": 103,
-            "hit": 0
-          },
-          {
-            "line": 104,
-            "hit": 0
-          },
-          {
-            "line": 106,
-            "hit": 0
-          },
-          {
-            "line": 107,
-            "hit": 0
-          },
-          {
-            "line": 108,
-            "hit": 0
-          },
-          {
-            "line": 109,
-            "hit": 0
-          },
-          {
-            "line": 110,
-            "hit": 0
-          },
-          {
-            "line": 113,
-            "hit": 0
-          },
-          {
-            "line": 114,
-            "hit": 0
-          },
-          {
-            "line": 115,
-            "hit": 0
-          },
-          {
-            "line": 116,
-            "hit": 0
-          },
-          {
-            "line": 117,
-            "hit": 0
-          },
-          {
-            "line": 119,
-            "hit": 0
-          },
-          {
-            "line": 120,
-            "hit": 0
-          },
-          {
-            "line": 126,
-            "hit": 0
-          },
-          {
-            "line": 128,
-            "hit": 0
-          },
-          {
-            "line": 136,
-            "hit": 2
-          },
-          {
-            "line": 137,
-            "hit": 2
-          },
-          {
-            "line": 138,
-            "hit": 2
-          },
-          {
-            "line": 141,
-            "hit": 2
-          },
-          {
-            "line": 142,
-            "hit": 2
-          },
-          {
-            "line": 144,
-            "hit": 2
-          },
-          {
-            "line": 145,
-            "hit": 6
-          },
-          {
-            "line": 147,
-            "hit": 2
-          },
-          {
-            "line": 148,
-            "hit": 0
-          },
-          {
-            "line": 150,
-            "hit": 2
-          },
-          {
-            "line": 151,
-            "hit": 2
-          },
-          {
-            "line": 154,
-            "hit": 2
-          },
-          {
-            "line": 155,
-            "hit": 2
-          },
-          {
-            "line": 156,
-            "hit": 0
-          },
-          {
-            "line": 157,
-            "hit": 0
-          },
-          {
-            "line": 159,
-            "hit": 0
-          },
-          {
-            "line": 160,
-            "hit": 0
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/screens/about_screen.dart"
-    },
-    {
-      "lines": {
-        "found": 51,
-        "hit": 44,
-        "details": [
-          {
-            "line": 8,
-            "hit": 1
-          },
-          {
-            "line": 9,
-            "hit": 0
-          },
-          {
-            "line": 13,
-            "hit": 1
-          },
-          {
-            "line": 14,
-            "hit": 1
-          },
-          {
-            "line": 20,
-            "hit": 1
-          },
-          {
-            "line": 22,
-            "hit": 1
-          },
-          {
-            "line": 23,
-            "hit": 4
-          },
-          {
-            "line": 26,
-            "hit": 1
-          },
-          {
-            "line": 28,
-            "hit": 1
-          },
-          {
-            "line": 29,
-            "hit": 1
-          },
-          {
-            "line": 32,
-            "hit": 1
-          },
-          {
-            "line": 33,
-            "hit": 1
-          },
-          {
-            "line": 34,
-            "hit": 1
-          },
-          {
-            "line": 35,
-            "hit": 2
-          },
-          {
-            "line": 37,
-            "hit": 1
-          },
-          {
-            "line": 38,
-            "hit": 4
-          },
-          {
-            "line": 39,
-            "hit": 1
-          },
-          {
-            "line": 40,
-            "hit": 1
-          },
-          {
-            "line": 41,
-            "hit": 1
-          },
-          {
-            "line": 42,
-            "hit": 1
-          },
-          {
-            "line": 43,
-            "hit": 2
-          },
-          {
-            "line": 44,
-            "hit": 1
-          },
-          {
-            "line": 45,
-            "hit": 1
-          },
-          {
-            "line": 46,
-            "hit": 2
-          },
-          {
-            "line": 47,
-            "hit": 1
-          },
-          {
-            "line": 48,
-            "hit": 2
-          },
-          {
-            "line": 49,
-            "hit": 1
-          },
-          {
-            "line": 63,
-            "hit": 1
-          },
-          {
-            "line": 64,
-            "hit": 1
-          },
-          {
-            "line": 66,
-            "hit": 1
-          },
-          {
-            "line": 68,
-            "hit": 1
-          },
-          {
-            "line": 69,
-            "hit": 1
-          },
-          {
-            "line": 72,
-            "hit": 1
-          },
-          {
-            "line": 74,
-            "hit": 1
-          },
-          {
-            "line": 75,
-            "hit": 1
-          },
-          {
-            "line": 76,
-            "hit": 2
-          },
-          {
-            "line": 81,
-            "hit": 1
-          },
-          {
-            "line": 84,
-            "hit": 1
-          },
-          {
-            "line": 85,
-            "hit": 1
-          },
-          {
-            "line": 97,
-            "hit": 1
-          },
-          {
-            "line": 98,
-            "hit": 1
           },
           {
             "line": 99,
-            "hit": 2
+            "hit": 0
           },
           {
             "line": 100,
-            "hit": 1
+            "hit": 0
           },
           {
-            "line": 101,
-            "hit": 2
+            "line": 102,
+            "hit": 0
           },
           {
             "line": 103,
-            "hit": 4
-          },
-          {
-            "line": 104,
             "hit": 0
           },
           {
@@ -3231,8 +2714,60 @@
             "hit": 0
           },
           {
-            "line": 110,
+            "line": 109,
             "hit": 0
+          },
+          {
+            "line": 112,
+            "hit": 0
+          },
+          {
+            "line": 114,
+            "hit": 0
+          },
+          {
+            "line": 122,
+            "hit": 2
+          },
+          {
+            "line": 123,
+            "hit": 2
+          },
+          {
+            "line": 124,
+            "hit": 2
+          },
+          {
+            "line": 127,
+            "hit": 2
+          },
+          {
+            "line": 128,
+            "hit": 2
+          },
+          {
+            "line": 130,
+            "hit": 2
+          },
+          {
+            "line": 131,
+            "hit": 6
+          },
+          {
+            "line": 133,
+            "hit": 2
+          },
+          {
+            "line": 134,
+            "hit": 0
+          },
+          {
+            "line": 136,
+            "hit": 2
+          },
+          {
+            "line": 137,
+            "hit": 2
           }
         ]
       },
@@ -3246,7 +2781,7 @@
         "found": 0,
         "details": []
       },
-      "file": "lib/screens/coverage_report_screen.dart"
+      "file": "lib/screens/about_screen.dart"
     },
     {
       "lines": {
@@ -3398,201 +2933,6 @@
         "details": []
       },
       "file": "lib/utils/windows_update_helper.dart"
-    },
-    {
-      "lines": {
-        "found": 44,
-        "hit": 43,
-        "details": [
-          {
-            "line": 6,
-            "hit": 1
-          },
-          {
-            "line": 10,
-            "hit": 0
-          },
-          {
-            "line": 15,
-            "hit": 1
-          },
-          {
-            "line": 16,
-            "hit": 1
-          },
-          {
-            "line": 22,
-            "hit": 1
-          },
-          {
-            "line": 24,
-            "hit": 1
-          },
-          {
-            "line": 25,
-            "hit": 2
-          },
-          {
-            "line": 28,
-            "hit": 1
-          },
-          {
-            "line": 31,
-            "hit": 4
-          },
-          {
-            "line": 32,
-            "hit": 4
-          },
-          {
-            "line": 34,
-            "hit": 2
-          },
-          {
-            "line": 35,
-            "hit": 1
-          },
-          {
-            "line": 37,
-            "hit": 5
-          },
-          {
-            "line": 41,
-            "hit": 1
-          },
-          {
-            "line": 43,
-            "hit": 1
-          },
-          {
-            "line": 44,
-            "hit": 1
-          },
-          {
-            "line": 45,
-            "hit": 4
-          },
-          {
-            "line": 47,
-            "hit": 1
-          },
-          {
-            "line": 48,
-            "hit": 1
-          },
-          {
-            "line": 49,
-            "hit": 1
-          },
-          {
-            "line": 50,
-            "hit": 2
-          },
-          {
-            "line": 52,
-            "hit": 1
-          },
-          {
-            "line": 53,
-            "hit": 4
-          },
-          {
-            "line": 54,
-            "hit": 1
-          },
-          {
-            "line": 55,
-            "hit": 2
-          },
-          {
-            "line": 56,
-            "hit": 8
-          },
-          {
-            "line": 58,
-            "hit": 1
-          },
-          {
-            "line": 59,
-            "hit": 1
-          },
-          {
-            "line": 60,
-            "hit": 1
-          },
-          {
-            "line": 61,
-            "hit": 1
-          },
-          {
-            "line": 62,
-            "hit": 1
-          },
-          {
-            "line": 65,
-            "hit": 1
-          },
-          {
-            "line": 66,
-            "hit": 2
-          },
-          {
-            "line": 67,
-            "hit": 1
-          },
-          {
-            "line": 68,
-            "hit": 1
-          },
-          {
-            "line": 71,
-            "hit": 1
-          },
-          {
-            "line": 73,
-            "hit": 1
-          },
-          {
-            "line": 74,
-            "hit": 1
-          },
-          {
-            "line": 75,
-            "hit": 1
-          },
-          {
-            "line": 79,
-            "hit": 1
-          },
-          {
-            "line": 80,
-            "hit": 1
-          },
-          {
-            "line": 84,
-            "hit": 1
-          },
-          {
-            "line": 85,
-            "hit": 1
-          },
-          {
-            "line": 87,
-            "hit": 1
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/screens/coverage_detail_screen.dart"
     },
     {
       "lines": {
