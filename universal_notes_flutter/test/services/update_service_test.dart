@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -228,6 +229,29 @@ void main() {
       test('returns false for invalid version string', () {
         final service = TestUpdateService();
         expect(service.isNewerVersion('invalid-version', '1.0.0'), isFalse);
+      });
+    });
+
+    group('getPlatformFileExtension', () {
+      test('returns .exe for Windows', () {
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+        final service = UpdateService();
+        expect(service.getPlatformFileExtension(), '.exe');
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      test('returns .apk for Android', () {
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        final service = UpdateService();
+        expect(service.getPlatformFileExtension(), '.apk');
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      test('returns null for other platforms', () {
+        debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+        final service = UpdateService();
+        expect(service.getPlatformFileExtension(), isNull);
+        debugDefaultTargetPlatformOverride = null;
       });
     });
   });
