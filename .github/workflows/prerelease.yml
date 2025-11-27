@@ -9,10 +9,18 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Download all artifacts
+      - name: Checkout repository
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - name: Download Windows Installer
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          name: windows-installer
+          path: artifacts/windows-installer
+      - name: Download Android APK
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: artifacts/android-apk
       - name: Download version artifacts
         uses: actions/download-artifact@v4
         with:
@@ -40,8 +48,8 @@ jobs:
             Version: ${{ steps.version.outputs.full_version }}
           prerelease: true
           files: |
-            artifacts/windows-installer/UniversalNotesSetup-${{ steps.version.outputs.full_version }}.exe
-            artifacts/android-apk/universal_notes-v${{ steps.version.outputs.full_version }}.apk
+            artifacts/windows-installer/*.exe
+            artifacts/android-apk/*.apk
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Update latest tag
         env:
