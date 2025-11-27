@@ -1,8 +1,71 @@
 {
   "totalLines": 921,
-  "totalHit": 491,
-  "percentage": 53.31161780673182,
+  "totalHit": 502,
+  "percentage": 54.50597176981542,
   "files": [
+    {
+      "lines": {
+        "found": 11,
+        "hit": 11,
+        "details": [
+          {
+            "line": 20,
+            "hit": 1
+          },
+          {
+            "line": 24,
+            "hit": 1
+          },
+          {
+            "line": 26,
+            "hit": 1
+          },
+          {
+            "line": 28,
+            "hit": 1
+          },
+          {
+            "line": 33,
+            "hit": 3
+          },
+          {
+            "line": 51,
+            "hit": 1
+          },
+          {
+            "line": 54,
+            "hit": 1
+          },
+          {
+            "line": 56,
+            "hit": 1
+          },
+          {
+            "line": 58,
+            "hit": 1
+          },
+          {
+            "line": 61,
+            "hit": 1
+          },
+          {
+            "line": 67,
+            "hit": 7
+          }
+        ]
+      },
+      "functions": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "branches": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "file": "lib/models/paper_config.dart"
+    },
     {
       "lines": {
         "found": 35,
@@ -3737,69 +3800,6 @@
         "details": []
       },
       "file": "lib/widgets/context_menu_helper.dart"
-    },
-    {
-      "lines": {
-        "found": 11,
-        "hit": 0,
-        "details": [
-          {
-            "line": 20,
-            "hit": 0
-          },
-          {
-            "line": 24,
-            "hit": 0
-          },
-          {
-            "line": 26,
-            "hit": 0
-          },
-          {
-            "line": 28,
-            "hit": 0
-          },
-          {
-            "line": 33,
-            "hit": 0
-          },
-          {
-            "line": 51,
-            "hit": 0
-          },
-          {
-            "line": 54,
-            "hit": 0
-          },
-          {
-            "line": 56,
-            "hit": 0
-          },
-          {
-            "line": 58,
-            "hit": 0
-          },
-          {
-            "line": 61,
-            "hit": 0
-          },
-          {
-            "line": 67,
-            "hit": 0
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/models/paper_config.dart"
     },
     {
       "lines": {
