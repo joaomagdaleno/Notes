@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -12,6 +13,16 @@ class TestUpdateService extends UpdateService {
   @override
   String? getPlatformFileExtension() {
     return '.apk';
+  }
+}
+
+class UnsupportedPlatformUpdateService extends UpdateService {
+  UnsupportedPlatformUpdateService({http.Client? client, PackageInfo? packageInfo})
+      : super(client: client, packageInfo: packageInfo);
+
+  @override
+  String? getPlatformFileExtension() {
+    return null;
   }
 }
 
@@ -57,6 +68,19 @@ void main() {
         expect(result.updateInfo?.version, '1.0.1');
       });
 
+      test('returns noUpdate when a newer version has no matching asset',
+          () async {
+        final packageInfo = PackageInfo(
+            version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+        mockClient = MockClient((request) async {
+          return mockReleaseResponse(tagName: 'v1.0.1', assetName: 'test.zip');
+        });
+        final service =
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
+        final result = await service.checkForUpdate();
+        expect(result.status, UpdateCheckStatus.noUpdate);
+      });
+
       test('returns noUpdate when the current stable version is the latest',
           () async {
         final packageInfo = PackageInfo(
@@ -67,6 +91,18 @@ void main() {
         });
         final service =
             TestUpdateService(client: mockClient, packageInfo: packageInfo);
+        final result = await service.checkForUpdate();
+        expect(result.status, UpdateCheckStatus.noUpdate);
+      });
+
+      test('returns noUpdate for unsupported platform', () async {
+        final packageInfo = PackageInfo(
+            version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+        mockClient = MockClient((request) async {
+          return mockReleaseResponse(tagName: 'v1.0.1');
+        });
+        final service = UnsupportedPlatformUpdateService(
+            client: mockClient, packageInfo: packageInfo);
         final result = await service.checkForUpdate();
         expect(result.status, UpdateCheckStatus.noUpdate);
       });
@@ -103,6 +139,21 @@ void main() {
           expect(request.url.path, contains('/releases/tags/dev-latest'));
           return mockReleaseResponse(
               tagName: 'dev-latest', body: 'Version: 1.0.0-dev.124');
+        });
+        final service =
+            TestUpdateService(client: mockClient, packageInfo: packageInfo);
+        final result = await service.checkForUpdate();
+        expect(result.status, UpdateCheckStatus.noUpdate);
+      });
+
+      test('returns noUpdate when the release body has no version', () async {
+        final packageInfo = PackageInfo(
+            version: '1.0.0-dev.123',
+            appName: '',
+            buildNumber: '',
+            packageName: '');
+        mockClient = MockClient((request) async {
+          return mockReleaseResponse(tagName: 'dev-latest', body: '');
         });
         final service =
             TestUpdateService(client: mockClient, packageInfo: packageInfo);
@@ -158,6 +209,50 @@ void main() {
           TestUpdateService(client: mockClient, packageInfo: packageInfo);
       final result = await service.checkForUpdate();
       expect(result.status, UpdateCheckStatus.error);
+      expect(result.errorMessage, 'Falha ao comunicar com o servidor de atualização.');
+    });
+
+    test('returns error on network error', () async {
+      final packageInfo =
+          PackageInfo(version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+      mockClient = MockClient((request) async {
+        throw http.ClientException('Network error');
+      });
+      final service =
+          TestUpdateService(client: mockClient, packageInfo: packageInfo);
+      final result = await service.checkForUpdate();
+      expect(result.status, UpdateCheckStatus.error);
+      expect(result.errorMessage, contains('Verifique sua conexão com a internet'));
+    });
+
+    group('isNewerVersion', () {
+      test('returns false for invalid version string', () {
+        final service = TestUpdateService();
+        expect(service.isNewerVersion('invalid-version', '1.0.0'), isFalse);
+      });
+    });
+
+    group('getPlatformFileExtension', () {
+      test('returns .exe for Windows', () {
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+        final service = UpdateService();
+        expect(service.getPlatformFileExtension(), '.exe');
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      test('returns .apk for Android', () {
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        final service = UpdateService();
+        expect(service.getPlatformFileExtension(), '.apk');
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      test('returns null for other platforms', () {
+        debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+        final service = UpdateService();
+        expect(service.getPlatformFileExtension(), isNull);
+        debugDefaultTargetPlatformOverride = null;
+      });
     });
   });
 }
