@@ -1,8 +1,71 @@
 {
   "totalLines": 921,
-  "totalHit": 502,
-  "percentage": 54.50597176981542,
+  "totalHit": 508,
+  "percentage": 55.157437567861024,
   "files": [
+    {
+      "lines": {
+        "found": 11,
+        "hit": 11,
+        "details": [
+          {
+            "line": 20,
+            "hit": 1
+          },
+          {
+            "line": 24,
+            "hit": 1
+          },
+          {
+            "line": 26,
+            "hit": 1
+          },
+          {
+            "line": 28,
+            "hit": 1
+          },
+          {
+            "line": 33,
+            "hit": 3
+          },
+          {
+            "line": 51,
+            "hit": 1
+          },
+          {
+            "line": 54,
+            "hit": 1
+          },
+          {
+            "line": 56,
+            "hit": 1
+          },
+          {
+            "line": 58,
+            "hit": 1
+          },
+          {
+            "line": 61,
+            "hit": 1
+          },
+          {
+            "line": 67,
+            "hit": 7
+          }
+        ]
+      },
+      "functions": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "branches": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "file": "lib/models/paper_config.dart"
+    },
     {
       "lines": {
         "found": 35,
@@ -161,69 +224,6 @@
         "details": []
       },
       "file": "lib/models/note.dart"
-    },
-    {
-      "lines": {
-        "found": 11,
-        "hit": 11,
-        "details": [
-          {
-            "line": 20,
-            "hit": 1
-          },
-          {
-            "line": 24,
-            "hit": 1
-          },
-          {
-            "line": 26,
-            "hit": 1
-          },
-          {
-            "line": 28,
-            "hit": 1
-          },
-          {
-            "line": 33,
-            "hit": 3
-          },
-          {
-            "line": 51,
-            "hit": 1
-          },
-          {
-            "line": 54,
-            "hit": 1
-          },
-          {
-            "line": 56,
-            "hit": 1
-          },
-          {
-            "line": 58,
-            "hit": 1
-          },
-          {
-            "line": 61,
-            "hit": 1
-          },
-          {
-            "line": 67,
-            "hit": 7
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/models/paper_config.dart"
     },
     {
       "lines": {
@@ -418,7 +418,7 @@
     {
       "lines": {
         "found": 52,
-        "hit": 43,
+        "hit": 49,
         "details": [
           {
             "line": 21,
@@ -430,7 +430,7 @@
           },
           {
             "line": 35,
-            "hit": 2
+            "hit": 3
           },
           {
             "line": 43,
@@ -486,7 +486,7 @@
           },
           {
             "line": 64,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 68,
@@ -506,7 +506,7 @@
           },
           {
             "line": 73,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 76,
@@ -526,7 +526,7 @@
           },
           {
             "line": 80,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 84,
@@ -550,11 +550,11 @@
           },
           {
             "line": 101,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 102,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 110,
@@ -610,7 +610,7 @@
           },
           {
             "line": 133,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 140,
