@@ -24,12 +24,13 @@ class ContextMenuHelper {
         Offset.zero & overlay.size,
       ),
       items: note.isInTrash
-          ? _buildTrashContextMenu(context, note, onSave, onDelete)
-          : _buildDefaultContextMenu(context, note, onSave),
+          ? buildTrashContextMenu(context, note, onSave, onDelete)
+          : buildDefaultContextMenu(context, note, onSave),
     );
   }
 
-  static List<PopupMenuEntry<void>> _buildDefaultContextMenu(
+  @visibleForTesting
+  static List<PopupMenuEntry<void>> buildDefaultContextMenu(
     BuildContext context,
     Note note,
     void Function(Note) onSave,
@@ -74,7 +75,8 @@ class ContextMenuHelper {
     ];
   }
 
-  static List<PopupMenuEntry<void>> _buildTrashContextMenu(
+  @visibleForTesting
+  static List<PopupMenuEntry<void>> buildTrashContextMenu(
     BuildContext context,
     Note note,
     void Function(Note) onSave,
