@@ -52,7 +52,7 @@ class FluentNoteCard extends StatelessWidget {
             const SizedBox(height: 8),
             Expanded(
               child: Text(
-                _getPreviewText(note.content),
+                getPreviewText(note.content),
                 style: fluent.FluentTheme.of(context).typography.body,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 5,
@@ -70,7 +70,9 @@ class FluentNoteCard extends StatelessWidget {
   }
 }
 
-String _getPreviewText(String jsonContent) {
+/// Returns a plain text preview from a JSON string.
+@visibleForTesting
+String getPreviewText(String jsonContent) {
   try {
     final delta = jsonDecode(jsonContent) as List<dynamic>;
     final text = delta
