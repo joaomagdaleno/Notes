@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/utils/text_helpers.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 /// A widget that displays a note as a card.
@@ -72,26 +73,24 @@ class NoteCard extends StatelessWidget {
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 5,
                     ),
                   ),
+                if (note.content.isNotEmpty) const SizedBox(height: 8),
+                Text(
+                  note.title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              if (note.content.isNotEmpty) const SizedBox(height: 8),
-              Text(
-                note.title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                DateFormat('d MMM. yyyy').format(note.date),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  DateFormat('d MMM. yyyy').format(note.date),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -99,15 +98,3 @@ class NoteCard extends StatelessWidget {
   }
 }
 
-String _getPreviewText(String jsonContent) {
-  try {
-    final delta = jsonDecode(jsonContent) as List;
-    final text = delta
-        .where((dynamic op) => op is Map && op.containsKey('insert'))
-        .map((dynamic op) => (op as Map)['insert'].toString())
-        .join();
-    return text.replaceAll(RegExp(r'\s+'), ' ').trim();
-  } on Exception {
-    return '...';
-  }
-}

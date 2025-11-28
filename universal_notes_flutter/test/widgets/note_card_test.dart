@@ -18,6 +18,7 @@ void main() {
             note: note,
             onSave: (note) async => note,
             onDelete: (note) {},
+            onTap: () {},
           ),
         ),
       ),
@@ -26,6 +27,7 @@ void main() {
     // Verify that the note's title and date are displayed.
     expect(find.text('Test Note'), findsOneWidget);
     expect(find.textContaining(note.date.day.toString()), findsOneWidget);
+    expect(find.text('This is a test note.'), findsOneWidget);
   });
 
   testWidgets('tapping NoteCard calls onTap callback',
