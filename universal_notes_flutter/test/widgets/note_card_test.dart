@@ -52,7 +52,12 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byType(NoteCard));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NoteCard),
+        matching: find.byType(GestureDetector),
+      ),
+    );
     await tester.pump();
 
     expect(tapped, isTrue);
@@ -85,15 +90,4 @@ void main() {
     expect(find.text('Favoritar'), findsOneWidget);
   });
 
-  group('getPreviewText', () {
-    test('extracts text from valid JSON', () {
-      const json = '[{"insert":"Hello World"},{"insert":"\\n"}]';
-      expect(getPreviewText(json), 'Hello World');
-    });
-
-    test('returns ellipsis for invalid JSON', () {
-      const json = 'invalid-json';
-      expect(getPreviewText(json), '...');
-    });
-  });
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/utils/text_helpers.dart';
 
 /// A widget that displays a note as a card with a fluent design.
 class FluentNoteCard extends StatelessWidget {
@@ -12,7 +13,7 @@ class FluentNoteCard extends StatelessWidget {
     required this.note,
     required this.onSave,
     required this.onDelete,
-    this.onTap,
+    required this.onTap,
     super.key,
   });
   /// The note to display.
@@ -23,20 +24,12 @@ class FluentNoteCard extends StatelessWidget {
   final void Function(Note) onDelete;
   /// The function to call when the widget is tapped.
   /// If null, it will navigate to the [NoteEditorScreen].
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap ??
-          () async {
-            await Navigator.of(context).push(
-              fluent.FluentPageRoute<void>(
-                builder: (context) =>
-                    NoteEditorScreen(note: note, onSave: onSave),
-              ),
-            );
-          },
+      onTap: onTap,
       child: fluent.Card(
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -70,19 +63,3 @@ class FluentNoteCard extends StatelessWidget {
   }
 }
 
-/// Returns a plain text preview from a JSON string.
-@visibleForTesting
-String getPreviewText(String jsonContent) {
-  try {
-    final delta = jsonDecode(jsonContent) as List<dynamic>;
-    final text = delta
-        .where(
-          (dynamic op) => op is Map && op.containsKey('insert'),
-        )
-        .map((dynamic op) => (op as Map)['insert'].toString())
-        .join();
-    return text.replaceAll(RegExp(r'\s+'), ' ').trim();
-  } on Exception {
-    return '...';
-  }
-}

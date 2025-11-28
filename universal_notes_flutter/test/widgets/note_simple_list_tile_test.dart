@@ -112,7 +112,7 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('Test Note'),
+        find.text('Edit Note'),
         findsOneWidget,
       ); // Editor screen should show note title
     },

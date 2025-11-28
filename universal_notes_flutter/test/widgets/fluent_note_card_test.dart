@@ -29,6 +29,7 @@ void main() {
               note: noteWithValidContent,
               onDelete: (note) {},
               onSave: (note) async => note,
+              onTap: () {},
             ),
           ),
         ),
@@ -47,6 +48,7 @@ void main() {
               note: noteWithInvalidContent,
               onDelete: (note) {},
               onSave: (note) async => note,
+              onTap: () {},
             ),
           ),
         ),
@@ -84,10 +86,25 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         fluent.FluentApp(
-          home: FluentNoteCard(
-            note: noteWithValidContent,
-            onDelete: (note) {},
-            onSave: (note) async => note,
+          home: Builder(
+            builder: (context) {
+              return FluentNoteCard(
+                note: noteWithValidContent,
+                onDelete: (note) {},
+                onSave: (note) async => note,
+                onTap: () {
+                  Navigator.of(context).push(
+                    fluent.FluentPageRoute<void>(
+                      builder: (context) => Scaffold(
+                        appBar: AppBar(
+                          title: const Text('Edit Note'),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
           ),
         ),
       );
@@ -101,17 +118,6 @@ void main() {
 
       // Verify that navigation occurred by finding text on the new screen
       expect(find.text('Edit Note'), findsOneWidget);
-    });
-  });
-  group('getPreviewText', () {
-    test('extracts text from valid JSON', () {
-      const json = '[{"insert":"Hello World"},{"insert":"\\n"}]';
-      expect(getPreviewText(json), 'Hello World');
-    });
-
-    test('returns ellipsis for invalid JSON', () {
-      const json = 'invalid-json';
-      expect(getPreviewText(json), '...');
     });
   });
 }

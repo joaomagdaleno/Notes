@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/utils/text_helpers.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 /// A widget that displays a note as a card.
@@ -90,17 +91,3 @@ class NoteCard extends StatelessWidget {
   }
 }
 
-/// Returns a plain text preview from a JSON string.
-@visibleForTesting
-String getPreviewText(String jsonContent) {
-  try {
-    final delta = jsonDecode(jsonContent) as List;
-    final text = delta
-        .where((dynamic op) => op is Map && op.containsKey('insert'))
-        .map((dynamic op) => (op as Map)['insert'].toString())
-        .join();
-    return text.replaceAll(RegExp(r'\s+'), ' ').trim();
-  } on Exception {
-    return '...';
-  }
-}
