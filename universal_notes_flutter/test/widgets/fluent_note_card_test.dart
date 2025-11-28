@@ -83,7 +83,7 @@ void main() {
     testWidgets('tapping FluentNoteCard navigates to editor when onTap is null',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        fluent.FluentApp(
+        MaterialApp(
           home: Scaffold(
             body: FluentNoteCard(
               note: noteWithValidContent,
@@ -91,13 +91,25 @@ void main() {
               onSave: (note) async => note,
             ),
           ),
+          routes: {
+            '/editor': (context) => Scaffold(
+                  appBar: AppBar(
+                    title: Text(noteWithValidContent.title),
+                  ),
+                ),
+          },
         ),
       );
 
-      await tester.tap(find.byType(FluentNoteCard));
-      await tester.pumpAndSettle();
+      // Verify the FluentNoteCard is rendered
+      expect(find.byType(FluentNoteCard), findsOneWidget);
 
-      expect(find.text('Test Note'), findsOneWidget);
+      // Tap the FluentNoteCard
+      await tester.tap(find.byType(FluentNoteCard));
+      await tester.pumpAndSettle(); // Wait for navigation to complete
+
+      // Verify that the navigation occurred
+      expect(find.text(noteWithValidContent.title), findsNWidgets(2));
     });
   });
   group('getPreviewText', () {
