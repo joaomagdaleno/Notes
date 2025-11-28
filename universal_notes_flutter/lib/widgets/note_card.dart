@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/utils/text_helpers.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 /// A widget that displays a note as a card.
@@ -12,6 +13,7 @@ class NoteCard extends StatelessWidget {
     required this.note,
     required this.onSave,
     required this.onDelete,
+    required this.onTap,
     super.key,
   });
   /// The note to display.
@@ -20,17 +22,13 @@ class NoteCard extends StatelessWidget {
   final Future<Note> Function(Note) onSave;
   /// The function to call when the note is deleted.
   final void Function(Note) onDelete;
+  /// The function to call when the card is tapped.
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        await Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (context) => NoteEditorScreen(note: note, onSave: onSave),
-          ),
-        );
-      },
+      onTap: onTap,
       onLongPressDown: (details) async {
         await ContextMenuHelper.showContextMenu(
           context: context,
@@ -62,7 +60,7 @@ class NoteCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      _getPreviewText(note.content),
+                      getPreviewText(note.content),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -93,15 +91,3 @@ class NoteCard extends StatelessWidget {
   }
 }
 
-String _getPreviewText(String jsonContent) {
-  try {
-    final delta = jsonDecode(jsonContent) as List;
-    final text = delta
-        .where((dynamic op) => op is Map && op.containsKey('insert'))
-        .map((dynamic op) => (op as Map)['insert'].toString())
-        .join();
-    return text.replaceAll(RegExp(r'\s+'), ' ').trim();
-  } on Exception {
-    return '...';
-  }
-}

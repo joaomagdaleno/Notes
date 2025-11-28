@@ -29,6 +29,7 @@ void main() {
               note: noteWithValidContent,
               onDelete: (note) {},
               onSave: (note) async => note,
+              onTap: () {},
             ),
           ),
         ),
@@ -47,6 +48,7 @@ void main() {
               note: noteWithInvalidContent,
               onDelete: (note) {},
               onSave: (note) async => note,
+              onTap: () {},
             ),
           ),
         ),
@@ -78,6 +80,44 @@ void main() {
       await tester.pump();
 
       expect(tapped, isTrue);
+    });
+
+    testWidgets('tapping FluentNoteCard triggers default navigation',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        fluent.FluentApp(
+          home: Builder(
+            builder: (context) {
+              return FluentNoteCard(
+                note: noteWithValidContent,
+                onDelete: (note) {},
+                onSave: (note) async => note,
+                onTap: () {
+                  Navigator.of(context).push(
+                    fluent.FluentPageRoute<void>(
+                      builder: (context) => Scaffold(
+                        appBar: AppBar(
+                          title: const Text('Edit Note'),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      );
+
+      // Verify the FluentNoteCard is rendered
+      expect(find.byType(FluentNoteCard), findsOneWidget);
+
+      // Tap the FluentNoteCard
+      await tester.tap(find.byType(FluentNoteCard));
+      await tester.pumpAndSettle(); // Wait for navigation to complete
+
+      // Verify that navigation occurred by finding text on the new screen
+      expect(find.text('Edit Note'), findsOneWidget);
     });
   });
 }
