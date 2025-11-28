@@ -1,8 +1,71 @@
 {
   "totalLines": 775,
-  "totalHit": 381,
-  "percentage": 49.16129032258065,
+  "totalHit": 401,
+  "percentage": 51.74193548387097,
   "files": [
+    {
+      "lines": {
+        "found": 11,
+        "hit": 11,
+        "details": [
+          {
+            "line": 20,
+            "hit": 1
+          },
+          {
+            "line": 24,
+            "hit": 1
+          },
+          {
+            "line": 26,
+            "hit": 1
+          },
+          {
+            "line": 28,
+            "hit": 1
+          },
+          {
+            "line": 33,
+            "hit": 3
+          },
+          {
+            "line": 51,
+            "hit": 1
+          },
+          {
+            "line": 54,
+            "hit": 1
+          },
+          {
+            "line": 56,
+            "hit": 1
+          },
+          {
+            "line": 58,
+            "hit": 1
+          },
+          {
+            "line": 61,
+            "hit": 1
+          },
+          {
+            "line": 67,
+            "hit": 7
+          }
+        ]
+      },
+      "functions": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "branches": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "file": "lib/models/paper_config.dart"
+    },
     {
       "lines": {
         "found": 35,
@@ -10,7 +73,7 @@
         "details": [
           {
             "line": 9,
-            "hit": 6
+            "hit": 7
           },
           {
             "line": 19,
@@ -94,7 +157,7 @@
           },
           {
             "line": 83,
-            "hit": 2
+            "hit": 3
           },
           {
             "line": 84,
@@ -164,71 +227,8 @@
     },
     {
       "lines": {
-        "found": 11,
-        "hit": 11,
-        "details": [
-          {
-            "line": 20,
-            "hit": 1
-          },
-          {
-            "line": 24,
-            "hit": 1
-          },
-          {
-            "line": 26,
-            "hit": 1
-          },
-          {
-            "line": 28,
-            "hit": 1
-          },
-          {
-            "line": 33,
-            "hit": 3
-          },
-          {
-            "line": 51,
-            "hit": 1
-          },
-          {
-            "line": 54,
-            "hit": 1
-          },
-          {
-            "line": 56,
-            "hit": 1
-          },
-          {
-            "line": 58,
-            "hit": 1
-          },
-          {
-            "line": 61,
-            "hit": 1
-          },
-          {
-            "line": 67,
-            "hit": 7
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/models/paper_config.dart"
-    },
-    {
-      "lines": {
         "found": 52,
-        "hit": 49,
+        "hit": 48,
         "details": [
           {
             "line": 21,
@@ -240,7 +240,7 @@
           },
           {
             "line": 35,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 43,
@@ -403,11 +403,7 @@
             "hit": 1
           },
           {
-            "line": 127,
-            "hit": 1
-          },
-          {
-            "line": 130,
+            "line": 128,
             "hit": 1
           },
           {
@@ -423,7 +419,7 @@
             "hit": 1
           },
           {
-            "line": 140,
+            "line": 134,
             "hit": 0
           },
           {
@@ -431,11 +427,15 @@
             "hit": 0
           },
           {
-            "line": 143,
+            "line": 142,
             "hit": 0
           },
           {
-            "line": 154,
+            "line": 144,
+            "hit": 0
+          },
+          {
+            "line": 155,
             "hit": 2
           }
         ]
@@ -730,7 +730,7 @@
           },
           {
             "line": 44,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 46,
@@ -786,7 +786,7 @@
           },
           {
             "line": 80,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 82,
@@ -814,7 +814,7 @@
           },
           {
             "line": 107,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 109,
@@ -842,7 +842,7 @@
           },
           {
             "line": 141,
-            "hit": 2
+            "hit": 3
           },
           {
             "line": 153,
@@ -1904,23 +1904,23 @@
         "details": [
           {
             "line": 7,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 15,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 17,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 18,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 19,
-            "hit": 2
+            "hit": 4
           }
         ]
       },
@@ -1943,7 +1943,7 @@
         "details": [
           {
             "line": 9,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 11,
@@ -2054,7 +2054,7 @@
     {
       "lines": {
         "found": 31,
-        "hit": 26,
+        "hit": 31,
         "details": [
           {
             "line": 11,
@@ -2074,23 +2074,23 @@
           },
           {
             "line": 32,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 33,
-            "hit": 0
+            "hit": 2
           },
           {
             "line": 34,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 35,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 36,
-            "hit": 0
+            "hit": 3
           },
           {
             "line": 40,
@@ -2149,11 +2149,7 @@
             "hit": 3
           },
           {
-            "line": 73,
-            "hit": 1
-          },
-          {
-            "line": 75,
+            "line": 74,
             "hit": 1
           },
           {
@@ -2161,23 +2157,27 @@
             "hit": 1
           },
           {
-            "line": 78,
-            "hit": 3
-          },
-          {
-            "line": 80,
-            "hit": 4
-          },
-          {
-            "line": 81,
+            "line": 79,
             "hit": 1
           },
           {
-            "line": 82,
+            "line": 80,
             "hit": 3
           },
           {
+            "line": 82,
+            "hit": 4
+          },
+          {
             "line": 83,
+            "hit": 1
+          },
+          {
+            "line": 84,
+            "hit": 3
+          },
+          {
+            "line": 85,
             "hit": 1
           }
         ]
@@ -2197,7 +2197,7 @@
     {
       "lines": {
         "found": 46,
-        "hit": 35,
+        "hit": 42,
         "details": [
           {
             "line": 11,
@@ -2229,27 +2229,27 @@
           },
           {
             "line": 34,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 35,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 37,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 38,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 39,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 40,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 43,
@@ -2356,32 +2356,32 @@
             "hit": 3
           },
           {
-            "line": 96,
-            "hit": 1
-          },
-          {
-            "line": 98,
+            "line": 97,
             "hit": 1
           },
           {
             "line": 100,
-            "hit": 4
-          },
-          {
-            "line": 101,
-            "hit": 4
-          },
-          {
-            "line": 102,
             "hit": 1
           },
           {
+            "line": 102,
+            "hit": 4
+          },
+          {
             "line": 103,
-            "hit": 3
+            "hit": 4
           },
           {
             "line": 104,
-            "hit": 0
+            "hit": 1
+          },
+          {
+            "line": 105,
+            "hit": 3
+          },
+          {
+            "line": 106,
+            "hit": 1
           }
         ]
       },
@@ -2511,7 +2511,7 @@
         "details": [
           {
             "line": 13,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 15,
@@ -2937,35 +2937,35 @@
     {
       "lines": {
         "found": 47,
-        "hit": 38,
+        "hit": 47,
         "details": [
           {
             "line": 7,
-            "hit": 1
-          },
-          {
-            "line": 15,
-            "hit": 3
-          },
-          {
-            "line": 20,
-            "hit": 1
-          },
-          {
-            "line": 22,
-            "hit": 1
-          },
-          {
-            "line": 23,
-            "hit": 1
-          },
-          {
-            "line": 24,
             "hit": 2
           },
           {
+            "line": 15,
+            "hit": 6
+          },
+          {
+            "line": 20,
+            "hit": 2
+          },
+          {
+            "line": 22,
+            "hit": 2
+          },
+          {
+            "line": 23,
+            "hit": 2
+          },
+          {
+            "line": 24,
+            "hit": 4
+          },
+          {
             "line": 26,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 27,
@@ -2973,115 +2973,103 @@
           },
           {
             "line": 28,
-            "hit": 1
+            "hit": 2
           },
           {
-            "line": 32,
-            "hit": 1
-          },
-          {
-            "line": 37,
-            "hit": 1
-          },
-          {
-            "line": 38,
-            "hit": 1
+            "line": 33,
+            "hit": 3
           },
           {
             "line": 39,
-            "hit": 0
+            "hit": 3
           },
           {
             "line": 40,
-            "hit": 0
+            "hit": 3
           },
           {
             "line": 41,
-            "hit": 0
+            "hit": 2
+          },
+          {
+            "line": 42,
+            "hit": 4
           },
           {
             "line": 43,
-            "hit": 1
-          },
-          {
-            "line": 44,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 45,
-            "hit": 1
+            "hit": 3
           },
           {
             "line": 46,
-            "hit": 1
+            "hit": 3
           },
           {
             "line": 47,
             "hit": 3
           },
           {
-            "line": 50,
-            "hit": 1
+            "line": 48,
+            "hit": 3
           },
           {
-            "line": 51,
-            "hit": 2
+            "line": 49,
+            "hit": 9
           },
           {
-            "line": 56,
-            "hit": 1
+            "line": 52,
+            "hit": 3
           },
           {
-            "line": 57,
-            "hit": 0
+            "line": 53,
+            "hit": 6
           },
           {
             "line": 58,
-            "hit": 0
+            "hit": 3
           },
           {
             "line": 59,
-            "hit": 0
+            "hit": 2
+          },
+          {
+            "line": 60,
+            "hit": 2
           },
           {
             "line": 61,
-            "hit": 1
-          },
-          {
-            "line": 62,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 63,
-            "hit": 1
+            "hit": 3
+          },
+          {
+            "line": 64,
+            "hit": 3
           },
           {
             "line": 65,
             "hit": 3
           },
           {
-            "line": 77,
-            "hit": 1
+            "line": 67,
+            "hit": 9
           },
           {
-            "line": 83,
-            "hit": 1
-          },
-          {
-            "line": 84,
-            "hit": 1
-          },
-          {
-            "line": 85,
-            "hit": 0
-          },
-          {
-            "line": 86,
-            "hit": 0
+            "line": 80,
+            "hit": 2
           },
           {
             "line": 87,
-            "hit": 0
+            "hit": 2
+          },
+          {
+            "line": 88,
+            "hit": 2
           },
           {
             "line": 89,
@@ -3097,35 +3085,47 @@
           },
           {
             "line": 93,
-            "hit": 3
+            "hit": 2
           },
           {
-            "line": 100,
-            "hit": 1
+            "line": 94,
+            "hit": 2
           },
           {
-            "line": 101,
-            "hit": 1
+            "line": 95,
+            "hit": 2
           },
           {
-            "line": 102,
-            "hit": 1
+            "line": 97,
+            "hit": 6
           },
           {
             "line": 104,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 105,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 106,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 108,
-            "hit": 3
+            "hit": 2
+          },
+          {
+            "line": 109,
+            "hit": 2
+          },
+          {
+            "line": 110,
+            "hit": 2
+          },
+          {
+            "line": 112,
+            "hit": 6
           }
         ]
       },
