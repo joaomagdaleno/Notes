@@ -26,13 +26,11 @@ jobs:
         with:
           path: artifacts/version-info
           name: version-info-windows
-          ignore-no-artifacts-found: true
       - name: Download version artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts/version-info
           name: version-info-android
-          ignore-no-artifacts-found: true
       - name: Read version
         id: version
         run: |
@@ -57,5 +55,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${{ env.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git tag -f ${{ github.ref_name }}-latest
           git push -f origin ${{ github.ref_name }}-latest
