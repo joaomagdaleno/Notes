@@ -92,4 +92,26 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
 
     expect(deleted, isTrue);
   });
+
+  testWidgets(
+    'tapping NoteSimpleListTile navigates to editor when onTap is null',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: NoteSimpleListTile(
+              note: note,
+              onDelete: (note) {},
+              onSave: (note) async => note,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(ListTile));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Edit Note'), findsOneWidget);
+    },
+  );
 }
