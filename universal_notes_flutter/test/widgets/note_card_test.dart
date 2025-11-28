@@ -52,12 +52,7 @@ void main() {
       ),
     );
 
-    await tester.tap(
-      find.descendant(
-        of: find.byType(NoteCard),
-        matching: find.byType(GestureDetector),
-      ),
-    );
+    await tester.tap(find.byType(NoteCard));
     await tester.pump();
 
     expect(tapped, isTrue);

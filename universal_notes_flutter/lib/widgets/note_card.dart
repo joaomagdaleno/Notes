@@ -28,7 +28,6 @@ class NoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
       onLongPressDown: (details) async {
         await ContextMenuHelper.showContextMenu(
           context: context,
@@ -43,47 +42,51 @@ class NoteCard extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (note.content.isNotEmpty)
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      getPreviewText(note.content),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (note.content.isNotEmpty)
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 5,
+                      child: Text(
+                        getPreviewText(note.content),
+                        style: TextStyle(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 5,
+                      ),
                     ),
                   ),
+                if (note.content.isNotEmpty) const SizedBox(height: 8),
+                Text(
+                  note.title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              if (note.content.isNotEmpty) const SizedBox(height: 8),
-              Text(
-                note.title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                DateFormat('d MMM. yyyy').format(note.date),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  DateFormat('d MMM. yyyy').format(note.date),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
           ),
         ),
       ),
