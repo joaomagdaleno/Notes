@@ -12,6 +12,7 @@ class NoteCard extends StatelessWidget {
     required this.note,
     required this.onSave,
     required this.onDelete,
+    required this.onTap,
     super.key,
   });
   /// The note to display.
@@ -20,17 +21,13 @@ class NoteCard extends StatelessWidget {
   final Future<Note> Function(Note) onSave;
   /// The function to call when the note is deleted.
   final void Function(Note) onDelete;
+  /// The function to call when the card is tapped.
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        await Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (context) => NoteEditorScreen(note: note, onSave: onSave),
-          ),
-        );
-      },
+      onTap: onTap,
       onLongPressDown: (details) async {
         await ContextMenuHelper.showContextMenu(
           context: context,
@@ -62,7 +59,7 @@ class NoteCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      _getPreviewText(note.content),
+                      getPreviewText(note.content),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -93,7 +90,9 @@ class NoteCard extends StatelessWidget {
   }
 }
 
-String _getPreviewText(String jsonContent) {
+/// Returns a plain text preview from a JSON string.
+@visibleForTesting
+String getPreviewText(String jsonContent) {
   try {
     final delta = jsonDecode(jsonContent) as List;
     final text = delta
