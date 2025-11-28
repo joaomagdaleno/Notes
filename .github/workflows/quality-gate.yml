@@ -43,8 +43,6 @@ jobs:
 
       - name: TruffleHog OSS
         uses: trufflesecurity/trufflehog@df31a0e53a1efa49f2396699d51254455bb81868 # main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Tests
         working-directory: universal_notes_flutter
