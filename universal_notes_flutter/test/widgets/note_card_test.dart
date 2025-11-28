@@ -18,6 +18,7 @@ void main() {
             note: note,
             onSave: (note) async => note,
             onDelete: (note) {},
+            onTap: () {},
           ),
         ),
       ),
@@ -29,8 +30,9 @@ void main() {
     expect(find.text('This is a test note.'), findsOneWidget);
   });
 
-  testWidgets('tapping NoteCard navigates to editor',
+  testWidgets('tapping NoteCard calls onTap callback',
       (WidgetTester tester) async {
+    var tapped = false;
     final note = Note(
       title: 'Test Note',
       content: '',
@@ -44,15 +46,16 @@ void main() {
             note: note,
             onSave: (note) async => note,
             onDelete: (note) {},
+            onTap: () => tapped = true,
           ),
         ),
       ),
     );
 
     await tester.tap(find.byType(NoteCard));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
-    expect(find.text('Test Note'), findsOneWidget);
+    expect(tapped, isTrue);
   });
 
   testWidgets('long-pressing NoteCard shows context menu',
@@ -70,6 +73,7 @@ void main() {
             note: note,
             onSave: (note) async => note,
             onDelete: (note) {},
+            onTap: () {},
           ),
         ),
       ),

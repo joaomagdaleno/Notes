@@ -633,12 +633,32 @@ class _NotesScreenState extends State<NotesScreen> {
             note: notes[index],
             onSave: _updateNote,
             onDelete: _deleteNote,
+            onTap: () async {
+              await Navigator.of(context).push(
+                fluent.FluentPageRoute<void>(
+                  builder: (context) => NoteEditorScreen(
+                    note: notes[index],
+                    onSave: _updateNote,
+                  ),
+                ),
+              );
+            },
           );
         } else {
           return NoteCard(
             note: notes[index],
             onSave: _updateNote,
             onDelete: _deleteNote,
+            onTap: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (context) => NoteEditorScreen(
+                    note: notes[index],
+                    onSave: _updateNote,
+                  ),
+                ),
+              );
+            },
           );
         }
       },

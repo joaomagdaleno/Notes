@@ -12,6 +12,7 @@ class NoteCard extends StatelessWidget {
     required this.note,
     required this.onSave,
     required this.onDelete,
+    required this.onTap,
     super.key,
   });
   /// The note to display.
@@ -20,17 +21,13 @@ class NoteCard extends StatelessWidget {
   final Future<Note> Function(Note) onSave;
   /// The function to call when the note is deleted.
   final void Function(Note) onDelete;
+  /// The function to call when the card is tapped.
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        await Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (context) => NoteEditorScreen(note: note, onSave: onSave),
-          ),
-        );
-      },
+      onTap: onTap,
       onLongPressDown: (details) async {
         await ContextMenuHelper.showContextMenu(
           context: context,

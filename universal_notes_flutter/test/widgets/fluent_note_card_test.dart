@@ -80,7 +80,7 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('tapping FluentNoteCard navigates to editor when onTap is null',
+    testWidgets('tapping FluentNoteCard triggers default navigation',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         fluent.FluentApp(
