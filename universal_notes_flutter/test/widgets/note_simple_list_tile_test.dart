@@ -92,4 +92,63 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
 
     expect(deleted, isTrue);
   });
+
+  testWidgets(
+    'tapping NoteSimpleListTile navigates to editor when onTap is null',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: NoteSimpleListTile(
+              note: note,
+              onDelete: (note) {},
+              onSave: (note) async => note,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(NoteSimpleListTile));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Test Note'),
+        findsOneWidget,
+      ); // Editor screen should show note title
+    },
+  );
+
+  testWidgets('context menu actions call onSave', (WidgetTester tester) async {
+    Note? savedNote;
+    final noteToTest = note.copyWith();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: NoteSimpleListTile(
+            note: noteToTest,
+            onDelete: (note) {},
+            onSave: (n) async {
+              savedNote = n;
+              return n;
+            },
+          ),
+        ),
+      ),
+    );
+
+    // Test "Favoritar"
+    await tester.longPress(find.byType(NoteSimpleListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Favoritar'));
+    await tester.pump();
+    expect(savedNote?.isFavorite, isTrue);
+
+    // Test "Mover para a lixeira"
+    await tester.longPress(find.byType(NoteSimpleListTile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mover para a lixeira'));
+    await tester.pump();
+    expect(savedNote?.isInTrash, isTrue);
+  });
 }
