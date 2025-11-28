@@ -6,8 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
 class TestUpdateService extends UpdateService {
-  TestUpdateService({http.Client? client, PackageInfo? packageInfo})
-      : super(client: client, packageInfo: packageInfo);
+  TestUpdateService({super.client, super.packageInfo});
 
   @override
   String? getPlatformFileExtension() {
@@ -149,8 +148,12 @@ void main() {
     });
 
     test('returns error on server error', () async {
-      final packageInfo =
-          PackageInfo(version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+      final packageInfo = PackageInfo(
+        version: '1.0.0',
+        appName: '',
+        buildNumber: '',
+        packageName: '',
+      );
       mockClient = MockClient((request) async {
         return http.Response('Server Error', 500);
       });
@@ -158,6 +161,24 @@ void main() {
           TestUpdateService(client: mockClient, packageInfo: packageInfo);
       final result = await service.checkForUpdate();
       expect(result.status, UpdateCheckStatus.error);
+      expect(result.errorMessage, isNotNull);
+    });
+
+    test('returns error on network error', () async {
+      final packageInfo = PackageInfo(
+        version: '1.0.0',
+        appName: '',
+        buildNumber: '',
+        packageName: '',
+      );
+      mockClient = MockClient((request) async {
+        throw http.ClientException('Network error');
+      });
+      final service =
+          TestUpdateService(client: mockClient, packageInfo: packageInfo);
+      final result = await service.checkForUpdate();
+      expect(result.status, UpdateCheckStatus.error);
+      expect(result.errorMessage, isNotNull);
     });
   });
 }
