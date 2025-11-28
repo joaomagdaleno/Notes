@@ -10,7 +10,6 @@ class NoteEditorScreen extends StatelessWidget {
     super.key,
   });
 
-  /// The note to edit. If null, a new note will be created.
   final Note? note;
   /// The function to call when the note is saved.
   final Future<Note> Function(Note) onSave;
