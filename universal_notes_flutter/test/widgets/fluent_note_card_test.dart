@@ -83,16 +83,11 @@ void main() {
     testWidgets('tapping FluentNoteCard navigates to editor when onTap is null',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: fluent.FluentTheme(
-            data: fluent.FluentThemeData(),
-            child: Scaffold(
-              body: FluentNoteCard(
-                note: noteWithValidContent,
-                onDelete: (note) {},
-                onSave: (note) async => note,
-              ),
-            ),
+        fluent.FluentApp(
+          home: FluentNoteCard(
+            note: noteWithValidContent,
+            onDelete: (note) {},
+            onSave: (note) async => note,
           ),
         ),
       );
