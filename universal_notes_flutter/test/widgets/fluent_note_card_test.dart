@@ -79,5 +79,36 @@ void main() {
 
       expect(tapped, isTrue);
     });
+
+    testWidgets('tapping FluentNoteCard navigates to editor when onTap is null',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        fluent.FluentApp(
+          home: Scaffold(
+            body: FluentNoteCard(
+              note: noteWithValidContent,
+              onDelete: (note) {},
+              onSave: (note) async => note,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(FluentNoteCard));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Test Note'), findsOneWidget);
+    });
+  });
+  group('getPreviewText', () {
+    test('extracts text from valid JSON', () {
+      const json = r'[{"insert":"Hello World"},{"insert":"\n"}]';
+      expect(getPreviewText(json), 'Hello World');
+    });
+
+    test('returns ellipsis for invalid JSON', () {
+      const json = r'invalid-json';
+      expect(getPreviewText(json), '...');
+    });
   });
 }

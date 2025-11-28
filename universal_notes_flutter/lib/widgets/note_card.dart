@@ -62,7 +62,7 @@ class NoteCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      _getPreviewText(note.content),
+                      getPreviewText(note.content),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -93,7 +93,8 @@ class NoteCard extends StatelessWidget {
   }
 }
 
-String _getPreviewText(String jsonContent) {
+@visibleForTesting
+String getPreviewText(String jsonContent) {
   try {
     final delta = jsonDecode(jsonContent) as List;
     final text = delta
