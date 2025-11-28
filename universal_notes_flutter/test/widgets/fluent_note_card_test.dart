@@ -84,20 +84,16 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: FluentNoteCard(
-              note: noteWithValidContent,
-              onDelete: (note) {},
-              onSave: (note) async => note,
+          home: fluent.FluentTheme(
+            data: fluent.FluentThemeData(),
+            child: Scaffold(
+              body: FluentNoteCard(
+                note: noteWithValidContent,
+                onDelete: (note) {},
+                onSave: (note) async => note,
+              ),
             ),
           ),
-          routes: {
-            '/editor': (context) => Scaffold(
-                  appBar: AppBar(
-                    title: Text(noteWithValidContent.title),
-                  ),
-                ),
-          },
         ),
       );
 
@@ -108,8 +104,8 @@ void main() {
       await tester.tap(find.byType(FluentNoteCard));
       await tester.pumpAndSettle(); // Wait for navigation to complete
 
-      // Verify that the navigation occurred
-      expect(find.text(noteWithValidContent.title), findsNWidgets(2));
+      // Verify that navigation occurred by finding text on the new screen
+      expect(find.text('Edit Note'), findsOneWidget);
     });
   });
   group('getPreviewText', () {
