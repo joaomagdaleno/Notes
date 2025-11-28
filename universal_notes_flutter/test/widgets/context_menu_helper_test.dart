@@ -7,7 +7,8 @@ void main() {
   group('ContextMenuHelper', () {
     testWidgets('buildDefaultContextMenu', (WidgetTester tester) async {
       late Note savedNote;
-      final note = Note(id: '1', title: 'Test', content: '');
+      final note =
+          Note(id: '1', title: 'Test', content: '', date: DateTime.now());
 
       await tester.pumpWidget(MaterialApp(
         home: Material(
@@ -37,7 +38,13 @@ void main() {
     testWidgets('buildTrashContextMenu', (WidgetTester tester) async {
       late Note savedNote;
       Note? deletedNote;
-      final note = Note(id: '1', title: 'Test', content: '', isInTrash: true);
+      final note = Note(
+        id: '1',
+        title: 'Test',
+        content: '',
+        isInTrash: true,
+        date: DateTime.now(),
+      );
 
       await tester.pumpWidget(MaterialApp(
         home: Material(

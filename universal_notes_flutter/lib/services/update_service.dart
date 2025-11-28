@@ -124,6 +124,7 @@ class UpdateService {
     return match?.group(1) ?? '';
   }
 
+  /// Compares two version strings to see if the latest version is newer.
   @visibleForTesting
   bool isNewerVersion(String latestVersionStr, String currentVersionStr) {
     try {

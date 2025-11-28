@@ -83,12 +83,12 @@ void main() {
 
   group('getPreviewText', () {
     test('extracts text from valid JSON', () {
-      const json = r'[{"insert":"Hello World"},{"insert":"\n"}]';
+      const json = '[{"insert":"Hello World"},{"insert":"\\n"}]';
       expect(getPreviewText(json), 'Hello World');
     });
 
     test('returns ellipsis for invalid JSON', () {
-      const json = r'invalid-json';
+      const json = 'invalid-json';
       expect(getPreviewText(json), '...');
     });
   });

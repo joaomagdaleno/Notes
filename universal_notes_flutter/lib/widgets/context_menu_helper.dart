@@ -29,6 +29,7 @@ class ContextMenuHelper {
     );
   }
 
+  /// Builds the context menu for a note that is not in the trash.
   @visibleForTesting
   static List<PopupMenuEntry<void>> buildDefaultContextMenu(
     BuildContext context,
@@ -75,6 +76,7 @@ class ContextMenuHelper {
     ];
   }
 
+  /// Builds the context menu for a note that is in the trash.
   @visibleForTesting
   static List<PopupMenuEntry<void>> buildTrashContextMenu(
     BuildContext context,

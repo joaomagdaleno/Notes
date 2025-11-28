@@ -93,25 +93,30 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
     expect(deleted, isTrue);
   });
 
-  testWidgets('tapping NoteSimpleListTile navigates to editor when onTap is null',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: NoteSimpleListTile(
-            note: note,
-            onDelete: (note) {},
-            onSave: (note) async => note,
+  testWidgets(
+    'tapping NoteSimpleListTile navigates to editor when onTap is null',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: NoteSimpleListTile(
+              note: note,
+              onDelete: (note) {},
+              onSave: (note) async => note,
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    await tester.tap(find.byType(NoteSimpleListTile));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byType(NoteSimpleListTile));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Test Note'), findsOneWidget); // Editor screen should show note title
-  });
+      expect(
+        find.text('Test Note'),
+        findsOneWidget,
+      ); // Editor screen should show note title
+    },
+  );
 
   testWidgets('context menu actions call onSave', (WidgetTester tester) async {
     Note? savedNote;

@@ -39,15 +39,25 @@ void main() {
 
       test('moderate returns correct value and label', () {
         const cm = 72 / 2.54;
-        expect(PaperMargin.moderate.value,
-            const EdgeInsets.symmetric(vertical: 2.54 * cm, horizontal: 1.91 * cm));
+        expect(
+          PaperMargin.moderate.value,
+          const EdgeInsets.symmetric(
+            vertical: 2.54 * cm,
+            horizontal: 1.91 * cm,
+          ),
+        );
         expect(PaperMargin.moderate.label, 'Moderate');
       });
 
       test('wide returns correct value and label', () {
         const cm = 72 / 2.54;
-        expect(PaperMargin.wide.value,
-            const EdgeInsets.symmetric(vertical: 2.54 * cm, horizontal: 5.08 * cm));
+        expect(
+          PaperMargin.wide.value,
+          const EdgeInsets.symmetric(
+            vertical: 2.54 * cm,
+            horizontal: 5.08 * cm,
+          ),
+        );
         expect(PaperMargin.wide.label, 'Wide');
       });
     });

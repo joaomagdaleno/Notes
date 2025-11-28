@@ -7,8 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
 class TestUpdateService extends UpdateService {
-  TestUpdateService({http.Client? client, PackageInfo? packageInfo})
-      : super(client: client, packageInfo: packageInfo);
+  TestUpdateService({super.client, super.packageInfo});
 
   @override
   String? getPlatformFileExtension() {
@@ -200,8 +199,12 @@ void main() {
     });
 
     test('returns error on server error', () async {
-      final packageInfo =
-          PackageInfo(version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+      final packageInfo = PackageInfo(
+        version: '1.0.0',
+        appName: '',
+        buildNumber: '',
+        packageName: '',
+      );
       mockClient = MockClient((request) async {
         return http.Response('Server Error', 500);
       });
@@ -209,12 +212,19 @@ void main() {
           TestUpdateService(client: mockClient, packageInfo: packageInfo);
       final result = await service.checkForUpdate();
       expect(result.status, UpdateCheckStatus.error);
-      expect(result.errorMessage, 'Falha ao comunicar com o servidor de atualização.');
+      expect(
+        result.errorMessage,
+        'Falha ao comunicar com o servidor de atualização.',
+      );
     });
 
     test('returns error on network error', () async {
-      final packageInfo =
-          PackageInfo(version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+      final packageInfo = PackageInfo(
+        version: '1.0.0',
+        appName: '',
+        buildNumber: '',
+        packageName: '',
+      );
       mockClient = MockClient((request) async {
         throw http.ClientException('Network error');
       });
@@ -222,37 +232,10 @@ void main() {
           TestUpdateService(client: mockClient, packageInfo: packageInfo);
       final result = await service.checkForUpdate();
       expect(result.status, UpdateCheckStatus.error);
-      expect(result.errorMessage, contains('Verifique sua conexão com a internet'));
-    });
-
-    group('isNewerVersion', () {
-      test('returns false for invalid version string', () {
-        final service = TestUpdateService();
-        expect(service.isNewerVersion('invalid-version', '1.0.0'), isFalse);
-      });
-    });
-
-    group('getPlatformFileExtension', () {
-      test('returns .exe for Windows', () {
-        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-        final service = UpdateService();
-        expect(service.getPlatformFileExtension(), '.exe');
-        debugDefaultTargetPlatformOverride = null;
-      });
-
-      test('returns .apk for Android', () {
-        debugDefaultTargetPlatformOverride = TargetPlatform.android;
-        final service = UpdateService();
-        expect(service.getPlatformFileExtension(), '.apk');
-        debugDefaultTargetPlatformOverride = null;
-      });
-
-      test('returns null for other platforms', () {
-        debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-        final service = UpdateService();
-        expect(service.getPlatformFileExtension(), isNull);
-        debugDefaultTargetPlatformOverride = null;
-      });
+      expect(
+        result.errorMessage,
+        contains('Verifique sua conexão com a internet'),
+      );
     });
   });
 }

@@ -93,6 +93,7 @@ class NoteCard extends StatelessWidget {
   }
 }
 
+/// Returns a plain text preview from a JSON string.
 @visibleForTesting
 String getPreviewText(String jsonContent) {
   try {
