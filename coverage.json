@@ -1,71 +1,8 @@
 {
-  "totalLines": 775,
-  "totalHit": 401,
-  "percentage": 51.74193548387097,
+  "totalLines": 777,
+  "totalHit": 389,
+  "percentage": 50.06435006435006,
   "files": [
-    {
-      "lines": {
-        "found": 11,
-        "hit": 11,
-        "details": [
-          {
-            "line": 20,
-            "hit": 1
-          },
-          {
-            "line": 24,
-            "hit": 1
-          },
-          {
-            "line": 26,
-            "hit": 1
-          },
-          {
-            "line": 28,
-            "hit": 1
-          },
-          {
-            "line": 33,
-            "hit": 3
-          },
-          {
-            "line": 51,
-            "hit": 1
-          },
-          {
-            "line": 54,
-            "hit": 1
-          },
-          {
-            "line": 56,
-            "hit": 1
-          },
-          {
-            "line": 58,
-            "hit": 1
-          },
-          {
-            "line": 61,
-            "hit": 1
-          },
-          {
-            "line": 67,
-            "hit": 7
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/models/paper_config.dart"
-    },
     {
       "lines": {
         "found": 35,
@@ -157,7 +94,7 @@
           },
           {
             "line": 83,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 84,
@@ -224,6 +161,116 @@
         "details": []
       },
       "file": "lib/models/note.dart"
+    },
+    {
+      "lines": {
+        "found": 11,
+        "hit": 11,
+        "details": [
+          {
+            "line": 20,
+            "hit": 1
+          },
+          {
+            "line": 24,
+            "hit": 1
+          },
+          {
+            "line": 26,
+            "hit": 1
+          },
+          {
+            "line": 28,
+            "hit": 1
+          },
+          {
+            "line": 33,
+            "hit": 3
+          },
+          {
+            "line": 51,
+            "hit": 1
+          },
+          {
+            "line": 54,
+            "hit": 1
+          },
+          {
+            "line": 56,
+            "hit": 1
+          },
+          {
+            "line": 58,
+            "hit": 1
+          },
+          {
+            "line": 61,
+            "hit": 1
+          },
+          {
+            "line": 67,
+            "hit": 7
+          }
+        ]
+      },
+      "functions": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "branches": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "file": "lib/models/paper_config.dart"
+    },
+    {
+      "lines": {
+        "found": 7,
+        "hit": 7,
+        "details": [
+          {
+            "line": 4,
+            "hit": 3
+          },
+          {
+            "line": 6,
+            "hit": 3
+          },
+          {
+            "line": 8,
+            "hit": 12
+          },
+          {
+            "line": 9,
+            "hit": 12
+          },
+          {
+            "line": 10,
+            "hit": 3
+          },
+          {
+            "line": 11,
+            "hit": 9
+          },
+          {
+            "line": 12,
+            "hit": 2
+          }
+        ]
+      },
+      "functions": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "branches": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "file": "lib/utils/text_helpers.dart"
     },
     {
       "lines": {
@@ -697,7 +744,7 @@
     },
     {
       "lines": {
-        "found": 253,
+        "found": 265,
         "hit": 56,
         "details": [
           {
@@ -1665,6 +1712,14 @@
             "hit": 0
           },
           {
+            "line": 636,
+            "hit": 0
+          },
+          {
+            "line": 637,
+            "hit": 0
+          },
+          {
             "line": 638,
             "hit": 0
           },
@@ -1682,18 +1737,26 @@
           },
           {
             "line": 648,
-            "hit": 2
+            "hit": 0
           },
           {
             "line": 649,
-            "hit": 2
+            "hit": 0
           },
           {
             "line": 650,
-            "hit": 2
+            "hit": 0
+          },
+          {
+            "line": 651,
+            "hit": 0
           },
           {
             "line": 652,
+            "hit": 0
+          },
+          {
+            "line": 653,
             "hit": 0
           },
           {
@@ -1701,15 +1764,47 @@
             "hit": 0
           },
           {
+            "line": 655,
+            "hit": 0
+          },
+          {
             "line": 656,
             "hit": 0
           },
           {
-            "line": 658,
+            "line": 657,
             "hit": 0
           },
           {
-            "line": 660,
+            "line": 668,
+            "hit": 2
+          },
+          {
+            "line": 669,
+            "hit": 2
+          },
+          {
+            "line": 670,
+            "hit": 2
+          },
+          {
+            "line": 672,
+            "hit": 0
+          },
+          {
+            "line": 674,
+            "hit": 0
+          },
+          {
+            "line": 676,
+            "hit": 0
+          },
+          {
+            "line": 678,
+            "hit": 0
+          },
+          {
+            "line": 680,
             "hit": 0
           }
         ]
@@ -1907,19 +2002,19 @@
             "hit": 2
           },
           {
-            "line": 15,
-            "hit": 2
-          },
-          {
-            "line": 17,
-            "hit": 2
-          },
-          {
             "line": 18,
             "hit": 2
           },
           {
-            "line": 19,
+            "line": 20,
+            "hit": 2
+          },
+          {
+            "line": 21,
+            "hit": 2
+          },
+          {
+            "line": 22,
             "hit": 4
           }
         ]
@@ -2053,8 +2148,8 @@
     },
     {
       "lines": {
-        "found": 31,
-        "hit": 31,
+        "found": 18,
+        "hit": 18,
         "details": [
           {
             "line": 11,
@@ -2078,10 +2173,6 @@
           },
           {
             "line": 33,
-            "hit": 2
-          },
-          {
-            "line": 34,
             "hit": 1
           },
           {
@@ -2089,20 +2180,20 @@
             "hit": 1
           },
           {
-            "line": 36,
-            "hit": 3
+            "line": 37,
+            "hit": 1
+          },
+          {
+            "line": 38,
+            "hit": 1
+          },
+          {
+            "line": 39,
+            "hit": 2
           },
           {
             "line": 40,
-            "hit": 1
-          },
-          {
-            "line": 41,
-            "hit": 1
-          },
-          {
-            "line": 43,
-            "hit": 1
+            "hit": 3
           },
           {
             "line": 45,
@@ -2114,15 +2205,11 @@
           },
           {
             "line": 47,
-            "hit": 2
+            "hit": 3
           },
           {
             "line": 48,
             "hit": 3
-          },
-          {
-            "line": 53,
-            "hit": 1
           },
           {
             "line": 54,
@@ -2130,55 +2217,11 @@
           },
           {
             "line": 55,
-            "hit": 3
+            "hit": 4
           },
           {
             "line": 56,
             "hit": 3
-          },
-          {
-            "line": 62,
-            "hit": 1
-          },
-          {
-            "line": 63,
-            "hit": 4
-          },
-          {
-            "line": 64,
-            "hit": 3
-          },
-          {
-            "line": 74,
-            "hit": 1
-          },
-          {
-            "line": 77,
-            "hit": 1
-          },
-          {
-            "line": 79,
-            "hit": 1
-          },
-          {
-            "line": 80,
-            "hit": 3
-          },
-          {
-            "line": 82,
-            "hit": 4
-          },
-          {
-            "line": 83,
-            "hit": 1
-          },
-          {
-            "line": 84,
-            "hit": 3
-          },
-          {
-            "line": 85,
-            "hit": 1
           }
         ]
       },
@@ -2196,36 +2239,28 @@
     },
     {
       "lines": {
-        "found": 46,
-        "hit": 42,
+        "found": 42,
+        "hit": 30,
         "details": [
           {
             "line": 11,
             "hit": 1
           },
           {
-            "line": 24,
-            "hit": 1
-          },
-          {
-            "line": 26,
-            "hit": 1
-          },
-          {
             "line": 27,
-            "hit": 0
-          },
-          {
-            "line": 28,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 29,
-            "hit": 0
+            "hit": 1
           },
           {
-            "line": 30,
-            "hit": 0
+            "line": 31,
+            "hit": 1
+          },
+          {
+            "line": 32,
+            "hit": 1
           },
           {
             "line": 34,
@@ -2236,67 +2271,59 @@
             "hit": 1
           },
           {
+            "line": 36,
+            "hit": 0
+          },
+          {
             "line": 37,
-            "hit": 1
+            "hit": 0
           },
           {
             "line": 38,
-            "hit": 1
+            "hit": 0
           },
           {
             "line": 39,
-            "hit": 1
+            "hit": 0
           },
           {
             "line": 40,
-            "hit": 1
+            "hit": 0
           },
           {
-            "line": 43,
-            "hit": 1
-          },
-          {
-            "line": 45,
-            "hit": 1
+            "line": 44,
+            "hit": 0
           },
           {
             "line": 46,
-            "hit": 1
+            "hit": 0
           },
           {
-            "line": 48,
-            "hit": 1
+            "line": 47,
+            "hit": 0
           },
           {
-            "line": 50,
-            "hit": 1
+            "line": 49,
+            "hit": 0
           },
           {
             "line": 52,
-            "hit": 1
+            "hit": 0
           },
           {
             "line": 53,
-            "hit": 3
+            "hit": 0
           },
           {
             "line": 54,
-            "hit": 1
+            "hit": 0
           },
           {
-            "line": 55,
-            "hit": 1
-          },
-          {
-            "line": 58,
+            "line": 57,
             "hit": 1
           },
           {
             "line": 59,
-            "hit": 1
-          },
-          {
-            "line": 60,
             "hit": 1
           },
           {
@@ -2305,6 +2332,10 @@
           },
           {
             "line": 62,
+            "hit": 3
+          },
+          {
+            "line": 63,
             "hit": 1
           },
           {
@@ -2312,20 +2343,32 @@
             "hit": 1
           },
           {
-            "line": 65,
-            "hit": 3
-          },
-          {
-            "line": 66,
+            "line": 67,
             "hit": 1
           },
           {
-            "line": 67,
-            "hit": 3
+            "line": 68,
+            "hit": 1
+          },
+          {
+            "line": 69,
+            "hit": 1
+          },
+          {
+            "line": 70,
+            "hit": 1
+          },
+          {
+            "line": 71,
+            "hit": 1
+          },
+          {
+            "line": 73,
+            "hit": 1
           },
           {
             "line": 74,
-            "hit": 4
+            "hit": 3
           },
           {
             "line": 75,
@@ -2333,55 +2376,39 @@
           },
           {
             "line": 76,
-            "hit": 2
+            "hit": 3
           },
           {
-            "line": 77,
+            "line": 81,
             "hit": 4
+          },
+          {
+            "line": 82,
+            "hit": 1
           },
           {
             "line": 83,
-            "hit": 1
+            "hit": 2
           },
           {
             "line": 84,
-            "hit": 1
-          },
-          {
-            "line": 85,
             "hit": 4
           },
           {
-            "line": 86,
+            "line": 90,
+            "hit": 1
+          },
+          {
+            "line": 91,
+            "hit": 1
+          },
+          {
+            "line": 92,
+            "hit": 4
+          },
+          {
+            "line": 93,
             "hit": 3
-          },
-          {
-            "line": 97,
-            "hit": 1
-          },
-          {
-            "line": 100,
-            "hit": 1
-          },
-          {
-            "line": 102,
-            "hit": 4
-          },
-          {
-            "line": 103,
-            "hit": 4
-          },
-          {
-            "line": 104,
-            "hit": 1
-          },
-          {
-            "line": 105,
-            "hit": 3
-          },
-          {
-            "line": 106,
-            "hit": 1
           }
         ]
       },
@@ -2400,7 +2427,7 @@
     {
       "lines": {
         "found": 22,
-        "hit": 16,
+        "hit": 22,
         "details": [
           {
             "line": 10,
@@ -2419,63 +2446,59 @@
             "hit": 1
           },
           {
-            "line": 31,
-            "hit": 1
-          },
-          {
-            "line": 33,
-            "hit": 1
-          },
-          {
-            "line": 34,
-            "hit": 1
-          },
-          {
             "line": 35,
             "hit": 1
           },
           {
-            "line": 36,
-            "hit": 1
-          },
-          {
-            "line": 39,
-            "hit": 1
-          },
-          {
-            "line": 40,
+            "line": 38,
             "hit": 1
           },
           {
             "line": 41,
-            "hit": 0
+            "hit": 3
           },
           {
             "line": 42,
-            "hit": 0
+            "hit": 5
           },
           {
             "line": 43,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 44,
-            "hit": 0
+            "hit": 1
           },
           {
             "line": 45,
-            "hit": 0
+            "hit": 2
           },
           {
             "line": 46,
-            "hit": 0
+            "hit": 1
           },
           {
-            "line": 51,
+            "line": 47,
+            "hit": 2
+          },
+          {
+            "line": 48,
+            "hit": 1
+          },
+          {
+            "line": 49,
+            "hit": 1
+          },
+          {
+            "line": 54,
             "hit": 1
           },
           {
             "line": 56,
+            "hit": 1
+          },
+          {
+            "line": 57,
             "hit": 1
           },
           {
@@ -2484,11 +2507,15 @@
           },
           {
             "line": 62,
-            "hit": 3
+            "hit": 1
           },
           {
             "line": 63,
-            "hit": 5
+            "hit": 1
+          },
+          {
+            "line": 64,
+            "hit": 1
           }
         ]
       },
@@ -2941,31 +2968,31 @@
         "details": [
           {
             "line": 7,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 15,
-            "hit": 6
+            "hit": 3
           },
           {
             "line": 20,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 22,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 23,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 24,
-            "hit": 4
+            "hit": 2
           },
           {
             "line": 26,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 27,
@@ -2973,91 +3000,91 @@
           },
           {
             "line": 28,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 33,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 39,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 40,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 41,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 42,
-            "hit": 4
+            "hit": 2
           },
           {
             "line": 43,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 45,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 46,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 47,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 48,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 49,
-            "hit": 9
-          },
-          {
-            "line": 52,
-            "hit": 3
-          },
-          {
-            "line": 53,
             "hit": 6
           },
           {
+            "line": 52,
+            "hit": 2
+          },
+          {
+            "line": 53,
+            "hit": 4
+          },
+          {
             "line": 58,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 59,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 60,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 61,
-            "hit": 2
+            "hit": 1
           },
           {
             "line": 63,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 64,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 65,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 67,
-            "hit": 9
+            "hit": 6
           },
           {
             "line": 80,
