@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -69,13 +68,14 @@ class NoteCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      _getPreviewText(note.content),
+                      getPreviewText(note.content),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
-                if (note.content.isNotEmpty) const SizedBox(height: 8),
+                ),
+              if (note.content.isNotEmpty) const SizedBox(height: 8),
                 Text(
                   note.title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(

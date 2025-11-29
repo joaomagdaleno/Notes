@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -16,8 +15,10 @@ class TestUpdateService extends UpdateService {
 }
 
 class UnsupportedPlatformUpdateService extends UpdateService {
-  UnsupportedPlatformUpdateService({http.Client? client, PackageInfo? packageInfo})
-      : super(client: client, packageInfo: packageInfo);
+  UnsupportedPlatformUpdateService({
+    http.Client? client,
+    PackageInfo? packageInfo,
+  }) : super(client: client, packageInfo: packageInfo);
 
   @override
   String? getPlatformFileExtension() {
