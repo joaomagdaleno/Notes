@@ -39,8 +39,10 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
 
   await tester.pumpWidget(MaterialApp(home: Scaffold(body: tile)));
 
-  // Instead of tapping, just call the handler ourselves
-  tile.onTap!();
+  // Tap on the widget instead of calling the handler directly
+  await tester.tap(find.byKey(const ValueKey('tile_under_test')));
+  await tester.pump();
+
   expect(tapped, isTrue);
 });
 
@@ -108,7 +110,7 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
         ),
       );
 
-      await tester.tap(find.byType(ListTile));
+      await tester.tap(find.byType(NoteSimpleListTile));
       await tester.pumpAndSettle();
 
       expect(find.text('Edit Note'), findsOneWidget);
