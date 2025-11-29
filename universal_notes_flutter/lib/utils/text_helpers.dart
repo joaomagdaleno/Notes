@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 
 /// Returns a plain text preview from a JSON string.
 String getPreviewText(String jsonContent) {

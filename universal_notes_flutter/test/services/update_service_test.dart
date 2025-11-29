@@ -15,10 +15,7 @@ class TestUpdateService extends UpdateService {
 }
 
 class UnsupportedPlatformUpdateService extends UpdateService {
-  UnsupportedPlatformUpdateService({
-    http.Client? client,
-    PackageInfo? packageInfo,
-  }) : super(client: client, packageInfo: packageInfo);
+  UnsupportedPlatformUpdateService({super.client, super.packageInfo});
 
   @override
   String? getPlatformFileExtension() {
@@ -118,8 +115,7 @@ void main() {
             packageName: '');
         mockClient = MockClient((request) async {
           expect(request.url.path, contains('/releases/tags/dev-latest'));
-          return mockReleaseResponse(
-              tagName: 'dev-latest', body: 'Version: 1.0.0-dev.124');
+          return mockReleaseResponse(body: 'Version: 1.0.0-dev.124');
         });
         final service =
             TestUpdateService(client: mockClient, packageInfo: packageInfo);
