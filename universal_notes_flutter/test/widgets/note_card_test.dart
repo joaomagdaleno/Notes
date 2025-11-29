@@ -52,7 +52,11 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byType(NoteCard));
+    // Find and tap the InkWell inside the NoteCard
+    await tester.tap(find.descendant(
+      of: find.byType(NoteCard),
+      matching: find.byType(InkWell),
+    ));
     await tester.pump();
 
     expect(tapped, isTrue);
