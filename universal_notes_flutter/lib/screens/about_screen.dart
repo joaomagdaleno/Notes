@@ -83,61 +83,67 @@ class _AboutScreenState extends State<AboutScreen> {
   }
 
   Widget _buildFluentUI(BuildContext context) {
-    return fluent.ScaffoldPage(
-      header: fluent.PageHeader(
-        title: const Text('Sobre'),
-        leading: fluent.CommandBar(
-          overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
-          primaryItems: [
-            fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.back),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
-        ),
-      ),
-      content: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Versão atual: $_currentVersion'),
-            const SizedBox(height: 20),
-            if (_isChecking)
-              const fluent.ProgressRing(),
-            if (!_isChecking)
-              fluent.FilledButton(
-                onPressed: _checkForUpdateWindows,
-                child: const Text('Verificar Atualizações'),
+    return Semantics(
+      label: 'About Universal Notes',
+      child: fluent.ScaffoldPage(
+        header: fluent.PageHeader(
+          title: const Text('Sobre'),
+          leading: fluent.CommandBar(
+            overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
+            primaryItems: [
+              fluent.CommandBarButton(
+                icon: const fluent.Icon(fluent.FluentIcons.back),
+                onPressed: () => Navigator.pop(context),
               ),
-            if (_updateStatus.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Text(_updateStatus, textAlign: TextAlign.center),
-            ]
-          ],
+            ],
+          ),
+        ),
+        content: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Versão atual: $_currentVersion'),
+              const SizedBox(height: 20),
+              if (_isChecking)
+                const fluent.ProgressRing(),
+              if (!_isChecking)
+                fluent.FilledButton(
+                  onPressed: _checkForUpdateWindows,
+                  child: const Text('Verificar Atualizações'),
+                ),
+              if (_updateStatus.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text(_updateStatus, textAlign: TextAlign.center),
+              ]
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildMaterialUI(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sobre'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Versão atual: $_currentVersion'),
-            const SizedBox(height: 20),
-            if (_isChecking)
-              const CircularProgressIndicator()
-            else
-              ElevatedButton(
-                onPressed: _checkForUpdate,
-                child: const Text('Verificar Atualizações'),
-              ),
-          ],
+    return Semantics(
+      label: 'About Universal Notes',
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Sobre'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Versão atual: $_currentVersion'),
+              const SizedBox(height: 20),
+              if (_isChecking)
+                const CircularProgressIndicator()
+              else
+                ElevatedButton(
+                  onPressed: _checkForUpdate,
+                  child: const Text('Verificar Atualizações'),
+                ),
+            ],
+          ),
         ),
       ),
     );
