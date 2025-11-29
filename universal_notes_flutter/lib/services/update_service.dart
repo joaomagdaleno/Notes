@@ -40,6 +40,8 @@ class UpdateService {
   static const String _repo = 'joaomagdaleno/Notes';
 
   /// Checks for updates.
+  ///
+  /// Returns a [UpdateCheckResult] with the status of the update check.
   Future<UpdateCheckResult> checkForUpdate() async {
     try {
       final info = packageInfo ?? await PackageInfo.fromPlatform();
