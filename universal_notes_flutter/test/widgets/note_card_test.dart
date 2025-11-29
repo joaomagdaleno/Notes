@@ -52,11 +52,9 @@ void main() {
       ),
     );
 
-    // Find and tap the InkWell inside the NoteCard
-    await tester.tap(find.descendant(
-      of: find.byType(NoteCard),
-      matching: find.byType(InkWell),
-    ));
+    // Find the Card widget and tap on its center
+    final cardFinder = find.byType(Card);
+    await tester.tap(cardFinder);
     await tester.pump();
 
     expect(tapped, isTrue);

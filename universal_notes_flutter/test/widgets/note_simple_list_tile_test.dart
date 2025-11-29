@@ -40,11 +40,9 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
 
   await tester.pumpWidget(MaterialApp(home: Scaffold(body: tile)));
 
-  // Find and tap the ListTile inside the NoteSimpleListTile
-  await tester.tap(find.descendant(
-    of: find.byKey(const ValueKey('tile_under_test')),
-    matching: find.byType(ListTile),
-  ));
+  // Find the ListTile and tap on it
+  final listTileFinder = find.byType(ListTile);
+  await tester.tap(listTileFinder);
   await tester.pump();
 
   expect(tapped, isTrue);
@@ -114,11 +112,11 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
         ),
       );
 
-      // Find and tap the ListTile inside the NoteSimpleListTile
-      await tester.tap(find.descendant(
-        of: find.byType(NoteSimpleListTile),
-        matching: find.byType(ListTile),
-      ));
+      // Find the ListTile and tap on it
+      final listTileFinder = find.byType(ListTile);
+      await tester.tap(listTileFinder);
+
+      // Wait for navigation to complete
       await tester.pumpAndSettle();
 
       // Check if we've navigated to the NoteEditorScreen
