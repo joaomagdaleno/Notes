@@ -5,11 +5,12 @@ import 'package:universal_notes_flutter/models/note.dart';
 class NoteEditorScreen extends StatelessWidget {
   /// Creates a new instance of [NoteEditorScreen].
   const NoteEditorScreen({
-    this.note,
     required this.onSave,
+    this.note,
     super.key,
   });
 
+  /// The note to edit. If null, a new note is created.
   final Note? note;
   /// The function to call when the note is saved.
   final Future<Note> Function(Note) onSave;
