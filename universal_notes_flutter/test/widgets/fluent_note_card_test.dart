@@ -92,8 +92,8 @@ void main() {
                 note: noteWithValidContent,
                 onDelete: (note) {},
                 onSave: (note) async => note,
-                onTap: () {
-                  Navigator.of(context).push(
+                onTap: () async {
+                  await Navigator.of(context).push(
                     fluent.FluentPageRoute<void>(
                       builder: (context) => Scaffold(
                         appBar: AppBar(

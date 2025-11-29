@@ -39,7 +39,7 @@ class UpdateService {
 
   static const String _repo = 'joaomagdaleno/Notes';
 
-  /// Checks for updates.
+  /// Checks for updates and returns an [UpdateCheckResult] indicating if an update is available.
   Future<UpdateCheckResult> checkForUpdate() async {
     try {
       final info = packageInfo ?? await PackageInfo.fromPlatform();
@@ -85,7 +85,8 @@ class UpdateService {
                 UpdateCheckStatus.updateAvailable,
                 updateInfo: UpdateInfo(
                   version: latestVersionStr,
-                  downloadUrl: releaseAsset['browser_download_url'] as String,
+                  downloadUrl:
+                      releaseAsset['browser_download_url'] as String,
                 ),
               );
             }
