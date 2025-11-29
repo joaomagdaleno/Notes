@@ -52,9 +52,12 @@ void main() {
       ),
     );
 
-    // Find the Card widget and tap on its center
-    final cardFinder = find.byType(Card);
-    await tester.tap(cardFinder);
+    // Find the InkWell widget inside the Card and tap on it
+    final inkWellFinder = find.descendant(
+      of: find.byType(Card),
+      matching: find.byType(InkWell),
+    );
+    await tester.tap(inkWellFinder);
     await tester.pump();
 
     expect(tapped, isTrue);
