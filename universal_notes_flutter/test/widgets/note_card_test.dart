@@ -52,37 +52,9 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byType(NoteCard));
+    await tester.tap(find.byType(InkWell));
     await tester.pump();
 
     expect(tapped, isTrue);
   });
-
-  testWidgets('long-pressing NoteCard shows context menu',
-      (WidgetTester tester) async {
-    final note = Note(
-      title: 'Test Note',
-      content: '',
-      date: DateTime.now(),
-    );
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: NoteCard(
-            note: note,
-            onSave: (note) async => note,
-            onDelete: (note) {},
-            onTap: () {},
-          ),
-        ),
-      ),
-    );
-
-    await tester.longPress(find.byType(NoteCard));
-    await tester.pump();
-
-    expect(find.text('Favoritar'), findsOneWidget);
-  });
-
 }

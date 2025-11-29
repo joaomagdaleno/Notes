@@ -13,7 +13,7 @@ class NoteCard extends StatelessWidget {
     required this.note,
     required this.onSave,
     required this.onDelete,
-    required this.onTap,
+    this.onTap,
     super.key,
   });
   /// The note to display.
@@ -23,7 +23,7 @@ class NoteCard extends StatelessWidget {
   /// The function to call when the note is deleted.
   final void Function(Note) onDelete;
   /// The function to call when the card is tapped.
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -43,31 +43,35 @@ class NoteCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         child: InkWell(
-          onTap: onTap,
+          onTap: onTap ??
+              () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) =>
+                        NoteEditorScreen(note: note, onSave: onSave),
+                  ),
+                );
+              },
           child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (note.content.isNotEmpty)
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        getPreviewText(note.content),
-                        style: TextStyle(
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 5,
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (note.content.isNotEmpty)
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _getPreviewText(note.content),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
