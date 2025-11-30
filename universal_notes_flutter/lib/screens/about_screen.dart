@@ -23,7 +23,6 @@ class AboutScreen extends StatefulWidget {
 }
 
 class _AboutScreenState extends State<AboutScreen> {
-  String _currentVersion = '...';
   bool _isChecking = false;
   String _updateStatus = '';
 
@@ -87,7 +86,7 @@ class _AboutScreenState extends State<AboutScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Versão atual: $_currentVersion'),
+              Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
               if (_isChecking)
                 const fluent.ProgressRing(),
@@ -116,9 +115,9 @@ class _AboutScreenState extends State<AboutScreen> {
         ),
         body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Versão atual: $_currentVersion'),
+              Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
               if (_isChecking)
                 const CircularProgressIndicator()
