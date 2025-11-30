@@ -35,11 +35,13 @@ class UpdateService {
       : _client = client ?? http.Client();
 
   final http.Client _client;
+
+  /// Information about the package.
   final PackageInfo? packageInfo;
 
   static const String _repo = 'joaomagdaleno/Notes';
 
-  /// Checks for updates.
+  /// Checks for available updates and returns an UpdateResult
   Future<UpdateCheckResult> checkForUpdate() async {
     try {
       final info = packageInfo ?? await PackageInfo.fromPlatform();
@@ -85,7 +87,8 @@ class UpdateService {
                 UpdateCheckStatus.updateAvailable,
                 updateInfo: UpdateInfo(
                   version: latestVersionStr,
-                  downloadUrl: releaseAsset['browser_download_url'] as String,
+                  downloadUrl:
+                      releaseAsset['browser_download_url'] as String,
                 ),
               );
             }

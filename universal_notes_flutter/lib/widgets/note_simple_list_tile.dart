@@ -24,43 +24,47 @@ class NoteSimpleListTile extends StatelessWidget {
   /// If null, it will navigate to the [NoteEditorScreen].
   final VoidCallback? onTap;
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onLongPressDown: (details) async {
+@override
+Widget build(BuildContext context) {
+  return ListTile(
+    key: key,
+    contentPadding: const EdgeInsets.symmetric(
+      horizontal: 16,
+      vertical: 8,
+    ),
+    leading: Container(
+      width: 40,
+      height: 40,
+      color: Colors.grey[300],
+      child: const Icon(Icons.image_outlined, color: Colors.grey),
+    ),
+    title: Text(note.title),
+    trailing: Text(DateFormat('d MMM').format(note.date)),
+    onTap: onTap ??
+        () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (context) => NoteEditorScreen(
+                note: note,
+                onSave: onSave,
+              ),
+            ),
+          );
+        },
+    onLongPress: () async {
+      final renderBox = context.findRenderObject();
+      if (renderBox is RenderBox) {
+        final position = renderBox.localToGlobal(Offset.zero);
+
         await ContextMenuHelper.showContextMenu(
           context: context,
-          position: details.globalPosition,
+          position: position,
           note: note,
           onSave: onSave,
           onDelete: onDelete,
         );
-      },
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
-        leading: Container(
-          width: 40,
-          height: 40,
-          color: Colors.grey[300],
-          child: const Icon(Icons.image_outlined, color: Colors.grey),
-        ),
-        title: Text(note.title),
-        trailing: Text(DateFormat('d MMM').format(note.date)),
-        onTap: onTap ??
-            () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (context) => NoteEditorScreen(
-                    note: note,
-                    onSave: onSave,
-                  ),
-                ),
-              );
-            },
-      ),
-    );
-  }
+      }
+    },
+  );
+}
 }

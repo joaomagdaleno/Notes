@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 
 void main() {
@@ -39,8 +40,14 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
 
   await tester.pumpWidget(MaterialApp(home: Scaffold(body: tile)));
 
-  // Instead of tapping, just call the handler ourselves
-  tile.onTap!();
+  // Find the ListTile and tap on it
+  final listTileFinder = find.descendant(
+    of: find.byKey(const ValueKey('tile_under_test')),
+    matching: find.byType(ListTile),
+  );
+  await tester.tap(listTileFinder);
+  await tester.pump();
+
   expect(tapped, isTrue);
 });
 
@@ -108,10 +115,17 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
         ),
       );
 
-      await tester.tap(find.byType(ListTile));
-      await tester.pumpAndSettle();
+    // Find the ListTile and tap on it
+    final listTileFinder = find.byType(ListTile);
+    await tester.tap(listTileFinder);
 
-      expect(find.text('Edit Note'), findsOneWidget);
+    // Wait for navigation to complete
+    await tester.pumpAndSettle();
+
+    // Check if we've navigated to the NoteEditorScreen
+    expect(find.byType(NoteEditorScreen), findsOneWidget);
+    // Check for the "Edit Note" text in the AppBar
+    expect(find.text('Edit Note'), findsOneWidget);
     },
   );
 }

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -16,8 +15,7 @@ class TestUpdateService extends UpdateService {
 }
 
 class UnsupportedPlatformUpdateService extends UpdateService {
-  UnsupportedPlatformUpdateService({http.Client? client, PackageInfo? packageInfo})
-      : super(client: client, packageInfo: packageInfo);
+  UnsupportedPlatformUpdateService({super.client, super.packageInfo});
 
   @override
   String? getPlatformFileExtension() {
@@ -55,7 +53,11 @@ void main() {
           'returns updateAvailable when a newer stable version is '
           'available', () async {
         final packageInfo = PackageInfo(
-            version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+          version: '1.0.0',
+          appName: '',
+          buildNumber: '',
+          packageName: '',
+        );
         mockClient = MockClient((request) async {
           expect(request.url.path, contains('/releases/latest'));
           return mockReleaseResponse(tagName: 'v1.0.1');
@@ -70,7 +72,11 @@ void main() {
       test('returns noUpdate when a newer version has no matching asset',
           () async {
         final packageInfo = PackageInfo(
-            version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+          version: '1.0.0',
+          appName: '',
+          buildNumber: '',
+          packageName: '',
+        );
         mockClient = MockClient((request) async {
           return mockReleaseResponse(tagName: 'v1.0.1', assetName: 'test.zip');
         });
@@ -83,7 +89,11 @@ void main() {
       test('returns noUpdate when the current stable version is the latest',
           () async {
         final packageInfo = PackageInfo(
-            version: '1.0.1', appName: '', buildNumber: '', packageName: '');
+          version: '1.0.1',
+          appName: '',
+          buildNumber: '',
+          packageName: '',
+        );
         mockClient = MockClient((request) async {
           expect(request.url.path, contains('/releases/latest'));
           return mockReleaseResponse(tagName: 'v1.0.1');
@@ -96,7 +106,11 @@ void main() {
 
       test('returns noUpdate for unsupported platform', () async {
         final packageInfo = PackageInfo(
-            version: '1.0.0', appName: '', buildNumber: '', packageName: '');
+          version: '1.0.0',
+          appName: '',
+          buildNumber: '',
+          packageName: '',
+        );
         mockClient = MockClient((request) async {
           return mockReleaseResponse(tagName: 'v1.0.1');
         });
@@ -111,14 +125,14 @@ void main() {
       test('returns updateAvailable when a newer dev build is available',
           () async {
         final packageInfo = PackageInfo(
-            version: '1.0.0-dev.123',
-            appName: '',
-            buildNumber: '',
-            packageName: '');
+          version: '1.0.0-dev.123',
+          appName: '',
+          buildNumber: '',
+          packageName: '',
+        );
         mockClient = MockClient((request) async {
           expect(request.url.path, contains('/releases/tags/dev-latest'));
-          return mockReleaseResponse(
-              tagName: 'dev-latest', body: 'Version: 1.0.0-dev.124');
+          return mockReleaseResponse(body: 'Version: 1.0.0-dev.124');
         });
         final service =
             TestUpdateService(client: mockClient, packageInfo: packageInfo);
@@ -130,10 +144,11 @@ void main() {
       test('returns noUpdate when the current dev build is the latest',
           () async {
         final packageInfo = PackageInfo(
-            version: '1.0.0-dev.124',
-            appName: '',
-            buildNumber: '',
-            packageName: '');
+          version: '1.0.0-dev.124',
+          appName: '',
+          buildNumber: '',
+          packageName: '',
+        );
         mockClient = MockClient((request) async {
           expect(request.url.path, contains('/releases/tags/dev-latest'));
           return mockReleaseResponse(
@@ -147,12 +162,13 @@ void main() {
 
       test('returns noUpdate when the release body has no version', () async {
         final packageInfo = PackageInfo(
-            version: '1.0.0-dev.123',
-            appName: '',
-            buildNumber: '',
-            packageName: '');
+          version: '1.0.0-dev.123',
+          appName: '',
+          buildNumber: '',
+          packageName: '',
+        );
         mockClient = MockClient((request) async {
-          return mockReleaseResponse(tagName: 'dev-latest', body: '');
+          return mockReleaseResponse(body: '');
         });
         final service =
             TestUpdateService(client: mockClient, packageInfo: packageInfo);
@@ -164,10 +180,11 @@ void main() {
       test('returns updateAvailable when a newer beta build is available',
           () async {
         final packageInfo = PackageInfo(
-            version: '1.0.0-beta.123',
-            appName: '',
-            buildNumber: '',
-            packageName: '');
+          version: '1.0.0-beta.123',
+          appName: '',
+          buildNumber: '',
+          packageName: '',
+        );
         mockClient = MockClient((request) async {
           expect(request.url.path, contains('/releases/tags/beta-latest'));
           return mockReleaseResponse(
@@ -182,10 +199,11 @@ void main() {
       test('returns noUpdate when the current beta build is the latest',
           () async {
         final packageInfo = PackageInfo(
-            version: '1.0.0-beta.124',
-            appName: '',
-            buildNumber: '',
-            packageName: '');
+          version: '1.0.0-beta.124',
+          appName: '',
+          buildNumber: '',
+          packageName: '',
+        );
         mockClient = MockClient((request) async {
           expect(request.url.path, contains('/releases/tags/beta-latest'));
           return mockReleaseResponse(

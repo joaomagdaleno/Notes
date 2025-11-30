@@ -52,35 +52,12 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byType(InkWell));
-    await tester.pump();
-
-    expect(tapped, isTrue);
-  });
-
-  testWidgets('tapping NoteCard calls onTap callback',
-      (WidgetTester tester) async {
-    var tapped = false;
-    final note = Note(
-      title: 'Test Note',
-      content: '',
-      date: DateTime.now(),
+    // Find the InkWell widget inside the Card and tap on it
+    final inkWellFinder = find.descendant(
+      of: find.byType(Card),
+      matching: find.byType(InkWell),
     );
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: NoteCard(
-            note: note,
-            onSave: (note) async => note,
-            onDelete: (note) {},
-            onTap: () => tapped = true,
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.byType(InkWell));
+    await tester.tap(inkWellFinder);
     await tester.pump();
 
     expect(tapped, isTrue);
