@@ -30,6 +30,7 @@ class SettingsScreen extends StatelessWidget {
             leading: const fluent.Icon(fluent.FluentIcons.info),
             onPressed: () async {
               final packageInfo = await PackageInfo.fromPlatform();
+              if (!context.mounted) return;
               await Navigator.of(context).push(
                 fluent.FluentPageRoute<void>(
                   builder: (context) => AboutScreen(packageInfo: packageInfo),
@@ -54,6 +55,7 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.info_outline),
             onTap: () async {
               final packageInfo = await PackageInfo.fromPlatform();
+              if (!context.mounted) return;
               await Navigator.of(context).push(
                 MaterialPageRoute<void>(
                   builder: (context) => AboutScreen(packageInfo: packageInfo),

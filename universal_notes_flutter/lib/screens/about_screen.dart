@@ -11,11 +11,11 @@ import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 class AboutScreen extends StatefulWidget {
   /// Creates a new instance of [AboutScreen].
   const AboutScreen({
-    super.key,
     required this.packageInfo,
+    super.key,
   });
 
-  /// Package information for the app
+  /// The package information.
   final PackageInfo packageInfo;
 
   @override
@@ -26,10 +26,18 @@ class _AboutScreenState extends State<AboutScreen> {
   bool _isChecking = false;
   String _updateStatus = '';
 
-  @override
-  void initState() {
-    super.initState();
-    _currentVersion = widget.packageInfo.version;
+  Future<void> _checkForUpdate() async {
+    setState(() {
+      _isChecking = true;
+    });
+
+    await UpdateHelper.checkForUpdate(context, isManual: true);
+
+    if (mounted) {
+      setState(() {
+        _isChecking = false;
+      });
+    }
   }
 
   Future<void> _checkForUpdateWindows() async {
