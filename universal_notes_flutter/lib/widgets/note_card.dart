@@ -44,7 +44,7 @@ Widget build(BuildContext context) {
       onLongPress: () async {
         final renderBox = context.findRenderObject();
         if (renderBox is RenderBox) {
-          final Offset position = renderBox.localToGlobal(Offset.zero);
+          final position = renderBox.localToGlobal(Offset.zero);
 
           await ContextMenuHelper.showContextMenu(
             context: context,

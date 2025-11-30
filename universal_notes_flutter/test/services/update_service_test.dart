@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -167,7 +168,7 @@ void main() {
           packageName: '',
         );
         mockClient = MockClient((request) async {
-          return mockReleaseResponse(tagName: 'dev-latest', body: '');
+          return mockReleaseResponse(body: '');
         });
         final service =
             TestUpdateService(client: mockClient, packageInfo: packageInfo);

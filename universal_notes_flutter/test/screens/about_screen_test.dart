@@ -1,4 +1,3 @@
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -144,8 +143,8 @@ void main() {
                   appBar: AppBar(title: const Text('Home')),
                   body: Builder(
                     builder: (context) => ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/about');
+                      onPressed: () async {
+                        await Navigator.pushNamed(context, '/about');
                       },
                       child: const Text('Go to About'),
                     ),
