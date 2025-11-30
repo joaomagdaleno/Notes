@@ -35,11 +35,13 @@ class UpdateService {
       : _client = client ?? http.Client();
 
   final http.Client _client;
+
+  /// Information about the package.
   final PackageInfo? packageInfo;
 
   static const String _repo = 'joaomagdaleno/Notes';
 
-  /// Checks for updates and returns an [UpdateCheckResult] indicating if an update is available.
+  /// Checks for available updates and returns an UpdateResult
   Future<UpdateCheckResult> checkForUpdate() async {
     try {
       final info = packageInfo ?? await PackageInfo.fromPlatform();

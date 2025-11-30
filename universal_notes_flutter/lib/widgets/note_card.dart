@@ -42,8 +42,8 @@ Widget build(BuildContext context) {
             );
           },
       onLongPress: () async {
-        final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-        if (renderBox != null) {
+        final renderBox = context.findRenderObject();
+        if (renderBox is RenderBox) {
           final Offset position = renderBox.localToGlobal(Offset.zero);
 
           await ContextMenuHelper.showContextMenu(
@@ -80,9 +80,9 @@ Widget build(BuildContext context) {
                 ),
               ),
             if (note.content.isNotEmpty) const SizedBox(height: 8),
-              Text(
-                note.title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            Text(
+              note.title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                 maxLines: 2,
@@ -100,4 +100,3 @@ Widget build(BuildContext context) {
   );
 }
 }
-
