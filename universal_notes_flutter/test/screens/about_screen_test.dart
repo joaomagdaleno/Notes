@@ -118,7 +118,14 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.bySemanticsLabel('About Universal Notes'), findsOneWidget);
+      // Encontra o widget Semantics específico que envolve o AboutScreen
+      final aboutScreenFinder = find.byType(AboutScreen);
+      final semanticsFinder = find.descendant(
+        of: aboutScreenFinder,
+        matching: find.bySemanticsLabel('About Universal Notes'),
+      );
+
+      expect(semanticsFinder, findsOneWidget);
     });
   });
 
