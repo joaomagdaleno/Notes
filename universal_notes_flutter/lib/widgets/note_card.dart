@@ -42,17 +42,18 @@ Widget build(BuildContext context) {
             );
           },
       onLongPress: () async {
-        // Get the position for the context menu
-        final RenderBox renderBox = context.findRenderObject() as RenderBox;
-        final Offset position = renderBox.localToGlobal(Offset.zero);
+        final renderBox = context.findRenderObject();
+        if (renderBox is RenderBox) {
+          final Offset position = renderBox.localToGlobal(Offset.zero);
 
-        await ContextMenuHelper.showContextMenu(
-          context: context,
-          position: position,
-          note: note,
-          onSave: onSave,
-          onDelete: onDelete,
-        );
+          await ContextMenuHelper.showContextMenu(
+            context: context,
+            position: position,
+            note: note,
+            onSave: onSave,
+            onDelete: onDelete,
+          );
+        }
       },
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -79,9 +80,9 @@ Widget build(BuildContext context) {
                 ),
               ),
             if (note.content.isNotEmpty) const SizedBox(height: 8),
-              Text(
-                note.title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            Text(
+              note.title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                 maxLines: 2,
@@ -99,4 +100,3 @@ Widget build(BuildContext context) {
   );
 }
 }
-

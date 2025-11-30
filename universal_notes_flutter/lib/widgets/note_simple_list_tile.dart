@@ -52,17 +52,18 @@ Widget build(BuildContext context) {
           );
         },
     onLongPress: () async {
-      // Get the position for the context menu
-      final RenderBox renderBox = context.findRenderObject() as RenderBox;
-      final Offset position = renderBox.localToGlobal(Offset.zero);
+      final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+      if (renderBox != null) {
+        final Offset position = renderBox.localToGlobal(Offset.zero);
 
-      await ContextMenuHelper.showContextMenu(
-        context: context,
-        position: position,
-        note: note,
-        onSave: onSave,
-        onDelete: onDelete,
-      );
+        await ContextMenuHelper.showContextMenu(
+          context: context,
+          position: position,
+          note: note,
+          onSave: onSave,
+          onDelete: onDelete,
+        );
+      }
     },
   );
 }
