@@ -10,29 +10,18 @@ import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 /// The screen that displays information about the application.
 class AboutScreen extends StatefulWidget {
   /// Creates a new instance of [AboutScreen].
-  const AboutScreen({super.key});
+  const AboutScreen({required this.packageInfo, super.key});
+
+  /// The package information.
+  final PackageInfo packageInfo;
 
   @override
   State<AboutScreen> createState() => _AboutScreenState();
 }
 
 class _AboutScreenState extends State<AboutScreen> {
-  String _currentVersion = '...';
   bool _isChecking = false;
   String _updateStatus = '';
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_loadVersion());
-  }
-
-  Future<void> _loadVersion() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      _currentVersion = packageInfo.version;
-    });
-  }
 
   Future<void> _checkForUpdate() async {
     setState(() {
@@ -102,7 +91,7 @@ class _AboutScreenState extends State<AboutScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Versão atual: $_currentVersion'),
+              Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
               if (_isChecking)
                 const fluent.ProgressRing(),
@@ -133,7 +122,7 @@ class _AboutScreenState extends State<AboutScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Versão atual: $_currentVersion'),
+              Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
               if (_isChecking)
                 const CircularProgressIndicator()
