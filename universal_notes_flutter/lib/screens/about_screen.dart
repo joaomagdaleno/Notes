@@ -10,7 +10,13 @@ import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 /// The screen that displays information about the application.
 class AboutScreen extends StatefulWidget {
   /// Creates a new instance of [AboutScreen].
-  const AboutScreen({super.key});
+  const AboutScreen({
+    super.key,
+    required this.packageInfo,
+  });
+
+  /// Package information for the app
+  final PackageInfo packageInfo;
 
   @override
   State<AboutScreen> createState() => _AboutScreenState();
@@ -24,28 +30,7 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   void initState() {
     super.initState();
-    unawaited(_loadVersion());
-  }
-
-  Future<void> _loadVersion() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      _currentVersion = packageInfo.version;
-    });
-  }
-
-  Future<void> _checkForUpdate() async {
-    setState(() {
-      _isChecking = true;
-    });
-
-    await UpdateHelper.checkForUpdate(context, isManual: true);
-
-    if (mounted) {
-      setState(() {
-        _isChecking = false;
-      });
-    }
+    _currentVersion = widget.packageInfo.version;
   }
 
   Future<void> _checkForUpdateWindows() async {
@@ -88,7 +73,7 @@ class _AboutScreenState extends State<AboutScreen> {
       child: fluent.ScaffoldPage(
         header: fluent.PageHeader(
           title: const Text('Sobre'),
-          leading: fluent.CommandBar(
+          leading: const fluent.CommandBar(
             overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
             primaryItems: [
               fluent.CommandBarButton(
@@ -139,7 +124,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 const CircularProgressIndicator()
               else
                 ElevatedButton(
-                  onPressed: _checkForUpdate,
+                  onPressed: _checkForUpdateWindows,
                   child: const Text('Verificar Atualizações'),
                 ),
             ],

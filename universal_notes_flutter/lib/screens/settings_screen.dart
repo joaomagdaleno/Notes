@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
 
 /// The screen that displays the application settings.
@@ -28,9 +29,10 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('Sobre'),
             leading: const fluent.Icon(fluent.FluentIcons.info),
             onPressed: () async {
+              final packageInfo = await PackageInfo.fromPlatform();
               await Navigator.of(context).push(
                 fluent.FluentPageRoute<void>(
-                  builder: (context) => const AboutScreen(),
+                  builder: (context) => AboutScreen(packageInfo: packageInfo),
                 ),
               );
             },
@@ -51,9 +53,10 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('Sobre'),
             leading: const Icon(Icons.info_outline),
             onTap: () async {
+              final packageInfo = await PackageInfo.fromPlatform();
               await Navigator.of(context).push(
                 MaterialPageRoute<void>(
-                  builder: (context) => const AboutScreen(),
+                  builder: (context) => AboutScreen(packageInfo: packageInfo),
                 ),
               );
             },
