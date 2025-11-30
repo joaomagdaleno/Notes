@@ -120,7 +120,7 @@ class _AboutScreenState extends State<AboutScreen> {
         ),
         body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),

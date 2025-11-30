@@ -97,6 +97,7 @@ void main() {
 
     testWidgets('AboutScreen has correct accessibility label',
         (WidgetTester tester) async {
+      // Adiciona depuração para ver o que está sendo renderizado
       await tester.pumpWidget(
         MaterialApp(
           home: AboutScreen(packageInfo: mockPackageInfo),
