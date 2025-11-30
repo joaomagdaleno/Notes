@@ -114,9 +114,9 @@ void main() {
 
       // Verifica se algum deles tem o rótulo correto
       bool foundCorrectLabel = false;
-      for (final widget in semanticsWidgets.evaluate()) {
-        final semantics = widget.widget as Semantics;
-        if (semantics.label == 'About Universal Notes') {
+      for (final element in semanticsWidgets.evaluate()) {
+        final semantics = element.widget as Semantics;
+        if (semantics.properties.label == 'About Universal Notes') {
           foundCorrectLabel = true;
           break;
         }
