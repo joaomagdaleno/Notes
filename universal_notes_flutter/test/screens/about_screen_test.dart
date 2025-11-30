@@ -111,6 +111,7 @@ void main() {
 
     testWidgets('AboutScreen has correct accessibility label',
         (WidgetTester tester) async {
+      // Adiciona depuração para ver o que está sendo renderizado
       await tester.pumpWidget(
         const MaterialApp(
           home: AboutScreen(),
@@ -118,7 +119,16 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.bySemanticsLabel('About Universal Notes'), findsOneWidget);
+      // Imprime a árvore de widgets para depuração
+      debugDumpApp();
+
+      // Tenta encontrar o widget Semantics diretamente
+      final semanticsFinder = find.byType(Semantics);
+      expect(semanticsFinder, findsOneWidget);
+
+      // Verifica o rótulo
+      final semanticsLabel = find.bySemanticsLabel('About Universal Notes');
+      expect(semanticsLabel, findsOneWidget);
     });
   });
 
