@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 
 /// The screen that displays information about the application.
@@ -81,7 +80,7 @@ class _AboutScreenState extends State<AboutScreen> {
       child: fluent.ScaffoldPage(
         header: fluent.PageHeader(
           title: const Text('Sobre'),
-          leading: fluent.CommandBar(
+          leading: const fluent.CommandBar(
             overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
             primaryItems: [
               fluent.CommandBarButton(
@@ -124,7 +123,7 @@ class _AboutScreenState extends State<AboutScreen> {
         ),
         body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
@@ -132,7 +131,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 const CircularProgressIndicator()
               else
                 ElevatedButton(
-                  onPressed: _checkForUpdate,
+                  onPressed: _checkForUpdateWindows,
                   child: const Text('Verificar Atualizações'),
                 ),
             ],
