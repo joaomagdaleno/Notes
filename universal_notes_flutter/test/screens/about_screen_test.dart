@@ -140,6 +140,7 @@ void main() {
         buildSignature: '',
       );
 
+    testWidgets('AboutScreen can be navigated to', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           routes: {

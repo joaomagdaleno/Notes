@@ -31,6 +31,7 @@ class _AboutScreenState extends State<AboutScreen> {
       _isChecking = true;
     });
 
+    if (!mounted) return;
     await UpdateHelper.checkForUpdate(context, isManual: true);
 
     if (mounted) {
