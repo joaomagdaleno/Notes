@@ -81,7 +81,7 @@ class _AboutScreenState extends State<AboutScreen> {
       child: fluent.ScaffoldPage(
         header: fluent.PageHeader(
           title: const Text('Sobre'),
-          leading: fluent.CommandBar(
+          leading: const fluent.CommandBar(
             overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
             primaryItems: [
               fluent.CommandBarButton(
@@ -124,7 +124,7 @@ class _AboutScreenState extends State<AboutScreen> {
         ),
         body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
@@ -132,7 +132,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 const CircularProgressIndicator()
               else
                 ElevatedButton(
-                  onPressed: _checkForUpdate,
+                  onPressed: _checkForUpdateWindows,
                   child: const Text('Verificar Atualizações'),
                 ),
             ],
