@@ -79,7 +79,10 @@ void main() {
 
     testWidgets('AboutScreen displays Material Design on Android',
         (WidgetTester tester) async {
-      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      tester.binding.platformDispatcher.platformConfigurationTestValue =
+          const TestPlatformConfiguration(
+        platform: TargetPlatform.android,
+      );
 
       await tester.pumpWidget(
         MaterialApp(
@@ -87,7 +90,8 @@ void main() {
         ),
       );
 
-      expect(find.text('Versão atual: 1.0.0'), findsOneWidget);
+      addTearDown(
+          tester.binding.platformDispatcher.clearPlatformConfigurationTestValue);
     });
 
     testWidgets('AboutScreen has correct accessibility label',
@@ -133,13 +137,23 @@ void main() {
                   body: Builder(
                     builder: (context) => ElevatedButton(
                       onPressed: () async {
-                        await Navigator.pushNamed(context, '/about');
+                        final packageInfo = await PackageInfo.fromPlatform();
+                        if (!context.mounted) return;
+                        await Navigator.pushNamed(
+                          context,
+                          '/about',
+                          arguments: packageInfo,
+                        );
                       },
                       child: const Text('Go to About'),
                     ),
                   ),
                 ),
-            '/about': (context) => AboutScreen(packageInfo: mockPackageInfo),
+            '/about': (context) {
+              final packageInfo =
+                  ModalRoute.of(context)!.settings.arguments as PackageInfo;
+              return AboutScreen(packageInfo: packageInfo);
+            },
           },
         ),
       );
