@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -127,6 +126,14 @@ void main() {
     });
 
     testWidgets('AboutScreen can be navigated to', (WidgetTester tester) async {
+      PackageInfo.setMockInitialValues(
+        appName: mockPackageInfo.appName,
+        buildNumber: mockPackageInfo.buildNumber,
+        packageName: mockPackageInfo.packageName,
+        version: mockPackageInfo.version,
+        buildSignature: '',
+      );
+
       await tester.pumpWidget(
         MaterialApp(
           routes: {
@@ -149,8 +156,11 @@ void main() {
                 ),
             '/about': (context) {
               final packageInfo =
-                  ModalRoute.of(context)!.settings.arguments as PackageInfo;
-              return AboutScreen(packageInfo: packageInfo);
+                  ModalRoute.of(context)!.settings.arguments;
+              if (packageInfo is PackageInfo) {
+                return AboutScreen(packageInfo: packageInfo);
+              }
+              return const Placeholder(); // Should not happen in this test
             },
           },
         ),
