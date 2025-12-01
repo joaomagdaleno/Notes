@@ -25,6 +25,21 @@ class _AboutScreenState extends State<AboutScreen> {
   bool _isChecking = false;
   String _updateStatus = '';
 
+  Future<void> _checkForUpdate() async {
+    setState(() {
+      _isChecking = true;
+    });
+
+    if (!mounted) return;
+    await UpdateHelper.checkForUpdate(context, isManual: true);
+
+    if (mounted) {
+      setState(() {
+        _isChecking = false;
+      });
+    }
+  }
+
   Future<void> _checkForUpdateWindows() async {
     setState(() {
       _isChecking = true;

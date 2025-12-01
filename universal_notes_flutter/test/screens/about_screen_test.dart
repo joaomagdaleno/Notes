@@ -73,6 +73,10 @@ void main() {
   });
 
   group('AboutScreen Platform and Accessibility Tests', () {
+    setUp(() {
+      TestWidgetsFlutterBinding.ensureInitialized();
+    });
+
     testWidgets('AboutScreen displays Material Design on Android',
         (WidgetTester tester) async {
       tester.binding.platformDispatcher.platformOverride = TargetPlatform.android;
@@ -127,6 +131,14 @@ void main() {
     });
 
     testWidgets('AboutScreen can be navigated to', (WidgetTester tester) async {
+      PackageInfo.setMockInitialValues(
+        appName: mockPackageInfo.appName,
+        buildNumber: mockPackageInfo.buildNumber,
+        packageName: mockPackageInfo.packageName,
+        version: mockPackageInfo.version,
+        buildSignature: '',
+      );
+
       await tester.pumpWidget(
         MaterialApp(
           routes: {
