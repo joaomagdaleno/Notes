@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -87,7 +86,6 @@ void main() {
           home: AboutScreen(packageInfo: mockPackageInfo),
         ),
       );
-      await tester.pumpAndSettle();
 
       expect(find.byType(AppBar), findsOneWidget);
       expect(find.byType(Scaffold), findsOneWidget);
@@ -171,10 +169,25 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Go to About'));
-      await tester.pumpAndSettle();
-
+      // Verifica se o AboutScreen está presente
       expect(find.byType(AboutScreen), findsOneWidget);
+
+      // Encontra todos os widgets Semantics
+      final semanticsWidgets = find.byType(Semantics);
+      expect(semanticsWidgets, findsWidgets);
+
+      // Verifica se algum deles tem o rótulo correto
+      var foundCorrectLabel = false;
+      for (final element in semanticsWidgets.evaluate()) {
+        final semantics = element.widget as Semantics;
+        if (semantics.properties.label == 'About Universal Notes') {
+          foundCorrectLabel = true;
+          break;
+        }
+      }
+
+      expect(foundCorrectLabel, isTrue,
+          reason: 'Nenhum widget Semantics com rótulo "About Universal Notes" foi encontrado');
     });
   });
 }
