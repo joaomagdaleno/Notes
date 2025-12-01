@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 
 /// The screen that displays information about the application.
@@ -25,21 +24,6 @@ class AboutScreen extends StatefulWidget {
 class _AboutScreenState extends State<AboutScreen> {
   bool _isChecking = false;
   String _updateStatus = '';
-
-  Future<void> _checkForUpdate() async {
-    setState(() {
-      _isChecking = true;
-    });
-
-    if (!mounted) return;
-    await UpdateHelper.checkForUpdate(context, isManual: true);
-
-    if (mounted) {
-      setState(() {
-        _isChecking = false;
-      });
-    }
-  }
 
   Future<void> _checkForUpdateWindows() async {
     setState(() {
