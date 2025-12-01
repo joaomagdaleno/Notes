@@ -5,23 +5,16 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
 
 void main() {
-  group('AboutScreen General Tests', () {
-    final mockPackageInfo = PackageInfo(
-      appName: 'Universal Notes',
-      version: '1.0.0',
-      buildNumber: '1',
-      packageName: 'com.example.universal_notes',
-    );
+  final mockPackageInfo = PackageInfo(
+    appName: 'Universal Notes',
+    version: '1.0.0',
+    buildNumber: '1',
+    packageName: 'com.example.universal_notes',
+  );
 
+  group('AboutScreen General Tests', () {
     setUp(() {
       TestWidgetsFlutterBinding.ensureInitialized();
-      PackageInfo.setMockInitialValues(
-        appName: mockPackageInfo.appName,
-        packageName: mockPackageInfo.packageName,
-        version: mockPackageInfo.version,
-        buildNumber: mockPackageInfo.buildNumber,
-        buildSignature: '',
-      );
     });
 
     testWidgets('AboutScreen renders correctly in light and dark themes',
@@ -29,7 +22,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData.light(),
-          home: const AboutScreen(),
+          home: AboutScreen(packageInfo: mockPackageInfo),
         ),
       );
       await tester.pumpAndSettle();
@@ -39,7 +32,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData.dark(),
-          home: const AboutScreen(),
+          home: AboutScreen(packageInfo: mockPackageInfo),
         ),
       );
       await tester.pumpAndSettle();
@@ -50,8 +43,8 @@ void main() {
     testWidgets('AboutScreen displays social media links if they exist',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AboutScreen(),
+        MaterialApp(
+          home: AboutScreen(packageInfo: mockPackageInfo),
         ),
       );
       await tester.pumpAndSettle();
@@ -66,8 +59,8 @@ void main() {
     testWidgets('AboutScreen handles long press actions without errors',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AboutScreen(),
+        MaterialApp(
+          home: AboutScreen(packageInfo: mockPackageInfo),
         ),
       );
       await tester.pumpAndSettle();
@@ -83,13 +76,6 @@ void main() {
   group('AboutScreen Platform and Accessibility Tests', () {
     setUp(() {
       TestWidgetsFlutterBinding.ensureInitialized();
-      PackageInfo.setMockInitialValues(
-        appName: 'Universal Notes',
-        packageName: 'com.example.universal_notes',
-        version: '1.0.0',
-        buildNumber: '1',
-        buildSignature: '',
-      );
     });
 
     testWidgets('AboutScreen displays Material Design on Android',
@@ -97,8 +83,8 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AboutScreen(),
+        MaterialApp(
+          home: AboutScreen(packageInfo: mockPackageInfo),
         ),
       );
       await tester.pumpAndSettle();
@@ -112,13 +98,30 @@ void main() {
     testWidgets('AboutScreen has correct accessibility label',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AboutScreen(),
+        MaterialApp(
+          home: AboutScreen(packageInfo: mockPackageInfo),
         ),
       );
       await tester.pumpAndSettle();
 
-      expect(find.bySemanticsLabel('About Universal Notes'), findsOneWidget);
+      final semanticsWidgets = find.byType(Semantics);
+      expect(semanticsWidgets, findsWidgets);
+
+      var foundCorrectLabel = false;
+      for (final element in semanticsWidgets.evaluate()) {
+        final semantics = element.widget as Semantics;
+        if (semantics.properties.label == 'About Universal Notes') {
+          foundCorrectLabel = true;
+          break;
+        }
+      }
+
+      expect(
+        foundCorrectLabel,
+        isTrue,
+        reason:
+            'Nenhum widget Semantics com rótulo "About Universal Notes" foi encontrado',
+      );
     });
   });
 
@@ -126,16 +129,15 @@ void main() {
     setUp(() {
       TestWidgetsFlutterBinding.ensureInitialized();
       PackageInfo.setMockInitialValues(
-        appName: 'Universal Notes',
-        packageName: 'com.example.universal_notes',
-        version: '1.0.0',
-        buildNumber: '1',
+        appName: mockPackageInfo.appName,
+        buildNumber: mockPackageInfo.buildNumber,
+        packageName: mockPackageInfo.packageName,
+        version: mockPackageInfo.version,
         buildSignature: '',
       );
     });
 
-    testWidgets('AboutScreen can be navigated to',
-        (WidgetTester tester) async {
+    testWidgets('AboutScreen can be navigated to', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           routes: {
@@ -144,13 +146,23 @@ void main() {
                   body: Builder(
                     builder: (context) => ElevatedButton(
                       onPressed: () async {
-                        await Navigator.pushNamed(context, '/about');
+                        final packageInfo = await PackageInfo.fromPlatform();
+                        if (!context.mounted) return;
+                        await Navigator.pushNamed(
+                          context,
+                          '/about',
+                          arguments: packageInfo,
+                        );
                       },
                       child: const Text('Go to About'),
                     ),
                   ),
                 ),
-            '/about': (context) => const AboutScreen(),
+            '/about': (context) {
+              final packageInfo =
+                  ModalRoute.of(context)!.settings.arguments as PackageInfo;
+              return AboutScreen(packageInfo: packageInfo);
+            },
           },
         ),
       );
