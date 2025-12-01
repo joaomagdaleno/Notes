@@ -79,10 +79,7 @@ void main() {
 
     testWidgets('AboutScreen displays Material Design on Android',
         (WidgetTester tester) async {
-      tester.binding.platformDispatcher.platformConfigurationTestValue =
-          const TestPlatformConfiguration(
-        platform: TargetPlatform.android,
-      );
+      tester.binding.platformDispatcher.platformOverride = TargetPlatform.android;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -90,8 +87,12 @@ void main() {
         ),
       );
 
-      addTearDown(
-          tester.binding.platformDispatcher.clearPlatformConfigurationTestValue);
+      expect(find.byType(AppBar), findsOneWidget);
+      expect(find.byType(Scaffold), findsOneWidget);
+
+      addTearDown(() {
+        tester.binding.platformDispatcher.clearPlatformOverride();
+      });
     });
 
     testWidgets('AboutScreen has correct accessibility label',
@@ -128,6 +129,16 @@ void main() {
     setUp(() {
       TestWidgetsFlutterBinding.ensureInitialized();
     });
+
+    testWidgets('AboutScreen can be navigated to', (WidgetTester tester) async {
+      // Set mock values for PackageInfo.fromPlatform() called in the builder
+      PackageInfo.setMockInitialValues(
+        appName: mockPackageInfo.appName,
+        buildNumber: mockPackageInfo.buildNumber,
+        packageName: mockPackageInfo.packageName,
+        version: mockPackageInfo.version,
+        buildSignature: '',
+      );
 
       await tester.pumpWidget(
         MaterialApp(
