@@ -20,6 +20,7 @@ void main() {
       }
     });
 
+    // --- TESTE MODIFICADO PARA ANDROID ---
     testWidgets('navigates to AboutScreen on Android',
         (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
@@ -29,6 +30,14 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
         await tester.tap(find.text('Sobre'));
         await tester.pumpAndSettle();
+
+        // MUDANÇA AQUI: Verifica se alguma exceção foi lançada
+        final exception = tester.takeException();
+        if (exception != null) {
+          // Se houver uma exceção, o teste falha com uma mensagem mais clara
+          fail('Uma exceção foi lançada durante a navegação para AboutScreen no Android: $exception');
+        }
+
         expect(find.byType(AboutScreen), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = original;
@@ -48,6 +57,7 @@ void main() {
       }
     });
 
+    // --- TESTE MODIFICADO PARA WINDOWS ---
     testWidgets('navigates to AboutScreen on Windows',
         (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
@@ -57,6 +67,14 @@ void main() {
         await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
         await tester.tap(find.text('Sobre'));
         await tester.pumpAndSettle();
+
+        // MUDANÇA AQUI: Verifica se alguma exceção foi lançada
+        final exception = tester.takeException();
+        if (exception != null) {
+          // Se houver uma exceção, o teste falha com uma mensagem mais clara
+          fail('Uma exceção foi lançada durante a navegação para AboutScreen no Windows: $exception');
+        }
+
         expect(find.byType(AboutScreen), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = original;
