@@ -29,7 +29,9 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
         await tester.tap(find.text('Sobre'));
         await tester.pumpAndSettle();
-        expect(find.byType(AboutScreen), findsOneWidget);
+
+        // FINAL ASSERTION: Find the screen by its unique semantic label
+        expect(find.bySemanticsLabel('About Universal Notes'), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = original;
       }
@@ -57,7 +59,9 @@ void main() {
         await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
         await tester.tap(find.text('Sobre'));
         await tester.pumpAndSettle();
-        expect(find.byType(AboutScreen), findsOneWidget);
+
+        // FINAL ASSERTION: Find the screen by its unique semantic label
+        expect(find.bySemanticsLabel('About Universal Notes'), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = original;
       }
