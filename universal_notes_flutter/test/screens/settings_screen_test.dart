@@ -34,6 +34,7 @@ void main() {
       }
     });
 
+    // --- GRANULAR DEBUG TEST FOR ANDROID ---
     testWidgets('navigates to AboutScreen on Android',
         (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
@@ -66,6 +67,7 @@ void main() {
       }
     });
 
+    // --- GRANULAR DEBUG TEST FOR WINDOWS ---
     testWidgets('navigates to AboutScreen on Windows',
         (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
