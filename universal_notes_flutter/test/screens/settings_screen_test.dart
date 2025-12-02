@@ -20,6 +20,7 @@ void main() {
       }
     });
 
+    // --- TESTE MODIFICADO PARA ANDROID ---
     testWidgets('navigates to AboutScreen on Android',
         (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
@@ -50,6 +51,7 @@ void main() {
       }
     });
 
+    // --- TESTE MODIFICADO PARA WINDOWS ---
     testWidgets('navigates to AboutScreen on Windows',
         (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
