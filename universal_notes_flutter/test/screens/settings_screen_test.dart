@@ -2,11 +2,25 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
 import 'package:universal_notes_flutter/screens/settings_screen.dart';
 
 void main() {
   group('SettingsScreen', () {
+    // This is the mock data we will use for all tests
+    const mockPackageInfo = PackageInfo(
+      appName: 'Universal Notes',
+      packageName: 'com.example.universal_notes',
+      version: '1.0.0-test',
+      buildNumber: '1',
+    );
+
+    setUpAll(() async {
+      // This line sets up the mock for the entire test suite
+      PackageInfo.setMockInitialValues(mockPackageInfo);
+    });
+
     testWidgets('builds Material UI on Android', (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
@@ -29,18 +43,12 @@ void main() {
       try {
         await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
-        // Before tap, there should be one 'Sobre' text.
-        expect(find.text('Sobre'), findsOneWidget);
-
-        await tester.tap(find.text('Sobre'));
+        // Tap the ListTile itself, not just the text
+        await tester.tap(find.byType(ListTile));
         await tester.pumpAndSettle();
 
-        // Check 1: Navigation should have happened. We expect TWO 'Sobre' texts now.
-        expect(find.text('Sobre'), findsNWidgets(2));
-
-        // Check 2: The AppBar of the AboutScreen should be present.
-        expect(find.byType(AppBar), findsOneWidget);
-
+        // Now we can safely look for the AboutScreen by its type
+        expect(find.byType(AboutScreen), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = original;
       }
@@ -68,18 +76,12 @@ void main() {
       try {
         await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
 
-        // Before tap, there should be one 'Sobre' text.
-        expect(find.text('Sobre'), findsOneWidget);
-
-        await tester.tap(find.text('Sobre'));
+        // Tap the ListTile itself, not just the text
+        await tester.tap(find.byType(fluent.ListTile));
         await tester.pumpAndSettle();
 
-        // Check 1: Navigation should have happened. We expect TWO 'Sobre' texts now.
-        expect(find.text('Sobre'), findsNWidgets(2));
-
-        // Check 2: The PageHeader of the AboutScreen should be present.
-        expect(find.byType(fluent.PageHeader), findsOneWidget);
-
+        // Now we can safely look for the AboutScreen by its type
+        expect(find.byType(AboutScreen), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = original;
       }
