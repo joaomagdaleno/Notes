@@ -8,17 +8,15 @@ import 'package:universal_notes_flutter/screens/settings_screen.dart';
 
 void main() {
   group('SettingsScreen', () {
-    // This is the mock data we will use for all tests
-    const mockPackageInfo = PackageInfo(
-      appName: 'Universal Notes',
-      packageName: 'com.example.universal_notes',
-      version: '1.0.0-test',
-      buildNumber: '1',
-    );
-
+    // We set up the mock data using the named argument method.
+    // This is simpler and avoids constructor issues.
     setUpAll(() async {
-      // This line sets up the mock for the entire test suite
-      PackageInfo.setMockInitialValues(mockPackageInfo);
+      PackageInfo.setMockInitialValues(
+        appName: 'Universal Notes',
+        packageName: 'com.example.universal_notes',
+        version: '1.0.0-test',
+        buildNumber: '1',
+      );
     });
 
     testWidgets('builds Material UI on Android', (WidgetTester tester) async {
