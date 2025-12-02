@@ -31,14 +31,8 @@ void main() {
         await tester.tap(find.text('Sobre'));
         await tester.pumpAndSettle();
 
-        // MUDANÇA AQUI: Verifica se alguma exceção foi lançada
-        final exception = tester.takeException();
-        if (exception != null) {
-          // Se houver uma exceção, o teste falha com uma mensagem mais clara
-          fail('Uma exceção foi lançada durante a navegação para AboutScreen no Android: $exception');
-        }
-
-        expect(find.byType(AboutScreen), findsOneWidget);
+        // FINAL ASSERTION: Find the screen by its unique semantic label
+        expect(find.bySemanticsLabel('About Universal Notes'), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = original;
       }
@@ -68,14 +62,8 @@ void main() {
         await tester.tap(find.text('Sobre'));
         await tester.pumpAndSettle();
 
-        // MUDANÇA AQUI: Verifica se alguma exceção foi lançada
-        final exception = tester.takeException();
-        if (exception != null) {
-          // Se houver uma exceção, o teste falha com uma mensagem mais clara
-          fail('Uma exceção foi lançada durante a navegação para AboutScreen no Windows: $exception');
-        }
-
-        expect(find.byType(AboutScreen), findsOneWidget);
+        // FINAL ASSERTION: Find the screen by its unique semantic label
+        expect(find.bySemanticsLabel('About Universal Notes'), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = original;
       }
