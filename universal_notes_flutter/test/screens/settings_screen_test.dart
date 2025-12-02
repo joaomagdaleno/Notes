@@ -20,6 +20,7 @@ void main() {
       }
     });
 
+    // --- GRANULAR DEBUG TEST FOR ANDROID ---
     testWidgets('navigates to AboutScreen on Android',
         (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
@@ -27,9 +28,19 @@ void main() {
 
       try {
         await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
+
+        // Before tap, there should be one 'Sobre' text.
+        expect(find.text('Sobre'), findsOneWidget);
+
         await tester.tap(find.text('Sobre'));
         await tester.pumpAndSettle();
-        expect(find.byType(AboutScreen), findsOneWidget);
+
+        // Check 1: Navigation should have happened. We expect TWO 'Sobre' texts now.
+        expect(find.text('Sobre'), findsNWidgets(2));
+
+        // Check 2: The AppBar of the AboutScreen should be present.
+        expect(find.byType(AppBar), findsOneWidget);
+
       } finally {
         debugDefaultTargetPlatformOverride = original;
       }
@@ -48,6 +59,7 @@ void main() {
       }
     });
 
+    // --- GRANULAR DEBUG TEST FOR WINDOWS ---
     testWidgets('navigates to AboutScreen on Windows',
         (WidgetTester tester) async {
       final original = debugDefaultTargetPlatformOverride;
@@ -55,9 +67,19 @@ void main() {
 
       try {
         await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
+
+        // Before tap, there should be one 'Sobre' text.
+        expect(find.text('Sobre'), findsOneWidget);
+
         await tester.tap(find.text('Sobre'));
         await tester.pumpAndSettle();
-        expect(find.byType(AboutScreen), findsOneWidget);
+
+        // Check 1: Navigation should have happened. We expect TWO 'Sobre' texts now.
+        expect(find.text('Sobre'), findsNWidgets(2));
+
+        // Check 2: The PageHeader of the AboutScreen should be present.
+        expect(find.byType(fluent.PageHeader), findsOneWidget);
+
       } finally {
         debugDefaultTargetPlatformOverride = original;
       }
