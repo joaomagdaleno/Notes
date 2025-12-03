@@ -16,6 +16,7 @@ void main() {
         packageName: 'com.example.universal_notes',
         version: '1.0.0-test',
         buildNumber: '1',
+        buildSignature: 'test-signature', // <-- ADD THIS LINE
       );
     });
 
