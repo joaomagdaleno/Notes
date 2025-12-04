@@ -57,6 +57,7 @@ dev_dependencies:
     sdk: flutter
   mockito: ^5.4.2
   path_provider_platform_interface: ^2.1.2
+  test_api: ^0.5.2
   very_good_analysis: ^10.0.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
