@@ -15,14 +15,34 @@ import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 @GenerateMocks([WindowsUpdateHelper])
 import 'about_screen_test.mocks.dart';
 
+// Cria um Mock manual para UpdateHelper, pois ele é estático
+class MockUpdateHelper {
+  static Future<void> checkForUpdate(BuildContext context, {bool isManual = false}) async {
+    // Simula uma chamada assíncrona sem fazer nada
+    debugPrint('MockUpdateHelper.checkForUpdate called');
+  }
+}
+
+class MockPackageInfo implements PackageInfo {
+  @override
+  final String appName = 'Universal Notes';
+
+  @override
+  final String buildNumber = '1';
+
+  @override
+  final String packageName = 'com.example.universal_notes';
+
+  @override
+  final String version = '1.0.0';
+
+  @override
+  final String buildSignature = 'test-signature';
+}
+
 void main() {
   // Mock do PackageInfo para ser usado em todos os testes
-  final mockPackageInfo = PackageInfo(
-    appName: 'Universal Notes',
-    version: '1.0.0',
-    buildNumber: '1',
-    packageName: 'com.example.universal_notes',
-  );
+  final mockPackageInfo = MockPackageInfo();
 
   // Grupo de testes para a UI Material (Android/iOS)
   group('AboutScreen Material UI Tests', () {
