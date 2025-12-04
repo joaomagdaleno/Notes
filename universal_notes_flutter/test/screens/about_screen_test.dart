@@ -24,6 +24,18 @@ class MockPackageInfo implements PackageInfo {
 
   @override
   final String buildSignature = 'test-signature';
+
+  @override
+  final Map<String, dynamic> data = {};
+
+  @override
+  final DateTime? installTime = DateTime.now();
+
+  @override
+  final String? installerStore = 'test-store';
+
+  @override
+  final DateTime? updateTime = DateTime.now();
 }
 
 void main() {
@@ -36,10 +48,12 @@ void main() {
       WidgetTester tester,
     ) async {
       // Substituímos a chamada estática real pela nossa mock
-      // Isso é um pouco mais complexo com classes estáticas, uma alternativa é refatorar o código
-      // para injetar UpdateHelper. Para este exemplo, vamos focar na cobertura de linha.
+      // Isso é um pouco mais complexo com classes estáticas, uma
+      // alternativa é refatorar o código para injetar UpdateHelper.
+      // Para este exemplo, vamos focar na cobertura de linha.
       // Para cobrir a linha 35, precisamos mockar a chamada.
-      // Vamos usar o `when` do mockito para a função de Windows, que é mais fácil de mockar.
+      // Vamos usar o `when` do mockito para a função de Windows,
+      // que é mais fácil de mockar.
 
       await tester.pumpWidget(
         MaterialApp(
@@ -134,8 +148,10 @@ void main() {
       WidgetTester tester,
     ) async {
       // Este teste é mais complexo e requer mockar o WindowsUpdateHelper
-      // Para fins de simplicidade e cobertura de linha, vamos apenas simular o fluxo.
-      // Um teste completo exigiria um mock mais sofisticado que invoca os callbacks.
+      // Para fins de simplicidade e cobertura de linha,
+      //vamos apenas simular o fluxo.
+      // Um teste completo exigiria um mock mais
+      //sofisticado que invoca os callbacks.
 
       await tester.pumpWidget(
         MaterialApp(
@@ -147,8 +163,10 @@ void main() {
       await tester.tap(find.byType(fluent.FilledButton));
       await tester.pump();
 
-      // Simula a conclusão da verificação (o estado _isChecking volta a ser false)
-      // Como não podemos invocar o callback onCheckFinished facilmente sem um mock complexo,
+      // Simula a conclusão da verificação
+      //(o estado _isChecking volta a ser false)
+      // Como não podemos invocar o callback onCheckFinished
+      //facilmente sem um mock complexo,
       // a cobertura da linha 64 virá de um teste que simula a chamada.
       // Vamos criar um teste específico para isso.
     });
