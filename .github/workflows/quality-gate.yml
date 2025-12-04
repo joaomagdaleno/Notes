@@ -29,9 +29,14 @@ jobs:
           flutter-version: '3.38.2' # Verifique se esta versão é a correta (3.19.x é a mais recente estável)
           cache: true
 
+
       - name: Flutter Pub Get
         working-directory: universal_notes_flutter
         run: flutter pub get
+
+      - name: Generate Mocks
+        working-directory: universal_notes_flutter
+        run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Run Flutter Analyzer
         working-directory: universal_notes_flutter

@@ -9,16 +9,6 @@ import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 
 // Gera uma classe Mock para WindowsUpdateHelper
 @GenerateMocks([WindowsUpdateHelper])
-import 'about_screen_test.mocks.dart';
-
-// Cria um Mock manual para UpdateHelper, pois ele é estático
-class MockUpdateHelper {
-  static Future<void> checkForUpdate(BuildContext context, {bool isManual = false}) async {
-    // Simula uma chamada assíncrona sem fazer nada
-    debugPrint('MockUpdateHelper.checkForUpdate called');
-  }
-}
-
 class MockPackageInfo implements PackageInfo {
   @override
   final String appName = 'Universal Notes';
@@ -42,7 +32,9 @@ void main() {
 
   // Grupo de testes para a UI Material (Android/iOS)
   group('AboutScreen Material UI Tests', () {
-    testWidgets('renders Material UI components correctly', (WidgetTester tester) async {
+    testWidgets('renders Material UI components correctly', (
+      WidgetTester tester,
+    ) async {
       // Substituímos a chamada estática real pela nossa mock
       // Isso é um pouco mais complexo com classes estáticas, uma alternativa é refatorar o código
       // para injetar UpdateHelper. Para este exemplo, vamos focar na cobertura de linha.
@@ -65,7 +57,9 @@ void main() {
       expect(find.text('Verificar Atualizações'), findsOneWidget);
     });
 
-    testWidgets('shows CircularProgressIndicator when checking for update', (WidgetTester tester) async {
+    testWidgets('shows CircularProgressIndicator when checking for update', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: AboutScreen(packageInfo: mockPackageInfo),
@@ -74,7 +68,8 @@ void main() {
 
       // Tapa no botão para iniciar a verificação
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pump(); // Reconstrói o widget uma vez para mostrar o indicador
+      await tester
+          .pump(); // Reconstrói o widget uma vez para mostrar o indicador
 
       // Verifica se o CircularProgressIndicator aparece
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -86,17 +81,20 @@ void main() {
   group('AboutScreen Fluent UI (Windows) Tests', () {
     setUp(() {
       // Simula que estamos no Windows para forçar a UI Fluent
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-        const MethodChannel('flutter/platform'),
-        (call) async {
-        if (call.method == 'SystemNavigator.platform') {
-          return 'windows'; // Simula a plataforma Windows
-        }
-        return null;
-      });
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(const MethodChannel('flutter/platform'), (
+            call,
+          ) async {
+            if (call.method == 'SystemNavigator.platform') {
+              return 'windows'; // Simula a plataforma Windows
+            }
+            return null;
+          });
     });
 
-    testWidgets('renders Fluent UI components correctly', (WidgetTester tester) async {
+    testWidgets('renders Fluent UI components correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: AboutScreen(packageInfo: mockPackageInfo),
@@ -113,7 +111,9 @@ void main() {
       expect(find.text('Verificar Atualizações'), findsOneWidget);
     });
 
-    testWidgets('shows ProgressRing when checking for update on Windows', (WidgetTester tester) async {
+    testWidgets('shows ProgressRing when checking for update on Windows', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: AboutScreen(packageInfo: mockPackageInfo),
@@ -122,14 +122,17 @@ void main() {
 
       // Tapa no botão para iniciar a verificação
       await tester.tap(find.byType(fluent.FilledButton));
-      await tester.pump(); // Reconstrói o widget uma vez para mostrar o indicador
+      await tester
+          .pump(); // Reconstrói o widget uma vez para mostrar o indicador
 
       // Verifica se o ProgressRing aparece
       expect(find.byType(fluent.ProgressRing), findsOneWidget);
       expect(find.byType(fluent.FilledButton), findsNothing);
     });
 
-    testWidgets('displays update status message on Windows', (WidgetTester tester) async {
+    testWidgets('displays update status message on Windows', (
+      WidgetTester tester,
+    ) async {
       // Este teste é mais complexo e requer mockar o WindowsUpdateHelper
       // Para fins de simplicidade e cobertura de linha, vamos apenas simular o fluxo.
       // Um teste completo exigiria um mock mais sofisticado que invoca os callbacks.
@@ -153,7 +156,9 @@ void main() {
 
   // Grupo de testes para as funções de verificação de atualização
   group('AboutScreen Update Functions Tests', () {
-    testWidgets('_checkForUpdate function is called and state changes', (WidgetTester tester) async {
+    testWidgets('_checkForUpdate function is called and state changes', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: AboutScreen(packageInfo: mockPackageInfo),
@@ -178,15 +183,19 @@ void main() {
       expect(find.byType(ElevatedButton), findsOneWidget);
     });
 
-    testWidgets('_checkForUpdateWindows function is called and state changes', (WidgetTester tester) async {
+    testWidgets('_checkForUpdateWindows function is called and state changes', (
+      WidgetTester tester,
+    ) async {
       // Simula plataforma Windows
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(const MethodChannel('flutter/platform'), (call) async {
-        if (call.method == 'SystemNavigator.platform') {
-          return 'windows';
-        }
-        return null;
-      });
+          .setMockMethodCallHandler(const MethodChannel('flutter/platform'), (
+            call,
+          ) async {
+            if (call.method == 'SystemNavigator.platform') {
+              return 'windows';
+            }
+            return null;
+          });
 
       await tester.pumpWidget(
         MaterialApp(
