@@ -33,7 +33,12 @@ class SettingsScreen extends StatelessWidget {
               if (!context.mounted) return;
               await Navigator.of(context).push(
                 fluent.FluentPageRoute<void>(
-                  builder: (context) => AboutScreen(packageInfo: packageInfo),
+                  // CORREÇÃO: Envolve o AboutScreen em um MaterialApp
+                  builder: (context) => MaterialApp(
+                    title: 'Sobre',
+                    home: AboutScreen(packageInfo: packageInfo),
+                    debugShowCheckedModeBanner: false,
+                  ),
                 ),
               );
             },
