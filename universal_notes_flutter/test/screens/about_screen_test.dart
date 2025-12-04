@@ -1,14 +1,10 @@
-import 'dart:io';
-
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
-import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 
 // Gera uma classe Mock para WindowsUpdateHelper
@@ -90,8 +86,9 @@ void main() {
   group('AboutScreen Fluent UI (Windows) Tests', () {
     setUp(() {
       // Simula que estamos no Windows para forçar a UI Fluent
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(const MethodChannel('flutter/platform'), (call) async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('flutter/platform'),
+        (call) async {
         if (call.method == 'SystemNavigator.platform') {
           return 'windows'; // Simula a plataforma Windows
         }
