@@ -10,10 +10,7 @@ import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 /// The screen that displays information about the application.
 class AboutScreen extends StatefulWidget {
   /// Creates a new instance of [AboutScreen].
-  const AboutScreen({
-    required this.packageInfo,
-    super.key,
-  });
+  const AboutScreen({required this.packageInfo, super.key});
 
   /// The package information.
   final PackageInfo packageInfo;
