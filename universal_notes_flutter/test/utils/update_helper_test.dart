@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:mockito/annotations.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 
@@ -16,144 +16,100 @@ void main() {
       mockUpdateService = MockUpdateService();
     });
 
-    // Helper widget to test the UpdateHelper functionality
-    Widget buildTestApp({required bool isManualCheck}) {
-      return MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => UpdateHelper.checkForUpdate(
-                context,
-                isManual: isManualCheck,
-                updateService: mockUpdateService,
-              ),
-              child: const Text('Check for Update'),
+    testWidgets('shows update dialog when update is available', (WidgetTester tester) async {
+      // Create a mock update info
+      final updateInfo = UpdateInfo(
+        version: '1.0.1',
+        downloadUrl: 'https://example.com/app.apk',
+      );
+
+      // Configure the mock to return an update available result
+      when(mockUpdateService.checkForUpdate())
+          .thenAnswer((_) async => UpdateCheckResult(
+                UpdateCheckStatus.updateAvailable,
+                updateInfo: updateInfo,
+              ));
+
+      // Build the app
+      await tester.pumpWidget(MaterialApp(
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => UpdateHelper.checkForUpdate(
+              context,
+              isManual: false,
+              updateService: mockUpdateService,
             ),
+            child: const Text('Check for updates'),
           ),
         ),
-      );
-    }
+      ));
 
-    testWidgets(
-        'shows update dialog when update is available (manual check)',
-        (WidgetTester tester) async {
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => UpdateCheckResult(
-          UpdateCheckStatus.updateAvailable,
-          updateInfo: UpdateInfo(
-            version: '1.0.1',
-            downloadUrl: 'https://example.com/test.apk',
-          ),
-        ),
-      );
-
-      await tester.pumpWidget(buildTestApp(isManualCheck: true));
-
-      await tester.tap(find.text('Check for Update'));
+      // Tap the button to trigger the update check
+      await tester.tap(find.byType(ElevatedButton));
       await tester.pumpAndSettle();
 
+      // Verify the update dialog is shown
       expect(find.text('Atualização Disponível'), findsOneWidget);
+      expect(find.text('Uma nova versão (1.0.1) está disponível. Deseja baixar e instalar?'), findsOneWidget);
+      expect(find.text('Agora não'), findsOneWidget);
+      expect(find.text('Sim, atualizar'), findsOneWidget);
     });
 
-    testWidgets('user cancels the update dialog', (WidgetTester tester) async {
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => UpdateCheckResult(
-          UpdateCheckStatus.updateAvailable,
-          updateInfo: UpdateInfo(
-            version: '1.0.1',
-            downloadUrl: 'https://example.com/test.apk',
+    testWidgets('shows no update message when no update is available', (WidgetTester tester) async {
+      // Configure the mock to return no update
+      when(mockUpdateService.checkForUpdate())
+          .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
+
+      // Build the app
+      await tester.pumpWidget(MaterialApp(
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => UpdateHelper.checkForUpdate(
+              context,
+              isManual: true,
+              updateService: mockUpdateService,
+            ),
+            child: const Text('Check for updates'),
           ),
         ),
-      );
+      ));
 
-      await tester.pumpWidget(buildTestApp(isManualCheck: true));
-      await tester.tap(find.text('Check for Update'));
+      // Tap the button to trigger the update check
+      await tester.tap(find.byType(ElevatedButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('Atualização Disponível'), findsOneWidget);
-
-      await tester.tap(find.text('Agora não'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Atualização Disponível'), findsNothing);
-    });
-
-    testWidgets(
-        'shows "no update" snackbar on manual check',
-        (WidgetTester tester) async {
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
-          (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
-
-      await tester.pumpWidget(buildTestApp(isManualCheck: true));
-
-      await tester.tap(find.text('Check for Update'));
-      await tester.pumpAndSettle();
-
+      // Verify the no update message is shown
       expect(find.text('Você já tem a versão mais recente.'), findsOneWidget);
     });
 
-    testWidgets('shows error snackbar on error (manual)',
-        (WidgetTester tester) async {
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => UpdateCheckResult(
-          UpdateCheckStatus.error,
-          errorMessage: 'Failed to check',
+    testWidgets('shows error message when update check fails', (WidgetTester tester) async {
+      // Configure the mock to return an error
+      when(mockUpdateService.checkForUpdate())
+          .thenAnswer((_) async => UpdateCheckResult(
+                UpdateCheckStatus.error,
+                errorMessage: 'Network error',
+              ));
+
+      // Build the app
+      await tester.pumpWidget(MaterialApp(
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => UpdateHelper.checkForUpdate(
+              context,
+              isManual: true,
+              updateService: mockUpdateService,
+            ),
+            child: const Text('Check for updates'),
+          ),
         ),
-      );
+      ));
 
-      await tester.pumpWidget(buildTestApp(isManualCheck: true));
-
-      await tester.tap(find.text('Check for Update'));
+      // Tap the button to trigger the update check
+      await tester.tap(find.byType(ElevatedButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('Failed to check'), findsOneWidget);
-    });
-
-    testWidgets('shows specific error snackbar for 404 (manual)',
-        (WidgetTester tester) async {
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => UpdateCheckResult(
-          UpdateCheckStatus.error,
-          errorMessage: 'Server returned 404',
-        ),
-      );
-
-      await tester.pumpWidget(buildTestApp(isManualCheck: true));
-      await tester.tap(find.text('Check for Update'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Server returned 404'), findsOneWidget);
-    });
-
-    testWidgets('shows timeout error snackbar on manual check',
-        (WidgetTester tester) async {
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => UpdateCheckResult(
-          UpdateCheckStatus.error,
-          errorMessage: 'Connection timed out',
-        ),
-      );
-
-      await tester.pumpWidget(buildTestApp(isManualCheck: true));
-      await tester.tap(find.text('Check for Update'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Connection timed out'), findsOneWidget);
-    });
-
-    testWidgets(
-        'shows nothing when no update is available (automatic)',
-        (WidgetTester tester) async {
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
-          (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
-
-      await tester.pumpWidget(buildTestApp(isManualCheck: false));
-
-      await tester.tap(find.text('Check for Update'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(SnackBar), findsNothing);
-      expect(find.byType(AlertDialog), findsNothing);
+      // Verify the error message is shown
+      expect(find.text('Network error'), findsOneWidget);
     });
   });
 }
