@@ -33,6 +33,7 @@ class UpdateHelper {
     switch (result.status) {
       case UpdateCheckStatus.updateAvailable:
         await _showUpdateDialog(context, result.updateInfo!);
+        break;
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -41,6 +42,7 @@ class UpdateHelper {
             ),
           );
         }
+        break;
       case UpdateCheckStatus.error:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -51,6 +53,7 @@ class UpdateHelper {
             ),
           );
         }
+        break;
     }
   }
 
