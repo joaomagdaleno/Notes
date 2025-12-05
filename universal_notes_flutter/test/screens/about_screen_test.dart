@@ -86,6 +86,7 @@ void main() {
     ) async {
       final original = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
       try {
         await tester.pumpWidget(
           fluent.FluentApp(
@@ -111,6 +112,7 @@ void main() {
     ) async {
       final original = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
       try {
         await tester.pumpWidget(
           fluent.FluentApp(
