@@ -123,8 +123,14 @@ void main() {
       expect(find.byType(fluent.ProgressRing), findsOneWidget);
       expect(find.byType(fluent.FilledButton), findsNothing);
 
-      // Add this to ensure all timers complete before the test ends
-      await tester.pumpAndSettle();
+      // Instead of pumpAndSettle, just pump a few times to see the loading state
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Verify the ProgressRing is still showing
+      expect(find.byType(fluent.ProgressRing), findsOneWidget);
+      expect(find.byType(fluent.FilledButton), findsNothing);
     });
   });
 }
