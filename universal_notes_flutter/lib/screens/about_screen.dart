@@ -10,10 +10,15 @@ import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 /// The screen that displays information about the application.
 class AboutScreen extends StatefulWidget {
   /// Creates a new instance of [AboutScreen].
-  const AboutScreen({required this.packageInfo, super.key});
+  const AboutScreen({
+    required this.packageInfo,
+    required this.updateHelper,
+    super.key,
+  });
 
   /// The package information.
   final PackageInfo packageInfo;
+  final UpdateHelper updateHelper;
 
   @override
   State<AboutScreen> createState() => _AboutScreenState();
@@ -29,7 +34,7 @@ class _AboutScreenState extends State<AboutScreen> {
     });
 
     if (!mounted) return;
-    await UpdateHelper.checkForUpdate(context, isManual: true);
+    await widget.updateHelper.checkForUpdate(context, isManual: true);
 
     if (mounted) {
       setState(() {
