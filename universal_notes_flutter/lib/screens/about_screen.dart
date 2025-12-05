@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
@@ -13,10 +14,15 @@ class AboutScreen extends StatefulWidget {
   const AboutScreen({
     required this.packageInfo,
     super.key,
+    this.debugPlatform, // Add this optional parameter
   });
 
   /// The package information.
   final PackageInfo packageInfo;
+
+  /// Optional platform override for testing purposes.
+  /// If provided, this will be used instead of the actual platform.
+  final TargetPlatform? debugPlatform;
 
   @override
   State<AboutScreen> createState() => _AboutScreenState();
@@ -68,7 +74,12 @@ class _AboutScreenState extends State<AboutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isWindows) {
+    // Use debugPlatform if provided, otherwise use the actual platform
+    final isWindows = widget.debugPlatform != null
+        ? widget.debugPlatform == TargetPlatform.windows
+        : Platform.isWindows;
+
+    if (isWindows) {
       return _buildFluentUI(context);
     } else {
       return _buildMaterialUI(context);
