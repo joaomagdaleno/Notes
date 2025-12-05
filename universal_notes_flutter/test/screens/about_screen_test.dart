@@ -122,6 +122,9 @@ void main() {
       // Verifica se o ProgressRing aparece
       expect(find.byType(fluent.ProgressRing), findsOneWidget);
       expect(find.byType(fluent.FilledButton), findsNothing);
+
+      // Add this to ensure all timers complete before the test ends
+      await tester.pumpAndSettle();
     });
   });
 }
