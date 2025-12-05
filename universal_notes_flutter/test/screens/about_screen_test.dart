@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
@@ -81,6 +82,19 @@ void main() {
 
   // Grupo de testes para a UI Fluent (Windows)
   group('AboutScreen Fluent UI (Windows) Tests', () {
+    setUp(() {
+      // Mock the platform to be Windows
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(const MethodChannel('flutter/platform'), (
+            call,
+          ) async {
+        if (call.method == 'SystemNavigator.platform') {
+          return 'windows';
+        }
+        return null;
+      });
+    });
+
     testWidgets('renders Fluent UI components correctly', (
       WidgetTester tester,
     ) async {
