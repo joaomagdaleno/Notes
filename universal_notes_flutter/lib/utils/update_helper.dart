@@ -10,7 +10,7 @@ import 'package:universal_notes_flutter/services/update_service.dart';
 /// A helper class for handling application updates.
 class UpdateHelper {
   /// Checks for updates and prompts the user to install them.
-  Future<void> checkForUpdate(
+  static Future<void> checkForUpdate(
     BuildContext context, {
     bool isManual = false,
     UpdateService? updateService,
@@ -57,7 +57,7 @@ class UpdateHelper {
     }
   }
 
-  Future<void> _showUpdateDialog(
+  static Future<void> _showUpdateDialog(
     BuildContext context,
     UpdateInfo updateInfo,
   ) async {
@@ -88,7 +88,7 @@ class UpdateHelper {
     );
   }
 
-  Future<void> _handleUpdate(
+  static Future<void> _handleUpdate(
     BuildContext context,
     UpdateInfo updateInfo,
   ) async {
@@ -112,7 +112,7 @@ class UpdateHelper {
     }
   }
 
-  Future<void> _downloadAndInstallUpdate(
+  static Future<void> _downloadAndInstallUpdate(
     BuildContext context,
     UpdateInfo updateInfo,
   ) async {

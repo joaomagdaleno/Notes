@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
-import 'package:universal_notes_flutter/utils/update_helper.dart';
 
 /// The screen that displays the application settings.
 class SettingsScreen extends StatelessWidget {
@@ -37,10 +36,7 @@ class SettingsScreen extends StatelessWidget {
                   // CORREÇÃO: Envolve o AboutScreen em um MaterialApp
                   builder: (context) => MaterialApp(
                     title: 'Sobre',
-                    home: AboutScreen(
-                      packageInfo: packageInfo,
-                      updateHelper: UpdateHelper(),
-                    ),
+                    home: AboutScreen(packageInfo: packageInfo),
                     debugShowCheckedModeBanner: false,
                   ),
                 ),
@@ -67,10 +63,7 @@ class SettingsScreen extends StatelessWidget {
               if (!context.mounted) return;
               await Navigator.of(context).push(
                 MaterialPageRoute<void>(
-                  builder: (context) => AboutScreen(
-                    packageInfo: packageInfo,
-                    updateHelper: UpdateHelper(),
-                  ),
+                  builder: (context) => AboutScreen(packageInfo: packageInfo),
                 ),
               );
             },
