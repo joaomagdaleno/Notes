@@ -30,16 +30,18 @@ void main() {
                 updateInfo: updateInfo,
               ));
 
-      // Build the app
+      // Build the app with a Scaffold
       await tester.pumpWidget(MaterialApp(
-        home: Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () => UpdateHelper.checkForUpdate(
-              context,
-              isManual: false,
-              updateService: mockUpdateService,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => UpdateHelper.checkForUpdate(
+                context,
+                isManual: false,
+                updateService: mockUpdateService,
+              ),
+              child: const Text('Check for updates'),
             ),
-            child: const Text('Check for updates'),
           ),
         ),
       ));
@@ -60,16 +62,18 @@ void main() {
       when(mockUpdateService.checkForUpdate())
           .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
 
-      // Build the app
+      // Build the app with a Scaffold
       await tester.pumpWidget(MaterialApp(
-        home: Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () => UpdateHelper.checkForUpdate(
-              context,
-              isManual: true,
-              updateService: mockUpdateService,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => UpdateHelper.checkForUpdate(
+                context,
+                isManual: true,
+                updateService: mockUpdateService,
+              ),
+              child: const Text('Check for updates'),
             ),
-            child: const Text('Check for updates'),
           ),
         ),
       ));
@@ -90,16 +94,18 @@ void main() {
                 errorMessage: 'Network error',
               ));
 
-      // Build the app
+      // Build the app with a Scaffold
       await tester.pumpWidget(MaterialApp(
-        home: Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () => UpdateHelper.checkForUpdate(
-              context,
-              isManual: true,
-              updateService: mockUpdateService,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => UpdateHelper.checkForUpdate(
+                context,
+                isManual: true,
+                updateService: mockUpdateService,
+              ),
+              child: const Text('Check for updates'),
             ),
-            child: const Text('Check for updates'),
           ),
         ),
       ));
