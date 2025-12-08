@@ -17,7 +17,6 @@ class UpdateHelper {
     bool isManual = false,
     UpdateService? updateService,
     bool? isAndroidOverride,
-    // ADDED: Optional HTTP client for mocking in tests
     http.Client? httpClient,
   }) async {
     if (isManual) {
@@ -41,7 +40,7 @@ class UpdateHelper {
           context,
           result.updateInfo!,
           isAndroidOverride: isAndroidOverride,
-          httpClient: httpClient, // Pass it down
+          httpClient: httpClient,
         );
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
@@ -68,10 +67,11 @@ class UpdateHelper {
     BuildContext context,
     UpdateInfo updateInfo, {
     bool? isAndroidOverride,
-    http.Client? httpClient, // ADDED
+    http.Client? httpClient,
   }) async {
     return showDialog<void>(
       context: context,
+      barrierDismissible: false, // User must tap a button
       builder: (context) => AlertDialog(
         title: const Text('Atualização Disponível'),
         content: Text(
@@ -85,17 +85,17 @@ class UpdateHelper {
           ),
           TextButton(
             child: const Text('Sim, atualizar'),
-            onPressed: () {
+            // CHANGED: Made callback async and await the update process
+            onPressed: () async {
               if (context.mounted) {
                 Navigator.of(context).pop();
               }
-              unawaited(
-                _handleUpdate(
-                  context,
-                  updateInfo,
-                  isAndroidOverride: isAndroidOverride,
-                  httpClient: httpClient, // Pass it down
-                ),
+              // AWAIT the update process instead of firing and forgetting.
+              await _handleUpdate(
+                context,
+                updateInfo,
+                isAndroidOverride: isAndroidOverride,
+                httpClient: httpClient,
               );
             },
           ),
@@ -108,7 +108,7 @@ class UpdateHelper {
     BuildContext context,
     UpdateInfo updateInfo, {
     bool? isAndroidOverride,
-    http.Client? httpClient, // ADDED
+    http.Client? httpClient,
   }) async {
     final isAndroid = isAndroidOverride ?? Platform.isAndroid;
 
@@ -121,7 +121,7 @@ class UpdateHelper {
         await _downloadAndInstallUpdate(
           context,
           updateInfo,
-          client: httpClient, // Pass it down
+          client: httpClient,
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -139,10 +139,8 @@ class UpdateHelper {
   static Future<void> _downloadAndInstallUpdate(
     BuildContext context,
     UpdateInfo updateInfo, {
-    // ADDED: Use the injected client or create a default one
     http.Client? client,
   }) async {
-    // Use the injected client or create a default one
     final http.Client httpClient = client ?? http.Client();
 
     ScaffoldMessenger.of(context).showSnackBar(
