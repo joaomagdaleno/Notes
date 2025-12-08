@@ -16,7 +16,6 @@ class UpdateHelper {
     BuildContext context, {
     bool isManual = false,
     UpdateService? updateService,
-    // Adicionado: Parâmetro para substituir a verificação da plataforma em testes
     bool? isAndroidOverride,
   }) async {
     if (isManual) {
@@ -36,9 +35,11 @@ class UpdateHelper {
 
     switch (result.status) {
       case UpdateCheckStatus.updateAvailable:
-        // Passa o override para o próximo método
-        await _showUpdateDialog(context, result.updateInfo!, isAndroidOverride: isAndroidOverride);
-        break;
+        await _showUpdateDialog(
+          context,
+          result.updateInfo!,
+          isAndroidOverride: isAndroidOverride,
+        );
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -47,7 +48,6 @@ class UpdateHelper {
             ),
           );
         }
-        break;
       case UpdateCheckStatus.error:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -58,14 +58,12 @@ class UpdateHelper {
             ),
           );
         }
-        break;
     }
   }
 
   static Future<void> _showUpdateDialog(
     BuildContext context,
     UpdateInfo updateInfo, {
-    // Adicionado: Parâmetro para substituir a verificação da plataforma em testes
     bool? isAndroidOverride,
   }) async {
     return showDialog<void>(
@@ -73,8 +71,8 @@ class UpdateHelper {
       builder: (context) => AlertDialog(
         title: const Text('Atualização Disponível'),
         content: Text(
-          'Uma nova versão (${updateInfo.version}) está disponível. Deseja '
-          'baixar e instalar?',
+          'Uma nova versão (${updateInfo.version}) está disponível. '
+          'Deseja baixar e instalar?',
         ),
         actions: [
           TextButton(
@@ -87,8 +85,13 @@ class UpdateHelper {
               if (context.mounted) {
                 Navigator.of(context).pop();
               }
-              // Passa o override para o próximo método
-              unawaited(_handleUpdate(context, updateInfo, isAndroidOverride: isAndroidOverride));
+              unawaited(
+                _handleUpdate(
+                  context,
+                  updateInfo,
+                  isAndroidOverride: isAndroidOverride,
+                ),
+              );
             },
           ),
         ],
@@ -99,10 +102,8 @@ class UpdateHelper {
   static Future<void> _handleUpdate(
     BuildContext context,
     UpdateInfo updateInfo, {
-    // Adicionado: Parâmetro para substituir a verificação da plataforma em testes
     bool? isAndroidOverride,
   }) async {
-    // Usa o override se fornecido, caso contrário, verifica a plataforma real
     final isAndroid = isAndroidOverride ?? Platform.isAndroid;
 
     if (isAndroid) {
@@ -149,7 +150,6 @@ class UpdateHelper {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
         }
 
-        // Open the downloaded file to trigger installation
         final result = await OpenFile.open(filePath);
         if (result.type != ResultType.done) {
           throw Exception(
