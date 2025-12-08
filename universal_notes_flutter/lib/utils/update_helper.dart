@@ -1,3 +1,5 @@
+// lib/utils/update_helper.dart
+
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -14,6 +16,8 @@ class UpdateHelper {
     BuildContext context, {
     bool isManual = false,
     UpdateService? updateService,
+    // Adicionado: Parâmetro para substituir a verificação da plataforma em testes
+    bool? isAndroidOverride,
   }) async {
     if (isManual) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -32,7 +36,8 @@ class UpdateHelper {
 
     switch (result.status) {
       case UpdateCheckStatus.updateAvailable:
-        await _showUpdateDialog(context, result.updateInfo!);
+        // Passa o override para o próximo método
+        await _showUpdateDialog(context, result.updateInfo!, isAndroidOverride: isAndroidOverride);
         break;
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
@@ -59,8 +64,10 @@ class UpdateHelper {
 
   static Future<void> _showUpdateDialog(
     BuildContext context,
-    UpdateInfo updateInfo,
-  ) async {
+    UpdateInfo updateInfo, {
+    // Adicionado: Parâmetro para substituir a verificação da plataforma em testes
+    bool? isAndroidOverride,
+  }) async {
     return showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -80,7 +87,8 @@ class UpdateHelper {
               if (context.mounted) {
                 Navigator.of(context).pop();
               }
-              unawaited(_handleUpdate(context, updateInfo));
+              // Passa o override para o próximo método
+              unawaited(_handleUpdate(context, updateInfo, isAndroidOverride: isAndroidOverride));
             },
           ),
         ],
@@ -90,9 +98,14 @@ class UpdateHelper {
 
   static Future<void> _handleUpdate(
     BuildContext context,
-    UpdateInfo updateInfo,
-  ) async {
-    if (Platform.isAndroid) {
+    UpdateInfo updateInfo, {
+    // Adicionado: Parâmetro para substituir a verificação da plataforma em testes
+    bool? isAndroidOverride,
+  }) async {
+    // Usa o override se fornecido, caso contrário, verifica a plataforma real
+    final isAndroid = isAndroidOverride ?? Platform.isAndroid;
+
+    if (isAndroid) {
       final status = await Permission.requestInstallPackages.request();
 
       if (!context.mounted) return;
