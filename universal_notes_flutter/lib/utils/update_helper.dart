@@ -1,3 +1,5 @@
+// lib/utils/update_helper.dart
+
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -15,6 +17,8 @@ class UpdateHelper {
     bool isManual = false,
     UpdateService? updateService,
     bool? isAndroidOverride,
+    // ADDED: Optional HTTP client for mocking in tests
+    http.Client? httpClient,
   }) async {
     if (isManual) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -37,6 +41,7 @@ class UpdateHelper {
           context,
           result.updateInfo!,
           isAndroidOverride: isAndroidOverride,
+          httpClient: httpClient, // Pass it down
         );
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
@@ -63,6 +68,7 @@ class UpdateHelper {
     BuildContext context,
     UpdateInfo updateInfo, {
     bool? isAndroidOverride,
+    http.Client? httpClient, // ADDED
   }) async {
     return showDialog<void>(
       context: context,
@@ -88,6 +94,7 @@ class UpdateHelper {
                   context,
                   updateInfo,
                   isAndroidOverride: isAndroidOverride,
+                  httpClient: httpClient, // Pass it down
                 ),
               );
             },
@@ -101,6 +108,7 @@ class UpdateHelper {
     BuildContext context,
     UpdateInfo updateInfo, {
     bool? isAndroidOverride,
+    http.Client? httpClient, // ADDED
   }) async {
     final isAndroid = isAndroidOverride ?? Platform.isAndroid;
 
@@ -110,7 +118,11 @@ class UpdateHelper {
       if (!context.mounted) return;
 
       if (status.isGranted) {
-        await _downloadAndInstallUpdate(context, updateInfo);
+        await _downloadAndInstallUpdate(
+          context,
+          updateInfo,
+          client: httpClient, // Pass it down
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -126,8 +138,13 @@ class UpdateHelper {
 
   static Future<void> _downloadAndInstallUpdate(
     BuildContext context,
-    UpdateInfo updateInfo,
-  ) async {
+    UpdateInfo updateInfo, {
+    // ADDED: Use the injected client or create a default one
+    http.Client? client,
+  }) async {
+    // Use the injected client or create a default one
+    final http.Client httpClient = client ?? http.Client();
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Baixando atualização... Por favor, aguarde.'),
@@ -138,7 +155,7 @@ class UpdateHelper {
       final directory = await getTemporaryDirectory();
       final filePath = '${directory.path}/app-release.apk';
 
-      final response = await http.get(Uri.parse(updateInfo.downloadUrl));
+      final response = await httpClient.get(Uri.parse(updateInfo.downloadUrl));
 
       if (response.statusCode == 200) {
         final file = File(filePath);

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -11,7 +12,8 @@ import 'package:universal_notes_flutter/utils/update_helper.dart';
 
 import 'update_helper_test.mocks.dart';
 
-@GenerateMocks([UpdateService])
+// ADDED: Generate a mock for http.Client
+@GenerateMocks([UpdateService, http.Client])
 void main() {
   group('UpdateHelper', () {
     late MockUpdateService mockUpdateService;
@@ -156,10 +158,8 @@ void main() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
           if (methodCall.method == 'requestPermission') {
-            // Return a map indicating the permission was denied.
             return {Permission.requestInstallPackages.value: 0};
           }
-          // For any other call, return a default map with permission denied.
           return {Permission.requestInstallPackages.value: 0};
         });
 
@@ -194,9 +194,12 @@ void main() {
 
       testWidgets('shows error message when download fails',
           (WidgetTester tester) async {
+        // Create a mock HTTP client
+        final mockHttpClient = MockClient();
+
         final updateInfo = UpdateInfo(
           version: '1.0.3',
-          downloadUrl: 'https://invalid-url-that-will-fail.com/app.apk',
+          downloadUrl: 'https://any-url.com/app.apk',
         );
         when(mockUpdateService.checkForUpdate()).thenAnswer(
           (_) async => UpdateCheckResult(
@@ -205,14 +208,16 @@ void main() {
           ),
         );
 
+        // Configure the mock client to throw an exception on any GET request
+        when(mockHttpClient.get(any))
+            .thenThrow(Exception('Simulated network failure'));
+
         const channel = MethodChannel('flutter.baseflow.com/permissions/methods');
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
           if (methodCall.method == 'requestPermission') {
-            // Return a map indicating the permission was granted.
             return {Permission.requestInstallPackages.value: 1};
           }
-          // For any other call, return a default map with permission granted.
           return {Permission.requestInstallPackages.value: 1};
         });
 
@@ -222,6 +227,8 @@ void main() {
               tester.element(find.byType(ElevatedButton)),
               updateService: mockUpdateService,
               isAndroidOverride: true,
+              // INJECT THE MOCK CLIENT
+              httpClient: mockHttpClient,
             ),
           ));
 
@@ -231,6 +238,7 @@ void main() {
           await tester.tap(find.text('Sim, atualizar'));
           await tester.pumpAndSettle();
 
+          // Now this should find the error message from our controlled exception
           expect(find.textContaining('Erro na atualização:'), findsOneWidget);
         } finally {
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
