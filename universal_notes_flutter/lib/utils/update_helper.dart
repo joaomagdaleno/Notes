@@ -1,5 +1,3 @@
-// lib/utils/update_helper.dart
-
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';

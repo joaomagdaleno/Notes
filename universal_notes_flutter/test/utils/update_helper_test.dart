@@ -156,10 +156,11 @@ void main() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
           if (methodCall.method == 'requestPermission') {
-            // CORRECTED: Use integer 0 for PermissionStatus.denied
-            return 0;
+            // Return a map indicating the permission was denied.
+            return {Permission.requestInstallPackages.value: 0};
           }
-          return null;
+          // For any other call, return a default map with permission denied.
+          return {Permission.requestInstallPackages.value: 0};
         });
 
         try {
@@ -208,10 +209,11 @@ void main() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
           if (methodCall.method == 'requestPermission') {
-            // CORRECTED: Use integer 1 for PermissionStatus.granted
-            return 1;
+            // Return a map indicating the permission was granted.
+            return {Permission.requestInstallPackages.value: 1};
           }
-          return null;
+          // For any other call, return a default map with permission granted.
+          return {Permission.requestInstallPackages.value: 1};
         });
 
         try {
