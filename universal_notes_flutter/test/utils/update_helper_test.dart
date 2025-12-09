@@ -16,14 +16,12 @@ import 'update_helper_test.mocks.dart';
 void main() {
   group('UpdateHelper', () {
     late MockUpdateService mockUpdateService;
-    // ADDED: A global key to robustly show SnackBars
     final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
     setUp(() {
       mockUpdateService = MockUpdateService();
     });
 
-    // Helper to create widget with a global key
     Widget createTestWidget({required VoidCallback onPressed}) {
       return MaterialApp(
         scaffoldMessengerKey: scaffoldMessengerKey,
@@ -84,8 +82,9 @@ void main() {
 
     testWidgets('shows no update message when no update is available',
         (WidgetTester tester) async {
+      // FIX: Removed 'const' keyword
       when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => const UpdateCheckResult(UpdateCheckStatus.noUpdate),
+        (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
       );
 
       await tester.pumpWidget(MaterialApp(
@@ -113,8 +112,9 @@ void main() {
 
     testWidgets('shows error message when update check fails',
         (WidgetTester tester) async {
+      // FIX: Removed 'const' keyword
       when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => const UpdateCheckResult(
+        (_) async => UpdateCheckResult(
           UpdateCheckStatus.error,
           errorMessage: 'Network error',
         ),
@@ -245,16 +245,12 @@ void main() {
           expect(find.text('Atualização Disponível'), findsOneWidget);
 
           await tester.tap(find.text('Sim, atualizar'));
-          await tester.pump(); // Process the button press and pop the dialog.
+          await tester.pump();
 
-          // DIAGNOSTIC CHECK: Verify the "Downloading..." SnackBar appears.
-          // This confirms _downloadAndInstallUpdate was called.
           expect(find.text('Baixando atualização... Por favor, aguarde.'), findsOneWidget);
 
-          // Now, wait for the async operation (the simulated failure) to complete.
           await tester.pumpAndSettle();
 
-          // The final check for the error message.
           expect(find.textContaining('Erro na atualização:'), findsOneWidget);
         } finally {
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
