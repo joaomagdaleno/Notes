@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -12,7 +11,7 @@ import 'package:universal_notes_flutter/utils/update_helper.dart';
 
 import 'update_helper_test.mocks.dart';
 
-@GenerateMocks([UpdateService, http.Client])
+@GenerateMocks([UpdateService])
 void main() {
   group('UpdateHelper', () {
     late MockUpdateService mockUpdateService;
@@ -179,8 +178,6 @@ void main() {
 
       testWidgets('shows error message when download fails',
           (WidgetTester tester) async {
-        final mockHttpClient = MockClient();
-
         final updateInfo = UpdateInfo(
           version: '1.0.3',
           downloadUrl: 'https://any-url.com/app.apk',
@@ -191,8 +188,6 @@ void main() {
             updateInfo: updateInfo,
           ),
         );
-
-        when(mockHttpClient.get(any)).thenAnswer((_) async => http.Response('Not Found', 404));
 
         const channel = MethodChannel('flutter.baseflow.com/permissions/methods');
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -209,7 +204,8 @@ void main() {
               tester.element(find.byType(ElevatedButton)),
               updateService: mockUpdateService,
               isAndroidOverride: true,
-              httpClient: mockHttpClient,
+              downloadFunction: (url) =>
+                  throw Exception('Simulated download failure'),
               scaffoldMessengerKey: scaffoldMessengerKey,
             ),
           ));
@@ -219,15 +215,13 @@ void main() {
           expect(find.text('Atualização Disponível'), findsOneWidget);
 
           await tester.tap(find.text('Sim, atualizar'));
-          await tester.pump(); // Process the button press and pop the dialog.
+          await tester.pump();
 
-          // Check for the "Downloading..." SnackBar.
-          expect(find.text('Baixando atualização... Por favor, aguarde.'), findsOneWidget);
+          expect(find.text('Baixando atualização... Por favor, aguarde.'),
+              findsOneWidget);
 
-          // Wait for the async operation (the simulated failure) to complete.
           await tester.pumpAndSettle();
 
-          // The final check for the error message.
           expect(find.textContaining('Erro na atualização:'), findsOneWidget);
         } finally {
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
