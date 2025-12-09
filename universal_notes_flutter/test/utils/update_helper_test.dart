@@ -192,8 +192,7 @@ void main() {
           ),
         );
 
-        when(mockHttpClient.get(any))
-            .thenThrow(Exception('Simulated network failure'));
+        when(mockHttpClient.get(any)).thenAnswer((_) async => http.Response('Not Found', 404));
 
         const channel = MethodChannel('flutter.baseflow.com/permissions/methods');
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
