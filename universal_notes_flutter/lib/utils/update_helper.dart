@@ -9,8 +9,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
-typedef DownloadFunction = Future<http.Response> Function(Uri url);
-
 /// A helper class for handling application updates.
 class UpdateHelper {
   /// Checks for updates and prompts the user to install them.
@@ -20,10 +18,10 @@ class UpdateHelper {
     UpdateService? updateService,
     bool? isAndroidOverride,
     http.Client? httpClient,
-    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
-    DownloadFunction? downloadFunction,
+    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey, // ADDED
   }) async {
     if (isManual) {
+      // Use the key if provided, otherwise use the context
       final messenger = scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         const SnackBar(content: Text('Verificando atualizações...')),
@@ -47,8 +45,7 @@ class UpdateHelper {
           result.updateInfo!,
           isAndroidOverride: isAndroidOverride,
           httpClient: httpClient,
-          scaffoldMessengerKey: scaffoldMessengerKey,
-          downloadFunction: downloadFunction,
+          scaffoldMessengerKey: scaffoldMessengerKey, // Pass it down
         );
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
@@ -78,8 +75,7 @@ class UpdateHelper {
     UpdateInfo updateInfo, {
     bool? isAndroidOverride,
     http.Client? httpClient,
-    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
-    DownloadFunction? downloadFunction,
+    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey, // ADDED
   }) async {
     return showDialog<void>(
       context: context,
@@ -106,8 +102,7 @@ class UpdateHelper {
                 updateInfo,
                 isAndroidOverride: isAndroidOverride,
                 httpClient: httpClient,
-                scaffoldMessengerKey: scaffoldMessengerKey,
-                downloadFunction: downloadFunction,
+                scaffoldMessengerKey: scaffoldMessengerKey, // Pass it down
               );
             },
           ),
@@ -121,8 +116,7 @@ class UpdateHelper {
     UpdateInfo updateInfo, {
     bool? isAndroidOverride,
     http.Client? httpClient,
-    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
-    DownloadFunction? downloadFunction,
+    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey, // ADDED
   }) async {
     final isAndroid = isAndroidOverride ?? Platform.isAndroid;
 
@@ -134,8 +128,7 @@ class UpdateHelper {
           context,
           updateInfo,
           client: httpClient,
-          scaffoldMessengerKey: scaffoldMessengerKey,
-          downloadFunction: downloadFunction,
+          scaffoldMessengerKey: scaffoldMessengerKey, // Pass it down
         );
       } else {
         final messenger = scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
@@ -155,14 +148,11 @@ class UpdateHelper {
     BuildContext context,
     UpdateInfo updateInfo, {
     http.Client? client,
-    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
-    DownloadFunction? downloadFunction,
+    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey, // ADDED
   }) async {
     final httpClient = client ?? http.Client();
 
-    // Use the injected function or the real one from the client
-    final downloadFn = downloadFunction ?? httpClient.get;
-
+    // Use the key for a robust context
     final messenger = scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
     messenger.showSnackBar(
       const SnackBar(
@@ -174,8 +164,7 @@ class UpdateHelper {
       final directory = await getTemporaryDirectory();
       final filePath = '${directory.path}/app-release.apk';
 
-      // Use the function variable to perform the download
-      final response = await downloadFn(Uri.parse(updateInfo.downloadUrl));
+      final response = await httpClient.get(Uri.parse(updateInfo.downloadUrl));
 
       if (response.statusCode == 200) {
         final file = File(filePath);
@@ -194,6 +183,7 @@ class UpdateHelper {
       }
     } on Exception catch (e) {
       messenger.hideCurrentSnackBar();
+      // Use the key for a robust context
       messenger.showSnackBar(
         SnackBar(content: Text('Erro na atualização: $e')),
       );
