@@ -1,3 +1,5 @@
+// lib/utils/update_helper.dart
+
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -14,6 +16,8 @@ class UpdateHelper {
     BuildContext context, {
     bool isManual = false,
     UpdateService? updateService,
+    bool? isAndroidOverride,
+    http.Client? httpClient,
   }) async {
     if (isManual) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -32,8 +36,12 @@ class UpdateHelper {
 
     switch (result.status) {
       case UpdateCheckStatus.updateAvailable:
-        await _showUpdateDialog(context, result.updateInfo!);
-        break;
+        await _showUpdateDialog(
+          context,
+          result.updateInfo!,
+          isAndroidOverride: isAndroidOverride,
+          httpClient: httpClient,
+        );
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -42,7 +50,6 @@ class UpdateHelper {
             ),
           );
         }
-        break;
       case UpdateCheckStatus.error:
         if (isManual) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -53,21 +60,23 @@ class UpdateHelper {
             ),
           );
         }
-        break;
     }
   }
 
   static Future<void> _showUpdateDialog(
     BuildContext context,
-    UpdateInfo updateInfo,
-  ) async {
+    UpdateInfo updateInfo, {
+    bool? isAndroidOverride,
+    http.Client? httpClient,
+  }) async {
     return showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('Atualização Disponível'),
         content: Text(
-          'Uma nova versão (${updateInfo.version}) está disponível. Deseja '
-          'baixar e instalar?',
+          'Uma nova versão (${updateInfo.version}) está disponível. '
+          'Deseja baixar e instalar?',
         ),
         actions: [
           TextButton(
@@ -76,11 +85,16 @@ class UpdateHelper {
           ),
           TextButton(
             child: const Text('Sim, atualizar'),
-            onPressed: () {
+            onPressed: () async {
               if (context.mounted) {
                 Navigator.of(context).pop();
               }
-              unawaited(_handleUpdate(context, updateInfo));
+              await _handleUpdate(
+                context,
+                updateInfo,
+                isAndroidOverride: isAndroidOverride,
+                httpClient: httpClient,
+              );
             },
           ),
         ],
@@ -90,15 +104,23 @@ class UpdateHelper {
 
   static Future<void> _handleUpdate(
     BuildContext context,
-    UpdateInfo updateInfo,
-  ) async {
-    if (Platform.isAndroid) {
+    UpdateInfo updateInfo, {
+    bool? isAndroidOverride,
+    http.Client? httpClient,
+  }) async {
+    final isAndroid = isAndroidOverride ?? Platform.isAndroid;
+
+    if (isAndroid) {
       final status = await Permission.requestInstallPackages.request();
 
       if (!context.mounted) return;
 
       if (status.isGranted) {
-        await _downloadAndInstallUpdate(context, updateInfo);
+        await _downloadAndInstallUpdate(
+          context,
+          updateInfo,
+          client: httpClient,
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -114,8 +136,12 @@ class UpdateHelper {
 
   static Future<void> _downloadAndInstallUpdate(
     BuildContext context,
-    UpdateInfo updateInfo,
-  ) async {
+    UpdateInfo updateInfo, {
+    http.Client? client,
+  }) async {
+    // FIXED: Removed unnecessary type annotation
+    final httpClient = client ?? http.Client();
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Baixando atualização... Por favor, aguarde.'),
@@ -126,7 +152,7 @@ class UpdateHelper {
       final directory = await getTemporaryDirectory();
       final filePath = '${directory.path}/app-release.apk';
 
-      final response = await http.get(Uri.parse(updateInfo.downloadUrl));
+      final response = await httpClient.get(Uri.parse(updateInfo.downloadUrl));
 
       if (response.statusCode == 200) {
         final file = File(filePath);
@@ -136,7 +162,6 @@ class UpdateHelper {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
         }
 
-        // Open the downloaded file to trigger installation
         final result = await OpenFile.open(filePath);
         if (result.type != ResultType.done) {
           throw Exception(
