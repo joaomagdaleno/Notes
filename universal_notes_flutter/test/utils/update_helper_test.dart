@@ -230,13 +230,16 @@ void main() {
           await tester.pumpAndSettle();
 
           await tester.tap(find.text('Sim, atualizar'));
+          await tester.pump(); // Process the button press and pop the dialog.
 
-          // CHANGED: Add an explicit pump to trigger the async operation
-          await tester.pump();
+          // DIAGNOSTIC CHECK: Verify the "Downloading..." SnackBar appears.
+          // This confirms _downloadAndInstallUpdate was called.
+          expect(find.text('Baixando atualização... Por favor, aguarde.'), findsOneWidget);
 
-          // CHANGED: Now pump and settle to wait for it to complete
+          // Now, wait for the async operation (the simulated failure) to complete.
           await tester.pumpAndSettle();
 
+          // The final check for the error message.
           expect(find.textContaining('Erro na atualização:'), findsOneWidget);
         } finally {
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
