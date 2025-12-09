@@ -71,7 +71,7 @@ class UpdateHelper {
   }) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // User must tap a button
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('Atualização Disponível'),
         content: Text(
@@ -85,12 +85,10 @@ class UpdateHelper {
           ),
           TextButton(
             child: const Text('Sim, atualizar'),
-            // CHANGED: Made callback async and await the update process
             onPressed: () async {
               if (context.mounted) {
                 Navigator.of(context).pop();
               }
-              // AWAIT the update process instead of firing and forgetting.
               await _handleUpdate(
                 context,
                 updateInfo,
@@ -141,7 +139,8 @@ class UpdateHelper {
     UpdateInfo updateInfo, {
     http.Client? client,
   }) async {
-    final http.Client httpClient = client ?? http.Client();
+    // FIXED: Removed unnecessary type annotation
+    final httpClient = client ?? http.Client();
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
