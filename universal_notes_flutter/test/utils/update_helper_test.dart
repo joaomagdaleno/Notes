@@ -230,6 +230,11 @@ void main() {
           await tester.pumpAndSettle();
 
           await tester.tap(find.text('Sim, atualizar'));
+
+          // CHANGED: Add an explicit pump to trigger the async operation
+          await tester.pump();
+
+          // CHANGED: Now pump and settle to wait for it to complete
           await tester.pumpAndSettle();
 
           expect(find.textContaining('Erro na atualização:'), findsOneWidget);
