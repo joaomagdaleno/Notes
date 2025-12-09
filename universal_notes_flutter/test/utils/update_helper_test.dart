@@ -1,4 +1,4 @@
-import 'dart:io';
+// test/utils/update_helper_test.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,10 +16,28 @@ import 'update_helper_test.mocks.dart';
 void main() {
   group('UpdateHelper', () {
     late MockUpdateService mockUpdateService;
+    // ADDED: A global key to robustly show SnackBars
+    final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
     setUp(() {
       mockUpdateService = MockUpdateService();
     });
+
+    // Helper to create the widget with the global key
+    Widget createTestWidget({required VoidCallback onPressed}) {
+      return MaterialApp(
+        // ADDED: Assign the key here
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: onPressed,
+              child: const Text('Check for updates'),
+            ),
+          ),
+        ),
+      );
+    }
 
     testWidgets('shows update dialog when update is available',
         (WidgetTester tester) async {
@@ -35,17 +53,11 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => UpdateHelper.checkForUpdate(
-                context,
-                updateService: mockUpdateService,
-              ),
-              child: const Text('Check for updates'),
-            ),
-          ),
+      await tester.pumpWidget(createTestWidget(
+        onPressed: () => UpdateHelper.checkForUpdate(
+          tester.element(find.byType(ElevatedButton)),
+          updateService: mockUpdateService,
+          scaffoldMessengerKey: scaffoldMessengerKey,
         ),
       ));
 
@@ -66,21 +78,15 @@ void main() {
     testWidgets('shows no update message when no update is available',
         (WidgetTester tester) async {
       when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => const UpdateCheckResult(UpdateCheckStatus.noUpdate),
+        (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
       );
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => UpdateHelper.checkForUpdate(
-                context,
-                isManual: true,
-                updateService: mockUpdateService,
-              ),
-              child: const Text('Check for updates'),
-            ),
-          ),
+      await tester.pumpWidget(createTestWidget(
+        onPressed: () => UpdateHelper.checkForUpdate(
+          tester.element(find.byType(ElevatedButton)),
+          isManual: true,
+          updateService: mockUpdateService,
+          scaffoldMessengerKey: scaffoldMessengerKey,
         ),
       ));
 
@@ -93,24 +99,18 @@ void main() {
     testWidgets('shows error message when update check fails',
         (WidgetTester tester) async {
       when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => const UpdateCheckResult(
+        (_) async => UpdateCheckResult(
           UpdateCheckStatus.error,
           errorMessage: 'Network error',
         ),
       );
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => UpdateHelper.checkForUpdate(
-                context,
-                isManual: true,
-                updateService: mockUpdateService,
-              ),
-              child: const Text('Check for updates'),
-            ),
-          ),
+      await tester.pumpWidget(createTestWidget(
+        onPressed: () => UpdateHelper.checkForUpdate(
+          tester.element(find.byType(ElevatedButton)),
+          isManual: true,
+          updateService: mockUpdateService,
+          scaffoldMessengerKey: scaffoldMessengerKey,
         ),
       ));
 
@@ -121,24 +121,9 @@ void main() {
     });
 
     group('Update Installation Flow', () {
-      late MockUpdateService mockUpdateService;
-
       setUp(() {
         mockUpdateService = MockUpdateService();
       });
-
-      Widget createTestWidget({required VoidCallback onPressed}) {
-        return MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: onPressed,
-                child: const Text('Check for updates'),
-              ),
-            ),
-          ),
-        );
-      }
 
       testWidgets('shows permission denied message on Android',
           (WidgetTester tester) async {
@@ -168,6 +153,7 @@ void main() {
               tester.element(find.byType(ElevatedButton)),
               updateService: mockUpdateService,
               isAndroidOverride: true,
+              scaffoldMessengerKey: scaffoldMessengerKey,
             ),
           ));
 
@@ -225,15 +211,24 @@ void main() {
               updateService: mockUpdateService,
               isAndroidOverride: true,
               httpClient: mockHttpClient,
+              scaffoldMessengerKey: scaffoldMessengerKey,
             ),
           ));
 
           await tester.tap(find.byType(ElevatedButton));
           await tester.pumpAndSettle();
+          expect(find.text('Atualização Disponível'), findsOneWidget);
 
           await tester.tap(find.text('Sim, atualizar'));
+          await tester.pump(); // Process the button press and pop the dialog.
+
+          // Check for the "Downloading..." SnackBar.
+          expect(find.text('Baixando atualização... Por favor, aguarde.'), findsOneWidget);
+
+          // Wait for the async operation (the simulated failure) to complete.
           await tester.pumpAndSettle();
 
+          // The final check for the error message.
           expect(find.textContaining('Erro na atualização:'), findsOneWidget);
         } finally {
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
