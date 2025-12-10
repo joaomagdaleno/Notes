@@ -120,8 +120,6 @@ void main() {
     });
 
     group('Update Installation Flow', () {
-      late MockUpdateService mockUpdateService;
-
       setUp(() {
         mockUpdateService = MockUpdateService();
       });
@@ -182,6 +180,9 @@ void main() {
           (WidgetTester tester) async {
         final mockHttpClient = MockClient();
 
+        when(mockHttpClient.get(any))
+            .thenThrow(Exception('Simulated network failure'));
+
         final updateInfo = UpdateInfo(
           version: '1.0.3',
           downloadUrl: 'https://any-url.com/app.apk',
@@ -193,10 +194,8 @@ void main() {
           ),
         );
 
-        when(mockHttpClient.get(any))
-            .thenThrow(Exception('Simulated network failure'));
-
-        const channel = MethodChannel('flutter.baseflow.com/permissions/methods');
+        const channel =
+            MethodChannel('flutter.baseflow.com/permissions/methods');
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
           if (methodCall.method == 'requestPermission') {
@@ -223,7 +222,8 @@ void main() {
           await tester.tap(find.text('Sim, atualizar'));
           await tester.pump();
 
-          expect(find.text('Baixando atualização... Por favor, aguarde.'), findsOneWidget);
+          expect(find.text('Baixando atualização... Por favor, aguarde.'),
+              findsOneWidget);
 
           await tester.pumpAndSettle();
 

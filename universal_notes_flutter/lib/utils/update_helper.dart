@@ -119,10 +119,6 @@ class UpdateHelper {
     final isAndroid = isAndroidOverride ?? Platform.isAndroid;
 
     if (isAndroid) {
-      // FIX: Capture messenger before the async gap to satisfy the linter.
-      final messenger =
-          scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
-
       final status = await Permission.requestInstallPackages.request();
 
       if (!context.mounted) return;
@@ -134,6 +130,8 @@ class UpdateHelper {
           scaffoldMessengerKey: scaffoldMessengerKey!,
         );
       } else {
+        final messenger =
+            scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
         messenger.showSnackBar(
           const SnackBar(
             content: Text(
@@ -185,6 +183,10 @@ class UpdateHelper {
       messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(content: Text('Erro na atualização: $e')));
+    } finally {
+      if (client == null) {
+        httpClient.close();
+      }
     }
   }
 }
