@@ -50,19 +50,11 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(MaterialApp(
-        scaffoldMessengerKey: scaffoldMessengerKey,
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => UpdateHelper.checkForUpdate(
-                context,
-                updateService: mockUpdateService,
-                scaffoldMessengerKey: scaffoldMessengerKey,
-              ),
-              child: const Text('Check for updates'),
-            ),
-          ),
+      await tester.pumpWidget(createTestWidget(
+        onPressed: () => UpdateHelper.checkForUpdate(
+          tester.element(find.byType(ElevatedButton)),
+          updateService: mockUpdateService,
+          scaffoldMessengerKey: scaffoldMessengerKey,
         ),
       ));
 
@@ -87,20 +79,12 @@ void main() {
         (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
       );
 
-      await tester.pumpWidget(MaterialApp(
-        scaffoldMessengerKey: scaffoldMessengerKey,
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => UpdateHelper.checkForUpdate(
-                context,
-                isManual: true,
-                updateService: mockUpdateService,
-                scaffoldMessengerKey: scaffoldMessengerKey,
-              ),
-              child: const Text('Check for updates'),
-            ),
-          ),
+      await tester.pumpWidget(createTestWidget(
+        onPressed: () => UpdateHelper.checkForUpdate(
+          tester.element(find.byType(ElevatedButton)),
+          isManual: true,
+          updateService: mockUpdateService,
+          scaffoldMessengerKey: scaffoldMessengerKey,
         ),
       ));
 
@@ -120,20 +104,12 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(MaterialApp(
-        scaffoldMessengerKey: scaffoldMessengerKey,
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => UpdateHelper.checkForUpdate(
-                context,
-                isManual: true,
-                updateService: mockUpdateService,
-                scaffoldMessengerKey: scaffoldMessengerKey,
-              ),
-              child: const Text('Check for updates'),
-            ),
-          ),
+      await tester.pumpWidget(createTestWidget(
+        onPressed: () => UpdateHelper.checkForUpdate(
+          tester.element(find.byType(ElevatedButton)),
+          isManual: true,
+          updateService: mockUpdateService,
+          scaffoldMessengerKey: scaffoldMessengerKey,
         ),
       ));
 
