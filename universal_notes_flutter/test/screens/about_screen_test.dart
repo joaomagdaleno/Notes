@@ -58,23 +58,46 @@ void main() {
       expect(find.text('Verificar Atualizações'), findsOneWidget);
     });
 
-    testWidgets('shows CircularProgressIndicator when checking for update', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('shows CircularProgressIndicator when checking for update',
+        (WidgetTester tester) async {
+      // Mock the UpdateService to simulate a long check.
+      final mockUpdateService = MockUpdateService();
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async {
+          await Future.delayed(const Duration(seconds: 1)); // Simulate a long check.
+          return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+        },
+      );
+
       await tester.pumpWidget(
         MaterialApp(
-          home: AboutScreen(packageInfo: mockPackageInfo),
+          home: AboutScreen(
+            updateService: mockUpdateService,
+            packageInfo: mockPackageInfo,
+          ),
         ),
       );
 
-      // Tapa no botão para iniciar a verificação
-      await tester.tap(find.byType(ElevatedButton));
-      await tester
-          .pump(); // Reconstrói o widget uma vez para mostrar o indicador
+      // Find and tap the update check button.
+      final updateButton = find.byType(ElevatedButton);
+      expect(updateButton, findsOneWidget);
 
-      // Verifica se o CircularProgressIndicator aparece
+      await tester.tap(updateButton);
+      await tester.pump(); // Start the check.
+
+      // FIX: Check if the CircularProgressIndicator appears.
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.byType(ElevatedButton), findsNothing);
+
+      // FIX: Check if the button is disabled.
+      final button = tester.widget<ElevatedButton>(updateButton);
+      expect(button.onPressed, isNull);
+
+      // Complete the check.
+      await tester.pumpAndSettle();
+
+      // Check if the button is enabled again.
+      final buttonAfter = tester.widget<ElevatedButton>(updateButton);
+      expect(buttonAfter.onPressed, isNotNull);
     });
   });
 
@@ -102,35 +125,47 @@ void main() {
       expect(find.text('Verificar Atualizações'), findsOneWidget);
     });
 
-    testWidgets('shows ProgressRing when checking for update on Windows', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('shows ProgressRing when checking for update on Windows',
+        (WidgetTester tester) async {
+      // Mock the UpdateService to simulate a long check.
+      final mockUpdateService = MockUpdateService();
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async {
+          await Future.delayed(const Duration(seconds: 1)); // Simulate a long check.
+          return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+        },
+      );
+
       await tester.pumpWidget(
         fluent.FluentApp(
           home: AboutScreen(
+            updateService: mockUpdateService,
             packageInfo: mockPackageInfo,
-            debugPlatform: TargetPlatform.windows, // Force Windows UI
+            isWindows: true, // Ensure it's in Windows mode.
           ),
         ),
       );
 
-      // Tapa no botão para iniciar a verificação
-      await tester.tap(find.byType(fluent.FilledButton));
-      await tester
-          .pump(); // Reconstrói o widget uma vez para mostrar o indicador
+      // Find and tap the update check button.
+      final updateButton = find.byType(fluent.FilledButton);
+      expect(updateButton, findsOneWidget);
 
-      // Verifica se o ProgressRing aparece
+      await tester.tap(updateButton);
+      await tester.pump(); // Start the check.
+
+      // FIX: Check if the ProgressRing appears.
       expect(find.byType(fluent.ProgressRing), findsOneWidget);
-      expect(find.byType(fluent.FilledButton), findsNothing);
 
-      // Instead of pumpAndSettle, just pump a few times to see the loading state
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 100));
+      // FIX: Check if the button is disabled.
+      final button = tester.widget<fluent.FilledButton>(updateButton);
+      expect(button.onPressed, isNull);
 
-      // Verify the ProgressRing is still showing
-      expect(find.byType(fluent.ProgressRing), findsOneWidget);
-      expect(find.byType(fluent.FilledButton), findsNothing);
+      // Complete the check.
+      await tester.pumpAndSettle();
+
+      // Check if the button is enabled again.
+      final buttonAfter = tester.widget<fluent.FilledButton>(updateButton);
+      expect(buttonAfter.onPressed, isNotNull);
     });
   });
 }

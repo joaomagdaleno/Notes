@@ -180,8 +180,8 @@ testWidgets('shows error message when download fails',
     (WidgetTester tester) async {
   final mockHttpClient = MockClient();
 
-  // FIX: Mock the specific URL used in the code.
-  when(mockHttpClient.get(Uri.parse('https://any-url.com/app.apk')))
+  // Mock any HTTP GET call to simulate a network failure.
+  when(mockHttpClient.get(any))
       .thenThrow(Exception('Simulated network failure'));
 
   final updateInfo = UpdateInfo(
@@ -224,11 +224,19 @@ testWidgets('shows error message when download fails',
 
     expect(find.text('Baixando atualização... Por favor, aguarde.'), findsOneWidget);
 
-    // FIX: Wait longer for the error to be processed.
-    await tester.pumpAndSettle(const Duration(seconds: 5));
+    // FIX: Force multiple render cycles to ensure the error is processed.
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 1));
 
-    // FIX: Verify the exact message that is displayed.
-    expect(find.textContaining('Erro na atualização:'), findsOneWidget);
+    // FIX: Check if the error SnackBar is visible.
+    expect(find.byType(SnackBar), findsOneWidget);
+
+    // FIX: Check the text within the SnackBar.
+    final snackBar = tester.widget<SnackBar>(find.byType(SnackBar));
+    final content = snackBar.content as Text;
+    expect(content.data, contains('Erro na atualização:'));
   } finally {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
