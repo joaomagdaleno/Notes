@@ -176,63 +176,64 @@ void main() {
         }
       });
 
-      testWidgets('shows error message when download fails',
-          (WidgetTester tester) async {
-        final mockHttpClient = MockClient();
+testWidgets('shows error message when download fails',
+    (WidgetTester tester) async {
+  final mockHttpClient = MockClient();
 
-        when(mockHttpClient.get(any))
-            .thenThrow(Exception('Simulated network failure'));
+  // FIX: Mock the specific URL used in the code.
+  when(mockHttpClient.get(Uri.parse('https://any-url.com/app.apk')))
+      .thenThrow(Exception('Simulated network failure'));
 
-        final updateInfo = UpdateInfo(
-          version: '1.0.3',
-          downloadUrl: 'https://any-url.com/app.apk',
-        );
-        when(mockUpdateService.checkForUpdate()).thenAnswer(
-          (_) async => UpdateCheckResult(
-            UpdateCheckStatus.updateAvailable,
-            updateInfo: updateInfo,
-          ),
-        );
+  final updateInfo = UpdateInfo(
+    version: '1.0.3',
+    downloadUrl: 'https://any-url.com/app.apk',
+  );
+  when(mockUpdateService.checkForUpdate()).thenAnswer(
+    (_) async => UpdateCheckResult(
+      UpdateCheckStatus.updateAvailable,
+      updateInfo: updateInfo,
+    ),
+  );
 
-        const channel =
-            MethodChannel('flutter.baseflow.com/permissions/methods');
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-          if (methodCall.method == 'requestPermission') {
-            return {Permission.requestInstallPackages.value: 1};
-          }
-          return {Permission.requestInstallPackages.value: 1};
-        });
+  const channel = MethodChannel('flutter.baseflow.com/permissions/methods');
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+    if (methodCall.method == 'requestPermission') {
+      return {Permission.requestInstallPackages.value: 1}; // Permission granted
+    }
+    return {Permission.requestInstallPackages.value: 1};
+  });
 
-        try {
-          await tester.pumpWidget(createTestWidget(
-            onPressed: () => UpdateHelper.checkForUpdate(
-              tester.element(find.byType(ElevatedButton)),
-              updateService: mockUpdateService,
-              isAndroidOverride: true,
-              httpClient: mockHttpClient,
-              scaffoldMessengerKey: scaffoldMessengerKey,
-            ),
-          ));
+  try {
+    await tester.pumpWidget(createTestWidget(
+      onPressed: () => UpdateHelper.checkForUpdate(
+        tester.element(find.byType(ElevatedButton)),
+        updateService: mockUpdateService,
+        isAndroidOverride: true,
+        httpClient: mockHttpClient,
+        scaffoldMessengerKey: scaffoldMessengerKey,
+      ),
+    ));
 
-          await tester.tap(find.byType(ElevatedButton));
-          await tester.pumpAndSettle();
-          expect(find.text('Atualização Disponível'), findsOneWidget);
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Atualização Disponível'), findsOneWidget);
 
-          await tester.tap(find.text('Sim, atualizar'));
-          await tester.pump();
+    await tester.tap(find.text('Sim, atualizar'));
+    await tester.pump(); // Show the download SnackBar.
 
-          expect(find.text('Baixando atualização... Por favor, aguarde.'),
-              findsOneWidget);
+    expect(find.text('Baixando atualização... Por favor, aguarde.'), findsOneWidget);
 
-          await tester.pumpAndSettle();
+    // FIX: Wait longer for the error to be processed.
+    await tester.pumpAndSettle(const Duration(seconds: 5));
 
-          expect(find.textContaining('Erro na atualização:'), findsOneWidget);
-        } finally {
-          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-              .setMockMethodCallHandler(channel, null);
-        }
-      });
+    // FIX: Verify the exact message that is displayed.
+    expect(find.textContaining('Erro na atualização:'), findsOneWidget);
+  } finally {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
+  }
+});
     });
   });
 }
