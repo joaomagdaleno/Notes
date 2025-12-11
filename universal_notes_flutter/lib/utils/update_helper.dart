@@ -18,11 +18,12 @@ class UpdateHelper {
     UpdateService? updateService,
     bool? isAndroidOverride,
     http.Client? httpClient,
-    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey, // ADDED
+    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
   }) async {
+    final messenger =
+        scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
+
     if (isManual) {
-      // Use the key if provided, otherwise use the context
-      final messenger = scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         const SnackBar(content: Text('Verificando atualizações...')),
       );
@@ -34,7 +35,6 @@ class UpdateHelper {
     if (!context.mounted) return;
 
     if (isManual) {
-      final messenger = scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
       messenger.hideCurrentSnackBar();
     }
 
@@ -45,11 +45,10 @@ class UpdateHelper {
           result.updateInfo!,
           isAndroidOverride: isAndroidOverride,
           httpClient: httpClient,
-          scaffoldMessengerKey: scaffoldMessengerKey, // Pass it down
+          scaffoldMessengerKey: scaffoldMessengerKey,
         );
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
-          final messenger = scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
           messenger.showSnackBar(
             const SnackBar(
               content: Text('Você já tem a versão mais recente.'),
@@ -58,7 +57,6 @@ class UpdateHelper {
         }
       case UpdateCheckStatus.error:
         if (isManual) {
-          final messenger = scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
           messenger.showSnackBar(
             SnackBar(
               content: Text(
@@ -75,7 +73,7 @@ class UpdateHelper {
     UpdateInfo updateInfo, {
     bool? isAndroidOverride,
     http.Client? httpClient,
-    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey, // ADDED
+    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
   }) async {
     return showDialog<void>(
       context: context,
@@ -102,7 +100,7 @@ class UpdateHelper {
                 updateInfo,
                 isAndroidOverride: isAndroidOverride,
                 httpClient: httpClient,
-                scaffoldMessengerKey: scaffoldMessengerKey, // Pass it down
+                scaffoldMessengerKey: scaffoldMessengerKey,
               );
             },
           ),
@@ -116,22 +114,24 @@ class UpdateHelper {
     UpdateInfo updateInfo, {
     bool? isAndroidOverride,
     http.Client? httpClient,
-    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey, // ADDED
+    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
   }) async {
     final isAndroid = isAndroidOverride ?? Platform.isAndroid;
 
     if (isAndroid) {
       final status = await Permission.requestInstallPackages.request();
 
+      if (!context.mounted) return;
+
       if (status.isGranted) {
         await _downloadAndInstallUpdate(
-          context,
           updateInfo,
           client: httpClient,
-          scaffoldMessengerKey: scaffoldMessengerKey, // Pass it down
+          scaffoldMessengerKey: scaffoldMessengerKey!,
         );
       } else {
-        final messenger = scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
+        final messenger =
+            scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
         messenger.showSnackBar(
           const SnackBar(
             content: Text(
@@ -145,15 +145,13 @@ class UpdateHelper {
   }
 
   static Future<void> _downloadAndInstallUpdate(
-    BuildContext context,
     UpdateInfo updateInfo, {
     http.Client? client,
-    GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey, // ADDED
+    required GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey,
   }) async {
     final httpClient = client ?? http.Client();
+    final messenger = scaffoldMessengerKey.currentState!;
 
-    // Use the key for a robust context
-    final messenger = scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
     messenger.showSnackBar(
       const SnackBar(
         content: Text('Baixando atualização... Por favor, aguarde.'),
@@ -182,11 +180,13 @@ class UpdateHelper {
         throw Exception('Falha no download. Status: ${response.statusCode}');
       }
     } on Exception catch (e) {
-      messenger.hideCurrentSnackBar();
-      // Use the key for a robust context
-      messenger.showSnackBar(
-        SnackBar(content: Text('Erro na atualização: $e')),
-      );
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('Erro na atualização: $e')));
+    } finally {
+      if (client == null) {
+        httpClient.close();
+      }
     }
   }
 }

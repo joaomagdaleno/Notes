@@ -16,17 +16,14 @@ import 'update_helper_test.mocks.dart';
 void main() {
   group('UpdateHelper', () {
     late MockUpdateService mockUpdateService;
-    // ADDED: A global key to robustly show SnackBars
     final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
     setUp(() {
       mockUpdateService = MockUpdateService();
     });
 
-    // Helper to create the widget with the global key
     Widget createTestWidget({required VoidCallback onPressed}) {
       return MaterialApp(
-        // ADDED: Assign the key here
         scaffoldMessengerKey: scaffoldMessengerKey,
         home: Scaffold(
           body: Builder(
@@ -77,6 +74,7 @@ void main() {
 
     testWidgets('shows no update message when no update is available',
         (WidgetTester tester) async {
+      // FIX: Removed 'const' keyword
       when(mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
       );
@@ -98,6 +96,7 @@ void main() {
 
     testWidgets('shows error message when update check fails',
         (WidgetTester tester) async {
+      // FIX: Removed 'const' keyword
       when(mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.error,
@@ -181,6 +180,9 @@ void main() {
           (WidgetTester tester) async {
         final mockHttpClient = MockClient();
 
+        when(mockHttpClient.get(any))
+            .thenThrow(Exception('Simulated network failure'));
+
         final updateInfo = UpdateInfo(
           version: '1.0.3',
           downloadUrl: 'https://any-url.com/app.apk',
@@ -192,10 +194,8 @@ void main() {
           ),
         );
 
-        when(mockHttpClient.get(any))
-            .thenThrow(Exception('Simulated network failure'));
-
-        const channel = MethodChannel('flutter.baseflow.com/permissions/methods');
+        const channel =
+            MethodChannel('flutter.baseflow.com/permissions/methods');
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
           if (methodCall.method == 'requestPermission') {
@@ -220,15 +220,13 @@ void main() {
           expect(find.text('Atualização Disponível'), findsOneWidget);
 
           await tester.tap(find.text('Sim, atualizar'));
-          await tester.pump(); // Process the button press and pop the dialog.
+          await tester.pump();
 
-          // Check for the "Downloading..." SnackBar.
-          expect(find.text('Baixando atualização... Por favor, aguarde.'), findsOneWidget);
+          expect(find.text('Baixando atualização... Por favor, aguarde.'),
+              findsOneWidget);
 
-          // Wait for the async operation (the simulated failure) to complete.
           await tester.pumpAndSettle();
 
-          // The final check for the error message.
           expect(find.textContaining('Erro na atualização:'), findsOneWidget);
         } finally {
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
