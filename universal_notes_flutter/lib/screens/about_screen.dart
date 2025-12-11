@@ -108,13 +108,16 @@ class _AboutScreenState extends State<AboutScreen> {
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
-              if (_isChecking)
-                const fluent.ProgressRing(),
-              if (!_isChecking)
-                fluent.FilledButton(
-                  onPressed: _checkForUpdateWindows,
-                  child: const Text('Verificar Atualizações'),
-                ),
+              fluent.FilledButton(
+                onPressed: _isChecking ? null : _checkForUpdateWindows,
+                child: _isChecking
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: fluent.ProgressRing(),
+                      )
+                    : const Text('Verificar Atualizações'),
+              ),
               if (_updateStatus.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 Text(_updateStatus, textAlign: TextAlign.center),
@@ -139,13 +142,18 @@ class _AboutScreenState extends State<AboutScreen> {
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
-              if (_isChecking)
-                const CircularProgressIndicator()
-              else
-                ElevatedButton(
-                  onPressed: _checkForUpdate,
-                  child: const Text('Verificar Atualizações'),
-                ),
+              ElevatedButton(
+                onPressed: _isChecking ? null : _checkForUpdate,
+                child: _isChecking
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('Verificar Atualizações'),
+              ),
             ],
           ),
         ),
