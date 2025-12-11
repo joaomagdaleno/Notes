@@ -1,5 +1,3 @@
-// test/utils/update_helper_test.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -74,9 +72,8 @@ void main() {
 
     testWidgets('shows no update message when no update is available',
         (WidgetTester tester) async {
-      // FIX: Removed 'const' keyword
       when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
+        (_) async => const UpdateCheckResult(UpdateCheckStatus.noUpdate),
       );
 
       await tester.pumpWidget(createTestWidget(
@@ -96,7 +93,6 @@ void main() {
 
     testWidgets('shows error message when update check fails',
         (WidgetTester tester) async {
-      // FIX: Removed 'const' keyword
       when(mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.error,
@@ -176,72 +172,63 @@ void main() {
         }
       });
 
-testWidgets('shows error message when download fails',
-    (WidgetTester tester) async {
-  final mockHttpClient = MockClient();
+      testWidgets('shows error message when download fails',
+          (WidgetTester tester) async {
+        final mockHttpClient = MockClient();
 
-  // Mock any HTTP GET call to simulate a network failure.
-  when(mockHttpClient.get(any))
-      .thenThrow(Exception('Simulated network failure'));
+        when(mockHttpClient.get(any))
+            .thenThrow(Exception('Simulated network failure'));
 
-  final updateInfo = UpdateInfo(
-    version: '1.0.3',
-    downloadUrl: 'https://any-url.com/app.apk',
-  );
-  when(mockUpdateService.checkForUpdate()).thenAnswer(
-    (_) async => UpdateCheckResult(
-      UpdateCheckStatus.updateAvailable,
-      updateInfo: updateInfo,
-    ),
-  );
+        final updateInfo = UpdateInfo(
+          version: '1.0.3',
+          downloadUrl: 'https://any-url.com/app.apk',
+        );
+        when(mockUpdateService.checkForUpdate()).thenAnswer(
+          (_) async => UpdateCheckResult(
+            UpdateCheckStatus.updateAvailable,
+            updateInfo: updateInfo,
+          ),
+        );
 
-  const channel = MethodChannel('flutter.baseflow.com/permissions/methods');
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-    if (methodCall.method == 'requestPermission') {
-      return {Permission.requestInstallPackages.value: 1}; // Permission granted
-    }
-    return {Permission.requestInstallPackages.value: 1};
-  });
+        const channel =
+            MethodChannel('flutter.baseflow.com/permissions/methods');
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+          if (methodCall.method == 'requestPermission') {
+            return {Permission.requestInstallPackages.value: 1};
+          }
+          return {Permission.requestInstallPackages.value: 1};
+        });
 
-  try {
-    await tester.pumpWidget(createTestWidget(
-      onPressed: () => UpdateHelper.checkForUpdate(
-        tester.element(find.byType(ElevatedButton)),
-        updateService: mockUpdateService,
-        isAndroidOverride: true,
-        httpClient: mockHttpClient,
-        scaffoldMessengerKey: scaffoldMessengerKey,
-      ),
-    ));
+        try {
+          await tester.pumpWidget(createTestWidget(
+            onPressed: () => UpdateHelper.checkForUpdate(
+              tester.element(find.byType(ElevatedButton)),
+              updateService: mockUpdateService,
+              isAndroidOverride: true,
+              httpClient: mockHttpClient,
+              scaffoldMessengerKey: scaffoldMessengerKey,
+            ),
+          ));
 
-    await tester.tap(find.byType(ElevatedButton));
-    await tester.pumpAndSettle();
-    expect(find.text('Atualização Disponível'), findsOneWidget);
+          await tester.tap(find.byType(ElevatedButton));
+          await tester.pumpAndSettle();
+          expect(find.text('Atualização Disponível'), findsOneWidget);
 
-    await tester.tap(find.text('Sim, atualizar'));
-    await tester.pump(); // Show the download SnackBar.
+          await tester.tap(find.text('Sim, atualizar'));
+          await tester.pump();
 
-    expect(find.text('Baixando atualização... Por favor, aguarde.'), findsOneWidget);
+          expect(find.text('Baixando atualização... Por favor, aguarde.'),
+              findsOneWidget);
 
-    // FIX: Force multiple render cycles to ensure the error is processed.
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.pump(const Duration(seconds: 1));
+          await tester.pumpAndSettle();
 
-    // FIX: Check if the error SnackBar is visible.
-    expect(find.byType(SnackBar), findsOneWidget);
-
-    // FIX: Check the text within the SnackBar.
-    final snackBar = tester.widget<SnackBar>(find.byType(SnackBar));
-    final content = snackBar.content as Text;
-    expect(content.data, contains('Erro na atualização:'));
-  } finally {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, null);
-  }
-});
+          expect(find.textContaining('Erro na atualização:'), findsOneWidget);
+        } finally {
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(channel, null);
+        }
+      });
     });
   });
 }

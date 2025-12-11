@@ -145,10 +145,10 @@ class UpdateHelper {
   }
 
   static Future<void> _downloadAndInstallUpdate(
-    UpdateInfo updateInfo, {
+  UpdateInfo updateInfo, {
     http.Client? client,
-    required GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey,
-  }) async {
+  required GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey,
+}) async {
     final httpClient = client ?? http.Client();
     final messenger = scaffoldMessengerKey.currentState!;
 
