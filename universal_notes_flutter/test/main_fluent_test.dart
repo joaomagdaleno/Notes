@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
@@ -18,14 +19,23 @@ void main() {
     mockNoteRepository = MockNoteRepository();
     mockUpdateService = MockUpdateService();
 
-    // Default stub
+    // Default stubs
     when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
+    when(mockUpdateService.checkForUpdate()).thenAnswer(
+      (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
+    );
   });
 
-  // Helper to create the test widget
+  // Helper to create the test widget.
+  // The FluentApp needs to be wrapped in a MaterialApp and Scaffold to provide
+  // the ScaffoldMessenger context that NotesScreen relies on.
   Widget createTestWidget(Widget child) {
-    return fluent.FluentApp(
-      home: child,
+    return MaterialApp(
+      home: Scaffold(
+        body: fluent.FluentApp(
+          home: child,
+        ),
+      ),
     );
   }
 
@@ -133,19 +143,18 @@ void main() {
       expect(viewModeButton, findsOneWidget);
 
       // Act & Assert - Cycle through all view modes
-      expect(find.byType(GridView), findsOneWidget); // Initial: gridMedium
+      expect(find.byType(GridView), findsOneWidget);
 
       await tester.tap(viewModeButton);
       await tester.pump();
-      expect(find.byType(GridView), findsOneWidget); // gridLarge
+      expect(find.byType(GridView), findsOneWidget);
 
       await tester.tap(viewModeButton);
       await tester.pump();
-      expect(find.byType(GridView), findsOneWidget); // list
+      expect(find.byType(GridView), findsOneWidget);
 
       await tester.tap(viewModeButton);
       await tester.pump();
-      // listSimple is a ListView, not a GridView
       expect(find.byType(ListView), findsOneWidget);
     });
 

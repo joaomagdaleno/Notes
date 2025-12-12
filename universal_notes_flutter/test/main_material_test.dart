@@ -18,14 +18,17 @@ void main() {
     mockNoteRepository = MockNoteRepository();
     mockUpdateService = MockUpdateService();
 
-    // Provide a default implementation for getAllNotes to avoid crashes
+    // Default stubs
     when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
+    when(mockUpdateService.checkForUpdate()).thenAnswer(
+      (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
+    );
   });
 
-  // A helper function to create the widget tree
+  // A helper function to create the widget tree with necessary ancestors
   Widget createTestWidget(Widget child) {
     return MaterialApp(
-      home: child,
+      home: Scaffold(body: child), // Ensure a Scaffold is present
     );
   }
 
@@ -129,23 +132,18 @@ void main() {
       expect(viewModeButton, findsOneWidget);
 
       // Act & Assert - Cycle through all view modes
-      // Initial state is gridMedium
-      // The exact number of items depends on screen size, so we find the GridView
       expect(find.byType(GridView), findsOneWidget);
 
       await tester.tap(viewModeButton);
       await tester.pump();
-      // gridLarge
       expect(find.byType(GridView), findsOneWidget);
 
       await tester.tap(viewModeButton);
       await tester.pump();
-      // list
       expect(find.byType(GridView), findsOneWidget);
 
       await tester.tap(viewModeButton);
       await tester.pump();
-      // listSimple
       expect(find.byType(ListView), findsOneWidget);
     });
 
@@ -176,18 +174,18 @@ void main() {
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
+      // Must use a stateful widget to open the drawer.
+      final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
       await tester.pumpWidget(MaterialApp(
-        home: NotesScreen(
-          notesFuture: mockNoteRepository.getAllNotes(),
-          updateService: mockUpdateService,
-          debugPlatform: TargetPlatform.android,
+        home: Scaffold(
+          key: scaffoldKey,
+          body: NotesScreen(
+            notesFuture: mockNoteRepository.getAllNotes(),
+            updateService: mockUpdateService,
+            debugPlatform: TargetPlatform.android,
+          ),
         ),
       ));
-      await tester.pumpAndSettle();
-
-      // Open Drawer
-      await tester.dragFrom(
-          tester.getTopLeft(find.byType(MaterialApp)), const Offset(300, 0));
       await tester.pumpAndSettle();
 
       // Assert: Initially shows 'All Note' and 'Favorite Note'
@@ -195,7 +193,9 @@ void main() {
       expect(find.text('Favorite Note'), findsOneWidget);
       expect(find.text('Trash Note'), findsNothing);
 
-      // Act: Tap on Favorites
+      // Act: Tap on Favorites in the drawer
+      scaffoldKey.currentState?.openDrawer();
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Favoritos'));
       await tester.pumpAndSettle();
 
@@ -204,12 +204,9 @@ void main() {
       expect(find.text('Favorite Note'), findsOneWidget);
       expect(find.text('Trash Note'), findsNothing);
 
-      // Open Drawer again
-      await tester.dragFrom(
-          tester.getTopLeft(find.byType(MaterialApp)), const Offset(300, 0));
+      // Act: Tap on Trash in the drawer
+      scaffoldKey.currentState?.openDrawer();
       await tester.pumpAndSettle();
-
-      // Act: Tap on Trash
       await tester.tap(find.text('Lixeira'));
       await tester.pumpAndSettle();
 
@@ -226,8 +223,8 @@ void main() {
       when(mockNoteRepository.insertNote(any))
           .thenAnswer((_) async => 'new_id');
 
-      await tester.pumpWidget(MaterialApp(
-        home: NotesScreen(
+      await tester.pumpWidget(createTestWidget(
+        NotesScreen(
           notesFuture: mockNoteRepository.getAllNotes(),
           updateService: mockUpdateService,
           debugPlatform: TargetPlatform.android,
