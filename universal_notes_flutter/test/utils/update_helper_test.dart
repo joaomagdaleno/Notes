@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
@@ -276,61 +275,6 @@ void main() {
 
       expect(
         find.textContaining('Falha no download. Status: 404'),
-        findsOneWidget,
-      );
-    });
-
-    // TODO(test): Skip - async dialog callback doesn't complete in test env
-    testWidgets('shows error when OpenFile fails', skip: true, (tester) async {
-      // Mock injected openFile function
-      Future<OpenResult> mockOpenFile(String path) async {
-        return OpenResult(type: ResultType.error, message: 'cannot open');
-      }
-
-      setupMethodChannels();
-
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => UpdateCheckResult(
-          UpdateCheckStatus.updateAvailable,
-          updateInfo: testUpdateInfo,
-        ),
-      );
-
-      when(mockHttpClient.get(any)).thenAnswer(
-        (_) async => http.Response('content', 200),
-      );
-
-      await tester.pumpWidget(
-        createTestWidget(
-          onPressed: () => UpdateHelper.checkForUpdate(
-            tester.element(find.byType(ElevatedButton)),
-            updateService: mockUpdateService,
-            isAndroidOverride: true,
-            httpClient: mockHttpClient,
-            scaffoldMessengerKey: scaffoldMessengerKey,
-            openFile: mockOpenFile,
-          ),
-        ),
-      );
-
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
-
-      // Tap update button inside dialog
-      await tester.tap(find.text('Sim, atualizar'));
-      await tester.pump(); // Start the onPressed callback
-
-      // Use runAsync to allow real async operations to complete
-      await tester.runAsync(() async {
-        // Give async operations time to complete
-        await Future<void>.delayed(const Duration(milliseconds: 500));
-      });
-
-      await tester.pump(); // Rebuild after async completes
-
-      // Error should be visible now
-      expect(
-        find.textContaining('Erro na atualização'),
         findsOneWidget,
       );
     });
