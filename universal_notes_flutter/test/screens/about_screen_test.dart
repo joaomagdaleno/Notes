@@ -123,7 +123,8 @@ void main() {
       expect(find.byType(fluent.ProgressRing), findsOneWidget);
       expect(find.byType(fluent.FilledButton), findsNothing);
 
-      // Instead of pumpAndSettle, just pump a few times to see the loading state
+      // Instead of pumpAndSettle,
+      // just pump a few times to see the loading state
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
