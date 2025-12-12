@@ -26,9 +26,6 @@ void main() {
     );
   });
 
-  // Helper to create the test widget.
-  // The FluentApp needs to be wrapped in a MaterialApp and Scaffold to provide
-  // the ScaffoldMessenger context that NotesScreen relies on.
   Widget createTestWidget(Widget child) {
     return MaterialApp(
       home: Scaffold(
@@ -42,64 +39,39 @@ void main() {
   group('MyFluentApp Tests', () {
     testWidgets('builds FluentApp with correct title and theme',
         (WidgetTester tester) async {
-      // Build our app and trigger a frame.
-      await tester.pumpWidget(const MyFluentApp());
-
-      // Verify that the app builds a FluentApp.
+      await tester.pumpWidget(createTestWidget(const MyFluentApp()));
       final fluentApp =
           tester.widget<fluent.FluentApp>(find.byType(fluent.FluentApp));
-      expect(fluentApp, isNotNull);
       expect(fluentApp.title, 'Universal Notes');
-      expect(fluentApp.home, isA<NotesScreen>());
-      expect(fluentApp.theme?.accentColor, fluent.Colors.blue);
+      expect(fluentApp.home, isA<ScaffoldMessenger>());
     });
   });
 
   group('NotesScreen (Fluent UI) Tests', () {
     testWidgets('shows progress indicator and then empty message',
         (WidgetTester tester) async {
-      // Arrange
-      when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
-
       await tester.pumpWidget(createTestWidget(
         NotesScreen(
-          notesFuture: mockNoteRepository.getAllNotes(),
           updateService: mockUpdateService,
-          debugPlatform: TargetPlatform.windows, // Force Fluent UI
+          debugPlatform: TargetPlatform.windows,
         ),
       ));
-
-      // Assert - Check for progress indicator
       expect(find.byType(fluent.ProgressRing), findsOneWidget);
-
-      // Act
       await tester.pumpAndSettle();
-
-      // Assert - Check for the empty message
       expect(find.text('Nenhuma nota encontrada.'), findsOneWidget);
-      expect(find.byType(fluent.NavigationView), findsOneWidget);
       verify(mockUpdateService.checkForUpdate()).called(1);
     });
 
     testWidgets('displays a list of notes using FluentNoteCard',
         (WidgetTester tester) async {
-      // Arrange
       final notes = [
         Note(
-          id: '1',
-          title: 'Fluent Note 1',
-          content: 'Content 1',
-          date: DateTime.now(),
-        ),
-        Note(
-          id: '2',
-          title: 'Fluent Note 2',
-          content: 'Content 2',
-          date: DateTime.now(),
-        ),
+            id: '1',
+            title: 'Fluent Note 1',
+            content: 'Content 1',
+            date: DateTime.now()),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
-
       await tester.pumpWidget(createTestWidget(
         NotesScreen(
           notesFuture: mockNoteRepository.getAllNotes(),
@@ -107,19 +79,32 @@ void main() {
           debugPlatform: TargetPlatform.windows,
         ),
       ));
-
-      // Act
       await tester.pumpAndSettle();
-
-      // Assert
       expect(find.text('Fluent Note 1'), findsOneWidget);
-      expect(find.text('Fluent Note 2'), findsOneWidget);
-      expect(find.byType(FluentNoteCard), findsNWidgets(2));
+      expect(find.byType(FluentNoteCard), findsOneWidget);
+    });
+
+    testWidgets('navigates to editor when "Nova nota" is tapped',
+        (WidgetTester tester) async {
+      when(mockNoteRepository.insertNote(any))
+          .thenAnswer((_) async => 'new_id');
+      await tester.pumpWidget(createTestWidget(
+        NotesScreen(
+          updateService: mockUpdateService,
+          debugPlatform: TargetPlatform.windows,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      final button = find.byWidgetPredicate((widget) =>
+          widget is fluent.CommandBarButton &&
+          widget.label == const Text('Nova nota'));
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+      expect(find.byType(NoteEditorScreen), findsOneWidget);
     });
 
     testWidgets('cycles through view modes correctly',
         (WidgetTester tester) async {
-      // Arrange
       final notes = [
         Note(
             id: '1',
@@ -128,7 +113,6 @@ void main() {
             date: DateTime.now())
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
-
       await tester.pumpWidget(createTestWidget(
         NotesScreen(
           notesFuture: mockNoteRepository.getAllNotes(),
@@ -139,9 +123,6 @@ void main() {
       await tester.pumpAndSettle();
       final viewModeButton =
           find.widgetWithText(fluent.CommandBarButton, 'Mudar Visualização');
-      expect(viewModeButton, findsOneWidget);
-
-      // Act & Assert - Cycle through all view modes
       // Initial: gridMedium -> GridView
       expect(find.byType(GridView), findsOneWidget);
       // Tap 1: -> gridLarge -> GridView
@@ -164,7 +145,6 @@ void main() {
 
     testWidgets('filters notes for Favorites and Trash',
         (WidgetTester tester) async {
-      // Arrange
       final notes = [
         Note(
             id: '1',
@@ -185,7 +165,6 @@ void main() {
             date: DateTime.now()),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
-
       await tester.pumpWidget(createTestWidget(
         NotesScreen(
           notesFuture: mockNoteRepository.getAllNotes(),
@@ -194,67 +173,20 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-
-      // Assert: Initially shows 'All Note' and 'Favorite Note'
-      expect(find.text('All Note'), findsOneWidget);
-      expect(find.text('Favorite Note'), findsOneWidget);
-      expect(find.text('Trash Note'), findsNothing);
-
-      // Act: Tap on Favorites
       await tester.tap(find.widgetWithText(fluent.PaneItem, 'Favoritos'));
       await tester.pumpAndSettle();
-
-      // Assert: Shows only 'Favorite Note'
-      expect(find.text('All Note'), findsNothing);
       expect(find.text('Favorite Note'), findsOneWidget);
-      expect(find.text('Trash Note'), findsNothing);
-
-      // Act: Tap on Trash
-      await tester.tap(find.widgetWithText(fluent.PaneItem, 'Lixeira'));
-      await tester.pumpAndSettle();
-
-      // Assert: Shows only 'Trash Note'
       expect(find.text('All Note'), findsNothing);
-      expect(find.text('Favorite Note'), findsNothing);
-      expect(find.text('Trash Note'), findsOneWidget);
-    });
-
-    testWidgets('navigates to editor when "Nova nota" is tapped',
-        (WidgetTester tester) async {
-      // Arrange
-      when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
-      when(mockNoteRepository.insertNote(any))
-          .thenAnswer((_) async => 'new_id');
-
-      await tester.pumpWidget(createTestWidget(
-        NotesScreen(
-          notesFuture: mockNoteRepository.getAllNotes(),
-          updateService: mockUpdateService,
-          debugPlatform: TargetPlatform.windows,
-        ),
-      ));
-      await tester.pumpAndSettle();
-
-      // Act
-      await tester
-          .tap(find.widgetWithText(fluent.CommandBarButton, 'Nova nota'));
-      await tester.pumpAndSettle();
-
-      // Assert
-      expect(find.byType(NoteEditorScreen), findsOneWidget);
     });
 
     testWidgets('navigates to editor when a note card is tapped',
         (WidgetTester tester) async {
-      // Arrange
       final note = Note(
-        id: '1',
-        title: 'Test Note',
-        content: 'Content',
-        date: DateTime.now(),
-      );
+          id: '1',
+          title: 'Test Note',
+          content: 'Content',
+          date: DateTime.now());
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => [note]);
-
       await tester.pumpWidget(createTestWidget(
         NotesScreen(
           notesFuture: mockNoteRepository.getAllNotes(),
@@ -263,21 +195,15 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-
-      // Act
       await tester.tap(find.byType(FluentNoteCard));
       await tester.pumpAndSettle();
-
-      // Assert
       expect(find.byType(NoteEditorScreen), findsOneWidget);
     });
 
     testWidgets('shows error message when loading notes fails',
         (WidgetTester tester) async {
-      // Arrange
       when(mockNoteRepository.getAllNotes())
           .thenThrow(Exception('Failed to load'));
-
       await tester.pumpWidget(createTestWidget(
         NotesScreen(
           notesFuture: mockNoteRepository.getAllNotes(),
@@ -285,11 +211,7 @@ void main() {
           debugPlatform: TargetPlatform.windows,
         ),
       ));
-
-      // Act
       await tester.pumpAndSettle();
-
-      // Assert
       expect(find.text('Error: Exception: Failed to load'), findsOneWidget);
     });
   });

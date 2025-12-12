@@ -100,7 +100,9 @@ class MyFluentApp extends StatelessWidget {
         brightness: fluent.Brightness.dark,
       ),
       themeMode: ThemeMode.system,
-      home: const NotesScreen(),
+      home: const ScaffoldMessenger(
+        child: NotesScreen(),
+      ),
     );
   }
 }
@@ -538,6 +540,9 @@ class _NotesScreenState extends State<NotesScreen> {
       future: _notesFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
+          if (_isWindows) {
+            return const Center(child: fluent.ProgressRing());
+          }
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
