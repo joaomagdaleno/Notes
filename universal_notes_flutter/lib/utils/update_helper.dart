@@ -130,33 +130,31 @@ class UpdateHelper {
           scaffoldMessengerKey: scaffoldMessengerKey!,
         );
       } else {
-        final messenger =
-            scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
-        messenger.showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Permissão para instalar pacotes é necessária para a '
-              'atualização.',
-            ),
-          ),
-        );
+        (scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context))
+            .showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Permissão para instalar pacotes é necessária para a '
+                  'atualização.',
+                ),
+              ),
+            );
       }
     }
   }
 
   static Future<void> _downloadAndInstallUpdate(
     UpdateInfo updateInfo, {
-    http.Client? client,
     required GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey,
+    http.Client? client,
   }) async {
     final httpClient = client ?? http.Client();
-    final messenger = scaffoldMessengerKey.currentState!;
-
-    messenger.showSnackBar(
-      const SnackBar(
-        content: Text('Baixando atualização... Por favor, aguarde.'),
-      ),
-    );
+    final messenger = scaffoldMessengerKey.currentState!
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Baixando atualização... Por favor, aguarde.'),
+        ),
+      );
 
     try {
       final directory = await getTemporaryDirectory();

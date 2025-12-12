@@ -9,10 +9,12 @@ import 'package:pub_semver/pub_semver.dart';
 enum UpdateCheckStatus {
   /// An update is available.
   updateAvailable,
+
   /// No update is available.
   noUpdate,
+
   /// An error occurred during the update check.
-  error
+  error,
 }
 
 /// The result of an update check.
@@ -22,8 +24,10 @@ class UpdateCheckResult {
 
   /// The status of the update check.
   final UpdateCheckStatus status;
+
   /// Information about the update, if available.
   final UpdateInfo? updateInfo;
+
   /// The error message, if an error occurred.
   final String? errorMessage;
 }
@@ -32,7 +36,7 @@ class UpdateCheckResult {
 class UpdateService {
   /// Creates a new instance of [UpdateService].
   UpdateService({http.Client? client, this.packageInfo})
-      : _client = client ?? http.Client();
+    : _client = client ?? http.Client();
 
   final http.Client _client;
 
@@ -57,8 +61,9 @@ class UpdateService {
         String latestVersionStr;
         if (url.path.endsWith('/latest')) {
           final tagName = json['tag_name'] as String;
-          latestVersionStr =
-              tagName.startsWith('v') ? tagName.substring(1) : tagName;
+          latestVersionStr = tagName.startsWith('v')
+              ? tagName.substring(1)
+              : tagName;
         } else {
           final body = json['body'] as String? ?? '';
           latestVersionStr = _parseVersionFromBody(body);
@@ -75,20 +80,21 @@ class UpdateService {
               return UpdateCheckResult(UpdateCheckStatus.noUpdate);
             }
 
-            final releaseAsset = assets.firstWhere(
-              (dynamic asset) =>
-                  ((asset as Map<String, dynamic>)['name'] as String)
-                      .endsWith(fileExtension),
-              orElse: () => null,
-            ) as Map<String, dynamic>?;
+            final releaseAsset =
+                assets.firstWhere(
+                      (dynamic asset) =>
+                          ((asset as Map<String, dynamic>)['name'] as String)
+                              .endsWith(fileExtension),
+                      orElse: () => null,
+                    )
+                    as Map<String, dynamic>?;
 
             if (releaseAsset != null) {
               return UpdateCheckResult(
                 UpdateCheckStatus.updateAvailable,
                 updateInfo: UpdateInfo(
                   version: latestVersionStr,
-                  downloadUrl:
-                      releaseAsset['browser_download_url'] as String,
+                  downloadUrl: releaseAsset['browser_download_url'] as String,
                 ),
               );
             }
@@ -104,18 +110,25 @@ class UpdateService {
     } on Exception {
       return UpdateCheckResult(
         UpdateCheckStatus.error,
-        errorMessage: 'Não foi possível verificar as atualizações. '
+        errorMessage:
+            'Não foi possível verificar as atualizações. '
             'Verifique sua conexão com a internet.',
       );
     }
   }
 
   Uri _getUpdateUrl(String version) {
-    // 🛡️ Sentinel: Using Uri.https to enforce HTTPS and prevent insecure connections.
+    // 🛡️ Sentinel: Enforce HTTPS to prevent insecure connections.
     if (version.contains('-dev')) {
-      return Uri.https('api.github.com', '/repos/$_repo/releases/tags/dev-latest');
+      return Uri.https(
+        'api.github.com',
+        '/repos/$_repo/releases/tags/dev-latest',
+      );
     } else if (version.contains('-beta')) {
-      return Uri.https('api.github.com', '/repos/$_repo/releases/tags/beta-latest');
+      return Uri.https(
+        'api.github.com',
+        '/repos/$_repo/releases/tags/beta-latest',
+      );
     } else {
       return Uri.https('api.github.com', '/repos/$_repo/releases/latest');
     }
@@ -158,6 +171,7 @@ class UpdateInfo {
 
   /// The version of the update.
   final String version;
+
   /// The URL to download the update from.
   final String downloadUrl;
 }
