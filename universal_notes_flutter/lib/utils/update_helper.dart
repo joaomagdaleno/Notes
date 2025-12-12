@@ -20,6 +20,7 @@ class UpdateHelper {
     bool? isAndroidOverride,
     http.Client? httpClient,
     GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
+    Future<OpenResult> Function(String)? openFile,
   }) async {
     final messenger =
         scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
@@ -47,6 +48,7 @@ class UpdateHelper {
           isAndroidOverride: isAndroidOverride,
           httpClient: httpClient,
           scaffoldMessengerKey: scaffoldMessengerKey,
+          openFile: openFile,
         );
       case UpdateCheckStatus.noUpdate:
         if (isManual) {
@@ -75,6 +77,7 @@ class UpdateHelper {
     bool? isAndroidOverride,
     http.Client? httpClient,
     GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
+    Future<OpenResult> Function(String)? openFile,
   }) async {
     return showDialog<void>(
       context: context,
@@ -102,6 +105,7 @@ class UpdateHelper {
                 isAndroidOverride: isAndroidOverride,
                 httpClient: httpClient,
                 scaffoldMessengerKey: scaffoldMessengerKey,
+                openFile: openFile,
               );
             },
           ),
@@ -116,6 +120,7 @@ class UpdateHelper {
     bool? isAndroidOverride,
     http.Client? httpClient,
     GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
+    Future<OpenResult> Function(String)? openFile,
   }) async {
     final isAndroid = isAndroidOverride ?? Platform.isAndroid;
 
@@ -129,6 +134,7 @@ class UpdateHelper {
           updateInfo,
           client: httpClient,
           scaffoldMessengerKey: scaffoldMessengerKey!,
+          openFile: openFile,
         );
       } else {
         (scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context))
@@ -148,6 +154,7 @@ class UpdateHelper {
     UpdateInfo updateInfo, {
     required GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey,
     http.Client? client,
+    Future<OpenResult> Function(String)? openFile,
   }) async {
     final httpClient = client ?? http.Client();
     final messenger = scaffoldMessengerKey.currentState!
@@ -172,7 +179,8 @@ class UpdateHelper {
 
         messenger.hideCurrentSnackBar();
 
-        final result = await OpenFile.open(filePath);
+        final result =
+            await (openFile?.call(filePath) ?? OpenFile.open(filePath));
         if (result.type != ResultType.done) {
           throw Exception(
             'Não foi possível abrir o arquivo de instalação: ${result.message}',
