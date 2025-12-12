@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
@@ -67,7 +68,7 @@ class WindowsUpdateHelper {
 
     try {
       final tempDir = await getTemporaryDirectory();
-      final filePath = '${tempDir.path}\\notes_installer.exe';
+      final filePath = path.join(tempDir.path, 'notes_installer.exe');
       final response = await client.get(Uri.parse(updateInfo.downloadUrl));
       if (response.statusCode == 200) {
         final file = File(filePath);
