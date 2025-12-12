@@ -106,6 +106,7 @@ class _AboutScreenState extends State<AboutScreen> {
             primaryItems: [
               fluent.CommandBarButton(
                 icon: const fluent.Icon(fluent.FluentIcons.back),
+                label: const Text('Back'),
                 onPressed: () => Navigator.pop(context),
               ),
             ],
