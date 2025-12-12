@@ -19,14 +19,18 @@ import 'package:window_manager/window_manager.dart';
 enum ViewMode {
   /// A small grid view.
   gridSmall,
+
   /// A medium grid view.
   gridMedium,
+
   /// A large grid view.
   gridLarge,
+
   /// A list view.
   list,
+
   /// A simple list view.
-  listSimple
+  listSimple,
 }
 
 void main() async {
@@ -142,6 +146,7 @@ class NotesScreen extends StatefulWidget {
     super.key,
     this.updateService,
     this.notesFuture,
+    this.debugPlatform,
   });
 
   /// The service to use for checking for updates.
@@ -149,6 +154,9 @@ class NotesScreen extends StatefulWidget {
 
   /// An optional future for the notes, used for testing.
   final Future<List<Note>>? notesFuture;
+
+  /// Optional platform override for testing purposes.
+  final TargetPlatform? debugPlatform;
 
   @override
   State<NotesScreen> createState() => _NotesScreenState();
@@ -159,6 +167,11 @@ class _NotesScreenState extends State<NotesScreen> {
   bool _isNavigationRailExpanded = false;
   int _selectedIndex = 0;
   ViewMode _viewMode = ViewMode.gridMedium;
+
+  /// Returns whether the platform is Windows, considering debugPlatform override.
+  bool get _isWindows => widget.debugPlatform != null
+      ? widget.debugPlatform == TargetPlatform.windows
+      : Platform.isWindows;
 
   @override
   void initState() {
@@ -213,7 +226,7 @@ class _NotesScreenState extends State<NotesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isWindows) {
+    if (_isWindows) {
       final notesBody = fluent.ScaffoldPage(
         header: fluent.CommandBar(
           mainAxisAlignment: fluent.MainAxisAlignment.end,
@@ -536,8 +549,9 @@ class _NotesScreenState extends State<NotesScreen> {
 
         switch (_selectedIndex) {
           case 1: // Favorites
-            visibleNotes =
-                allNotes.where((n) => n.isFavorite && !n.isInTrash).toList();
+            visibleNotes = allNotes
+                .where((n) => n.isFavorite && !n.isInTrash)
+                .toList();
           case 4: // Trash
             visibleNotes = allNotes.where((n) => n.isInTrash).toList();
           default: // All notes
@@ -567,36 +581,48 @@ class _NotesScreenState extends State<NotesScreen> {
               int crossAxisCount;
               double childAspectRatio;
 
-              if (Platform.isWindows) {
+              if (_isWindows) {
                 // Windows-specific responsive logic
                 if (_viewMode == ViewMode.gridSmall) {
-                  crossAxisCount =
-                      (constraints.maxWidth / 320).floor().clamp(1, 5);
+                  crossAxisCount = (constraints.maxWidth / 320).floor().clamp(
+                    1,
+                    5,
+                  );
                   childAspectRatio = 0.7;
                 } else if (_viewMode == ViewMode.gridMedium) {
-                  crossAxisCount =
-                      (constraints.maxWidth / 240).floor().clamp(2, 7);
+                  crossAxisCount = (constraints.maxWidth / 240).floor().clamp(
+                    2,
+                    7,
+                  );
                   childAspectRatio = 0.7;
                 } else {
                   // gridLarge
-                  crossAxisCount =
-                      (constraints.maxWidth / 180).floor().clamp(3, 10);
+                  crossAxisCount = (constraints.maxWidth / 180).floor().clamp(
+                    3,
+                    10,
+                  );
                   childAspectRatio = 0.7;
                 }
               } else {
                 // Existing logic for Android/other platforms
                 if (_viewMode == ViewMode.gridSmall) {
-                  crossAxisCount =
-                      (constraints.maxWidth / 300).floor().clamp(2, 7);
+                  crossAxisCount = (constraints.maxWidth / 300).floor().clamp(
+                    2,
+                    7,
+                  );
                   childAspectRatio = 0.75;
                 } else if (_viewMode == ViewMode.gridMedium) {
-                  crossAxisCount =
-                      (constraints.maxWidth / 200).floor().clamp(2, 7);
+                  crossAxisCount = (constraints.maxWidth / 200).floor().clamp(
+                    2,
+                    7,
+                  );
                   childAspectRatio = 1 / 1.414;
                 } else {
                   // gridLarge
-                  crossAxisCount =
-                      (constraints.maxWidth / 150).floor().clamp(1, 5);
+                  crossAxisCount = (constraints.maxWidth / 150).floor().clamp(
+                    1,
+                    5,
+                  );
                   childAspectRatio = 1 / 1.414;
                 }
               }
@@ -628,7 +654,7 @@ class _NotesScreenState extends State<NotesScreen> {
       ),
       itemCount: notes.length,
       itemBuilder: (context, index) {
-        if (Platform.isWindows) {
+        if (_isWindows) {
           return FluentNoteCard(
             note: notes[index],
             onSave: _updateNote,
