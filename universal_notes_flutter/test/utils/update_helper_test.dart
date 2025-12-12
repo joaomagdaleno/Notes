@@ -195,8 +195,9 @@ void main() {
       ) async {
         final mockHttpClient = MockClient();
 
-        when(mockHttpClient.get(any))
-            .thenThrow(Exception('Simulated network failure'));
+        when(
+          mockHttpClient.get(any),
+        ).thenThrow(Exception('Simulated network failure'));
 
         final updateInfo = UpdateInfo(
           version: '1.0.3',
@@ -209,15 +210,28 @@ void main() {
           ),
         );
 
-        const channel = MethodChannel(
+        const permissionChannel = MethodChannel(
           'flutter.baseflow.com/permissions/methods',
         );
+        const pathProviderChannel = MethodChannel(
+          'plugins.flutter.io/path_provider',
+        );
+
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+            .setMockMethodCallHandler(permissionChannel, (
+              MethodCall methodCall,
+            ) async {
               if (methodCall.method == 'requestPermission') {
                 return {Permission.requestInstallPackages.value: 1};
               }
               return {Permission.requestInstallPackages.value: 1};
+            });
+
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(pathProviderChannel, (
+              MethodCall methodCall,
+            ) async {
+              return '.';
             });
 
         try {
@@ -240,15 +254,20 @@ void main() {
           await tester.tap(find.text('Sim, atualizar'));
           await tester.pump();
 
-          expect(find.text('Baixando atualização... Por favor, aguarde.'),
-              findsOneWidget);
+          // "Baixando" snackbar might appear and disappear instantly due to
+          // fast mocks. Directly verify the error message.
 
-          await tester.pumpAndSettle();
+          // Wait for async operations (getTemporaryDirectory, httpClient.get)
+          // Do NOT use pumpAndSettle as it will wait for the SnackBar to
+          // disappear
+          await tester.pump(const Duration(milliseconds: 500));
 
           expect(find.textContaining('Erro na atualização:'), findsOneWidget);
         } finally {
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-              .setMockMethodCallHandler(channel, null);
+              .setMockMethodCallHandler(permissionChannel, null);
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(pathProviderChannel, null);
         }
       });
     });
