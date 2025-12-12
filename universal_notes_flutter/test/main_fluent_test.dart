@@ -78,6 +78,7 @@ void main() {
       // Assert - Check for the empty message
       expect(find.text('Nenhuma nota encontrada.'), findsOneWidget);
       expect(find.byType(fluent.NavigationView), findsOneWidget);
+      verify(mockUpdateService.checkForUpdate()).called(1);
     });
 
     testWidgets('displays a list of notes using FluentNoteCard',
@@ -116,15 +117,15 @@ void main() {
       expect(find.byType(FluentNoteCard), findsNWidgets(2));
     });
 
-    testWidgets('cycles through view modes', (WidgetTester tester) async {
+    testWidgets('cycles through view modes correctly',
+        (WidgetTester tester) async {
       // Arrange
       final notes = [
         Note(
-          id: '1',
-          title: 'Test Note',
-          content: 'Content',
-          date: DateTime.now(),
-        )
+            id: '1',
+            title: 'Test Note',
+            content: 'Content',
+            date: DateTime.now())
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
@@ -136,32 +137,26 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-
-      // Find the view mode button
       final viewModeButton =
           find.widgetWithText(fluent.CommandBarButton, 'Mudar Visualização');
       expect(viewModeButton, findsOneWidget);
 
       // Act & Assert - Cycle through all view modes
-      // Initial state is gridMedium, which renders a GridView.
+      // Initial: gridMedium -> GridView
       expect(find.byType(GridView), findsOneWidget);
-
-      // Tap 1: gridMedium -> gridLarge (still a GridView)
+      // Tap 1: -> gridLarge -> GridView
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
-
-      // Tap 2: gridLarge -> list (still a GridView)
+      // Tap 2: -> list -> GridView
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
-
-      // Tap 3: list -> listSimple (now a ListView)
+      // Tap 3: -> listSimple -> ListView
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(ListView), findsOneWidget);
-
-      // Tap 4: listSimple -> gridSmall (back to a GridView)
+      // Tap 4: -> gridSmall -> GridView
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
@@ -172,25 +167,22 @@ void main() {
       // Arrange
       final notes = [
         Note(
-          id: '1',
-          title: 'All Note',
-          content: 'Content',
-          date: DateTime.now(),
-        ),
+            id: '1',
+            title: 'All Note',
+            content: 'Content',
+            date: DateTime.now()),
         Note(
-          id: '2',
-          title: 'Favorite Note',
-          content: 'Content',
-          isFavorite: true,
-          date: DateTime.now(),
-        ),
+            id: '2',
+            title: 'Favorite Note',
+            content: 'Content',
+            isFavorite: true,
+            date: DateTime.now()),
         Note(
-          id: '3',
-          title: 'Trash Note',
-          content: 'Content',
-          isInTrash: true,
-          date: DateTime.now(),
-        ),
+            id: '3',
+            title: 'Trash Note',
+            content: 'Content',
+            isInTrash: true,
+            date: DateTime.now()),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 

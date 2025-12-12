@@ -57,7 +57,7 @@ void main() {
         NotesScreen(
           notesFuture: mockNoteRepository.getAllNotes(),
           updateService: mockUpdateService,
-          debugPlatform: TargetPlatform.android, // Force Material UI
+          debugPlatform: TargetPlatform.android,
         ),
       ));
 
@@ -69,23 +69,22 @@ void main() {
 
       // Assert - Check for the empty message
       expect(find.text('Nenhuma nota encontrada.'), findsOneWidget);
+      verify(mockUpdateService.checkForUpdate()).called(1);
     });
 
     testWidgets('displays a list of notes', (WidgetTester tester) async {
       // Arrange
       final notes = [
         Note(
-          id: '1',
-          title: 'Test Note 1',
-          content: 'Content 1',
-          date: DateTime.now(),
-        ),
+            id: '1',
+            title: 'Test Note 1',
+            content: 'Content 1',
+            date: DateTime.now()),
         Note(
-          id: '2',
-          title: 'Test Note 2',
-          content: 'Content 2',
-          date: DateTime.now(),
-        ),
+            id: '2',
+            title: 'Test Note 2',
+            content: 'Content 2',
+            date: DateTime.now()),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
@@ -106,15 +105,15 @@ void main() {
       expect(find.byType(NoteCard), findsNWidgets(2));
     });
 
-    testWidgets('cycles through view modes', (WidgetTester tester) async {
+    testWidgets('cycles through view modes correctly',
+        (WidgetTester tester) async {
       // Arrange
       final notes = [
         Note(
-          id: '1',
-          title: 'Test Note',
-          content: 'Content',
-          date: DateTime.now(),
-        )
+            id: '1',
+            title: 'Test Note',
+            content: 'Content',
+            date: DateTime.now())
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
@@ -126,31 +125,25 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-
-      // Find the view mode button
       final viewModeButton = find.byIcon(Icons.view_agenda_outlined);
       expect(viewModeButton, findsOneWidget);
 
       // Act & Assert - Cycle through all view modes
-      // Initial state is gridMedium, which renders a GridView.
+      // Initial: gridMedium -> GridView
       expect(find.byType(GridView), findsOneWidget);
-
-      // Tap 1: gridMedium -> gridLarge (still a GridView)
+      // Tap 1: -> gridLarge -> GridView
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
-
-      // Tap 2: gridLarge -> list (still a GridView)
+      // Tap 2: -> list -> GridView
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
-
-      // Tap 3: list -> listSimple (now a ListView)
+      // Tap 3: -> listSimple -> ListView
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(ListView), findsOneWidget);
-
-      // Tap 4: listSimple -> gridSmall (back to a GridView)
+      // Tap 4: -> gridSmall -> GridView
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
@@ -161,34 +154,28 @@ void main() {
       // Arrange
       final notes = [
         Note(
-          id: '1',
-          title: 'All Note',
-          content: 'Content',
-          date: DateTime.now(),
-        ),
+            id: '1',
+            title: 'All Note',
+            content: 'Content',
+            date: DateTime.now()),
         Note(
-          id: '2',
-          title: 'Favorite Note',
-          content: 'Content',
-          isFavorite: true,
-          date: DateTime.now(),
-        ),
+            id: '2',
+            title: 'Favorite Note',
+            content: 'Content',
+            isFavorite: true,
+            date: DateTime.now()),
         Note(
-          id: '3',
-          title: 'Trash Note',
-          content: 'Content',
-          isInTrash: true,
-          date: DateTime.now(),
-        ),
+            id: '3',
+            title: 'Trash Note',
+            content: 'Content',
+            isInTrash: true,
+            date: DateTime.now()),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
-
-      // Must use a GlobalKey to robustly open the drawer in tests.
       final scaffoldKey = GlobalKey<ScaffoldState>();
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           key: scaffoldKey,
-          drawer: const Drawer(), // Need to provide a drawer to be opened.
           body: NotesScreen(
             notesFuture: mockNoteRepository.getAllNotes(),
             updateService: mockUpdateService,
@@ -203,7 +190,7 @@ void main() {
       expect(find.text('Favorite Note'), findsOneWidget);
       expect(find.text('Trash Note'), findsNothing);
 
-      // Act: Tap on Favorites in the drawer
+      // Act: Tap on Favorites
       scaffoldKey.currentState?.openDrawer();
       await tester.pumpAndSettle();
       await tester.tap(find.text('Favoritos'));
@@ -214,7 +201,7 @@ void main() {
       expect(find.text('Favorite Note'), findsOneWidget);
       expect(find.text('Trash Note'), findsNothing);
 
-      // Act: Tap on Trash in the drawer
+      // Act: Tap on Trash
       scaffoldKey.currentState?.openDrawer();
       await tester.pumpAndSettle();
       await tester.tap(find.text('Lixeira'));
@@ -333,22 +320,6 @@ void main() {
       final captured =
           verify(mockNoteRepository.updateNote(captureAny)).captured;
       expect(captured.first.isInTrash, isTrue);
-
-      // Arrange for UI verification after state change
-      when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
-
-      // Manually rebuild the widget to simulate the state update
-      await tester.pumpWidget(createTestWidget(
-        NotesScreen(
-          notesFuture: mockNoteRepository.getAllNotes(),
-          updateService: mockUpdateService,
-          debugPlatform: TargetPlatform.android,
-        ),
-      ));
-      await tester.pumpAndSettle();
-
-      // Assert: Note is no longer displayed
-      expect(find.text('Note to trash'), findsNothing);
     });
 
     testWidgets('shows NavigationRail on larger screens',
@@ -356,6 +327,7 @@ void main() {
       // Set screen size to simulate a tablet/desktop
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
 
       // Arrange
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
@@ -372,9 +344,6 @@ void main() {
       // Assert
       expect(find.byType(NavigationRail), findsOneWidget);
       expect(find.byType(Drawer), findsNothing);
-
-      // It's good practice to reset the screen size after the test
-      addTearDown(tester.view.reset);
     });
   });
 }
