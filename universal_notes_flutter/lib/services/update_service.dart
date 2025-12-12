@@ -111,13 +111,14 @@ class UpdateService {
   }
 
   Uri _getUpdateUrl(String version) {
-    // 🛡️ Sentinel: Using Uri.https to enforce HTTPS and prevent insecure connections.
     if (version.contains('-dev')) {
-      return Uri.https('api.github.com', '/repos/$_repo/releases/tags/dev-latest');
+      return Uri.parse(
+          'https://api.github.com/repos/$_repo/releases/tags/dev-latest');
     } else if (version.contains('-beta')) {
-      return Uri.https('api.github.com', '/repos/$_repo/releases/tags/beta-latest');
+      return Uri.parse(
+          'https://api.github.com/repos/$_repo/releases/tags/beta-latest');
     } else {
-      return Uri.https('api.github.com', '/repos/$_repo/releases/latest');
+      return Uri.parse('https://api.github.com/repos/$_repo/releases/latest');
     }
   }
 
