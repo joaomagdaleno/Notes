@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 /// A class that handles application updates.
 class Updater {
@@ -92,7 +93,16 @@ class Updater {
 
       onStatusChange('Baixando atualização...');
       final tempDir = await getTemporaryDirectory();
-      final filePath = '${tempDir.path}/${asset['name'] as String}';
+      // 🛡️ Sentinel: Use a random filename to prevent TOCTOU vulnerabilities.
+      // A predictable filename can be overwritten by a malicious actor
+      // before it is executed.
+      const uuid = Uuid();
+      final originalFileName = asset['name'] as String;
+      final extension = originalFileName.contains('.')
+          ? originalFileName.substring(originalFileName.lastIndexOf('.'))
+          : '';
+      final randomFileName = '${uuid.v4()}$extension';
+      final filePath = '${tempDir.path}/$randomFileName';
       final downloadResponse = await http.get(Uri.parse(downloadUrl));
 
       if (downloadResponse.statusCode != 200) {
