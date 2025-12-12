@@ -2,8 +2,10 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/main.dart';
+import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 
 import 'mocks/mocks.mocks.dart';
@@ -72,8 +74,18 @@ void main() {
         (WidgetTester tester) async {
       // Arrange
       final notes = [
-        Note(id: '1', title: 'Fluent Note 1', content: 'Content 1'),
-        Note(id: '2', title: 'Fluent Note 2', content: 'Content 2'),
+        Note(
+          id: '1',
+          title: 'Fluent Note 1',
+          content: 'Content 1',
+          date: DateTime.now(),
+        ),
+        Note(
+          id: '2',
+          title: 'Fluent Note 2',
+          content: 'Content 2',
+          date: DateTime.now(),
+        ),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
@@ -96,7 +108,14 @@ void main() {
 
     testWidgets('cycles through view modes', (WidgetTester tester) async {
       // Arrange
-      final notes = [Note(id: '1', title: 'Test Note', content: 'Content')];
+      final notes = [
+        Note(
+          id: '1',
+          title: 'Test Note',
+          content: 'Content',
+          date: DateTime.now(),
+        )
+      ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
       await tester.pumpWidget(createTestWidget(
@@ -109,7 +128,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Find the view mode button
-      final viewModeButton = find.widgetWithText(fluent.CommandBarButton, 'Mudar Visualização');
+      final viewModeButton =
+          find.widgetWithText(fluent.CommandBarButton, 'Mudar Visualização');
       expect(viewModeButton, findsOneWidget);
 
       // Act & Assert - Cycle through all view modes
@@ -129,12 +149,30 @@ void main() {
       expect(find.byType(ListView), findsOneWidget);
     });
 
-    testWidgets('filters notes for Favorites and Trash', (WidgetTester tester) async {
+    testWidgets('filters notes for Favorites and Trash',
+        (WidgetTester tester) async {
       // Arrange
       final notes = [
-        Note(id: '1', title: 'All Note', content: 'Content'),
-        Note(id: '2', title: 'Favorite Note', content: 'Content', isFavorite: true),
-        Note(id: '3', title: 'Trash Note', content: 'Content', isInTrash: true),
+        Note(
+          id: '1',
+          title: 'All Note',
+          content: 'Content',
+          date: DateTime.now(),
+        ),
+        Note(
+          id: '2',
+          title: 'Favorite Note',
+          content: 'Content',
+          isFavorite: true,
+          date: DateTime.now(),
+        ),
+        Note(
+          id: '3',
+          title: 'Trash Note',
+          content: 'Content',
+          isInTrash: true,
+          date: DateTime.now(),
+        ),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
@@ -188,7 +226,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Act
-      await tester.tap(find.widgetWithText(fluent.CommandBarButton, 'Nova nota'));
+      await tester
+          .tap(find.widgetWithText(fluent.CommandBarButton, 'Nova nota'));
       await tester.pumpAndSettle();
 
       // Assert
@@ -198,7 +237,12 @@ void main() {
     testWidgets('navigates to editor when a note card is tapped',
         (WidgetTester tester) async {
       // Arrange
-      final note = Note(id: '1', title: 'Test Note', content: 'Content');
+      final note = Note(
+        id: '1',
+        title: 'Test Note',
+        content: 'Content',
+        date: DateTime.now(),
+      );
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => [note]);
 
       await tester.pumpWidget(createTestWidget(

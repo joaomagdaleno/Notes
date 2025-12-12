@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
-import 'package:universal_notes_flutter/main.dart';
+import 'package:universal_notes_flutter/widgets/note_card.dart';
 
 import 'mocks/mocks.mocks.dart';
 
@@ -69,8 +71,18 @@ void main() {
     testWidgets('displays a list of notes', (WidgetTester tester) async {
       // Arrange
       final notes = [
-        Note(id: '1', title: 'Test Note 1', content: 'Content 1'),
-        Note(id: '2', title: 'Test Note 2', content: 'Content 2'),
+        Note(
+          id: '1',
+          title: 'Test Note 1',
+          content: 'Content 1',
+          date: DateTime.now(),
+        ),
+        Note(
+          id: '2',
+          title: 'Test Note 2',
+          content: 'Content 2',
+          date: DateTime.now(),
+        ),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
@@ -93,7 +105,14 @@ void main() {
 
     testWidgets('cycles through view modes', (WidgetTester tester) async {
       // Arrange
-      final notes = [Note(id: '1', title: 'Test Note', content: 'Content')];
+      final notes = [
+        Note(
+          id: '1',
+          title: 'Test Note',
+          content: 'Content',
+          date: DateTime.now(),
+        )
+      ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
       await tester.pumpWidget(createTestWidget(
@@ -130,12 +149,30 @@ void main() {
       expect(find.byType(ListView), findsOneWidget);
     });
 
-    testWidgets('filters notes for Favorites and Trash', (WidgetTester tester) async {
+    testWidgets('filters notes for Favorites and Trash',
+        (WidgetTester tester) async {
       // Arrange
       final notes = [
-        Note(id: '1', title: 'All Note', content: 'Content'),
-        Note(id: '2', title: 'Favorite Note', content: 'Content', isFavorite: true),
-        Note(id: '3', title: 'Trash Note', content: 'Content', isInTrash: true),
+        Note(
+          id: '1',
+          title: 'All Note',
+          content: 'Content',
+          date: DateTime.now(),
+        ),
+        Note(
+          id: '2',
+          title: 'Favorite Note',
+          content: 'Content',
+          isFavorite: true,
+          date: DateTime.now(),
+        ),
+        Note(
+          id: '3',
+          title: 'Trash Note',
+          content: 'Content',
+          isInTrash: true,
+          date: DateTime.now(),
+        ),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
@@ -149,7 +186,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Open Drawer
-      await tester.dragFrom(tester.getTopLeft(find.byType(MaterialApp)), const Offset(300, 0));
+      await tester.dragFrom(
+          tester.getTopLeft(find.byType(MaterialApp)), const Offset(300, 0));
       await tester.pumpAndSettle();
 
       // Assert: Initially shows 'All Note' and 'Favorite Note'
@@ -167,7 +205,8 @@ void main() {
       expect(find.text('Trash Note'), findsNothing);
 
       // Open Drawer again
-      await tester.dragFrom(tester.getTopLeft(find.byType(MaterialApp)), const Offset(300, 0));
+      await tester.dragFrom(
+          tester.getTopLeft(find.byType(MaterialApp)), const Offset(300, 0));
       await tester.pumpAndSettle();
 
       // Act: Tap on Trash
@@ -207,7 +246,12 @@ void main() {
     testWidgets('navigates to editor when a note card is tapped',
         (WidgetTester tester) async {
       // Arrange
-      final note = Note(id: '1', title: 'Test Note', content: 'Content');
+      final note = Note(
+        id: '1',
+        title: 'Test Note',
+        content: 'Content',
+        date: DateTime.now(),
+      );
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => [note]);
 
       await tester.pumpWidget(createTestWidget(
@@ -251,7 +295,12 @@ void main() {
     testWidgets('moves a note to trash via long-press context menu',
         (WidgetTester tester) async {
       // Arrange
-      final note = Note(id: '1', title: 'Note to trash', content: 'Content');
+      final note = Note(
+        id: '1',
+        title: 'Note to trash',
+        content: 'Content',
+        date: DateTime.now(),
+      );
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => [note]);
       when(mockNoteRepository.updateNote(any)).thenAnswer((_) async {});
 
@@ -274,7 +323,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify that updateNote was called correctly
-      final captured = verify(mockNoteRepository.updateNote(captureAny)).captured;
+      final captured =
+          verify(mockNoteRepository.updateNote(captureAny)).captured;
       expect(captured.first.isInTrash, isTrue);
 
       // Arrange for UI verification after state change
