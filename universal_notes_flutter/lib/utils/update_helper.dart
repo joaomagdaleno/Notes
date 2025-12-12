@@ -8,6 +8,7 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
+import 'package:uuid/uuid.dart';
 
 /// A helper class for handling application updates.
 class UpdateHelper {
@@ -145,10 +146,10 @@ class UpdateHelper {
   }
 
   static Future<void> _downloadAndInstallUpdate(
-  UpdateInfo updateInfo, {
+    UpdateInfo updateInfo, {
     http.Client? client,
-  required GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey,
-}) async {
+    required GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey,
+  }) async {
     final httpClient = client ?? http.Client();
     final messenger = scaffoldMessengerKey.currentState!;
 
@@ -160,7 +161,10 @@ class UpdateHelper {
 
     try {
       final directory = await getTemporaryDirectory();
-      final filePath = '${directory.path}/app-release.apk';
+      // 🛡️ Sentinel: Use a random filename to prevent a race condition where
+      // a malicious app could replace the update file before installation.
+      final randomFileName = '${const Uuid().v4()}.apk';
+      final filePath = '${directory.path}/$randomFileName';
 
       final response = await httpClient.get(Uri.parse(updateInfo.downloadUrl));
 

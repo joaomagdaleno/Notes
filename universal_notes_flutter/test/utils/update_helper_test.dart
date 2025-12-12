@@ -1,3 +1,5 @@
+// test/utils/update_helper_test.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -72,8 +74,9 @@ void main() {
 
     testWidgets('shows no update message when no update is available',
         (WidgetTester tester) async {
+      // FIX: Removed 'const' keyword
       when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async => const UpdateCheckResult(UpdateCheckStatus.noUpdate),
+        (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
       );
 
       await tester.pumpWidget(createTestWidget(
@@ -93,6 +96,7 @@ void main() {
 
     testWidgets('shows error message when update check fails',
         (WidgetTester tester) async {
+      // FIX: Removed 'const' keyword
       when(mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.error,

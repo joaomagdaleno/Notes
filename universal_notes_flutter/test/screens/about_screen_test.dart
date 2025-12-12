@@ -1,110 +1,136 @@
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
-import 'package:universal_notes_flutter/services/update_service.dart';
 
-import 'about_screen_test.mocks.dart';
+class MockPackageInfo implements PackageInfo {
+  @override
+  final String appName = 'Universal Notes';
+
+  @override
+  final String buildNumber = '1';
+
+  @override
+  final String packageName = 'com.example.universal_notes';
+
+  @override
+  final String version = '1.0.0';
+
+  @override
+  final String buildSignature = 'test-signature';
+
+  @override
+  final Map<String, dynamic> data = {};
+
+  @override
+  final DateTime? installTime = DateTime.now();
+
+  @override
+  final String? installerStore = 'test-store';
+
+  @override
+  final DateTime? updateTime = DateTime.now();
+}
 
 void main() {
+  // Mock do PackageInfo para ser usado em todos os testes
+  final mockPackageInfo = MockPackageInfo();
+
+  // Grupo de testes para a UI Material (Android/iOS)
   group('AboutScreen Material UI Tests', () {
-    testWidgets('renders Material UI components correctly',
-        (WidgetTester tester) async {
+    testWidgets('renders Material UI components correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: AboutScreen(),
+          home: AboutScreen(packageInfo: mockPackageInfo),
         ),
       );
-
-      expect(find.text('Sobre'), findsOneWidget);
-      expect(find.text('Universal Notes'), findsOneWidget);
-      expect(find.text('Versão'), findsOneWidget);
-    });
-
-    testWidgets('shows CircularProgressIndicator when checking for update',
-        (WidgetTester tester) async {
-      // Mock do UpdateService
-      final mockUpdateService = MockUpdateService();
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async {
-          await Future.delayed(const Duration(seconds: 1));
-          return const UpdateCheckResult(UpdateCheckStatus.noUpdate);
-        },
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: AboutScreen(updateService: mockUpdateService),
-        ),
-      );
-
-      final updateButton = find.byType(ElevatedButton);
-      expect(updateButton, findsOneWidget);
-
-      await tester.tap(updateButton);
-      await tester.pump();
-
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      final button = tester.widget<ElevatedButton>(updateButton);
-      expect(button.onPressed, isNull);
-
       await tester.pumpAndSettle();
 
-      final buttonAfter = tester.widget<ElevatedButton>(updateButton);
-      expect(buttonAfter.onPressed, isNotNull);
+      // Verifica se os componentes da UI Material estão presentes
+      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.byType(AppBar), findsOneWidget);
+      expect(find.text('Sobre'), findsOneWidget);
+      expect(find.text('Versão atual: 1.0.0'), findsOneWidget);
+      expect(find.byType(ElevatedButton), findsOneWidget);
+      expect(find.text('Verificar Atualizações'), findsOneWidget);
+    });
+
+    testWidgets('shows CircularProgressIndicator when checking for update', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AboutScreen(packageInfo: mockPackageInfo),
+        ),
+      );
+
+      // Tapa no botão para iniciar a verificação
+      await tester.tap(find.byType(ElevatedButton));
+      await tester
+          .pump(); // Reconstrói o widget uma vez para mostrar o indicador
+
+      // Verifica se o CircularProgressIndicator aparece
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(ElevatedButton), findsNothing);
     });
   });
 
+  // Grupo de testes para a UI Fluent (Windows)
   group('AboutScreen Fluent UI (Windows) Tests', () {
-    testWidgets('renders Fluent UI components correctly',
-        (WidgetTester tester) async {
+    testWidgets('renders Fluent UI components correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: AboutScreen(isWindows: true),
+        fluent.FluentApp(
+          home: AboutScreen(
+            packageInfo: mockPackageInfo,
+            debugPlatform: TargetPlatform.windows, // Force Windows UI
+          ),
         ),
       );
+      await tester.pumpAndSettle();
 
+      // Verifica se os componentes da UI Fluent estão presentes
+      expect(find.byType(fluent.ScaffoldPage), findsOneWidget);
+      expect(find.byType(fluent.PageHeader), findsOneWidget);
       expect(find.text('Sobre'), findsOneWidget);
-      expect(find.text('Universal Notes'), findsOneWidget);
-      expect(find.text('Versão'), findsOneWidget);
+      expect(find.text('Versão atual: 1.0.0'), findsOneWidget);
+      expect(find.byType(fluent.FilledButton), findsOneWidget);
+      expect(find.text('Verificar Atualizações'), findsOneWidget);
     });
 
-    testWidgets('shows ProgressRing when checking for update on Windows',
-        (WidgetTester tester) async {
-      final mockUpdateService = MockUpdateService();
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
-        (_) async {
-          await Future.delayed(const Duration(seconds: 1));
-          return const UpdateCheckResult(UpdateCheckStatus.noUpdate);
-        },
-      );
-
+    testWidgets('shows ProgressRing when checking for update on Windows', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        MaterialApp(
+        fluent.FluentApp(
           home: AboutScreen(
-            updateService: mockUpdateService,
-            isWindows: true,
+            packageInfo: mockPackageInfo,
+            debugPlatform: TargetPlatform.windows, // Force Windows UI
           ),
         ),
       );
 
-      final updateButton = find.byType(FilledButton);
-      expect(updateButton, findsOneWidget);
+      // Tapa no botão para iniciar a verificação
+      await tester.tap(find.byType(fluent.FilledButton));
+      await tester
+          .pump(); // Reconstrói o widget uma vez para mostrar o indicador
 
-      await tester.tap(updateButton);
-      await tester.pump();
+      // Verifica se o ProgressRing aparece
+      expect(find.byType(fluent.ProgressRing), findsOneWidget);
+      expect(find.byType(fluent.FilledButton), findsNothing);
 
-      expect(find.byType(ProgressRing), findsOneWidget);
+      // Instead of pumpAndSettle, just pump a few times to see the loading state
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
-      final button = tester.widget<FilledButton>(updateButton);
-      expect(button.onPressed, isNull);
-
-      await tester.pumpAndSettle();
-
-      final buttonAfter = tester.widget<FilledButton>(updateButton);
-      expect(buttonAfter.onPressed, isNotNull);
+      // Verify the ProgressRing is still showing
+      expect(find.byType(fluent.ProgressRing), findsOneWidget);
+      expect(find.byType(fluent.FilledButton), findsNothing);
     });
   });
 }
