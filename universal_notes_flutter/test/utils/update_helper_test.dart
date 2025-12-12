@@ -195,9 +195,8 @@ void main() {
       ) async {
         final mockHttpClient = MockClient();
 
-        when(
-          mockHttpClient.get(any),
-        ).thenAnswer((_) async => throw Exception('Simulated network failure'));
+        when(mockHttpClient.get(any))
+            .thenThrow(Exception('Simulated network failure'));
 
         final updateInfo = UpdateInfo(
           version: '1.0.3',
@@ -241,12 +240,10 @@ void main() {
           await tester.tap(find.text('Sim, atualizar'));
           await tester.pump();
 
-          expect(
-            find.text('Baixando atualização... Por favor, aguarde.'),
-            findsOneWidget,
-          );
+          expect(find.text('Baixando atualização... Por favor, aguarde.'),
+              findsOneWidget);
 
-          await tester.pump(const Duration(seconds: 1));
+          await tester.pumpAndSettle();
 
           expect(find.textContaining('Erro na atualização:'), findsOneWidget);
         } finally {

@@ -5,6 +5,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 
@@ -14,7 +15,8 @@ class AboutScreen extends StatefulWidget {
   const AboutScreen({
     required this.packageInfo,
     super.key,
-    this.debugPlatform, // Add this optional parameter
+    this.debugPlatform,
+    this.updateService,
   });
 
   /// The package information.
@@ -23,6 +25,9 @@ class AboutScreen extends StatefulWidget {
   /// Optional platform override for testing purposes.
   /// If provided, this will be used instead of the actual platform.
   final TargetPlatform? debugPlatform;
+
+  /// Optional update service for testing purposes.
+  final UpdateService? updateService;
 
   @override
   State<AboutScreen> createState() => _AboutScreenState();
@@ -38,7 +43,11 @@ class _AboutScreenState extends State<AboutScreen> {
     });
 
     if (!mounted) return;
-    await UpdateHelper.checkForUpdate(context, isManual: true);
+    await UpdateHelper.checkForUpdate(
+      context,
+      isManual: true,
+      updateService: widget.updateService,
+    );
 
     if (mounted) {
       setState(() {
@@ -69,12 +78,12 @@ class _AboutScreenState extends State<AboutScreen> {
       onCheckFinished: () {
         if (mounted) setState(() => _isChecking = false);
       },
+      updateService: widget.updateService,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Use debugPlatform if provided, otherwise use the actual platform
     final isWindows = widget.debugPlatform != null
         ? widget.debugPlatform == TargetPlatform.windows
         : Platform.isWindows;
@@ -114,7 +123,9 @@ class _AboutScreenState extends State<AboutScreen> {
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: fluent.ProgressRing(),
+                        child: fluent.ProgressRing(
+                          key: Key('loading_indicator'),
+                        ),
                       )
                     : const Text('Verificar Atualizações'),
               ),
@@ -149,6 +160,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
+                          key: Key('loading_indicator'),
                           strokeWidth: 2,
                         ),
                       )
