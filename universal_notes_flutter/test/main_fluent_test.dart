@@ -143,19 +143,28 @@ void main() {
       expect(viewModeButton, findsOneWidget);
 
       // Act & Assert - Cycle through all view modes
+      // Initial state is gridMedium, which renders a GridView.
       expect(find.byType(GridView), findsOneWidget);
 
+      // Tap 1: gridMedium -> gridLarge (still a GridView)
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
 
+      // Tap 2: gridLarge -> list (still a GridView)
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
 
+      // Tap 3: list -> listSimple (now a ListView)
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(ListView), findsOneWidget);
+
+      // Tap 4: listSimple -> gridSmall (back to a GridView)
+      await tester.tap(viewModeButton);
+      await tester.pump();
+      expect(find.byType(GridView), findsOneWidget);
     });
 
     testWidgets('filters notes for Favorites and Trash',

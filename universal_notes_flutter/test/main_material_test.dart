@@ -132,19 +132,28 @@ void main() {
       expect(viewModeButton, findsOneWidget);
 
       // Act & Assert - Cycle through all view modes
+      // Initial state is gridMedium, which renders a GridView.
       expect(find.byType(GridView), findsOneWidget);
 
+      // Tap 1: gridMedium -> gridLarge (still a GridView)
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
 
+      // Tap 2: gridLarge -> list (still a GridView)
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
 
+      // Tap 3: list -> listSimple (now a ListView)
       await tester.tap(viewModeButton);
       await tester.pump();
       expect(find.byType(ListView), findsOneWidget);
+
+      // Tap 4: listSimple -> gridSmall (back to a GridView)
+      await tester.tap(viewModeButton);
+      await tester.pump();
+      expect(find.byType(GridView), findsOneWidget);
     });
 
     testWidgets('filters notes for Favorites and Trash',
@@ -174,11 +183,12 @@ void main() {
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
-      // Must use a stateful widget to open the drawer.
-      final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+      // Must use a GlobalKey to robustly open the drawer in tests.
+      final scaffoldKey = GlobalKey<ScaffoldState>();
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           key: scaffoldKey,
+          drawer: const Drawer(), // Need to provide a drawer to be opened.
           body: NotesScreen(
             notesFuture: mockNoteRepository.getAllNotes(),
             updateService: mockUpdateService,
