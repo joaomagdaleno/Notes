@@ -11,10 +11,11 @@ class WindowsUpdateHelper {
     required void Function(String) onError,
     required void Function() onNoUpdate,
     required void Function() onCheckFinished,
+    UpdateService? updateService,
   }) async {
     onStatusChange('Verificando atualizações...');
-    final updateService = UpdateService();
-    final result = await updateService.checkForUpdate();
+    final service = updateService ?? UpdateService();
+    final result = await service.checkForUpdate();
 
     switch (result.status) {
       case UpdateCheckStatus.updateAvailable:
