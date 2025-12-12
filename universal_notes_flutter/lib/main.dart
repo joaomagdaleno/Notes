@@ -168,7 +168,8 @@ class _NotesScreenState extends State<NotesScreen> {
   int _selectedIndex = 0;
   ViewMode _viewMode = ViewMode.gridMedium;
 
-  /// Returns whether the platform is Windows, considering debugPlatform override.
+  /// Returns whether the platform is Windows, considering debugPlatform
+  /// override.
   bool get _isWindows => widget.debugPlatform != null
       ? widget.debugPlatform == TargetPlatform.windows
       : Platform.isWindows;
