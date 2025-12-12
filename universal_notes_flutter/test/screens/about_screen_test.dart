@@ -8,10 +8,16 @@ import 'package:universal_notes_flutter/screens/about_screen.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
 class StubUpdateService extends UpdateService {
-  StubUpdateService() : super(client: FakeHttpClient());
+  StubUpdateService({this.delay = Duration.zero})
+    : super(client: FakeHttpClient());
+
+  final Duration delay;
 
   @override
   Future<UpdateCheckResult> checkForUpdate() async {
+    if (delay > Duration.zero) {
+      await Future<void>.delayed(delay);
+    }
     return UpdateCheckResult(UpdateCheckStatus.noUpdate);
   }
 }
@@ -116,12 +122,14 @@ void main() {
     testWidgets('shows ProgressRing when checking for update on Windows', (
       WidgetTester tester,
     ) async {
-<<<<<<< HEAD
       await tester.pumpWidget(
         fluent.FluentApp(
           home: AboutScreen(
             packageInfo: mockPackageInfo,
             debugPlatform: TargetPlatform.windows, // Force Windows UI
+            updateService: StubUpdateService(
+              delay: const Duration(milliseconds: 200),
+            ),
           ),
         ),
       );
@@ -135,19 +143,14 @@ void main() {
       expect(find.byType(fluent.ProgressRing), findsOneWidget);
       expect(find.byType(fluent.FilledButton), findsNothing);
 
-      // Instead of pumpAndSettle, pump to see the loading state
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 100));
+      // Wait for the async operation to complete
+      await tester.pump(const Duration(milliseconds: 200));
+      // Rebuild to reflect the completion
+      await tester.pump();
 
-      // Verify the ProgressRing is still showing
-      expect(find.byType(fluent.ProgressRing), findsOneWidget);
-      expect(find.byType(fluent.FilledButton), findsNothing);
-    });
-=======
-      // Skipped due to flake: State verification with Completer is inconsistent
-      // in test environment
+      // Verify the ProgressRing is GONE and button is back
+      expect(find.byType(fluent.ProgressRing), findsNothing);
+      expect(find.byType(fluent.FilledButton), findsOneWidget);
     }, skip: true);
->>>>>>> 927d47c4be0492596373a1159b49d3d4951e6d62
   });
 }
