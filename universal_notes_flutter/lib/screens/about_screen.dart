@@ -34,13 +34,18 @@ class AboutScreen extends StatefulWidget {
 }
 
 class _AboutScreenState extends State<AboutScreen> {
-  bool _isChecking = false;
-  String _updateStatus = '';
+  final _isChecking = ValueNotifier<bool>(false);
+  final _updateStatus = ValueNotifier<String>('');
+
+  @override
+  void dispose() {
+    _isChecking.dispose();
+    _updateStatus.dispose();
+    super.dispose();
+  }
 
   Future<void> _checkForUpdate() async {
-    setState(() {
-      _isChecking = true;
-    });
+    _isChecking.value = true;
 
     if (!mounted) return;
     await UpdateHelper.checkForUpdate(
@@ -50,33 +55,27 @@ class _AboutScreenState extends State<AboutScreen> {
     );
 
     if (mounted) {
-      setState(() {
-        _isChecking = false;
-      });
+      _isChecking.value = false;
     }
   }
 
   Future<void> _checkForUpdateWindows() async {
-    setState(() {
-      _isChecking = true;
-      _updateStatus = '';
-    });
+    _isChecking.value = true;
+    _updateStatus.value = '';
     await WindowsUpdateHelper.checkForUpdate(
       onStatusChange: (message) {
-        if (mounted) setState(() => _updateStatus = message);
+        if (mounted) _updateStatus.value = message;
       },
       onError: (message) {
-        if (mounted) setState(() => _updateStatus = message);
+        if (mounted) _updateStatus.value = message;
       },
       onNoUpdate: () {
         if (mounted) {
-          setState(
-            () => _updateStatus = 'Você já está na versão mais recente.',
-          );
+          _updateStatus.value = 'Você já está na versão mais recente.';
         }
       },
       onCheckFinished: () {
-        if (mounted) setState(() => _isChecking = false);
+        if (mounted) _isChecking.value = false;
       },
       updateService: widget.updateService,
     );
@@ -117,22 +116,42 @@ class _AboutScreenState extends State<AboutScreen> {
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
-              fluent.FilledButton(
-                onPressed: _isChecking ? null : _checkForUpdateWindows,
-                child: _isChecking
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: fluent.ProgressRing(
-                          key: Key('loading_indicator'),
-                        ),
-                      )
-                    : const Text('Verificar Atualizações'),
+              // ⚡ Bolt: Using ValueListenableBuilder to rebuild only the button
+              // when the `_isChecking` state changes. This is more efficient
+              // than rebuilding the entire screen with `setState`.
+              ValueListenableBuilder<bool>(
+                valueListenable: _isChecking,
+                builder: (context, isChecking, child) {
+                  return fluent.FilledButton(
+                    onPressed: isChecking ? null : _checkForUpdateWindows,
+                    child: isChecking
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: fluent.ProgressRing(
+                              key: Key('loading_indicator'),
+                            ),
+                          )
+                        : const Text('Verificar Atualizações'),
+                  );
+                },
               ),
-              if (_updateStatus.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                Text(_updateStatus, textAlign: TextAlign.center),
-              ],
+              // ⚡ Bolt: Using ValueListenableBuilder to rebuild only the status
+              // text when the `_updateStatus` state changes.
+              ValueListenableBuilder<String>(
+                valueListenable: _updateStatus,
+                builder: (context, updateStatus, child) {
+                  if (updateStatus.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      Text(updateStatus, textAlign: TextAlign.center),
+                    ],
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -153,18 +172,26 @@ class _AboutScreenState extends State<AboutScreen> {
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _isChecking ? null : _checkForUpdate,
-                child: _isChecking
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          key: Key('loading_indicator'),
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Text('Verificar Atualizações'),
+              // ⚡ Bolt: Using ValueListenableBuilder to rebuild only the button
+              // when the `_isChecking` state changes. This is more efficient
+              // than rebuilding the entire screen with `setState`.
+              ValueListenableBuilder<bool>(
+                valueListenable: _isChecking,
+                builder: (context, isChecking, child) {
+                  return ElevatedButton(
+                    onPressed: isChecking ? null : _checkForUpdate,
+                    child: isChecking
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              key: Key('loading_indicator'),
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text('Verificar Atualizações'),
+                  );
+                },
               ),
             ],
           ),
