@@ -81,7 +81,21 @@ class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener>
 /// The main application widget for the Fluent UI design.
 class MyFluentApp extends StatelessWidget {
   /// Creates a new instance of [MyFluentApp].
-  const MyFluentApp({super.key});
+  const MyFluentApp({
+    super.key,
+    this.noteRepository,
+    this.updateService,
+    this.navigatorObservers,
+  });
+
+  /// The repository for notes.
+  final NoteRepository? noteRepository;
+
+  /// The service for updates.
+  final UpdateService? updateService;
+
+  /// A list of navigator observers.
+  final List<NavigatorObserver>? navigatorObservers;
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +114,11 @@ class MyFluentApp extends StatelessWidget {
         brightness: fluent.Brightness.dark,
       ),
       themeMode: ThemeMode.system,
-      home: const NotesScreen(),
+      home: NotesScreen(
+        noteRepository: noteRepository,
+        updateService: updateService,
+      ),
+      navigatorObservers: navigatorObservers ?? const [],
     );
   }
 }
@@ -108,7 +126,21 @@ class MyFluentApp extends StatelessWidget {
 /// The main application widget for the Material Design.
 class MyApp extends StatelessWidget {
   /// Creates a new instance of [MyApp].
-  const MyApp({super.key});
+  const MyApp({
+    super.key,
+    this.noteRepository,
+    this.updateService,
+    this.navigatorObservers,
+  });
+
+  /// The repository for notes.
+  final NoteRepository? noteRepository;
+
+  /// The service for updates.
+  final UpdateService? updateService;
+
+  /// A list of navigator observers.
+  final List<NavigatorObserver>? navigatorObservers;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +166,11 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      home: const NotesScreen(),
+      home: NotesScreen(
+        noteRepository: noteRepository,
+        updateService: updateService,
+      ),
+      navigatorObservers: navigatorObservers ?? const [],
     );
   }
 }
@@ -142,15 +178,19 @@ class MyApp extends StatelessWidget {
 /// The main screen that displays the list of notes.
 class NotesScreen extends StatefulWidget {
   /// Creates a new instance of [NotesScreen].
-  const NotesScreen({
+  NotesScreen({
     super.key,
     this.updateService,
+    this.noteRepository,
     this.notesFuture,
     this.debugPlatform,
   });
 
   /// The service to use for checking for updates.
   final UpdateService? updateService;
+
+  /// The repository to use for fetching notes.
+  final NoteRepository? noteRepository;
 
   /// An optional future for the notes, used for testing.
   final Future<List<Note>>? notesFuture;
@@ -174,10 +214,13 @@ class _NotesScreenState extends State<NotesScreen> {
       ? widget.debugPlatform == TargetPlatform.windows
       : Platform.isWindows;
 
+  NoteRepository get _noteRepository =>
+      widget.noteRepository ?? NoteRepository.instance;
+
   @override
   void initState() {
     super.initState();
-    _notesFuture = widget.notesFuture ?? NoteRepository.instance.getAllNotes();
+    _notesFuture = widget.notesFuture ?? _noteRepository.getAllNotes();
     // Use a post-frame callback to ensure the Scaffold is available.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Check for updates on all platforms
@@ -199,22 +242,22 @@ class _NotesScreenState extends State<NotesScreen> {
     final index = notes.indexWhere((n) => n.id == note.id);
     Note savedNote;
     if (index != -1) {
-      await NoteRepository.instance.updateNote(note);
+      await _noteRepository.updateNote(note);
       savedNote = note;
     } else {
-      final newId = await NoteRepository.instance.insertNote(note);
+      final newId = await _noteRepository.insertNote(note);
       savedNote = note.copyWith(id: newId);
     }
     setState(() {
-      _notesFuture = NoteRepository.instance.getAllNotes();
+      _notesFuture = _noteRepository.getAllNotes();
     });
     return savedNote;
   }
 
   Future<void> _deleteNote(Note note) async {
-    await NoteRepository.instance.deleteNote(note.id);
+    await _noteRepository.deleteNote(note.id);
     setState(() {
-      _notesFuture = NoteRepository.instance.getAllNotes();
+      _notesFuture = _noteRepository.getAllNotes();
     });
   }
 
