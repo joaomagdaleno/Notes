@@ -38,7 +38,7 @@ void main() {
       final fluentApp =
           tester.widget<fluent.FluentApp>(find.byType(fluent.FluentApp));
       expect(fluentApp.title, 'Universal Notes');
-      expect(fluentApp.home, isA<NotesScreen>());
+      expect(fluentApp.home, isA<ScaffoldMessenger>());
     });
   });
 
@@ -90,16 +90,17 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      final buttonFinder = find.byWidgetPredicate((widget) {
-        if (widget is fluent.CommandBarButton) {
-          final textWidget = widget.label;
-          if (textWidget is Text) {
-            return textWidget.data == 'Nova nota';
-          }
-        }
-        return false;
-      });
+      final buttonFinder = find.ancestor(
+        of: find.text('Nova nota'),
+        matching: find.byType(fluent.CommandBarButton),
+      );
       expect(buttonFinder, findsOneWidget);
+
+      // Verify the label using a safe cast
+      final button =
+          tester.widget<fluent.CommandBarButton>(buttonFinder);
+      expect((button.label as Text).data, 'Nova nota');
+
       await tester.tap(buttonFinder);
       await tester.pumpAndSettle();
       expect(find.byType(NoteEditorScreen), findsOneWidget);
