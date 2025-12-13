@@ -178,7 +178,7 @@ class MyApp extends StatelessWidget {
 /// The main screen that displays the list of notes.
 class NotesScreen extends StatefulWidget {
   /// Creates a new instance of [NotesScreen].
-  NotesScreen({
+  const NotesScreen({
     super.key,
     this.updateService,
     this.noteRepository,
