@@ -1,34 +1,32 @@
-// test/main_fluent_test.dart
-
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart'; // Importação necessária para PointerDeviceKind
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/services/update_service.dart';
 
-// Importe o mock manual em vez do gerado
-import 'mocks/mock_update_service_manual.dart';
 import 'mocks/mocks.mocks.dart';
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 void main() {
   late MockNoteRepository mockNoteRepository;
-  late MockUpdateService mockUpdateService; // Agora usa o mock manual
+  late MockUpdateService mockUpdateService;
   late MockNavigatorObserver mockNavigatorObserver;
 
   setUp(() {
     mockNoteRepository = MockNoteRepository();
-    mockUpdateService = MockUpdateService(); // Instancia o mock manual
+    mockUpdateService = MockUpdateService();
     mockNavigatorObserver = MockNavigatorObserver();
 
-    // Stub para o checkForUpdate usando o mock manual
+    // Stub definitivo para o checkForUpdate
     when(mockUpdateService.checkForUpdate())
         .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
   });
 
+  // Helper para construir o widget de teste com o contexto necessário
   Future<void> pumpWidget(WidgetTester tester) async {
     await tester.pumpWidget(
       fluent.FluentApp(
@@ -55,7 +53,7 @@ void main() {
       expect(find.byType(NotesScreen), findsOneWidget);
       expect(find.text('Nota Fluent 1'), findsOneWidget);
       expect(find.text('Nota Fluent 2'), findsOneWidget);
-      return; // CORREÇÃO: Adicionado return para satisfazer o linter
+      return;
     });
 
     testWidgets('Deve alternar entre os modos de visualização', (WidgetTester tester) async {
@@ -66,16 +64,19 @@ void main() {
 
       final viewButtonFinder = find.byIcon(fluent.FluentIcons.list);
 
+      // Estado inicial: Lista
       expect(viewButtonFinder, findsOneWidget);
 
+      // Clica para mudar para Grid
       await tester.tap(viewButtonFinder);
       await tester.pumpAndSettle();
-      expect(find.byIcon(fluent.FluentIcons.grid), findsOneWidget);
+      expect(find.byIcon(fluent.FluentIcons.grid_view), findsOneWidget);
 
-      await tester.tap(find.byIcon(fluent.FluentIcons.grid));
+      // Clica para mudar para Staggered Grid
+      await tester.tap(find.byIcon(fluent.FluentIcons.grid_view));
       await tester.pumpAndSettle();
       expect(find.byIcon(fluent.FluentIcons.table), findsOneWidget);
-      return; // CORREÇÃO: Adicionado return
+      return;
     });
 
     testWidgets('Deve navegar para a tela de nova nota ao clicar no botão', (WidgetTester tester) async {
@@ -84,11 +85,11 @@ void main() {
       await pumpWidget(tester);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Nova nota'));
+      await tester.tap(find.text('New Note'));
       await tester.pumpAndSettle();
 
       verify(mockNavigatorObserver.didPush(any, any));
-      return; // CORREÇÃO: Adicionado return
+      return;
     });
 
     testWidgets('Deve mover a nota para a lixeira com o menu de contexto', (WidgetTester tester) async {
@@ -99,17 +100,20 @@ void main() {
       await pumpWidget(tester);
       await tester.pumpAndSettle();
 
+      // Simula um clique com o botão direito para abrir o menu de contexto
       final noteFinder = find.text('Nota para Lixeira');
       final gesture = await tester.startGesture(tester.getCenter(noteFinder), kind: PointerDeviceKind.mouse, buttons: kSecondaryMouseButton);
       await gesture.up();
       await tester.pumpAndSettle();
 
+      // Encontra e clica no item "Move to Trash" do menu
       await tester.tap(find.widgetWithText(fluent.MenuFlyoutItem, 'Move to Trash'));
       await tester.pumpAndSettle();
 
       final captured = verify(mockNoteRepository.updateNote(captureAny)).captured;
-      expect(captured.single.isDeleted, isTrue);
-      return; // CORREÇÃO: Adicionado return
+      final capturedNote = captured.single as Note;
+      expect(capturedNote.isDeleted, isTrue);
+      return;
     });
 
     testWidgets('Deve exibir SnackBar de erro se o carregamento de notas falhar', (WidgetTester tester) async {
@@ -118,9 +122,10 @@ void main() {
       await pumpWidget(tester);
       await tester.pumpAndSettle();
 
+      // A solução de envolver com MaterialApp garante que o SnackBar funcione
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Erro ao carregar notas'), findsOneWidget);
-      return; // CORREÇÃO: Adicionado return
+      return;
     });
   });
 }
