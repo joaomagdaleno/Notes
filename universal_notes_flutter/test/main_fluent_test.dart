@@ -90,17 +90,8 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      final buttonFinder = find.ancestor(
-        of: find.text('Nova nota'),
-        matching: find.byType(fluent.CommandBarButton),
-      );
+      final buttonFinder = find.widgetWithText(fluent.CommandBarButton, 'Nova nota');
       expect(buttonFinder, findsOneWidget);
-
-      // Verify the label using a safe cast
-      final button =
-          tester.widget<fluent.CommandBarButton>(buttonFinder);
-      expect((button.label as Text).data, 'Nova nota');
-
       await tester.tap(buttonFinder);
       await tester.pumpAndSettle();
       expect(find.byType(NoteEditorScreen), findsOneWidget);
@@ -124,24 +115,25 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      final viewModeButton =
-          find.widgetWithText(fluent.CommandBarButton, 'Mudar Visualização');
+      final viewModeButtonFinder = find.widgetWithText(fluent.CommandBarButton, 'Mudar Visualização');
+      expect(viewModeButtonFinder, findsOneWidget);
+
       // Initial: gridMedium -> GridView
       expect(find.byType(GridView), findsOneWidget);
       // Tap 1: -> gridLarge -> GridView
-      await tester.tap(viewModeButton);
+      await tester.tap(viewModeButtonFinder);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
       // Tap 2: -> list -> GridView
-      await tester.tap(viewModeButton);
+      await tester.tap(viewModeButtonFinder);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
       // Tap 3: -> listSimple -> ListView
-      await tester.tap(viewModeButton);
+      await tester.tap(viewModeButtonFinder);
       await tester.pump();
       expect(find.byType(ListView), findsOneWidget);
       // Tap 4: -> gridSmall -> GridView
-      await tester.tap(viewModeButton);
+      await tester.tap(viewModeButtonFinder);
       await tester.pump();
       expect(find.byType(GridView), findsOneWidget);
     });
