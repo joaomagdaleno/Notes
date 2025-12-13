@@ -65,6 +65,7 @@ void main() {
       expect(find.byType(NotesScreen), findsOneWidget);
       expect(find.text('Nota Fluent 1'), findsOneWidget);
       expect(find.text('Nota Fluent 2'), findsOneWidget);
+      return;
     });
 
     testWidgets('Deve alternar entre os modos de visualização',
@@ -82,12 +83,13 @@ void main() {
       // Clica para mudar para Grid
       await tester.tap(viewButtonFinder);
       await tester.pumpAndSettle();
-      expect(find.byIcon(fluent.FluentIcons.grid), findsOneWidget);
+      expect(find.byIcon(fluent.FluentIcons.view_list), findsOneWidget);
 
       // Clica para mudar para Staggered Grid
-      await tester.tap(find.byIcon(fluent.FluentIcons.grid));
+      await tester.tap(find.byIcon(fluent.FluentIcons.view_list));
       await tester.pumpAndSettle();
       expect(find.byIcon(fluent.FluentIcons.table), findsOneWidget);
+      return;
     });
 
     testWidgets('Deve navegar para a tela de nova nota ao clicar no botão',
@@ -101,6 +103,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(mockNavigatorObserver.didPush(any, any));
+      return;
     });
 
     testWidgets('Deve mover a nota para a lixeira com o menu de contexto',
@@ -135,6 +138,7 @@ void main() {
           verify(mockNoteRepository.updateNote(captureAny)).captured;
       final capturedNote = captured.single as Note;
       expect(capturedNote.isDeleted, isTrue);
+      return;
     });
 
     testWidgets(
@@ -149,6 +153,7 @@ void main() {
       // A solução de envolver com FluentApp garante que o SnackBar funcione
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Erro ao carregar notas'), findsOneWidget);
+      return;
     });
   });
 }

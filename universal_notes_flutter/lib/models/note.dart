@@ -60,6 +60,9 @@ class Note {
   /// The preferences associated with the note, in JSON format.
   String? prefsJson;
 
+  /// Whether the note is deleted. This is an alias for [isInTrash].
+  bool get isDeleted => isInTrash;
+
   /// Creates a copy of the [Note] with the given fields replaced with the new
   /// values.
   Note copyWith({

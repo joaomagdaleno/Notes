@@ -58,6 +58,7 @@ void main() {
       expect(find.text('Nota 1'), findsOneWidget);
       expect(find.text('Nota 2'), findsOneWidget);
       expect(find.byIcon(Icons.view_list), findsOneWidget);
+      return;
     });
 
     testWidgets('Deve alternar entre os modos de visualização (lista -> grid)',
@@ -78,6 +79,7 @@ void main() {
       // Verifica se mudou para Grid
       expect(find.byIcon(Icons.view_module), findsOneWidget);
       expect(find.byType(GridView), findsOneWidget);
+      return;
     });
 
     testWidgets('Deve navegar para a tela de nova nota ao pressionar o FAB',
@@ -91,6 +93,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(mockNavigatorObserver.didPush(any, any));
+      return;
     });
 
     testWidgets(
@@ -110,6 +113,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(mockNavigatorObserver.didPush(any, any));
+      return;
     });
 
     testWidgets(
@@ -138,6 +142,7 @@ void main() {
           verify(mockNoteRepository.updateNote(captureAny)).captured;
       final capturedNote = captured.single as Note;
       expect(capturedNote.isDeleted, isTrue);
+      return;
     });
 
     testWidgets(
@@ -151,6 +156,7 @@ void main() {
 
       expect(find.text('Erro ao carregar notas'), findsOneWidget);
       expect(find.byType(SnackBar), findsOneWidget);
+      return;
     });
   });
 }
