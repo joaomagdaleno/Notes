@@ -34,11 +34,11 @@ void main() {
   group('MyFluentApp Tests', () {
     testWidgets('builds FluentApp with correct title and theme',
         (WidgetTester tester) async {
-      await tester.pumpWidget(createTestWidget(const MyFluentApp()));
+      await tester.pumpWidget(const MyFluentApp());
       final fluentApp =
           tester.widget<fluent.FluentApp>(find.byType(fluent.FluentApp));
       expect(fluentApp.title, 'Universal Notes');
-      expect(fluentApp.home, isA<ScaffoldMessenger>());
+      expect(fluentApp.home, isA<NotesScreen>());
     });
   });
 
@@ -90,16 +90,17 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      final button = find.byWidgetPredicate((widget) {
+      final buttonFinder = find.byWidgetPredicate((widget) {
         if (widget is fluent.CommandBarButton) {
-          final buttonWidget = widget;
-          if (buttonWidget.label is Text) {
-            return (buttonWidget.label as Text).data == 'Nova nota';
+          final textWidget = widget.label;
+          if (textWidget is Text) {
+            return textWidget.data == 'Nova nota';
           }
         }
         return false;
       });
-      await tester.tap(button);
+      expect(buttonFinder, findsOneWidget);
+      await tester.tap(buttonFinder);
       await tester.pumpAndSettle();
       expect(find.byType(NoteEditorScreen), findsOneWidget);
     });
