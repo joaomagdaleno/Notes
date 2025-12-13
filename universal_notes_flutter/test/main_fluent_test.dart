@@ -70,10 +70,10 @@ void main() {
       // Clica para mudar para Grid
       await tester.tap(viewButtonFinder);
       await tester.pumpAndSettle();
-      expect(find.byIcon(fluent.FluentIcons.grid_view), findsOneWidget);
+      expect(find.byIcon(fluent.FluentIcons.board), findsOneWidget);
 
       // Clica para mudar para Staggered Grid
-      await tester.tap(find.byIcon(fluent.FluentIcons.grid_view));
+      await tester.tap(find.byIcon(fluent.FluentIcons.board));
       await tester.pumpAndSettle();
       expect(find.byIcon(fluent.FluentIcons.table), findsOneWidget);
       return;
