@@ -90,9 +90,15 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      final button = find.byWidgetPredicate((widget) =>
-          widget is fluent.CommandBarButton &&
-          (widget.label as Text).data == 'Nova nota');
+      final button = find.byWidgetPredicate((widget) {
+        if (widget is fluent.CommandBarButton) {
+          final buttonWidget = widget;
+          if (buttonWidget.label is Text) {
+            return (buttonWidget.label as Text).data == 'Nova nota';
+          }
+        }
+        return false;
+      });
       await tester.tap(button);
       await tester.pumpAndSettle();
       expect(find.byType(NoteEditorScreen), findsOneWidget);
