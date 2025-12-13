@@ -16,6 +16,7 @@ class Note {
     this.isInTrash = false,
     this.drawingJson,
     this.prefsJson,
+    this.isDeleted = false,
   }) : id = id ?? uuid.v4();
 
   /// Creates a new instance of [Note] from a map.
@@ -25,11 +26,12 @@ class Note {
       title: map['title'] as String,
       content: map['content'] as String,
       date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
-      isFavorite: (map['isFavorite'] as int) == 1,
-      isLocked: (map['isLocked'] as int) == 1,
-      isInTrash: (map['isInTrash'] as int) == 1,
+      isFavorite: (map['isFavorite'] as int? ?? 0) == 1,
+      isLocked: (map['isLocked'] as int? ?? 0) == 1,
+      isInTrash: (map['isInTrash'] as int? ?? 0) == 1,
       drawingJson: map['drawingJson'] as String?,
       prefsJson: map['prefsJson'] as String?,
+      isDeleted: (map['isDeleted'] as int? ?? 0) == 1,
     );
   }
 
@@ -60,8 +62,8 @@ class Note {
   /// The preferences associated with the note, in JSON format.
   String? prefsJson;
 
-  /// Whether the note is deleted. This is an alias for [isInTrash].
-  bool get isDeleted => isInTrash;
+  /// Whether the note is deleted.
+  bool isDeleted;
 
   /// Creates a copy of the [Note] with the given fields replaced with the new
   /// values.
@@ -75,6 +77,7 @@ class Note {
     bool? isInTrash,
     String? drawingJson,
     String? prefsJson,
+    bool? isDeleted,
   }) {
     return Note(
       id: id ?? this.id,
@@ -86,6 +89,7 @@ class Note {
       isInTrash: isInTrash ?? this.isInTrash,
       drawingJson: drawingJson ?? this.drawingJson,
       prefsJson: prefsJson ?? this.prefsJson,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
@@ -101,6 +105,7 @@ class Note {
       'isInTrash': isInTrash ? 1 : 0,
       'drawingJson': drawingJson,
       'prefsJson': prefsJson,
+      'isDeleted': isDeleted ? 1 : 0,
     };
   }
 }
