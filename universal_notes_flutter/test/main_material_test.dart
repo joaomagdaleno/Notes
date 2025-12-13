@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
@@ -236,7 +235,7 @@ void main() {
       await tester.pumpAndSettle();
       final captured =
           verify(mockNoteRepository.updateNote(captureAny)).captured;
-      expect(captured.first.isInTrash, isTrue);
+      expect((captured.first as Note).isInTrash, isTrue);
     });
 
     testWidgets('shows NavigationRail on larger screens',

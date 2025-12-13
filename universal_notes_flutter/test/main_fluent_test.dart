@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
@@ -27,12 +26,8 @@ void main() {
   });
 
   Widget createTestWidget(Widget child) {
-    return MaterialApp(
-      home: Scaffold(
-        body: fluent.FluentApp(
-          home: child,
-        ),
-      ),
+    return fluent.FluentApp(
+      home: child,
     );
   }
 
@@ -97,7 +92,7 @@ void main() {
       await tester.pumpAndSettle();
       final button = find.byWidgetPredicate((widget) =>
           widget is fluent.CommandBarButton &&
-          widget.label == const Text('Nova nota'));
+          (widget.label as Text).data == 'Nova nota');
       await tester.tap(button);
       await tester.pumpAndSettle();
       expect(find.byType(NoteEditorScreen), findsOneWidget);
