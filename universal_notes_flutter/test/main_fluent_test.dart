@@ -21,12 +21,11 @@ void main() {
     mockUpdateService = MockUpdateService();
     mockNavigatorObserver = MockNavigatorObserver();
 
-    // Stub definitivo para o checkForUpdate
+    // Stub para o checkForUpdate
     when(mockUpdateService.checkForUpdate())
         .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
   });
 
-  // Helper para construir o widget de teste com o contexto necessário
   Future<void> pumpWidget(WidgetTester tester) async {
     await tester.pumpWidget(
       fluent.FluentApp(
@@ -70,10 +69,10 @@ void main() {
       // Clica para mudar para Grid
       await tester.tap(viewButtonFinder);
       await tester.pumpAndSettle();
-      expect(find.byIcon(fluent.FluentIcons.board), findsOneWidget);
+      expect(find.byIcon(fluent.FluentIcons.home), findsOneWidget);
 
       // Clica para mudar para Staggered Grid
-      await tester.tap(find.byIcon(fluent.FluentIcons.board));
+      await tester.tap(find.byIcon(fluent.FluentIcons.home));
       await tester.pumpAndSettle();
       expect(find.byIcon(fluent.FluentIcons.table), findsOneWidget);
       return;
@@ -122,7 +121,6 @@ void main() {
       await pumpWidget(tester);
       await tester.pumpAndSettle();
 
-      // A solução de envolver com MaterialApp garante que o SnackBar funcione
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Erro ao carregar notas'), findsOneWidget);
       return;

@@ -19,7 +19,7 @@ void main() {
     mockUpdateService = MockUpdateService();
     mockNavigatorObserver = MockNavigatorObserver();
 
-    // Stub definitivo para o checkForUpdate
+    // Stub para o checkForUpdate
     when(mockUpdateService.checkForUpdate())
         .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
   });
