@@ -11,7 +11,7 @@ class FluentContextMenuHelper {
     required void Function(Note) onSave,
     required void Function(Note) onDelete,
   }) async {
-    await controller.showFlyout(
+    await controller.showFlyout<void>(
       dismissOnPointerMoveAway: true,
       builder: (context) {
         return MenuFlyout(

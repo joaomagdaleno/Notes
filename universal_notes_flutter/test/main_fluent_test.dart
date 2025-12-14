@@ -120,9 +120,7 @@ void main() {
         date: DateTime.now(),
       );
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => [note]);
-      when(mockNoteRepository.updateNote(any)).thenAnswer((_) async {
-        return null;
-      });
+      when(mockNoteRepository.updateNote(any)).thenAnswer((_) async {});
 
       await pumpWidget(tester);
       await tester.pumpAndSettle();
