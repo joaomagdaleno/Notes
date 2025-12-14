@@ -169,7 +169,7 @@ void main() {
           expect(find.byType(AboutScreen), findsOneWidget);
 
           // Pop
-          await tester.tap(find.byIcon(fluent.FluentIcons.back));
+          await tester.pageBack();
           await tester.pumpAndSettle();
 
           expect(find.byType(SettingsScreen), findsOneWidget);

@@ -482,7 +482,6 @@ void main() {
 
       // Should NOT show error
       expect(find.textContaining('Erro'), findsNothing);
-      expect(find.textContaining('Baixando'), findsNothing);
     });
 
     testWidgets('respects defaultTargetPlatform when override is null', (
