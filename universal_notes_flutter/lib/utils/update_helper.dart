@@ -25,10 +25,11 @@ class UpdateHelper {
     void Function(String)? onError,
   }) async {
     final messenger =
-        scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
+        scaffoldMessengerKey?.currentState ??
+        ScaffoldMessenger.maybeOf(context);
 
     if (isManual && onError == null) {
-      messenger.showSnackBar(
+      messenger?.showSnackBar(
         const SnackBar(content: Text('Verificando atualizações...')),
       );
     }
@@ -39,7 +40,7 @@ class UpdateHelper {
     if (!context.mounted) return;
 
     if (isManual && onError == null) {
-      messenger.hideCurrentSnackBar();
+      messenger?.hideCurrentSnackBar();
     }
 
     switch (result.status) {
@@ -56,9 +57,9 @@ class UpdateHelper {
         if (onNoUpdate != null) {
           onNoUpdate();
         } else if (isManual) {
-          messenger.showSnackBar(
+          messenger?.showSnackBar(
             const SnackBar(
-              content: Text('Você já tem a versão mais recente.'),
+              content: Text('Você já está na versão mais recente.'),
             ),
           );
         }
@@ -67,7 +68,7 @@ class UpdateHelper {
         if (onError != null) {
           onError(message);
         } else if (isManual) {
-          messenger.showSnackBar(
+          messenger?.showSnackBar(
             SnackBar(
               content: Text(message),
             ),

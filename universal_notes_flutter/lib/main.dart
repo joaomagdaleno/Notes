@@ -114,9 +114,11 @@ class MyFluentApp extends StatelessWidget {
         brightness: fluent.Brightness.dark,
       ),
       themeMode: ThemeMode.system,
-      home: NotesScreen(
-        noteRepository: noteRepository,
-        updateService: updateService,
+      home: ScaffoldMessenger(
+        child: NotesScreen(
+          noteRepository: noteRepository,
+          updateService: updateService,
+        ),
       ),
       navigatorObservers: navigatorObservers ?? const [],
     );
@@ -131,6 +133,7 @@ class MyApp extends StatelessWidget {
     this.noteRepository,
     this.updateService,
     this.navigatorObservers,
+    this.debugPlatform,
   });
 
   /// The repository for notes.
@@ -141,6 +144,9 @@ class MyApp extends StatelessWidget {
 
   /// A list of navigator observers.
   final List<NavigatorObserver>? navigatorObservers;
+
+  /// Optional platform override for testing purposes.
+  final TargetPlatform? debugPlatform;
 
   @override
   Widget build(BuildContext context) {
@@ -169,6 +175,7 @@ class MyApp extends StatelessWidget {
       home: NotesScreen(
         noteRepository: noteRepository,
         updateService: updateService,
+        debugPlatform: debugPlatform,
       ),
       navigatorObservers: navigatorObservers ?? const [],
     );

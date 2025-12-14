@@ -53,16 +53,6 @@ class _AboutScreenState extends State<AboutScreen> {
       context,
       isManual: true,
       updateService: widget.updateService,
-      onNoUpdate: () {
-        if (mounted) {
-          _updateStatus.value = 'Você já está na versão mais recente.';
-        }
-      },
-      onError: (message) {
-        if (mounted) {
-          _updateStatus.value = message;
-        }
-      },
     );
 
     if (mounted) {

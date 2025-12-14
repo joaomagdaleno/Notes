@@ -21,6 +21,24 @@ void main() {
     when(
       mockUpdateService.checkForUpdate(),
     ).thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
+
+    // Stub para getAllNotes
+    when(mockNoteRepository.getAllNotes()).thenAnswer(
+      (_) async => [
+        Note(
+          id: '1',
+          title: 'Nota 1',
+          content: 'Conteúdo da nota 1',
+          date: DateTime.now(),
+        ),
+        Note(
+          id: '2',
+          title: 'Nota 2',
+          content: 'Conteúdo da nota 2',
+          date: DateTime.now(),
+        ),
+      ],
+    );
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
@@ -37,9 +55,11 @@ void main() {
           noteRepository: mockNoteRepository,
           updateService: mockUpdateService,
           navigatorObservers: [mockNavigatorObserver],
+          debugPlatform: TargetPlatform.android,
         ),
       ),
     );
+    await tester.pumpAndSettle();
   }
 
   group('MyApp Material UI Tests', () {

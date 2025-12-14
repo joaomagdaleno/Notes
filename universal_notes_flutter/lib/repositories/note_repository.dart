@@ -50,6 +50,7 @@ class NoteRepository {
         isFavorite INTEGER,
         isLocked INTEGER,
         isInTrash INTEGER,
+        isDeleted INTEGER,
         drawingJson TEXT,
         prefsJson TEXT
       )
