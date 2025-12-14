@@ -60,7 +60,7 @@ class FluentContextMenuHelper {
   ) {
     return [
       MenuFlyoutItem(
-        leading: const Icon(FluentIcons.restore),
+        leading: const Icon(FluentIcons.history),
         text: const Text('Restore'),
         onPressed: () {
           note.isInTrash = false;
@@ -69,7 +69,7 @@ class FluentContextMenuHelper {
       ),
       const MenuFlyoutSeparator(),
       MenuFlyoutItem(
-        leading: const Icon(FluentIcons.delete_forever),
+        leading: const Icon(FluentIcons.trash),
         text: const Text('Delete permanently'),
         onPressed: () {
           onDelete(note);

@@ -29,7 +29,6 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         onGenerateRoute: (settings) {
-          // Sempre retorne uma rota válida.
           return MaterialPageRoute(
             builder: (context) => const SizedBox.shrink(),
           );
