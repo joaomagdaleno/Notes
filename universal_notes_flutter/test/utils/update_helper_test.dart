@@ -160,7 +160,7 @@ void main() {
       await tester.tap(find.byType(ElevatedButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('Você já tem a versão mais recente.'), findsOneWidget);
+      expect(find.text('Você já está na versão mais recente.'), findsOneWidget);
     });
 
     testWidgets('shows error snackbar on check failure', (tester) async {

@@ -176,7 +176,7 @@ void main() {
         mockNoteRepository.updateNote(captureAny),
       ).captured;
       final capturedNote = captured.single as Note;
-      expect(capturedNote.isDeleted, isTrue);
+      expect(capturedNote.isInTrash, isTrue);
     });
 
     // testWidgets(

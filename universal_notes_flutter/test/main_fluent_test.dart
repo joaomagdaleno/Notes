@@ -155,16 +155,14 @@ void main() {
       await tester.pumpAndSettle();
 
       // Encontra e clica no item "Move to Trash" do menu
-      await tester.tap(
-        find.widgetWithText(fluent.MenuFlyoutItem, 'Move to Trash'),
-      );
+      await tester.tap(find.text('Move to Trash'));
       await tester.pumpAndSettle();
 
       final captured = verify(
         mockNoteRepository.updateNote(captureAny),
       ).captured;
       final capturedNote = captured.single as Note;
-      expect(capturedNote.isDeleted, isTrue);
+      expect(capturedNote.isInTrash, isTrue);
     });
 
     // testWidgets(

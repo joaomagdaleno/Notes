@@ -53,22 +53,20 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
       controller: _flyoutController,
       child: GestureDetector(
         onTap: widget.onTap,
-        onSecondaryTapUp: (d) {
-          _flyoutController.showFlyout(
+        onSecondaryTapUp: (d) async {
+          await _flyoutController.showFlyout<void>(
             autoModeConfiguration: fluent.FlyoutAutoConfiguration(
               preferredMode: fluent.FlyoutPlacementMode.topCenter,
             ),
-            barrierDismissible: true,
-            dismissOnPointerMoveAway: false,
             builder: (context) {
               return fluent.MenuFlyout(
                 items: [
                   fluent.MenuFlyoutItem(
                     text: const Text('Move to Trash'),
                     leading: const fluent.Icon(fluent.FluentIcons.delete),
-                    onPressed: () {
+                    onPressed: () async {
                       final updatedNote = widget.note.copyWith(isInTrash: true);
-                      widget.onSave(updatedNote);
+                      await widget.onSave(updatedNote);
                       fluent.Navigator.of(context).pop();
                     },
                   ),
