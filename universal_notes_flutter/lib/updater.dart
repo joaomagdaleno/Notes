@@ -39,8 +39,17 @@ class Updater {
         );
       }
 
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      final tagName = json['tag_name'] as String;
+      final decodedJson = jsonDecode(response.body);
+      if (decodedJson is! Map<String, dynamic>) {
+        throw Exception('Resposta da API de atualização inválida.');
+      }
+      final json = decodedJson;
+
+      final tagName = json['tag_name'];
+      if (tagName is! String) {
+        throw Exception('Nome da tag não encontrado na resposta da API.');
+      }
+
       // Remove 'v' prefix if present (e.g., 'v1.0.0' -> '1.0.0')
       final latestVersionStr =
           tagName.startsWith('v') ? tagName.substring(1) : tagName;
@@ -51,7 +60,10 @@ class Updater {
         return;
       }
 
-      final assets = json['assets'] as List;
+      final assets = json['assets'];
+      if (assets is! List) {
+        throw Exception('Nenhum ativo de release encontrado na resposta da API.');
+      }
       Map<String, dynamic> asset;
       try {
         asset = assets.firstWhere(
@@ -62,7 +74,10 @@ class Updater {
         throw Exception('No installer found for the latest version');
       }
 
-      final downloadUrl = asset['browser_download_url'] as String;
+      final downloadUrl = asset['browser_download_url'];
+      if (downloadUrl is! String) {
+        throw Exception('URL de download não encontrada no ativo de release.');
+      }
 
       if (!context.mounted) return;
 
@@ -98,7 +113,10 @@ class Updater {
       // A predictable filename can be overwritten by a malicious actor
       // before it is executed.
       const uuid = Uuid();
-      final originalFileName = asset['name'] as String;
+      final originalFileName = asset['name'];
+      if (originalFileName is! String) {
+        throw Exception('Nome do arquivo original não encontrado no ativo de release.');
+      }
       final extension = originalFileName.contains('.')
           ? originalFileName.substring(originalFileName.lastIndexOf('.'))
           : '';
