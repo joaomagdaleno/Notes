@@ -129,7 +129,7 @@ void main() {
       await tester.tap(find.text('Verificar Atualizações'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Você já tem a versão mais recente.'), findsOneWidget);
+      expect(find.text('Você já está na versão mais recente.'), findsOneWidget);
     });
 
     testWidgets('shows SnackBar on error', (tester) async {
@@ -183,7 +183,7 @@ void main() {
 
       // We cannot use pumpAndSettle here because the underlying button
       // is still showing CircularProgressIndicator (checking=true) while the
-      // dialog is open, creating an infinite animation that 
+      // dialog is open, creating an infinite animation that
       //causes pumpAndSettle
       // to timeout.
       await tester.pump(); // Start async work
