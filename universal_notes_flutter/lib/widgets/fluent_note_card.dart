@@ -4,9 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/utils/text_helpers.dart';
+import 'package:universal_notes_flutter/widgets/fluent_context_menu_helper.dart';
 
 /// A widget that displays a note as a card with a fluent design.
-class FluentNoteCard extends StatelessWidget {
+class FluentNoteCard extends StatefulWidget {
   /// Creates a new instance of [FluentNoteCard].
   const FluentNoteCard({
     required this.note,
@@ -29,6 +30,19 @@ class FluentNoteCard extends StatelessWidget {
   // Re-creating DateFormat on every build is inefficient.
   // This avoids repeated object creation.
   static final _dateFormat = DateFormat('d MMM. yyyy');
+
+  @override
+  State<FluentNoteCard> createState() => _FluentNoteCardState();
+}
+
+class _FluentNoteCardState extends State<FluentNoteCard> {
+  final _flyoutController = fluent.FlyoutController();
+
+  @override
+  void dispose() {
+    _flyoutController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

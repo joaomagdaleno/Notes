@@ -14,6 +14,7 @@ class Note {
     this.isFavorite = false,
     this.isLocked = false,
     this.isInTrash = false,
+    this.isDeleted = false, // Adicionado
     this.drawingJson,
     this.prefsJson,
   }) : id = id ?? uuid.v4();
@@ -24,10 +25,13 @@ class Note {
       id: map['id'] as String?,
       title: map['title'] as String,
       content: map['content'] as String,
-      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
-      isFavorite: (map['isFavorite'] as int) == 1,
-      isLocked: (map['isLocked'] as int) == 1,
-      isInTrash: (map['isInTrash'] as int) == 1,
+      date: DateTime.fromMillisecondsSinceEpoch(
+        map['date'] as int,
+      ),
+      isFavorite: (map['isFavorite'] as int? ?? 0) == 1,
+      isLocked: (map['isLocked'] as int? ?? 0) == 1,
+      isInTrash: (map['isInTrash'] as int? ?? 0) == 1,
+      isDeleted: (map['isDeleted'] as int? ?? 0) == 1, // Adicionado com fallback
       drawingJson: map['drawingJson'] as String?,
       prefsJson: map['prefsJson'] as String?,
     );
@@ -54,6 +58,9 @@ class Note {
   /// Whether the note is in the trash.
   bool isInTrash;
 
+  /// Whether the note is marked as deleted.
+  bool isDeleted; // Adicionado
+
   /// The drawing data associated with the note, in JSON format.
   String? drawingJson;
 
@@ -70,6 +77,7 @@ class Note {
     bool? isFavorite,
     bool? isLocked,
     bool? isInTrash,
+    bool? isDeleted, // Adicionado
     String? drawingJson,
     String? prefsJson,
   }) {
@@ -81,6 +89,7 @@ class Note {
       isFavorite: isFavorite ?? this.isFavorite,
       isLocked: isLocked ?? this.isLocked,
       isInTrash: isInTrash ?? this.isInTrash,
+      isDeleted: isDeleted ?? this.isDeleted, // Adicionado
       drawingJson: drawingJson ?? this.drawingJson,
       prefsJson: prefsJson ?? this.prefsJson,
     );
@@ -96,6 +105,7 @@ class Note {
       'isFavorite': isFavorite ? 1 : 0,
       'isLocked': isLocked ? 1 : 0,
       'isInTrash': isInTrash ? 1 : 0,
+      'isDeleted': isDeleted ? 1 : 0, // Adicionado
       'drawingJson': drawingJson,
       'prefsJson': prefsJson,
     };
