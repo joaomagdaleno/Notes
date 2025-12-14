@@ -67,7 +67,9 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
                     onPressed: () async {
                       final updatedNote = widget.note.copyWith(isInTrash: true);
                       await widget.onSave(updatedNote);
-                      fluent.Navigator.of(context).pop();
+                      if (context.mounted) {
+                        fluent.Navigator.of(context).pop();
+                      }
                     },
                   ),
                 ],
