@@ -25,7 +25,6 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
-    // CORREÇÃO: Envolvendo o widget com MaterialApp para fornecer contexto de navegação.
     await tester.pumpWidget(
       MaterialApp(
         onGenerateRoute: (settings) {
@@ -33,7 +32,7 @@ void main() {
             builder: (context) => const SizedBox.shrink(),
           );
         },
-        home: MyApp(
+        home: MyMaterialApp(
           noteRepository: mockNoteRepository,
           updateService: mockUpdateService,
           navigatorObservers: [mockNavigatorObserver],

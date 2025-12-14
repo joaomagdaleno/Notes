@@ -27,7 +27,6 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
-    // CORREÇÃO: Envolvendo o widget com FluentApp para fornecer contexto de navegação.
     await tester.pumpWidget(
       fluent.FluentApp(
         onGenerateRoute: (settings) {
