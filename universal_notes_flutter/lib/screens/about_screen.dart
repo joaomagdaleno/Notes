@@ -46,12 +46,23 @@ class _AboutScreenState extends State<AboutScreen> {
 
   Future<void> _checkForUpdate() async {
     _isChecking.value = true;
+    _updateStatus.value = '';
 
     if (!mounted) return;
     await UpdateHelper.checkForUpdate(
       context,
       isManual: true,
       updateService: widget.updateService,
+      onNoUpdate: () {
+        if (mounted) {
+          _updateStatus.value = 'Você já está na versão mais recente.';
+        }
+      },
+      onError: (message) {
+        if (mounted) {
+          _updateStatus.value = message;
+        }
+      },
     );
 
     if (mounted) {
@@ -117,7 +128,7 @@ class _AboutScreenState extends State<AboutScreen> {
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
-              // ⚡ Bolt: Using ValueListenableBuilder to rebuild only the button
+              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the button
               // when the `_isChecking` state changes. This is more efficient
               // than rebuilding the entire screen with `setState`.
               ValueListenableBuilder<bool>(
@@ -137,7 +148,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   );
                 },
               ),
-              // ⚡ Bolt: Using ValueListenableBuilder to rebuild only the status
+              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the status
               // text when the `_updateStatus` state changes.
               ValueListenableBuilder<String>(
                 valueListenable: _updateStatus,
@@ -173,7 +184,7 @@ class _AboutScreenState extends State<AboutScreen> {
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
-              // ⚡ Bolt: Using ValueListenableBuilder to rebuild only the button
+              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the button
               // when the `_isChecking` state changes. This is more efficient
               // than rebuilding the entire screen with `setState`.
               ValueListenableBuilder<bool>(

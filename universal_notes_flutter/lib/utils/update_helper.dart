@@ -21,11 +21,13 @@ class UpdateHelper {
     http.Client? httpClient,
     GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
     Future<OpenResult> Function(String)? openFile,
+    void Function()? onNoUpdate,
+    void Function(String)? onError,
   }) async {
     final messenger =
         scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context);
 
-    if (isManual) {
+    if (isManual && onError == null) {
       messenger.showSnackBar(
         const SnackBar(content: Text('Verificando atualizações...')),
       );
@@ -36,7 +38,7 @@ class UpdateHelper {
 
     if (!context.mounted) return;
 
-    if (isManual) {
+    if (isManual && onError == null) {
       messenger.hideCurrentSnackBar();
     }
 
@@ -51,7 +53,9 @@ class UpdateHelper {
           openFile: openFile,
         );
       case UpdateCheckStatus.noUpdate:
-        if (isManual) {
+        if (onNoUpdate != null) {
+          onNoUpdate();
+        } else if (isManual) {
           messenger.showSnackBar(
             const SnackBar(
               content: Text('Você já tem a versão mais recente.'),
@@ -59,12 +63,13 @@ class UpdateHelper {
           );
         }
       case UpdateCheckStatus.error:
-        if (isManual) {
+        final message = result.errorMessage ?? 'Ocorreu um erro desconhecido.';
+        if (onError != null) {
+          onError(message);
+        } else if (isManual) {
           messenger.showSnackBar(
             SnackBar(
-              content: Text(
-                result.errorMessage ?? 'Ocorreu um erro desconhecido.',
-              ),
+              content: Text(message),
             ),
           );
         }
