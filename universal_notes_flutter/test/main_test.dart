@@ -351,9 +351,9 @@ void main() {
     testWidgets('shows error message when future fails', (tester) async {
       // Using a completer to properly control the error timing
       final completer = Completer<List<Note>>();
-      // Ignore the error locally to prevent it from bubbling up as an unhandled exception
-      // before the FutureBuilder can handle it.
-      completer.future.catchError((_) => <Note>[]);
+      // Ignore the error locally to prevent it from bubbling up as an unhandled
+      // exception before the FutureBuilder can handle it.
+      unawaited(completer.future.catchError((_) => <Note>[]));
       completer.completeError('Test error');
 
       await tester.pumpWidget(
@@ -763,8 +763,9 @@ void main() {
       if (platform == TargetPlatform.windows) {
         await tester.pumpWidget(
           fluent.FluentApp(
-            // Wrap in Material to support Material widgets (like ListTile in list mode)
-            // even when testing Fluent layout structure to some extent.
+            // Wrap in Material to support Material widgets (like ListTile in
+            // list mode) even when testing Fluent layout structure to some
+            // extent.
             home: Material(child: widget),
           ),
         );
