@@ -30,6 +30,14 @@ void main() {
     // CORREÇÃO: Envolvendo o widget com FluentApp para fornecer contexto de navegação.
     await tester.pumpWidget(
       fluent.FluentApp(
+        onGenerateRoute: (settings) {
+          // ADICIONE ESTA LINHA PARA DIAGNÓSTICO
+          print('onGenerateRoute called for: ${settings.name}');
+
+          return fluent.FluentPageRoute(
+            builder: (context) => const SizedBox.shrink(),
+          );
+        },
         home: MyFluentApp(
           noteRepository: mockNoteRepository,
           updateService: mockUpdateService,

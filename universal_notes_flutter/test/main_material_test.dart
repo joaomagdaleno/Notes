@@ -28,6 +28,14 @@ void main() {
     // CORREÇÃO: Envolvendo o widget com MaterialApp para fornecer contexto de navegação.
     await tester.pumpWidget(
       MaterialApp(
+        onGenerateRoute: (settings) {
+          // ADICIONE ESTA LINHA PARA DIAGNÓSTICO
+          print('onGenerateRoute called for: ${settings.name}');
+
+          return MaterialPageRoute(
+            builder: (context) => const SizedBox.shrink(),
+          );
+        },
         home: MyApp(
           noteRepository: mockNoteRepository,
           updateService: mockUpdateService,
