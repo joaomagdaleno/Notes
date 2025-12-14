@@ -26,6 +26,7 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
+    // CORREÇÃO: Envolvendo o widget com MaterialApp para fornecer contexto de navegação.
     await tester.pumpWidget(
       MaterialApp(
         home: MyApp(
@@ -38,10 +39,19 @@ void main() {
   }
 
   group('MyApp Material UI Tests', () {
-    testWidgets('Deve renderizar a UI inicial com notas', (WidgetTester tester) async {
+    testWidgets('Deve renderizar a UI inicial com notas',
+        (WidgetTester tester) async {
       final notes = [
-        Note(id: '1', title: 'Nota 1', content: 'Conteúdo 1', date: DateTime.now()),
-        Note(id: '2', title: 'Nota 2', content: 'Conteúdo 2', date: DateTime.now()),
+        Note(
+            id: '1',
+            title: 'Nota 1',
+            content: 'Conteúdo 1',
+            date: DateTime.now()),
+        Note(
+            id: '2',
+            title: 'Nota 2',
+            content: 'Conteúdo 2',
+            date: DateTime.now()),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
@@ -54,7 +64,8 @@ void main() {
       expect(find.byIcon(Icons.view_list), findsOneWidget);
     });
 
-    testWidgets('Deve alternar entre os modos de visualização (lista -> grid)', (WidgetTester tester) async {
+    testWidgets('Deve alternar entre os modos de visualização (lista -> grid)',
+        (WidgetTester tester) async {
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
 
       await pumpWidget(tester);
@@ -73,7 +84,8 @@ void main() {
       expect(find.byType(GridView), findsOneWidget);
     });
 
-    testWidgets('Deve navegar para a tela de nova nota ao pressionar o FAB', (WidgetTester tester) async {
+    testWidgets('Deve navegar para a tela de nova nota ao pressionar o FAB',
+        (WidgetTester tester) async {
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
 
       await pumpWidget(tester);
@@ -85,8 +97,14 @@ void main() {
       verify(mockNavigatorObserver.didPush(any, any));
     });
 
-    testWidgets('Deve navegar para a tela de edição de nota ao tocar em uma nota', (WidgetTester tester) async {
-      final note = Note(id: '1', title: 'Nota Editável', content: 'Conteúdo', date: DateTime.now());
+    testWidgets(
+        'Deve navegar para a tela de edição de nota ao tocar em uma nota',
+        (WidgetTester tester) async {
+      final note = Note(
+          id: '1',
+          title: 'Nota Editável',
+          content: 'Conteúdo',
+          date: DateTime.now());
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => [note]);
 
       await pumpWidget(tester);
@@ -98,8 +116,14 @@ void main() {
       verify(mockNavigatorObserver.didPush(any, any));
     });
 
-    testWidgets('Deve mover a nota para a lixeira ao usar o menu de contexto', (WidgetTester tester) async {
-      final note = Note(id: '1', title: 'Nota para Lixeira', content: 'Conteúdo', date: DateTime.now());
+    testWidgets(
+        'Deve mover a nota para a lixeira ao usar o menu de contexto',
+        (WidgetTester tester) async {
+      final note = Note(
+          id: '1',
+          title: 'Nota para Lixeira',
+          content: 'Conteúdo',
+          date: DateTime.now());
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => [note]);
       when(mockNoteRepository.updateNote(any)).thenAnswer((_) async {});
 
@@ -114,12 +138,17 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verifica se o método de update foi chamado com a nota marcada como deletada
-      final captured = verify(mockNoteRepository.updateNote(captureAny)).captured;
-      expect(captured.single.isDeleted, isTrue);
+      final captured =
+          verify(mockNoteRepository.updateNote(captureAny)).captured;
+      final capturedNote = captured.single as Note;
+      expect(capturedNote.isDeleted, isTrue);
     });
 
-    testWidgets('Deve exibir uma mensagem de erro se o carregamento de notas falhar', (WidgetTester tester) async {
-      when(mockNoteRepository.getAllNotes()).thenThrow(Exception('Falha ao carregar'));
+    testWidgets(
+        'Deve exibir uma mensagem de erro se o carregamento de notas falhar',
+        (WidgetTester tester) async {
+      when(mockNoteRepository.getAllNotes())
+          .thenThrow(Exception('Falha ao carregar'));
 
       await pumpWidget(tester);
       await tester.pumpAndSettle();
