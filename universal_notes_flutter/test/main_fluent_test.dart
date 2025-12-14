@@ -30,6 +30,13 @@ void main() {
     // CORREÇÃO: Envolvendo o widget com FluentApp para fornecer contexto de navegação.
     await tester.pumpWidget(
       fluent.FluentApp(
+        onGenerateRoute: (settings) {
+          // Sempre retorne uma rota válida para evitar o erro de null.
+          // Isso satisfaz o analisador estático.
+          return fluent.FluentPageRoute(
+            builder: (context) => const SizedBox.shrink(),
+          );
+        },
         home: MyFluentApp(
           noteRepository: mockNoteRepository,
           updateService: mockUpdateService,
