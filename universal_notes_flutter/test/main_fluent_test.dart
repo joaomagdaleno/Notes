@@ -30,6 +30,7 @@ void main() {
     await tester.pumpWidget(
       fluent.FluentApp(
         onGenerateRoute: (settings) {
+          // Sempre retorna uma rota válida para evitar o erro de null.
           return fluent.FluentPageRoute(
             builder: (context) => const SizedBox.shrink(),
           );
