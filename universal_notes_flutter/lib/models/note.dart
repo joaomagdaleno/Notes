@@ -25,7 +25,9 @@ class Note {
       id: map['id'] as String?,
       title: map['title'] as String,
       content: map['content'] as String,
-      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
+      date: DateTime.fromMillisecondsSinceEpoch(
+        map['date'] as int,
+      ),
       isFavorite: (map['isFavorite'] as int? ?? 0) == 1,
       isLocked: (map['isLocked'] as int? ?? 0) == 1,
       isInTrash: (map['isInTrash'] as int? ?? 0) == 1,

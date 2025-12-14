@@ -22,9 +22,8 @@ void main() {
     mockNavigatorObserver = MockNavigatorObserver();
 
     // Stub para o checkForUpdate
-    when(mockUpdateService.checkForUpdate()).thenAnswer(
-      (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
-    );
+    when(mockUpdateService.checkForUpdate())
+        .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
@@ -80,10 +79,10 @@ void main() {
       // Clica para mudar para Grid
       await tester.tap(viewButtonFinder);
       await tester.pumpAndSettle();
-      expect(find.byIcon(fluent.FluentIcons.grid), findsOneWidget);
+      expect(find.byIcon(fluent.FluentIcons.home), findsOneWidget);
 
       // Clica para mudar para Staggered Grid
-      await tester.tap(find.byIcon(fluent.FluentIcons.grid));
+      await tester.tap(find.byIcon(fluent.FluentIcons.home));
       await tester.pumpAndSettle();
       expect(find.byIcon(fluent.FluentIcons.table), findsOneWidget);
     });
