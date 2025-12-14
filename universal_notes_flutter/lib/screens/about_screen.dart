@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
@@ -86,7 +85,7 @@ class _AboutScreenState extends State<AboutScreen> {
   Widget build(BuildContext context) {
     final isWindows = widget.debugPlatform != null
         ? widget.debugPlatform == TargetPlatform.windows
-        : Platform.isWindows;
+        : defaultTargetPlatform == TargetPlatform.windows;
 
     if (isWindows) {
       return _buildFluentUI(context);

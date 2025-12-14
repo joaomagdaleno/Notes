@@ -15,12 +15,16 @@ class FluentNoteCard extends StatefulWidget {
     required this.onTap,
     super.key,
   });
+
   /// The note to display.
   final Note note;
+
   /// The function to call when the note is saved.
   final Future<Note> Function(Note) onSave;
+
   /// The function to call when the note is deleted.
   final void Function(Note) onDelete;
+
   /// The function to call when the widget is tapped.
   /// If null, it will navigate to the [NoteEditorScreen].
   final VoidCallback onTap;
@@ -45,35 +49,62 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: fluent.Card(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.note.title,
-                style: fluent.FluentTheme.of(context).typography.bodyLarge,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: Text(
-                  getPreviewText(widget.note.content),
-                  style: fluent.FluentTheme.of(context).typography.body,
+    return fluent.FlyoutTarget(
+      controller: _flyoutController,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onSecondaryTapUp: (d) {
+          _flyoutController.showFlyout(
+            autoModeConfiguration: fluent.FlyoutAutoConfiguration(
+              preferredMode: fluent.FlyoutPlacementMode.topCenter,
+            ),
+            barrierDismissible: true,
+            dismissOnPointerMoveAway: false,
+            builder: (context) {
+              return fluent.MenuFlyout(
+                items: [
+                  fluent.MenuFlyoutItem(
+                    text: const Text('Move to Trash'),
+                    leading: const fluent.Icon(fluent.FluentIcons.delete),
+                    onPressed: () {
+                      final updatedNote = widget.note.copyWith(isInTrash: true);
+                      widget.onSave(updatedNote);
+                      fluent.Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        child: fluent.Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.note.title,
+                  style: fluent.FluentTheme.of(context).typography.bodyLarge,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  maxLines: 5,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                FluentNoteCard._dateFormat.format(widget.note.date),
-                style: fluent.FluentTheme.of(context).typography.caption,
-              ),
-            ],
+                const SizedBox(height: 8),
+                Expanded(
+                  child: Text(
+                    getPreviewText(widget.note.content),
+                    style: fluent.FluentTheme.of(context).typography.body,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  FluentNoteCard._dateFormat.format(widget.note.date),
+                  style: fluent.FluentTheme.of(context).typography.caption,
+                ),
+              ],
+            ),
           ),
         ),
       ),
