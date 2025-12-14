@@ -27,10 +27,13 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
+    // CORREÇÃO: Envolvendo o widget com FluentApp para fornecer contexto de navegação.
     await tester.pumpWidget(
       fluent.FluentApp(
         onGenerateRoute: (settings) {
-          // Sempre retorna uma rota válida para evitar o erro de null.
+          // ADICIONE ESTA LINHA PARA DIAGNÓSTICO
+          print('onGenerateRoute called for: ${settings.name}');
+
           return fluent.FluentPageRoute(
             builder: (context) => const SizedBox.shrink(),
           );

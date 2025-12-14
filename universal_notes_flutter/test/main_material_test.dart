@@ -25,10 +25,13 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
+    // CORREÇÃO: Envolvendo o widget com MaterialApp para fornecer contexto de navegação.
     await tester.pumpWidget(
       MaterialApp(
         onGenerateRoute: (settings) {
-          // Sempre retorna uma rota válida para evitar o erro de null.
+          // ADICIONE ESTA LINHA PARA DIAGNÓSTICO
+          print('onGenerateRoute called for: ${settings.name}');
+
           return MaterialPageRoute(
             builder: (context) => const SizedBox.shrink(),
           );
