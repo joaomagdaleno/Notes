@@ -47,6 +47,7 @@ app.*.map.json
 
 # Android related
 /android/local.properties
+*.apk
 
 # iOS related
 /ios/Flutter/Generated.xcconfig
