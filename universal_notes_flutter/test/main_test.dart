@@ -9,7 +9,13 @@ import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
+import 'package:mockito/mockito.dart';
+import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
+import 'package:universal_notes_flutter/widgets/note_card.dart';
+import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
+
+import 'mocks/mocks.mocks.dart' hide MockUpdateService;
 
 // Mock class for testing purposes.
 class MockUpdateService extends UpdateService {
@@ -1053,6 +1059,201 @@ void main() {
 
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();
+    });
+  });
+
+  // --- Project-Wide 100% Coverage Gap Tests ---
+
+  group('NotesScreen Data Operations', () {
+    testWidgets('creating a new note calls insertNote', (tester) async {
+      tester.view.physicalSize = const Size(600, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final mockRepo = MockNoteRepository();
+      when(
+        mockRepo.getAllNotes(),
+      ).thenAnswer((_) async => <Note>[]); // Start empty
+      when(mockRepo.insertNote(any)).thenAnswer((_) async => '100');
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: NotesScreen(
+            notesFuture: Future.value([]),
+            updateService: MockUpdateService(),
+            noteRepository: mockRepo,
+            debugPlatform: TargetPlatform.android,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap FAB to go to editor
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      // NoteEditorScreen is a placeholder, so we can't interact with fields.
+      // Instead, we find the widget and invoke onSave directly to test the callback logic in main.dart.
+      final editorFinder = find.byType(NoteEditorScreen);
+      expect(editorFinder, findsOneWidget);
+      final NoteEditorScreen editor = tester.widget(editorFinder);
+
+      final newNote = Note(
+        id: '', // Empty ID for new note
+        title: 'New Note',
+        content: 'Content',
+        date: DateTime.now(),
+      );
+
+      // Invoke onSave
+      await editor.onSave(newNote);
+      await tester.pump();
+
+      // Verify insertNote was called on repo with ANY note (since we created a new one)
+      verify(mockRepo.insertNote(any)).called(1);
+      // Verify refreshed (1 call because initial load used notesFuture parameter, not repo)
+      verify(mockRepo.getAllNotes()).called(1);
+    });
+
+    testWidgets('deleting a note calls deleteNote', (tester) async {
+      final mockRepo = MockNoteRepository();
+      final testNote = Note(
+        id: '123',
+        title: 'Delete Me',
+        content: 'Content',
+        date: DateTime.now(),
+      );
+
+      when(mockRepo.getAllNotes()).thenAnswer((_) async => [testNote]);
+      when(mockRepo.deleteNote(any)).thenAnswer((_) async {});
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: NotesScreen(
+            notesFuture: Future.value([testNote]),
+            updateService: MockUpdateService(),
+            noteRepository: mockRepo,
+            debugPlatform: TargetPlatform.android,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Use NoteCard widget directly to invoke onDelete, bypassing UI icon visibility issues
+      final cardFinder = find.byType(NoteCard);
+      expect(cardFinder, findsOneWidget);
+      final NoteCard card = tester.widget(cardFinder);
+
+      // Invoke onDelete
+      card.onDelete(testNote);
+      await tester.pumpAndSettle();
+
+      verify(mockRepo.deleteNote('123')).called(1);
+    });
+  });
+
+  group('NotesScreen Unimplemented Actions', () {
+    testWidgets('tapping search and sort on Android does not crash', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: NotesScreen(
+            notesFuture: Future.value([]),
+            updateService: MockUpdateService(),
+            debugPlatform: TargetPlatform.android,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Search button
+      await tester.tap(find.byIcon(Icons.search));
+      await tester.pump();
+
+      // Sort menu
+      // Find PopupMenuButton
+      await tester.tap(find.byTooltip('Mais opções')); // or find.byType
+      await tester.pumpAndSettle();
+
+      // Tap 'Ordenar por'
+      await tester.tap(find.text('Ordenar por'));
+      await tester.pumpAndSettle();
+
+      // Tap 'Outra Ação'
+      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Outra Ação'));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('tapping search and sort on Windows does not crash', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        fluent.FluentApp(
+          home: NotesScreen(
+            notesFuture: Future.value([]),
+            updateService: MockUpdateService(),
+            debugPlatform: TargetPlatform.windows,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Windows uses CommandBar
+      // Search
+      await tester.tap(find.text('Pesquisar'));
+      await tester.pumpAndSettle();
+
+      // Sort
+      await tester.tap(find.text('Ordenar'));
+      await tester.pumpAndSettle();
+    });
+  });
+
+  group('NotesScreen Windows Interaction', () {
+    testWidgets('tapping a note card on Windows navigates', (tester) async {
+      final testNote = Note(
+        id: '1',
+        title: 'Win Note',
+        content: 'Content',
+        date: DateTime.now(),
+      );
+      await tester.pumpWidget(
+        fluent.FluentApp(
+          home: Material(
+            // Wrap for Navigator support if needed by FluentPageRoute?
+            // Actually FluentApp has its own Navigator.
+            // But NoteScreen uses Navigator.of(context).
+            child: NotesScreen(
+              notesFuture: Future.value([testNote]),
+              updateService: MockUpdateService(),
+              debugPlatform: TargetPlatform.windows,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Find the card and tap it
+      final cardFinder = find.widgetWithText(FluentNoteCard, 'Win Note');
+      await tester.tap(cardFinder);
+      await tester.pumpAndSettle();
+
+      // Should be in editor. Editor title check?
+      // Assuming 'Win Note' is still visible as title in editor or similar.
+      expect(find.byType(NoteEditorScreen), findsOneWidget);
     });
   });
 }

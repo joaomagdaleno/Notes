@@ -1,0 +1,158 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/coverage_helper_test.dart
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/coverage_helper_test.dart: coverage helper
+00:01 +1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_fluent_test.dart: MyFluentApp UI Tests Deve renderizar a UI inicial com notas
+00:06 +2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_fluent_test.dart: MyFluentApp UI Tests Deve renderizar a UI inicial com notas
+00:07 +3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_material_test.dart: MyApp Material UI Tests Deve alternar entre os modos de visualização (lista -> grid)
+00:07 +4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_fluent_test.dart: MyFluentApp UI Tests Deve alternar entre os modos de visualização
+00:08 +5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_fluent_test.dart: MyFluentApp UI Tests Deve alternar entre os modos de visualização
+00:08 +6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_material_test.dart: MyApp Material UI Tests Deve navegar para a tela de edição de nota ao tocar em uma nota
+00:08 +7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_fluent_test.dart: MyFluentApp UI Tests Deve navegar para a tela de nova nota ao clicar no botão
+00:09 +8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_material_test.dart: MyApp Material UI Tests Deve mover a nota para a lixeira ao usar o menu de contexto
+00:09 +9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_fluent_test.dart: MyFluentApp UI Tests Deve mover a nota para a lixeira com o menu de contexto
+00:12 +10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: (setUpAll)
+00:12 +10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:13 +11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:13 +12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:13 +13: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:13 +14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:15 +15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+00:15 +16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+00:15 +17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+00:15 +18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+00:15 +19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/paper_config_test.dart: PaperConfig PaperMarginExtension normal returns correct value and label
+00:15 +20: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows empty state when no notes exist
+00:15 +21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows empty state when no notes exist
+00:15 +22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows empty state when no notes exist
+00:15 +23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows empty state when no notes exist
+00:15 +24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering displays notes when available
+00:16 +25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen View Modes cycles through view modes when button is tapped
+00:17 +26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Note Filtering shows only non-trash notes by default
+00:17 +27: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Note Filtering filters favorites correctly
+00:17 +28: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/repositories/note_repository_test.dart: NoteRepository insertNote and getAllNotes
+00:17 +29: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Navigation FAB navigates to note editor
+00:17 +30: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Navigation FAB navigates to note editor
+00:17 +31: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Navigation FAB navigates to note editor
+00:18 +32: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Navigation FAB navigates to note editor
+00:18 +33: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Navigation opens drawer on mobile layout
+00:18 +34: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen AppBar shows correct title for default index
+00:19 +35: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Error State shows error message when future fails
+00:19 +36: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Drawer Navigation tapping Favorites in drawer changes index
+00:19 +37: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Drawer Navigation tapping Trash in drawer shows trash notes
+00:20 +38: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Drawer Navigation tapping Settings in drawer navigates
+00:20 +39: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:21 +40: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:21 +41: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:22 +42: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Grid View Modes grid small mode renders correctly
+00:22 +43: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen_test.dart: AboutScreen - Material UI (Non-Windows) shows loading indicator during update check
+00:22 +44: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen_test.dart: AboutScreen - Material UI (Non-Windows) shows loading indicator during update check
+00:22 +45: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen NavigationRail toggle navigation rail expansion
+00:22 +46: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen_test.dart: AboutScreen - Material UI (Non-Windows) shows SnackBar when no update is available
+00:22 +47: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen NavigationRail selecting settings index navigates
+00:23 +48: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen NavigationRail selecting settings index navigates
+00:23 +49: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen_test.dart: AboutScreen - Material UI (Non-Windows) shows AlertDialog when update is available
+00:23 +50: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Android (gridMedium)
+00:23 +51: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen_test.dart: AboutScreen - Fluent UI (Windows) renders correctly
+00:24 +52: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium)
+00:24 +53: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium)
+00:24 +54: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium)
+00:24 +55: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium)
+00:24 +56: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium)
+00:24 +57: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium)
+00:24 +58: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Android (gridSmall)
+00:25 +59: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridSmall)
+00:26 +60: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Android (gridLarge)
+00:27 +61: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridLarge)
+00:27 +62: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/note_editor_screen_test.dart: NoteEditorScreen builds without crashing
+00:28 +63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/note_editor_screen_test.dart: NoteEditorScreen builds without crashing
+00:29 +64: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/note_editor_screen_test.dart: NoteEditorScreen builds without crashing
+00:29 +65: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Data Operations creating a new note calls insertNote
+00:29 +66: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Data Operations deleting a note calls deleteNote
+00:29 +67: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Unimplemented Actions tapping search and sort on Android does not crash
+00:30 +68: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Unimplemented Actions tapping search and sort on Windows does not crash
+00:30 +69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Windows Interaction tapping a note card on Windows navigates
+00:30 +70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: (tearDownAll)
+00:31 +70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen (setUpAll)
+00:31 +70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +71: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +72: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +73: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +74: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +75: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +76: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +77: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +78: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +79: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +80: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +81: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +82: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +83: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +84: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:32 +85: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Material UI on Android
+00:33 +86: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen navigates to AboutScreen on Android
+00:34 +87: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Fluent UI on Windows
+00:34 +88: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Fluent UI on Windows
+00:34 +89: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen builds Fluent UI on Windows
+00:34 +90: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:35 +91: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Android
+00:35 +92: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Windows
+00:35 +93: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen (tearDownAll)
+00:36 +93: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper cancelling dialog does not trigger download
+00:37 +94: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper cancelling dialog does not trigger download
+00:37 +95: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper cancelling dialog does not trigger download
+00:37 +96: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper cancelling dialog does not trigger download
+00:37 +97: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper cancelling dialog does not trigger download
+00:38 +98: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper cancelling dialog does not trigger download
+00:38 +99: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper cancelling dialog does not trigger download
+00:38 +100: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper cancelling dialog does not trigger download
+00:38 +101: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper cancelling dialog does not trigger download
+00:38 +102: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper cancelling dialog does not trigger download
+00:38 +103: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper shows no update snackbar
+00:38 +104: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper shows error snackbar on check failure
+00:38 +105: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper successful download and install on Android
+00:39 +106: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper shows error when download fails (404)
+00:39 +107: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper shows permission denied snackbar
+00:39 +108: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper calls onNoUpdate callback when no update available
+00:39 +109: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper calls onError callback when error occurs
+00:39 +110: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper shows error when open file fails
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextContainingWidgetFinder:<Found 0 widgets with text containing Erro: []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart:403:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart line 403
+The test description was:
+  shows error when open file fails
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:40 +110 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/context_menu_helper_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:40 +110 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/utils/update_helper_test.dart: UpdateHelper shows error when open file fails [E]
+  Test failed. See exception logs above.
+  The test description was: shows error when open file fails
+  
+00:40 +111 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/context_menu_helper_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:41 +112 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/context_menu_helper_test.dart: ContextMenuHelper buildTrashContextMenu
+00:42 +113 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_test.dart: FluentNoteCard displays title and content preview for valid content
+00:44 +114 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: NoteCard displays note
+00:44 +115 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: NoteCard displays note
+00:44 +116 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: NoteCard displays note
+00:45 +117 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: NoteCard displays note
+00:45 +118 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: tapping NoteCard calls onTap callback
+00:45 +119 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: tapping NoteCard navigates to NoteEditorScreen when onTap null
+00:46 +120 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: long press on NoteCard shows context menu
+00:47 +121 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart: NoteSimpleListTile displays title
+00:48 +122 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart: tapping NoteSimpleListTile calls onTap
+00:48 +123 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart: long-pressing NoteSimpleListTile shows context menu
+00:48 +124 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart: tapping delete on context menu calls onDelete
+00:48 +125 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart: tapping NoteSimpleListTile navigates to editor when onTap is null
+00:49 +126 -1: Some tests failed.

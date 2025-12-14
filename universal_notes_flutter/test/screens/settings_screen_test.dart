@@ -112,5 +112,74 @@ void main() {
         debugDefaultTargetPlatformOverride = original;
       }
     });
+
+    testWidgets('returns to SettingsScreen after navigating back on Windows', (
+      tester,
+    ) async {
+      final original = debugDefaultTargetPlatformOverride;
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+      try {
+        await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
+
+        // Navigate to AboutScreen
+        await tester.tap(find.byType(fluent.ListTile));
+        await tester.pumpAndSettle();
+        expect(find.byType(AboutScreen), findsOneWidget);
+
+        // Navigate back
+        await tester.tap(find.byIcon(fluent.FluentIcons.back));
+        await tester.pumpAndSettle();
+
+        // Check if AboutScreen is gone
+        expect(find.byType(AboutScreen), findsNothing);
+
+        // Should be back
+        // Using skipOffstage: false to debug if it's there but hidden
+        expect(
+          find.byType(SettingsScreen, skipOffstage: false),
+          findsOneWidget,
+        );
+        expect(find.byType(fluent.ProgressRing), findsNothing);
+      } finally {
+        debugDefaultTargetPlatformOverride = original;
+      }
+    });
+
+    testWidgets(
+      'resets loading state after returning from AboutScreen on Windows',
+      (tester) async {
+        final original = debugDefaultTargetPlatformOverride;
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+        try {
+          // Increase size to ensure buttons are visible
+          tester.view.physicalSize = const Size(1280, 720);
+          tester.view.devicePixelRatio = 1.0;
+
+          await tester.pumpWidget(
+            const fluent.FluentApp(
+              home: SettingsScreen(),
+            ),
+          );
+
+          await tester.tap(find.text('Sobre'));
+          await tester.pump(); // Start loading
+
+          await tester.pumpAndSettle(); // Wait for nav
+          expect(find.byType(AboutScreen), findsOneWidget);
+
+          // Pop
+          await tester.tap(find.byIcon(fluent.FluentIcons.back));
+          await tester.pumpAndSettle();
+
+          expect(find.byType(SettingsScreen), findsOneWidget);
+          expect(find.byType(fluent.ProgressRing), findsNothing);
+        } finally {
+          debugDefaultTargetPlatformOverride = original;
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        }
+      },
+    );
   });
 }

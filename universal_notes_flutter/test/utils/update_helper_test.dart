@@ -1,8 +1,8 @@
 // test/utils/update_helper_test.dart
 
-import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -70,7 +70,7 @@ void main() {
           .setMockMethodCallHandler(
             const MethodChannel('open_file'),
             (MethodCall methodCall) async {
-              return jsonDecode(openFileResult);
+              return openFileResult;
             },
           );
     }
@@ -364,6 +364,163 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(errorMessage, equals('Test error message'));
+    });
+
+    testWidgets('shows error when open file fails', (tester) async {
+      setupMethodChannels(
+        openFileResult: '{"type": 1, "message": "Fail to open"}',
+      ); // 1 = error
+
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async => UpdateCheckResult(
+          UpdateCheckStatus.updateAvailable,
+          updateInfo: testUpdateInfo,
+        ),
+      );
+
+      when(
+        mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
+      ).thenAnswer((_) async => http.Response('fake apk content', 200));
+
+      await tester.pumpWidget(
+        createTestWidget(
+          onPressed: () => UpdateHelper.checkForUpdate(
+            tester.element(find.byType(ElevatedButton)),
+            updateService: mockUpdateService,
+            isAndroidOverride: true,
+            httpClient: mockHttpClient,
+            scaffoldMessengerKey: scaffoldMessengerKey,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sim, atualizar'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Should show error snackbar
+      expect(find.byType(SnackBar), findsOneWidget);
+    });
+
+    testWidgets('covers client closing logic (internal client)', (
+      tester,
+    ) async {
+      // We don't provide HttpClient, so it creates one internally.
+      // We set manual check to avoid dialog, but we want to trigger download?
+      // No, to trigger download we need updateAvailable.
+      // Download URL will be real, so it will likely fail.
+      // Check for Update itself is mocked via service, so that part is fine.
+      final badInfo = UpdateInfo(
+        version: '1.0.1',
+        downloadUrl: 'http://invalid-url.local/app.apk',
+      );
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async => UpdateCheckResult(
+          UpdateCheckStatus.updateAvailable,
+          updateInfo: badInfo,
+        ),
+      );
+
+      await tester.pumpWidget(
+        createTestWidget(
+          onPressed: () => UpdateHelper.checkForUpdate(
+            tester.element(find.byType(ElevatedButton)),
+            updateService: mockUpdateService,
+            isAndroidOverride: true,
+            // No httpClient provided -> internal client created
+            scaffoldMessengerKey: scaffoldMessengerKey,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sim, atualizar'));
+      await tester.pump();
+
+      // Wait for async failure
+      await tester.pump(const Duration(milliseconds: 500));
+    });
+
+    testWidgets('uses default OpenFile when not provided', (tester) async {
+      setupMethodChannels(
+        openFileResult: '{"type":0, "message":"Done"}', // Success
+      );
+
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async => UpdateCheckResult(
+          UpdateCheckStatus.updateAvailable,
+          updateInfo: testUpdateInfo,
+        ),
+      );
+
+      when(
+        mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
+      ).thenAnswer((_) async => http.Response('content', 200));
+
+      await tester.pumpWidget(
+        createTestWidget(
+          onPressed: () => UpdateHelper.checkForUpdate(
+            tester.element(find.byType(ElevatedButton)),
+            updateService: mockUpdateService,
+            isAndroidOverride: true,
+            httpClient: mockHttpClient,
+            scaffoldMessengerKey: scaffoldMessengerKey,
+            // openFile NOT provided
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sim, atualizar'));
+      await tester.pumpAndSettle();
+      // await tester.pump();
+      // await tester.pump(const Duration(milliseconds: 100));
+
+      // Should NOT show error
+      expect(find.textContaining('Erro'), findsNothing);
+      expect(find.textContaining('Baixando'), findsNothing);
+    });
+
+    testWidgets('respects defaultTargetPlatform when override is null', (
+      tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async => UpdateCheckResult(
+          UpdateCheckStatus.updateAvailable,
+          updateInfo: testUpdateInfo,
+        ),
+      );
+
+      await tester.pumpWidget(
+        createTestWidget(
+          onPressed: () => UpdateHelper.checkForUpdate(
+            tester.element(find.byType(ElevatedButton)),
+            updateService: mockUpdateService,
+            // isAndroidOverride IS NULL
+            httpClient: mockHttpClient,
+            scaffoldMessengerKey: scaffoldMessengerKey,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sim, atualizar'));
+      await tester.pumpAndSettle();
+
+      // On Windows (non-Android), it typically stops or behaves differently?
+      // update_helper.dart: _handleUpdate checks 'if (isAndroid)'.
+      // Since it's Windows, it shouldn't try update.
+      // So no permission request, no download.
+      verifyNever(mockHttpClient.get(any));
+
+      debugDefaultTargetPlatformOverride = null;
     });
   });
 }

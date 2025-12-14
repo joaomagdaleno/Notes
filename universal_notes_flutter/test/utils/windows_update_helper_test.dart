@@ -286,6 +286,39 @@ void main() {
         expect(checkFinishedCount, 1);
         expect(exitCode, -1); // Exit should not be called on failure
       });
+
+      test('uses internal client and handles cleanup', () async {
+        final badInfo = UpdateInfo(
+          version: '1.0.1',
+          downloadUrl: 'http://invalid-url.local/installer.exe',
+        );
+
+        when(mockUpdateService.checkForUpdate()).thenAnswer(
+          (_) async => UpdateCheckResult(
+            UpdateCheckStatus.updateAvailable,
+            updateInfo: badInfo,
+          ),
+        );
+
+        // We do NOT pass httpClient, so it creates one.
+        // We use bad URL so it fails (or times out)
+        await WindowsUpdateHelper.checkForUpdate(
+          onStatusChange: statusChanges.add,
+          onError: errors.add,
+          onNoUpdate: () => noUpdateCount++,
+          onCheckFinished: () => checkFinishedCount++,
+          updateService: mockUpdateService,
+          // no httpClient
+          processRunner: mockProcessRunner,
+          exitHandler: mockExitHandler,
+        );
+
+        // It should fail due to bad URL
+        expect(errors, isNotEmpty);
+        expect(checkFinishedCount, 1);
+        // The fact it finished means finally block ran.
+        // Coverage should show the 'if (client == null) { client.close() }' executed.
+      });
     });
   });
 }

@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:open_file/open_file.dart';
@@ -128,7 +129,8 @@ class UpdateHelper {
     GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey,
     Future<OpenResult> Function(String)? openFile,
   }) async {
-    final isAndroid = isAndroidOverride ?? Platform.isAndroid;
+    final isAndroid =
+        isAndroidOverride ?? (defaultTargetPlatform == TargetPlatform.android);
 
     if (isAndroid) {
       final status = await Permission.requestInstallPackages.request();
