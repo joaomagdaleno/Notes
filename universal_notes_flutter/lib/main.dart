@@ -286,11 +286,10 @@ class _NotesScreenState extends State<NotesScreen> {
               icon: const fluent.Icon(fluent.FluentIcons.add),
               label: const Text('Nova nota'),
               onPressed: () async {
-                await Navigator.of(context).push(
-                  fluent.FluentPageRoute<void>(
-                    builder: (context) => NoteEditorScreen(onSave: _updateNote),
-                  ),
+                final route = fluent.FluentPageRoute<void>(
+                  builder: (context) => NoteEditorScreen(onSave: _updateNote),
                 );
+                await Navigator.of(context).push(route);
               },
             ),
             fluent.CommandBarButton(
@@ -572,11 +571,10 @@ class _NotesScreenState extends State<NotesScreen> {
                   ),
             floatingActionButton: FloatingActionButton(
               onPressed: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (context) => NoteEditorScreen(onSave: _updateNote),
-                  ),
+                final route = MaterialPageRoute<void>(
+                  builder: (context) => NoteEditorScreen(onSave: _updateNote),
                 );
+                await Navigator.of(context).push(route);
               },
               child: const Icon(Icons.add),
             ),
@@ -714,14 +712,13 @@ class _NotesScreenState extends State<NotesScreen> {
             onSave: _updateNote,
             onDelete: _deleteNote,
             onTap: () async {
-              await Navigator.of(context).push(
-                fluent.FluentPageRoute<void>(
-                  builder: (context) => NoteEditorScreen(
-                    note: notes[index],
-                    onSave: _updateNote,
-                  ),
+              final route = fluent.FluentPageRoute<void>(
+                builder: (context) => NoteEditorScreen(
+                  note: notes[index],
+                  onSave: _updateNote,
                 ),
               );
+              await Navigator.of(context).push(route);
             },
           );
         } else {
@@ -730,14 +727,13 @@ class _NotesScreenState extends State<NotesScreen> {
             onSave: _updateNote,
             onDelete: _deleteNote,
             onTap: () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (context) => NoteEditorScreen(
-                    note: notes[index],
-                    onSave: _updateNote,
-                  ),
+              final route = MaterialPageRoute<void>(
+                builder: (context) => NoteEditorScreen(
+                  note: notes[index],
+                  onSave: _updateNote,
                 ),
               );
+              await Navigator.of(context).push(route);
             },
           );
         }
