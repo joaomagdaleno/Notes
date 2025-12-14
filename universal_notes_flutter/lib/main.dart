@@ -383,10 +383,12 @@ class _NotesScreenState extends State<NotesScreen> {
                 IconButton(
                   icon: const Icon(Icons.view_agenda_outlined),
                   onPressed: _cycleViewMode,
+                  tooltip: 'Mudar Visualização',
                 ),
                 IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () {},
+                  tooltip: 'Pesquisar',
                 ),
                 PopupMenuButton<String>(
                   onSelected: (value) {},
@@ -398,6 +400,7 @@ class _NotesScreenState extends State<NotesScreen> {
                       );
                     }).toList();
                   },
+                  tooltip: 'Mais opções',
                 ),
               ],
             ),

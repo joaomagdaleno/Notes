@@ -5,9 +5,16 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
 
 /// The screen that displays the application settings.
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   /// Creates a new instance of [SettingsScreen].
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,20 +35,29 @@ class SettingsScreen extends StatelessWidget {
           fluent.ListTile.selectable(
             title: const Text('Sobre'),
             leading: const fluent.Icon(fluent.FluentIcons.info),
-            onPressed: () async {
-              final packageInfo = await PackageInfo.fromPlatform();
-              if (!context.mounted) return;
-              await Navigator.of(context).push(
-                fluent.FluentPageRoute<void>(
-                  // CORREÇÃO: Envolve o AboutScreen em um MaterialApp
-                  builder: (context) => MaterialApp(
-                    title: 'Sobre',
-                    home: AboutScreen(packageInfo: packageInfo),
-                    debugShowCheckedModeBanner: false,
-                  ),
-                ),
-              );
-            },
+            onPressed: _isLoading
+                ? null
+                : () async {
+                    setState(() => _isLoading = true);
+                    final packageInfo = await PackageInfo.fromPlatform();
+                    if (!context.mounted) return;
+                    await Navigator.of(context).push(
+                      fluent.FluentPageRoute<void>(
+                        // CORREÇÃO: Envolve o AboutScreen em um MaterialApp
+                        builder: (context) => MaterialApp(
+                          title: 'Sobre',
+                          home: AboutScreen(packageInfo: packageInfo),
+                          debugShowCheckedModeBanner: false,
+                        ),
+                      ),
+                    );
+                    setState(() => _isLoading = false);
+                  },
+            trailing: _isLoading
+                ? const fluent.ProgressRing(
+                    strokeWidth: 2,
+                  )
+                : null,
           ),
         ],
       ),
@@ -58,15 +74,29 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             title: const Text('Sobre'),
             leading: const Icon(Icons.info_outline),
-            onTap: () async {
-              final packageInfo = await PackageInfo.fromPlatform();
-              if (!context.mounted) return;
-              await Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (context) => AboutScreen(packageInfo: packageInfo),
-                ),
-              );
-            },
+            onTap: _isLoading
+                ? null
+                : () async {
+                    setState(() => _isLoading = true);
+                    final packageInfo = await PackageInfo.fromPlatform();
+                    if (!context.mounted) return;
+                    await Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (context) =>
+                            AboutScreen(packageInfo: packageInfo),
+                      ),
+                    );
+                    setState(() => _isLoading = false);
+                  },
+            trailing: _isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                : null,
           ),
         ],
       ),
