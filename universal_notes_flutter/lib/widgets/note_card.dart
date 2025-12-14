@@ -15,74 +15,83 @@ class NoteCard extends StatelessWidget {
     this.onTap,
     super.key,
   });
+
   /// The note to display.
   final Note note;
+
   /// The function to call when the note is saved.
   final Future<Note> Function(Note) onSave;
+
   /// The function to call when the note is deleted.
   final void Function(Note) onDelete;
+
   /// The function to call when the card is tapped.
   final VoidCallback? onTap;
 
-@override
-Widget build(BuildContext context) {
-  return Card(
-    elevation: 1,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: InkWell(
-      onTap: onTap ??
-          () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (context) =>
-                    NoteEditorScreen(note: note, onSave: onSave),
-              ),
-            );
-          },
-      onLongPress: () async {
-        final renderBox = context.findRenderObject();
-        if (renderBox is RenderBox) {
-          final position = renderBox.localToGlobal(Offset.zero);
+  // ⚡ Bolt: Memoize DateFormat for performance.
+  // Re-creating DateFormat on every build is inefficient.
+  // This avoids repeated object creation.
+  static final _dateFormat = DateFormat('d MMM. yyyy');
 
-          await ContextMenuHelper.showContextMenu(
-            context: context,
-            position: position,
-            note: note,
-            onSave: onSave,
-            onDelete: onDelete,
-          );
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (note.content.isNotEmpty)
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    getPreviewText(note.content),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        onTap: onTap ??
+            () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (context) =>
+                      NoteEditorScreen(note: note, onSave: onSave),
+                ),
+              );
+            },
+        onLongPress: () async {
+          final renderBox = context.findRenderObject();
+          if (renderBox is RenderBox) {
+            final position = renderBox.localToGlobal(Offset.zero);
+
+            await ContextMenuHelper.showContextMenu(
+              context: context,
+              position: position,
+              note: note,
+              onSave: onSave,
+              onDelete: onDelete,
+            );
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (note.content.isNotEmpty)
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest,
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: Text(
+                      getPreviewText(note.content),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            if (note.content.isNotEmpty) const SizedBox(height: 8),
-            Text(
-              note.title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              if (note.content.isNotEmpty) const SizedBox(height: 8),
+              Text(
+                note.title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                 maxLines: 2,
@@ -90,13 +99,13 @@ Widget build(BuildContext context) {
               ),
               const SizedBox(height: 4),
               Text(
-                DateFormat('d MMM. yyyy').format(note.date),
+                _dateFormat.format(note.date),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

@@ -25,6 +25,11 @@ class FluentNoteCard extends StatelessWidget {
   /// If null, it will navigate to the [NoteEditorScreen].
   final VoidCallback onTap;
 
+  // ⚡ Bolt: Memoize DateFormat for performance.
+  // Re-creating DateFormat on every build is inefficient.
+  // This avoids repeated object creation.
+  static final _dateFormat = DateFormat('d MMM. yyyy');
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -41,23 +46,24 @@ class FluentNoteCard extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Text(
-                getPreviewText(note.content),
-                style: fluent.FluentTheme.of(context).typography.body,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 5,
+              const SizedBox(height: 8),
+              Expanded(
+                child: Text(
+                  getPreviewText(note.content),
+                  style: fluent.FluentTheme.of(context).typography.body,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              DateFormat('d MMM. yyyy').format(note.date),
-              style: fluent.FluentTheme.of(context).typography.caption,
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                _dateFormat.format(note.date),
+                style: fluent.FluentTheme.of(context).typography.caption,
+              ),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 }
