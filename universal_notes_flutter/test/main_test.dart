@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -717,6 +718,326 @@ void main() {
         await tester.tap(settingsIcon);
         await tester.pumpAndSettle();
       }
+
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+  });
+
+  // --- Responsive Layout Logic Tests ---
+
+  group('NotesScreen Responsive Layout', () {
+    // Helper to pump widget with specific constraints and platform
+    Future<void> pumpWithConstraints(
+      WidgetTester tester, {
+      required double width,
+      required TargetPlatform platform,
+      ViewMode viewMode = ViewMode.gridMedium,
+    }) async {
+      tester.view.physicalSize = Size(width, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final widget = NotesScreen(
+        notesFuture: Future.value(
+          List.generate(
+            10,
+            (i) => Note(
+              id: '$i',
+              title: 'Note $i',
+              content: 'Content $i',
+              date: DateTime.now(),
+            ),
+          ),
+        ),
+        updateService: MockUpdateService(),
+        debugPlatform: platform,
+      );
+
+      if (platform == TargetPlatform.windows) {
+        await tester.pumpWidget(
+          fluent.FluentApp(
+            home: widget,
+          ),
+        );
+      } else {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: widget,
+          ),
+        );
+      }
+
+      await tester.pump();
+      await tester.pump(Duration.zero);
+
+      // Set view mode if needed (default is gridMedium)
+      if (viewMode != ViewMode.gridMedium) {
+        // Cycle to desired mode
+        // For Windows, the button is in CommandBar
+        final cycleBtn = platform == TargetPlatform.windows
+            ? find.byIcon(fluent.FluentIcons.view)
+            : find.byIcon(Icons.view_agenda_outlined);
+
+        int cyclesNeeded = 0;
+        if (viewMode == ViewMode.gridLarge) cyclesNeeded = 1;
+        if (viewMode == ViewMode.list)
+          cyclesNeeded = 2; // Not testing grid logic here
+        if (viewMode == ViewMode.listSimple)
+          cyclesNeeded = 3; // Not testing grid logic here
+        if (viewMode == ViewMode.gridSmall) cyclesNeeded = 4;
+
+        for (int i = 0; i < cyclesNeeded; i++) {
+          await tester.tap(cycleBtn);
+          await tester.pumpAndSettle();
+        }
+      }
+    }
+
+    testWidgets('calculates crossAxisCount correctly on Android (gridMedium)', (
+      tester,
+    ) async {
+      // Logic: (width / 200).floor().clamp(2, 7)
+
+      // Width 500: 500/200 = 2.5 -> floor 2. clamp(2,7) -> 2
+      await pumpWithConstraints(
+        tester,
+        width: 500,
+        platform: TargetPlatform.android,
+      );
+      var grid = tester.widget<GridView>(find.byType(GridView));
+      var delegate =
+          grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+      expect(delegate.crossAxisCount, 2);
+
+      // Width 800: 800/200 = 4 -> 4
+      await pumpWithConstraints(
+        tester,
+        width: 800,
+        platform: TargetPlatform.android,
+      );
+      grid = tester.widget<GridView>(find.byType(GridView));
+      delegate = grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+      expect(delegate.crossAxisCount, 4);
+    });
+
+    testWidgets('calculates crossAxisCount correctly on Windows (gridMedium)', (
+      tester,
+    ) async {
+      // Logic: (width / 240).floor().clamp(2, 7)
+      // Note: Windows layout includes a NavigationPane which consumes horizontal space.
+      // We use larger widths to ensure we hit the breakpoints.
+
+      // Width 800: ~500 content. 500/240 = 2.08 -> 2
+      await pumpWithConstraints(
+        tester,
+        width: 800,
+        platform: TargetPlatform.windows,
+      );
+      var grid = tester.widget<GridView>(find.byType(GridView));
+      var delegate =
+          grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+      expect(delegate.crossAxisCount, 2);
+
+      // Width 1600: ~1300 content. 1300/240 = 5.4 -> 5. Expect at least 4.
+      await pumpWithConstraints(
+        tester,
+        width: 1600,
+        platform: TargetPlatform.windows,
+      );
+      grid = tester.widget<GridView>(find.byType(GridView));
+      delegate = grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+      // 4 is safe expectation, 5 is possible. Let's check >= 4.
+      expect(delegate.crossAxisCount, greaterThanOrEqualTo(4));
+    });
+
+    testWidgets('calculates crossAxisCount correctly on Android (gridSmall)', (
+      tester,
+    ) async {
+      // Logic: (width / 300).floor().clamp(2, 7)
+      // Grid Small is 4 clicks away from default Grid Medium
+
+      // Width 1000: 1000 / 300 = 3.33 -> 3
+      await pumpWithConstraints(
+        tester,
+        width: 1000,
+        platform: TargetPlatform.android,
+        viewMode: ViewMode.gridSmall,
+      );
+      var grid = tester.widget<GridView>(find.byType(GridView));
+      var delegate =
+          grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+      expect(delegate.crossAxisCount, 3);
+    });
+
+    testWidgets('calculates crossAxisCount correctly on Windows (gridSmall)', (
+      tester,
+    ) async {
+      // Logic: (width / 320).floor().clamp(1, 5)
+
+      // Width 1600: ~1300 / 320 = 4.06 -> 4
+      await pumpWithConstraints(
+        tester,
+        width: 1600,
+        platform: TargetPlatform.windows,
+        viewMode: ViewMode.gridSmall,
+      );
+      var grid = tester.widget<GridView>(find.byType(GridView));
+      var delegate =
+          grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+      expect(delegate.crossAxisCount, 4);
+    });
+
+    testWidgets('calculates crossAxisCount correctly on Android (gridLarge)', (
+      tester,
+    ) async {
+      // Logic: (width / 150).floor().clamp(1, 5)
+      // Grid Large is 1 click away from default Grid Medium
+
+      // Width 800: 800 - Rail(~72) = 728. 728 / 150 = 4.85 -> 4
+      await pumpWithConstraints(
+        tester,
+        width: 800,
+        platform: TargetPlatform.android,
+        viewMode: ViewMode.gridLarge,
+      );
+
+      var grid = tester.widget<GridView>(find.byType(GridView));
+      var delegate =
+          grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+      expect(delegate.crossAxisCount, 4);
+    });
+
+    testWidgets('calculates crossAxisCount correctly on Windows (gridLarge)', (
+      tester,
+    ) async {
+      // Logic: (width / 180).floor().clamp(3, 10)
+
+      // Width 1600: ~1300 / 180 = 7.2 -> 7
+      await pumpWithConstraints(
+        tester,
+        width: 1600,
+        platform: TargetPlatform.windows,
+        viewMode: ViewMode.gridLarge,
+      );
+      var grid = tester.widget<GridView>(find.byType(GridView));
+      var delegate =
+          grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+      expect(delegate.crossAxisCount, 7);
+    });
+  });
+
+  // --- Comprehensive AppBar Title Tests ---
+
+  group('NotesScreen Comprehensive AppBar Titles', () {
+    testWidgets('shows correct title for every navigation index', (
+      tester,
+    ) async {
+      // Only verifying functionality on Android layout where drawer is used for selection logic testing
+      // (Even though on Desktop/Tablet we verify via Rail, the title logic is shared)
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1.0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: NotesScreen(
+            notesFuture: Future.value([]),
+            updateService: MockUpdateService(),
+            debugPlatform: TargetPlatform.android,
+          ),
+        ),
+      );
+      await tester.pump(); // frame
+      await tester.pump(Duration.zero);
+
+      // Define map of index to expected title and tap target
+      final items = [
+        (text: 'Todas as notas', icon: Icons.notes_outlined),
+        (text: 'Favoritos', icon: Icons.star_outline),
+        (text: 'Notas bloqueadas', icon: Icons.lock_outline),
+        (text: 'Notas compartilhadas', icon: Icons.share_outlined),
+        (text: 'Lixeira', icon: Icons.delete_outline),
+        (text: 'Pastas', icon: Icons.folder_outlined),
+      ];
+
+      for (final item in items) {
+        // Open drawer
+        await tester.tap(find.byIcon(Icons.menu));
+        await tester.pumpAndSettle();
+
+        // Tap item
+        await tester.tap(find.widgetWithText(ListTile, item.text));
+        await tester.pumpAndSettle();
+
+        // Check title
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.text(item.text),
+          ),
+          findsOneWidget,
+        );
+      }
+
+      // Reset
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+  });
+
+  // --- Navigation Rail Destinations Test ---
+
+  group('NotesScreen Navigation Rail Destinations', () {
+    testWidgets('verify all rail destinations exist', (tester) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1.0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: NotesScreen(
+            notesFuture: Future.value([]),
+            updateService: MockUpdateService(),
+            debugPlatform: TargetPlatform.android,
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(Duration.zero);
+
+      final rail = tester.widget<NavigationRail>(find.byType(NavigationRail));
+      expect(rail.destinations.length, 7);
+
+      expect(
+        rail.destinations[0].label,
+        isA<Text>().having((t) => t.data, 'text', 'Todas as notas'),
+      );
+      expect(
+        rail.destinations[1].label,
+        isA<Text>().having((t) => t.data, 'text', 'Favoritos'),
+      );
+      expect(
+        rail.destinations[2].label,
+        isA<Text>().having((t) => t.data, 'text', 'Notas bloqueadas'),
+      );
+      expect(
+        rail.destinations[3].label,
+        isA<Text>().having((t) => t.data, 'text', 'Notas compartilhadas'),
+      );
+      expect(
+        rail.destinations[4].label,
+        isA<Text>().having((t) => t.data, 'text', 'Lixeira'),
+      );
+      expect(
+        rail.destinations[5].label,
+        isA<Text>().having((t) => t.data, 'text', 'Pastas'),
+      );
+      expect(
+        rail.destinations[6].label,
+        isA<Text>().having((t) => t.data, 'text', 'Configurações'),
+      );
 
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();

@@ -1,5 +1,8 @@
 # Miscellaneous
 *.class
+logs/
+coverage/
+test_failure.log
 *.log
 *.pyc
 *.swp
