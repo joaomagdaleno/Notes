@@ -214,6 +214,34 @@ void main() {
       expect(find.text('Verificar Atualizações'), findsOneWidget);
     });
 
+    testWidgets('back button navigates back', (tester) async {
+      await tester.pumpWidget(
+        fluent.FluentApp(
+          home: fluent.NavigationView(
+            content: fluent.Navigator(
+              onGenerateRoute: (settings) {
+                return fluent.FluentPageRoute<void>(
+                  builder: (context) => AboutScreen(
+                    packageInfo: packageInfo,
+                    debugPlatform: TargetPlatform.windows,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Sobre'), findsOneWidget);
+
+      // Tap back button
+      await tester.tap(find.byIcon(fluent.FluentIcons.back));
+      await tester.pumpAndSettle();
+
+      // After pop, should not show AboutScreen anymore
+      expect(find.text('Sobre'), findsNothing);
+    });
+
     testWidgets('shows loading indicator during update check', (tester) async {
       final service = ConfigurableUpdateService(
         result: UpdateCheckResult(UpdateCheckStatus.noUpdate),

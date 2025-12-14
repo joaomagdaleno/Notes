@@ -312,5 +312,58 @@ void main() {
       // Verify NO download happened
       verifyZeroInteractions(mockHttpClient);
     });
+
+    testWidgets('calls onNoUpdate callback when no update available', (
+      tester,
+    ) async {
+      var onNoUpdateCalled = false;
+
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
+      );
+
+      await tester.pumpWidget(
+        createTestWidget(
+          onPressed: () => UpdateHelper.checkForUpdate(
+            tester.element(find.byType(ElevatedButton)),
+            updateService: mockUpdateService,
+            scaffoldMessengerKey: scaffoldMessengerKey,
+            onNoUpdate: () => onNoUpdateCalled = true,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pumpAndSettle();
+
+      expect(onNoUpdateCalled, isTrue);
+    });
+
+    testWidgets('calls onError callback when error occurs', (tester) async {
+      String? errorMessage;
+
+      when(mockUpdateService.checkForUpdate()).thenAnswer(
+        (_) async => UpdateCheckResult(
+          UpdateCheckStatus.error,
+          errorMessage: 'Test error message',
+        ),
+      );
+
+      await tester.pumpWidget(
+        createTestWidget(
+          onPressed: () => UpdateHelper.checkForUpdate(
+            tester.element(find.byType(ElevatedButton)),
+            updateService: mockUpdateService,
+            scaffoldMessengerKey: scaffoldMessengerKey,
+            onError: (message) => errorMessage = message,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pumpAndSettle();
+
+      expect(errorMessage, equals('Test error message'));
+    });
   });
 }

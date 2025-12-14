@@ -291,5 +291,23 @@ void main() {
       expect(result.status, UpdateCheckStatus.error);
       expect(result.errorMessage, isNotNull);
     });
+
+    test('isNewerVersion returns false for invalid version strings', () {
+      final packageInfo = PackageInfo(
+        version: '1.0.0',
+        appName: '',
+        buildNumber: '',
+        packageName: '',
+      );
+      final service = TestUpdateService(packageInfo: packageInfo);
+
+      // Invalid format should return false, not throw
+      expect(service.isNewerVersion('invalid', '1.0.0'), isFalse);
+      expect(service.isNewerVersion('1.0.0', 'invalid'), isFalse);
+      expect(
+        service.isNewerVersion('not-a-version', 'also-not-a-version'),
+        isFalse,
+      );
+    });
   });
 }

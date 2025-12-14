@@ -33,8 +33,9 @@ void main() {
       }
     });
 
-    testWidgets('navigates to AboutScreen on Android',
-        (WidgetTester tester) async {
+    testWidgets('navigates to AboutScreen on Android', (
+      WidgetTester tester,
+    ) async {
       final original = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
@@ -65,8 +66,9 @@ void main() {
       }
     });
 
-    testWidgets('navigates to AboutScreen on Windows',
-        (WidgetTester tester) async {
+    testWidgets('navigates to AboutScreen on Windows', (
+      WidgetTester tester,
+    ) async {
       final original = debugDefaultTargetPlatformOverride;
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
 
@@ -79,6 +81,33 @@ void main() {
 
         // Now we can safely look for the AboutScreen by its type
         expect(find.byType(AboutScreen), findsOneWidget);
+      } finally {
+        debugDefaultTargetPlatformOverride = original;
+      }
+    });
+
+    testWidgets('returns to SettingsScreen after navigating back on Android', (
+      WidgetTester tester,
+    ) async {
+      final original = debugDefaultTargetPlatformOverride;
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+
+      try {
+        await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
+
+        // Navigate to AboutScreen
+        await tester.tap(find.byType(ListTile));
+        await tester.pumpAndSettle();
+        expect(find.byType(AboutScreen), findsOneWidget);
+
+        // Navigate back
+        final backButton = find.byTooltip('Back');
+        await tester.tap(backButton);
+        await tester.pumpAndSettle();
+
+        // Should be back at SettingsScreen with loading reset
+        expect(find.byType(SettingsScreen), findsOneWidget);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
       } finally {
         debugDefaultTargetPlatformOverride = original;
       }

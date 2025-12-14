@@ -14,7 +14,6 @@ import 'package:universal_notes_flutter/screens/about_screen.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/screens/settings_screen.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
-import 'package:universal_notes_flutter/updater.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
