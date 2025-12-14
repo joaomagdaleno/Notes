@@ -21,8 +21,9 @@ class Updater {
           Version.parse(packageInfo.version.split('+').first);
 
       final response = await http.get(
-        Uri.parse(
-          'https://api.github.com/repos/joaomagdaleno/Notes/releases/latest',
+        Uri.https(
+          'api.github.com',
+          '/repos/joaomagdaleno/Notes/releases/latest',
         ),
       );
 
@@ -103,7 +104,14 @@ class Updater {
           : '';
       final randomFileName = '${uuid.v4()}$extension';
       final filePath = '${tempDir.path}/$randomFileName';
-      final downloadResponse = await http.get(Uri.parse(downloadUrl));
+      final parsedDownloadUrl = Uri.parse(downloadUrl);
+      final downloadResponse = await http.get(
+        Uri.https(
+          parsedDownloadUrl.authority,
+          parsedDownloadUrl.path,
+          parsedDownloadUrl.queryParameters,
+        ),
+      );
 
       if (downloadResponse.statusCode != 200) {
         throw Exception('Failed to download update');
