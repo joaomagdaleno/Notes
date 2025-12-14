@@ -17,8 +17,9 @@ class Updater {
   }) async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion =
-          Version.parse(packageInfo.version.split('+').first);
+      final currentVersion = Version.parse(
+        packageInfo.version.split('+').first,
+      );
 
       final response = await http
           .get(
@@ -53,8 +54,9 @@ class Updater {
       }
 
       // Remove 'v' prefix if present (e.g., 'v1.0.0' -> '1.0.0')
-      final latestVersionStr =
-          tagName.startsWith('v') ? tagName.substring(1) : tagName;
+      final latestVersionStr = tagName.startsWith('v')
+          ? tagName.substring(1)
+          : tagName;
       final latestVersion = Version.parse(latestVersionStr);
 
       if (latestVersion <= currentVersion) {
@@ -64,14 +66,19 @@ class Updater {
 
       final assets = json['assets'];
       if (assets is! List) {
-        throw Exception('Nenhum ativo de release encontrado na resposta da API.');
+        throw Exception(
+          'Nenhum ativo de release encontrado na resposta da API.',
+        );
       }
       Map<String, dynamic> asset;
       try {
-        asset = assets.firstWhere(
-          (dynamic asset) => ((asset as Map<String, dynamic>)['name'] as String)
-              .startsWith('UniversalNotesSetup-'),
-        ) as Map<String, dynamic>;
+        asset =
+            assets.firstWhere(
+                  (dynamic asset) =>
+                      ((asset as Map<String, dynamic>)['name'] as String)
+                          .startsWith('UniversalNotesSetup-'),
+                )
+                as Map<String, dynamic>;
       } on Exception {
         throw Exception('No installer found for the latest version');
       }
@@ -117,7 +124,9 @@ class Updater {
       const uuid = Uuid();
       final originalFileName = asset['name'];
       if (originalFileName is! String) {
-        throw Exception('Nome do arquivo original não encontrado no ativo de release.');
+        throw Exception(
+          'Nome do arquivo original não encontrado no ativo de release.',
+        );
       }
       final extension = originalFileName.contains('.')
           ? originalFileName.substring(originalFileName.lastIndexOf('.'))

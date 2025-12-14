@@ -128,9 +128,9 @@ class _AboutScreenState extends State<AboutScreen> {
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
-              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the button
-              // when the `_isChecking` state changes. This is more efficient
-              // than rebuilding the entire screen with `setState`.
+              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the
+              // button when the `_isChecking` state changes. This is more
+              // efficient than rebuilding the entire screen with `setState`.
               ValueListenableBuilder<bool>(
                 valueListenable: _isChecking,
                 builder: (context, isChecking, child) {
@@ -148,8 +148,8 @@ class _AboutScreenState extends State<AboutScreen> {
                   );
                 },
               ),
-              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the status
-              // text when the `_updateStatus` state changes.
+              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the
+              // status text when the `_updateStatus` state changes.
               ValueListenableBuilder<String>(
                 valueListenable: _updateStatus,
                 builder: (context, updateStatus, child) {
@@ -184,9 +184,9 @@ class _AboutScreenState extends State<AboutScreen> {
             children: [
               Text('Versão atual: ${widget.packageInfo.version}'),
               const SizedBox(height: 20),
-              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the button
-              // when the `_isChecking` state changes. This is more efficient
-              // than rebuilding the entire screen with `setState`.
+              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the
+              // button when the `_isChecking` state changes. This is more
+              // efficient than rebuilding the entire screen with `setState`.
               ValueListenableBuilder<bool>(
                 valueListenable: _isChecking,
                 builder: (context, isChecking, child) {

@@ -31,7 +31,7 @@ class Note {
       isFavorite: (map['isFavorite'] as int? ?? 0) == 1,
       isLocked: (map['isLocked'] as int? ?? 0) == 1,
       isInTrash: (map['isInTrash'] as int? ?? 0) == 1,
-      isDeleted: (map['isDeleted'] as int? ?? 0) == 1, // Adicionado com fallback
+      isDeleted: (map['isDeleted'] as int? ?? 0) == 1,
       drawingJson: map['drawingJson'] as String?,
       prefsJson: map['prefsJson'] as String?,
     );

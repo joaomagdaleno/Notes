@@ -11,7 +11,7 @@ class FluentContextMenuHelper {
     required void Function(Note) onSave,
     required void Function(Note) onDelete,
   }) async {
-    controller.showFlyout(
+    await controller.showFlyout(
       dismissOnPointerMoveAway: true,
       builder: (context) {
         return MenuFlyout(
@@ -59,7 +59,7 @@ class FluentContextMenuHelper {
   ) {
     return [
       MenuFlyoutItem(
-        leading: const Icon(FluentIcons.restore),
+        leading: const Icon(FluentIcons.undo),
         text: const Text('Restore'),
         onPressed: () {
           note.isInTrash = false;
@@ -68,7 +68,7 @@ class FluentContextMenuHelper {
       ),
       const MenuFlyoutSeparator(),
       MenuFlyoutItem(
-        leading: const Icon(FluentIcons.delete_forever),
+        leading: const Icon(FluentIcons.delete),
         text: const Text('Delete permanently'),
         onPressed: () {
           onDelete(note);
