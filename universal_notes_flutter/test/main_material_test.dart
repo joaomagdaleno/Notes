@@ -32,7 +32,7 @@ void main() {
             builder: (context) => const SizedBox.shrink(),
           );
         },
-        home: MyMaterialApp(
+        home: MyApp(
           noteRepository: mockNoteRepository,
           updateService: mockUpdateService,
           navigatorObservers: [mockNavigatorObserver],
