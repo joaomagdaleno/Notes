@@ -27,6 +27,7 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
+    // CORREÇÃO: Envolvendo o widget com FluentApp para fornecer contexto de navegação.
     await tester.pumpWidget(
       fluent.FluentApp(
         home: MyFluentApp(
@@ -39,10 +40,19 @@ void main() {
   }
 
   group('MyFluentApp UI Tests', () {
-    testWidgets('Deve renderizar a UI inicial com notas', (WidgetTester tester) async {
+    testWidgets('Deve renderizar a UI inicial com notas',
+        (WidgetTester tester) async {
       final notes = [
-        Note(id: '1', title: 'Nota Fluent 1', content: 'Conteúdo 1', date: DateTime.now()),
-        Note(id: '2', title: 'Nota Fluent 2', content: 'Conteúdo 2', date: DateTime.now()),
+        Note(
+            id: '1',
+            title: 'Nota Fluent 1',
+            content: 'Conteúdo 1',
+            date: DateTime.now()),
+        Note(
+            id: '2',
+            title: 'Nota Fluent 2',
+            content: 'Conteúdo 2',
+            date: DateTime.now()),
       ];
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
 
@@ -52,10 +62,10 @@ void main() {
       expect(find.byType(NotesScreen), findsOneWidget);
       expect(find.text('Nota Fluent 1'), findsOneWidget);
       expect(find.text('Nota Fluent 2'), findsOneWidget);
-      return;
     });
 
-    testWidgets('Deve alternar entre os modos de visualização', (WidgetTester tester) async {
+    testWidgets('Deve alternar entre os modos de visualização',
+        (WidgetTester tester) async {
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
 
       await pumpWidget(tester);
@@ -75,10 +85,10 @@ void main() {
       await tester.tap(find.byIcon(fluent.FluentIcons.home));
       await tester.pumpAndSettle();
       expect(find.byIcon(fluent.FluentIcons.table), findsOneWidget);
-      return;
     });
 
-    testWidgets('Deve navegar para a tela de nova nota ao clicar no botão', (WidgetTester tester) async {
+    testWidgets('Deve navegar para a tela de nova nota ao clicar no botão',
+        (WidgetTester tester) async {
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
 
       await pumpWidget(tester);
@@ -88,11 +98,15 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(mockNavigatorObserver.didPush(any, any));
-      return;
     });
 
-    testWidgets('Deve mover a nota para a lixeira com o menu de contexto', (WidgetTester tester) async {
-      final note = Note(id: '1', title: 'Nota para Lixeira', content: 'Conteúdo', date: DateTime.now());
+    testWidgets('Deve mover a nota para a lixeira com o menu de contexto',
+        (WidgetTester tester) async {
+      final note = Note(
+          id: '1',
+          title: 'Nota para Lixeira',
+          content: 'Conteúdo',
+          date: DateTime.now());
       when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => [note]);
       when(mockNoteRepository.updateNote(any)).thenAnswer((_) async {});
 
@@ -101,29 +115,36 @@ void main() {
 
       // Simula um clique com o botão direito para abrir o menu de contexto
       final noteFinder = find.text('Nota para Lixeira');
-      final gesture = await tester.startGesture(tester.getCenter(noteFinder), kind: PointerDeviceKind.mouse, buttons: kSecondaryMouseButton);
+      final gesture = await tester.startGesture(
+        tester.getCenter(noteFinder),
+        kind: PointerDeviceKind.mouse,
+        buttons: kSecondaryMouseButton,
+      );
       await gesture.up();
       await tester.pumpAndSettle();
 
       // Encontra e clica no item "Move to Trash" do menu
-      await tester.tap(find.widgetWithText(fluent.MenuFlyoutItem, 'Move to Trash'));
+      await tester.tap(
+          find.widgetWithText(fluent.MenuFlyoutItem, 'Move to Trash'));
       await tester.pumpAndSettle();
 
-      final captured = verify(mockNoteRepository.updateNote(captureAny)).captured;
+      final captured =
+          verify(mockNoteRepository.updateNote(captureAny)).captured;
       final capturedNote = captured.single as Note;
       expect(capturedNote.isDeleted, isTrue);
-      return;
     });
 
-    testWidgets('Deve exibir SnackBar de erro se o carregamento de notas falhar', (WidgetTester tester) async {
-      when(mockNoteRepository.getAllNotes()).thenThrow(Exception('Falha ao carregar'));
+    testWidgets(
+        'Deve exibir SnackBar de erro se o carregamento de notas falhar',
+        (WidgetTester tester) async {
+      when(mockNoteRepository.getAllNotes())
+          .thenThrow(Exception('Falha ao carregar'));
 
       await pumpWidget(tester);
       await tester.pumpAndSettle();
 
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Erro ao carregar notas'), findsOneWidget);
-      return;
     });
   });
 }
