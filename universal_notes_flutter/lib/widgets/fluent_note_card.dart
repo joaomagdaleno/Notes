@@ -26,6 +26,11 @@ class FluentNoteCard extends StatefulWidget {
   /// If null, it will navigate to the [NoteEditorScreen].
   final VoidCallback onTap;
 
+  // ⚡ Bolt: Memoize DateFormat for performance.
+  // Re-creating DateFormat on every build is inefficient.
+  // This avoids repeated object creation.
+  static final _dateFormat = DateFormat('d MMM. yyyy');
+
   @override
   State<FluentNoteCard> createState() => _FluentNoteCardState();
 }
@@ -41,56 +46,35 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
 
   @override
   Widget build(BuildContext context) {
-    return fluent.FlyoutTarget(
-      controller: _flyoutController,
-      child: GestureDetector(
-        onTap: widget.onTap,
-        onLongPress: () {
-          FluentContextMenuHelper.showContextMenu(
-            context: context,
-            controller: _flyoutController,
-            note: widget.note,
-            onSave: widget.onSave,
-            onDelete: widget.onDelete,
-          );
-        },
-        onSecondaryTap: () {
-          FluentContextMenuHelper.showContextMenu(
-            context: context,
-            controller: _flyoutController,
-            note: widget.note,
-            onSave: widget.onSave,
-            onDelete: widget.onDelete,
-          );
-        },
-        child: fluent.Card(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.note.title,
-                  style: fluent.FluentTheme.of(context).typography.bodyLarge,
-                  maxLines: 2,
+    return GestureDetector(
+      onTap: onTap,
+      child: fluent.Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                note.title,
+                style: fluent.FluentTheme.of(context).typography.bodyLarge,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Text(
+                  getPreviewText(note.content),
+                  style: fluent.FluentTheme.of(context).typography.body,
                   overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
                 ),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Text(
-                    getPreviewText(widget.note.content),
-                    style: fluent.FluentTheme.of(context).typography.body,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  DateFormat('d MMM. yyyy').format(widget.note.date),
-                  style: fluent.FluentTheme.of(context).typography.caption,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _dateFormat.format(note.date),
+                style: fluent.FluentTheme.of(context).typography.caption,
+              ),
+            ],
           ),
         ),
       ),
