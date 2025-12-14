@@ -20,8 +20,9 @@ void main() {
     mockNavigatorObserver = MockNavigatorObserver();
 
     // Stub para o checkForUpdate
-    when(mockUpdateService.checkForUpdate())
-        .thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
+    when(mockUpdateService.checkForUpdate()).thenAnswer(
+      (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
+    );
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
