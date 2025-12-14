@@ -109,7 +109,8 @@ void main() {
         await tester.tap(find.byIcon(Icons.view_agenda_outlined));
         await tester.pumpAndSettle();
 
-        // A implementação atual apenas cicla o ViewMode, mas o ícone é estático.
+        // A implementação atual apenas cicla o ViewMode,
+        // mas o ícone é estático.
         // Vamos apenas verificar que o botão continua lá e não quebrou a UI.
         expect(find.byIcon(Icons.view_agenda_outlined), findsOneWidget);
       },
