@@ -47,7 +47,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: fluent.Card(
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -55,7 +55,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.note.title,
+                note.title,
                 style: fluent.FluentTheme.of(context).typography.bodyLarge,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -63,7 +63,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
               const SizedBox(height: 8),
               Expanded(
                 child: Text(
-                  getPreviewText(widget.note.content),
+                  getPreviewText(note.content),
                   style: fluent.FluentTheme.of(context).typography.body,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 5,
@@ -71,7 +71,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
               ),
               const SizedBox(height: 8),
               Text(
-                FluentNoteCard._dateFormat.format(widget.note.date),
+                _dateFormat.format(note.date),
                 style: fluent.FluentTheme.of(context).typography.caption,
               ),
             ],
