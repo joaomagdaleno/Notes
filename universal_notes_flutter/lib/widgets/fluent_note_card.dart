@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/utils/text_helpers.dart';
-import 'package:universal_notes_flutter/widgets/fluent_context_menu_helper.dart';
 
 /// A widget that displays a note as a card with a fluent design.
 class FluentNoteCard extends StatefulWidget {

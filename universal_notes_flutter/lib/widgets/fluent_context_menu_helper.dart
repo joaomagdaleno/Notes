@@ -12,7 +12,6 @@ class FluentContextMenuHelper {
     required void Function(Note) onDelete,
   }) async {
     controller.showFlyout(
-      barrierDismissible: true,
       dismissOnPointerMoveAway: true,
       builder: (context) {
         return MenuFlyout(
