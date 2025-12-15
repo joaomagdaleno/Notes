@@ -3,20 +3,18 @@ import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/services/update_service.dart';
-import 'package:mockito/mockito.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
-import 'package:universal_notes_flutter/widgets/note_card.dart';
-import 'package:universal_notes_flutter/widgets/note_card.dart';
-import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 import 'package:universal_notes_flutter/screens/settings_screen.dart';
-
+import 'package:universal_notes_flutter/services/update_service.dart';
+import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
+import 'package:universal_notes_flutter/widgets/note_card.dart';
+import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'mocks/mocks.mocks.dart' hide MockUpdateService;
@@ -1120,11 +1118,12 @@ void main() {
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
-      // NoteEditorScreen is a placeholder, so we can't interact with fields.
-      // Instead, we find the widget and invoke onSave directly to test the callback logic in main.dart.
+      // NoteEditorScreen is a placeholder, so we can't interact with
+      // fields. Instead, we find the widget and invoke onSave directly
+      // to test the callback logic in main.dart.
       final editorFinder = find.byType(NoteEditorScreen);
       expect(editorFinder, findsOneWidget);
-      final NoteEditorScreen editor = tester.widget(editorFinder);
+      final editor = tester.widget<NoteEditorScreen>(editorFinder);
 
       final newNote = Note(
         id: '', // Empty ID for new note
@@ -1137,9 +1136,9 @@ void main() {
       await editor.onSave(newNote);
       await tester.pump();
 
-      // Verify insertNote was called on repo with ANY note (since we created a new one)
+      // Verify insertNote was called on repo
       verify(mockRepo.insertNote(any)).called(1);
-      // Verify refreshed (1 call because initial load used notesFuture parameter, not repo)
+      // Verify refreshed
       verify(mockRepo.getAllNotes()).called(1);
     });
 
@@ -1167,10 +1166,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Use NoteCard widget directly to invoke onDelete, bypassing UI icon visibility issues
+      // Use NoteCard widget directly to invoke onDelete
       final cardFinder = find.byType(NoteCard);
       expect(cardFinder, findsOneWidget);
-      final NoteCard card = tester.widget(cardFinder);
+      final card = tester.widget<NoteCard>(cardFinder);
 
       // Invoke onDelete
       card.onDelete(testNote);

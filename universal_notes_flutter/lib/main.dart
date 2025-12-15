@@ -44,15 +44,20 @@ void main() async {
   runApp(const MyAppWithWindowListener());
 }
 
+/// Widget that wraps the app with a window listener for desktop platforms.
 @visibleForTesting
 class MyAppWithWindowListener extends StatefulWidget {
+  /// Creates a new instance of [MyAppWithWindowListener].
   const MyAppWithWindowListener({
     super.key,
     this.noteRepository,
     this.windowManager,
   });
 
+  /// The repository for notes (optional, for testing).
   final NoteRepository? noteRepository;
+
+  /// The window manager (optional, for testing).
   final WindowManager? windowManager;
 
   @override
@@ -60,6 +65,7 @@ class MyAppWithWindowListener extends StatefulWidget {
       MyAppWithWindowListenerState();
 }
 
+/// State for [MyAppWithWindowListener] that handles window events.
 @visibleForTesting
 class MyAppWithWindowListenerState extends State<MyAppWithWindowListener>
     with WindowListener {

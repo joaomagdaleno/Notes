@@ -317,7 +317,8 @@ void main() {
         expect(errors, isNotEmpty);
         expect(checkFinishedCount, 1);
         // The fact it finished means finally block ran.
-        // Coverage should show the 'if (client == null) { client.close() }' executed.
+        // Coverage should show the 'if (client == null) { client.close() }'
+        // executed.
       });
     });
   });
