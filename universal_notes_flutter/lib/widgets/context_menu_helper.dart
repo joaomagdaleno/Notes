@@ -57,8 +57,23 @@ class ContextMenuHelper {
       ),
       PopupMenuItem(
         onTap: () {
+          // Move to trash
           note.isInTrash = true;
           onSave(note);
+
+          // Show a snackbar with an undo action
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Nota movida para a lixeira.'),
+              action: SnackBarAction(
+                label: 'Desfazer',
+                onPressed: () {
+                  note.isInTrash = false;
+                  onSave(note);
+                },
+              ),
+            ),
+          );
         },
         child: Row(
           children: [
