@@ -12,7 +12,7 @@ import 'package:uuid/uuid.dart';
 /// A repository for managing all app data in a local database.
 class NoteRepository {
   NoteRepository._();
-  static final NoteRepository instance = NoteRepository._();
+  static NoteRepository instance = NoteRepository._();
 
   String? dbPath;
   Database? _database;
@@ -61,7 +61,7 @@ class NoteRepository {
         FOREIGN KEY (noteId) REFERENCES $_notesTable(id) ON DELETE CASCADE
       )
     ''');
-     await db.execute('''
+    await db.execute('''
       CREATE TABLE $_snippetsTable(
         id TEXT PRIMARY KEY,
         trigger TEXT UNIQUE,
@@ -72,7 +72,9 @@ class NoteRepository {
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      await db.execute('CREATE TABLE $_foldersTable(id TEXT PRIMARY KEY, name TEXT)');
+      await db.execute(
+        'CREATE TABLE $_foldersTable(id TEXT PRIMARY KEY, name TEXT)',
+      );
       await db.execute('ALTER TABLE $_notesTable ADD COLUMN folderId TEXT');
     }
     if (oldVersion < 3) {
@@ -92,28 +94,49 @@ class NoteRepository {
         )
       ''');
     }
-     if (oldVersion < 5) {
-      await db.execute('ALTER TABLE $_notesTable ADD COLUMN isDraft INTEGER DEFAULT 0');
+    if (oldVersion < 5) {
+      await db.execute(
+        'ALTER TABLE $_notesTable ADD COLUMN isDraft INTEGER DEFAULT 0',
+      );
     }
   }
 
   // --- Snippet Methods ---
-  Future<Snippet> createSnippet({required String trigger, required String content}) async {
+  Future<Snippet> createSnippet({
+    required String trigger,
+    required String content,
+  }) async {
     final db = await database;
-    final snippet = Snippet(id: const Uuid().v4(), trigger: trigger, content: content);
-    await db.insert(_snippetsTable, snippet.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    final snippet = Snippet(
+      id: const Uuid().v4(),
+      trigger: trigger,
+      content: content,
+    );
+    await db.insert(
+      _snippetsTable,
+      snippet.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
     return snippet;
   }
 
   Future<List<Snippet>> getAllSnippets() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(_snippetsTable, orderBy: 'trigger');
+    final List<Map<String, dynamic>> maps = await db.query(
+      _snippetsTable,
+      orderBy: 'trigger',
+    );
     return List.generate(maps.length, (i) => Snippet.fromMap(maps[i]));
   }
 
   Future<void> updateSnippet(Snippet snippet) async {
     final db = await database;
-    await db.update(_snippetsTable, snippet.toMap(), where: 'id = ?', whereArgs: [snippet.id]);
+    await db.update(
+      _snippetsTable,
+      snippet.toMap(),
+      where: 'id = ?',
+      whereArgs: [snippet.id],
+    );
   }
 
   Future<void> deleteSnippet(String id) async {
@@ -124,21 +147,27 @@ class NoteRepository {
   // --- Autocomplete Methods ---
   Future<void> _buildWordFrequencyCache() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(_notesTable, columns: ['content']);
+    final List<Map<String, dynamic>> maps = await db.query(
+      _notesTable,
+      columns: ['content'],
+    );
     _wordFrequencyCache = <String, int>{};
 
     for (final map in maps) {
       final content = map['content'] as String;
       try {
-        final List<dynamic> spans = json.decode(content);
+        final spans = json.decode(content) as List<dynamic>;
         for (final span in spans) {
           if (span is Map<String, dynamic> && span['text'] is String) {
             final text = span['text'] as String;
             final words = text.split(RegExp(r'\s+'));
             for (final word in words) {
-              final cleanWord = word.replaceAll(RegExp('[^a-zA-Z]'), '').toLowerCase();
+              final cleanWord = word
+                  .replaceAll(RegExp('[^a-zA-Z]'), '')
+                  .toLowerCase();
               if (cleanWord.isNotEmpty) {
-                _wordFrequencyCache![cleanWord] = (_wordFrequencyCache![cleanWord] ?? 0) + 1;
+                _wordFrequencyCache![cleanWord] =
+                    (_wordFrequencyCache![cleanWord] ?? 0) + 1;
               }
             }
           }
@@ -158,7 +187,9 @@ class NoteRepository {
         .where((word) => word.startsWith(prefix.toLowerCase()))
         .toList();
 
-    matchingWords.sort((a, b) => _wordFrequencyCache![b]!.compareTo(_wordFrequencyCache![a]!));
+    matchingWords.sort(
+      (a, b) => _wordFrequencyCache![b]!.compareTo(_wordFrequencyCache![a]!),
+    );
 
     return matchingWords.take(10).toList(); // Limit to top 10 for performance
   }
@@ -171,7 +202,12 @@ class NoteRepository {
 
   Future<List<NoteVersion>> getNoteVersions(String noteId) async {
     final db = await database;
-    final maps = await db.query(_versionsTable, where: 'noteId = ?', whereArgs: [noteId], orderBy: 'date DESC');
+    final maps = await db.query(
+      _versionsTable,
+      where: 'noteId = ?',
+      whereArgs: [noteId],
+      orderBy: 'date DESC',
+    );
     return List.generate(maps.length, (i) => NoteVersion.fromMap(maps[i]));
   }
 
@@ -179,7 +215,11 @@ class NoteRepository {
   Future<Folder> createFolder(String name) async {
     final db = await database;
     final folder = Folder(id: const Uuid().v4(), name: name);
-    await db.insert(_foldersTable, folder.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert(
+      _foldersTable,
+      folder.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
     return folder;
   }
 
@@ -191,7 +231,12 @@ class NoteRepository {
 
   Future<void> updateFolder(Folder folder) async {
     final db = await database;
-    await db.update(_foldersTable, folder.toMap(), where: 'id = ?', whereArgs: [folder.id]);
+    await db.update(
+      _foldersTable,
+      folder.toMap(),
+      where: 'id = ?',
+      whereArgs: [folder.id],
+    );
   }
 
   Future<void> deleteFolder(String id) async {
@@ -202,7 +247,11 @@ class NoteRepository {
   // --- Note Methods ---
   Future<String> insertNote(Note note) async {
     final db = await database;
-    await db.insert(_notesTable, note.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert(
+      _notesTable,
+      note.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
     _wordFrequencyCache = null;
     return note.id;
   }
@@ -234,9 +283,13 @@ class NoteRepository {
       whereArgs.add(1);
     }
 
-    final whereString = whereClauses.isNotEmpty ? whereClauses.join(' AND ') : null;
+    final whereString = whereClauses.isNotEmpty
+        ? whereClauses.join(' AND ')
+        : null;
 
-    final columnsToFetch = Note.fromMap(const {}).toMap().keys.where((key) => key != 'content').toList();
+    final columnsToFetch = Note.fromMap(
+      const {},
+    ).toMap().keys.where((key) => key != 'content').toList();
 
     final maps = await db.query(
       _notesTable,
@@ -253,7 +306,9 @@ class NoteRepository {
     if (searchTerm.isEmpty) {
       return getAllNotes();
     }
-    final columnsToFetch = Note.fromMap(const {}).toMap().keys.where((key) => key != 'content').toList();
+    final columnsToFetch = Note.fromMap(
+      const {},
+    ).toMap().keys.where((key) => key != 'content').toList();
     final maps = await db.query(
       _notesTable,
       columns: columnsToFetch,
@@ -280,13 +335,23 @@ class NoteRepository {
 
   Future<void> updateNoteContent(Note note) async {
     final db = await database;
-    await db.update(_notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
+    await db.update(
+      _notesTable,
+      note.toMap(),
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
     _wordFrequencyCache = null;
   }
 
   Future<void> updateNote(Note note) async {
     final db = await database;
-    await db.update(_notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
+    await db.update(
+      _notesTable,
+      note.toMap(),
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
   }
 
   Future<void> deleteNote(String id) async {
@@ -302,7 +367,12 @@ class NoteRepository {
 
   Future<void> restoreNoteFromTrash(String id) async {
     final db = await database;
-    await db.update(_notesTable, {'isInTrash': 0}, where: 'id = ?', whereArgs: [id]);
+    await db.update(
+      _notesTable,
+      {'isInTrash': 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<void> close() async {

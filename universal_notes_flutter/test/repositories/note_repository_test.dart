@@ -30,6 +30,7 @@ void main() {
     setUp(() {
       noteRepository = NoteRepository.instance..dbPath = inMemoryDatabasePath;
       note = Note(
+        id: '1',
         title: 'Test Note',
         content: 'This is a test note.',
         date: DateTime.now(),

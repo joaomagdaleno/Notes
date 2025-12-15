@@ -28,31 +28,32 @@ void main() {
     expect(find.text('Test Note'), findsOneWidget);
   });
 
-testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
-  var tapped = false;
-  final tile = NoteSimpleListTile(
-    key: const ValueKey('tile_under_test'),
-    note: note,
-    onDelete: (_) {},
-    onSave: (n) async => n,
-    onTap: () => tapped = true,
-  );
+  testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
+    var tapped = false;
+    final tile = NoteSimpleListTile(
+      key: const ValueKey('tile_under_test'),
+      note: note,
+      onDelete: (_) {},
+      onSave: (n) async => n,
+      onTap: () => tapped = true,
+    );
 
-  await tester.pumpWidget(MaterialApp(home: Scaffold(body: tile)));
+    await tester.pumpWidget(MaterialApp(home: Scaffold(body: tile)));
 
-  // Find the ListTile and tap on it
-  final listTileFinder = find.descendant(
-    of: find.byKey(const ValueKey('tile_under_test')),
-    matching: find.byType(ListTile),
-  );
-  await tester.tap(listTileFinder);
-  await tester.pump();
+    // Find the ListTile and tap on it
+    final listTileFinder = find.descendant(
+      of: find.byKey(const ValueKey('tile_under_test')),
+      matching: find.byType(ListTile),
+    );
+    await tester.tap(listTileFinder);
+    await tester.pump();
 
-  expect(tapped, isTrue);
-});
+    expect(tapped, isTrue);
+  });
 
-  testWidgets('long-pressing NoteSimpleListTile shows context menu',
-      (WidgetTester tester) async {
+  testWidgets('long-pressing NoteSimpleListTile shows context menu', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -72,8 +73,9 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
     expect(find.text('Mover para a lixeira'), findsOneWidget);
   });
 
-  testWidgets('tapping delete on context menu calls onDelete',
-      (WidgetTester tester) async {
+  testWidgets('tapping delete on context menu calls onDelete', (
+    WidgetTester tester,
+  ) async {
     var deleted = false;
     final noteInTrash = note.copyWith(isInTrash: true);
 
@@ -115,17 +117,17 @@ testWidgets('tapping NoteSimpleListTile calls onTap', (tester) async {
         ),
       );
 
-    // Find the ListTile and tap on it
-    final listTileFinder = find.byType(ListTile);
-    await tester.tap(listTileFinder);
+      // Find the ListTile and tap on it
+      final listTileFinder = find.byType(ListTile);
+      await tester.tap(listTileFinder);
 
-    // Wait for navigation to complete
-    await tester.pumpAndSettle();
+      // Wait for navigation to complete
+      await tester.pumpAndSettle();
 
-    // Check if we've navigated to the NoteEditorScreen
-    expect(find.byType(NoteEditorScreen), findsOneWidget);
-    // Check for the "Edit Note" text in the AppBar
-    expect(find.text('Edit Note'), findsOneWidget);
+      // Check if we've navigated to the NoteEditorScreen
+      expect(find.byType(NoteEditorScreen), findsOneWidget);
+      // Check for the "Edit Note" text in the AppBar
+      expect(find.text('Edit Note'), findsOneWidget);
     },
   );
 }

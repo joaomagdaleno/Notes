@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
+import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 
 void main() {
   testWidgets('NoteCard displays note', (WidgetTester tester) async {
     final note = Note(
+      id: '1',
       title: 'Test Note',
       content: r'[{"insert":"This is a test note.\n"}]',
       date: DateTime.now(),
@@ -35,6 +37,7 @@ void main() {
   ) async {
     var tapped = false;
     final note = Note(
+      id: '1',
       title: 'Test Note',
       content: '',
       date: DateTime.now(),
@@ -68,6 +71,7 @@ void main() {
     'tapping NoteCard navigates to NoteEditorScreen when onTap null',
     (WidgetTester tester) async {
       final note = Note(
+        id: '1',
         title: 'Test Note',
         content: r'[{"insert":"Content\n"}]',
         date: DateTime.now(),
@@ -106,6 +110,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final note = Note(
+      id: '1',
       title: 'Test Note',
       content: r'[{"insert":"Content\n"}]',
       date: DateTime.now(),

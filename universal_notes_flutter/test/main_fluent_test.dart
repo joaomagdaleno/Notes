@@ -4,7 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:universal_notes_flutter/main.dart';
+
+import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
@@ -49,15 +50,15 @@ void main() {
     // navegação.
     await tester.pumpWidget(
       fluent.FluentApp(
+        navigatorObservers: [mockNavigatorObserver],
         onGenerateRoute: (settings) {
           return fluent.FluentPageRoute(
             builder: (context) => const SizedBox.shrink(),
           );
         },
-        home: MyFluentApp(
+        home: NotesScreen(
           noteRepository: mockNoteRepository,
           updateService: mockUpdateService,
-          navigatorObservers: [mockNavigatorObserver],
         ),
       ),
     );

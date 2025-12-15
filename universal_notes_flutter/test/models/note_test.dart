@@ -5,6 +5,7 @@ void main() {
   group('Note', () {
     test('Note can be created', () {
       final note = Note(
+        id: '1',
         title: 'Test Note',
         content: 'This is a test note.',
         date: DateTime.now(),
@@ -27,6 +28,7 @@ void main() {
 
     test('Note can be converted to map', () {
       final note = Note(
+        id: '1',
         title: 'Test Note',
         content: 'This is a test note.',
         date: DateTime.now(),
@@ -36,6 +38,7 @@ void main() {
 
     test('Note can be copied', () {
       final note = Note(
+        id: '1',
         title: 'Test Note',
         content: 'This is a test note.',
         date: DateTime.now(),

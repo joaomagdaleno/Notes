@@ -5,7 +5,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:universal_notes_flutter/models/folder.dart';
+
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
@@ -20,7 +20,14 @@ import 'package:window_manager/window_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotesScreen extends StatefulWidget {
-  const NotesScreen({super.key});
+  final NoteRepository? noteRepository;
+  final UpdateService? updateService;
+
+  const NotesScreen({
+    super.key,
+    this.noteRepository,
+    this.updateService,
+  });
 
   @override
   State<NotesScreen> createState() => _NotesScreenState();
@@ -32,8 +39,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   List<Note> _notes = [];
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   SortOrder _sortOrder = SortOrder.dateDesc;
-  final NoteRepository _noteRepository = NoteRepository.instance;
-  final UpdateService _updateService = UpdateService();
+  late final NoteRepository _noteRepository;
+  late final UpdateService _updateService;
   final BackupService _backupService = BackupService();
 
   final _searchController = TextEditingController();
@@ -45,6 +52,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   @override
   void initState() {
     super.initState();
+    _noteRepository = widget.noteRepository ?? NoteRepository.instance;
+    _updateService = widget.updateService ?? UpdateService();
     windowManager.addListener(this);
     _loadNotes();
     _runAutoBackupIfNeeded();
