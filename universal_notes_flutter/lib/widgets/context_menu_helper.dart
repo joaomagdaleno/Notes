@@ -104,30 +104,31 @@ class ContextMenuHelper {
       PopupMenuItem(
         onTap: () async {
           final shouldDelete = await showDialog<bool>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Excluir Nota Permanentemente?'),
-              content: const Text(
-                'Esta ação não pode ser desfeita. A nota será excluída para sempre.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancelar'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text(
-                    'Excluir',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Excluir Nota Permanentemente?'),
+                  content: const Text(
+                    'Esta ação não pode ser desfeita. A nota será excluída para sempre.',
                   ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text(
+                        'Excluir',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-          if (shouldDelete == true) {
+              ) ??
+              false;
+          if (shouldDelete) {
             onDelete(note);
           }
         },

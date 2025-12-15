@@ -70,8 +70,37 @@ class FluentContextMenuHelper {
       MenuFlyoutItem(
         leading: const Icon(FluentIcons.delete),
         text: const Text('Delete permanently'),
-        onPressed: () {
-          onDelete(note);
+        onPressed: () async {
+          final shouldDelete = await showDialog<bool>(
+            context: context,
+            builder: (context) {
+              final theme = FluentTheme.of(context);
+              return ContentDialog(
+                title: const Text('Excluir Nota Permanentemente?'),
+                content: const Text(
+                  'Esta ação não pode ser desfeita. A nota será excluída para sempre.',
+                ),
+                actions: [
+                  Button(
+                    child: const Text('Cancelar'),
+                    onPressed: () => Navigator.of(context).pop(false),
+                  ),
+                  FilledButton(
+                    style: ButtonStyle(
+                      backgroundColor: ButtonState.all(
+                        theme.accentColor.toAccentColor().lighter,
+                      ),
+                    ),
+                    child: const Text('Excluir'),
+                    onPressed: () => Navigator.of(context).pop(true),
+                  ),
+                ],
+              );
+            },
+          );
+          if (shouldDelete == true) {
+            onDelete(note);
+          }
         },
       ),
     ];
