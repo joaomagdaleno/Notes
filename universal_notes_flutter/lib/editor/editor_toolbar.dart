@@ -1,0 +1,104 @@
+import 'package:flutter/material.dart';
+
+/// A toolbar with basic text formatting options and undo/redo buttons.
+class EditorToolbar extends StatelessWidget {
+  /// Creates a new instance of [EditorToolbar].
+  const EditorToolbar({
+    required this.onBold,
+    required this.onItalic,
+    required this.onUnderline,
+    required this.onStrikethrough,
+    required this.onColor,
+    required this.onFontSize,
+    required this.onSnippets,
+    required this.onUndo,
+    required this.onRedo,
+    required this.canUndo,
+    required this.canRedo,
+    this.wordCount = 0,
+    this.charCount = 0,
+    super.key,
+  });
+
+  /// Callback for when the bold button is pressed.
+  final VoidCallback onBold;
+  /// Callback for when the italic button is pressed.
+  final VoidCallback onItalic;
+  /// Callback for when the underline button is pressed.
+  final VoidCallback onUnderline;
+  /// Callback for when the strikethrough button is pressed.
+  final VoidCallback onStrikethrough;
+  /// Callback to open the color selection UI.
+  final VoidCallback onColor;
+  /// Callback to open the font size selection UI.
+  final VoidCallback onFontSize;
+  /// Callback to open the snippets management screen.
+  final VoidCallback onSnippets;
+  /// Callback for when the undo button is pressed.
+  final VoidCallback onUndo;
+  /// Callback for when the redo button is pressed.
+  final VoidCallback onRedo;
+  /// Whether the undo action is available.
+  final bool canUndo;
+  /// Whether the redo action is available.
+  final bool canRedo;
+  /// The word count of the document.
+  final int wordCount;
+  /// The character count of the document.
+  final int charCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      color: Colors.grey[200],
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.undo),
+            onPressed: canUndo ? onUndo : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.redo),
+            onPressed: canRedo ? onRedo : null,
+          ),
+          const VerticalDivider(),
+          IconButton(
+            icon: const Icon(Icons.format_bold),
+            onPressed: onBold,
+          ),
+          IconButton(
+            icon: const Icon(Icons.format_italic),
+            onPressed: onItalic,
+          ),
+          IconButton(
+            icon: const Icon(Icons.format_underline),
+            onPressed: onUnderline,
+          ),
+          IconButton(
+            icon: const Icon(Icons.format_strikethrough),
+            onPressed: onStrikethrough,
+          ),
+          const VerticalDivider(),
+          IconButton(
+            icon: const Icon(Icons.format_color_text),
+            onPressed: onColor,
+          ),
+          IconButton(
+            icon: const Icon(Icons.format_size),
+            onPressed: onFontSize,
+          ),
+          IconButton(
+            icon: const Icon(Icons.shortcut),
+            onPressed: onSnippets,
+          ),
+          const Spacer(),
+          Text(
+            '$wordCount words / $charCount characters',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+}
