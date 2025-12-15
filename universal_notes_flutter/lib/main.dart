@@ -515,23 +515,18 @@ class _NotesScreenState extends State<NotesScreen> {
                 : Row(
                     children: [
                       NavigationRail(
-                        leading: Tooltip(
-                          message: _isNavigationRailExpanded
-                              ? 'Recolher'
-                              : 'Expandir',
-                          child: IconButton(
-                            icon: Icon(
-                              _isNavigationRailExpanded
-                                  ? Icons.menu_open
-                                  : Icons.menu,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isNavigationRailExpanded =
-                                    !_isNavigationRailExpanded;
-                              });
-                            },
+                        leading: IconButton(
+                          icon: Icon(
+                            _isNavigationRailExpanded
+                                ? Icons.menu_open
+                                : Icons.menu,
                           ),
+                          onPressed: () {
+                            setState(() {
+                              _isNavigationRailExpanded =
+                                  !_isNavigationRailExpanded;
+                            });
+                          },
                         ),
                         extended: _isNavigationRailExpanded,
                         selectedIndex: _selectedIndex,
