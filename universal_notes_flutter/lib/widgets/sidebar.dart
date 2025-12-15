@@ -3,17 +3,36 @@ import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 
+enum SidebarItemType { all, favorites, trash, folder }
+
+class SidebarSelection {
+  final SidebarItemType type;
+  final Folder? folder; // Only used when type is 'folder'
+
+  const SidebarSelection(this.type, {this.folder});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SidebarSelection &&
+          runtimeType == other.runtimeType &&
+          type == other.type &&
+          folder?.id == other.folder?.id;
+
+  @override
+  int get hashCode => type.hashCode ^ folder.hashCode;
+}
+
+
 /// A sidebar widget to display and manage folders.
 class Sidebar extends StatefulWidget {
   /// Creates a new instance of [Sidebar].
   const Sidebar({
-    required this.onFolderSelected,
+    required this.onSelectionChanged,
     super.key,
   });
 
-  /// Callback for when a folder is selected.
-  /// If the folder is null, it means 'All Notes' was selected.
-  final ValueChanged<Folder?> onFolderSelected;
+  final ValueChanged<SidebarSelection> onSelectionChanged;
 
   @override
   State<Sidebar> createState() => _SidebarState();
@@ -21,7 +40,7 @@ class Sidebar extends StatefulWidget {
 
 class _SidebarState extends State<Sidebar> {
   List<Folder> _folders = [];
-  Folder? _selectedFolder;
+  SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final BackupService _backupService = BackupService();
 
   @override
@@ -92,11 +111,33 @@ class _SidebarState extends State<Sidebar> {
             child: Text('My Notes', style: Theme.of(context).textTheme.headlineSmall),
           ),
           ListTile(
+            leading: const Icon(Icons.notes),
             title: const Text('All Notes'),
-            selected: _selectedFolder == null,
+            selected: _selection.type == SidebarItemType.all,
             onTap: () {
-              setState(() => _selectedFolder = null);
-              widget.onFolderSelected(null);
+              final newSelection = const SidebarSelection(SidebarItemType.all);
+              setState(() => _selection = newSelection);
+              widget.onSelectionChanged(newSelection);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.favorite_border),
+            title: const Text('Favorites'),
+            selected: _selection.type == SidebarItemType.favorites,
+            onTap: () {
+              final newSelection = const SidebarSelection(SidebarItemType.favorites);
+              setState(() => _selection = newSelection);
+              widget.onSelectionChanged(newSelection);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete_outline),
+            title: const Text('Trash'),
+            selected: _selection.type == SidebarItemType.trash,
+            onTap: () {
+              final newSelection = const SidebarSelection(SidebarItemType.trash);
+              setState(() => _selection = newSelection);
+              widget.onSelectionChanged(newSelection);
             },
           ),
           const Divider(),
@@ -106,11 +147,13 @@ class _SidebarState extends State<Sidebar> {
               itemBuilder: (context, index) {
                 final folder = _folders[index];
                 return ListTile(
+                  leading: const Icon(Icons.folder_outlined),
                   title: Text(folder.name),
-                  selected: _selectedFolder?.id == folder.id,
+                  selected: _selection.type == SidebarItemType.folder && _selection.folder?.id == folder.id,
                   onTap: () {
-                    setState(() => _selectedFolder = folder);
-                    widget.onFolderSelected(folder);
+                    final newSelection = SidebarSelection(SidebarItemType.folder, folder: folder);
+                    setState(() => _selection = newSelection);
+                    widget.onSelectionChanged(newSelection);
                   },
                 );
               },
@@ -118,7 +161,7 @@ class _SidebarState extends State<Sidebar> {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.add),
+            leading: const Icon(Icons.add_circle_outline),
             title: const Text('New Folder'),
             onTap: _createNewFolder,
           ),

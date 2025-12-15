@@ -195,9 +195,42 @@ class NoteRepository {
     return note.id;
   }
 
-  Future<List<Note>> getAllNotes({String? folderId}) async {
+  Future<List<Note>> getAllNotes({
+    String? folderId,
+    bool? isFavorite,
+    bool? isInTrash,
+  }) async {
     final db = await database;
-    final maps = await db.query(_notesTable, where: folderId == null ? null : 'folderId = ?', whereArgs: folderId == null ? null : [folderId]);
+    final whereClauses = <String>[];
+    final whereArgs = <dynamic>[];
+
+    // By default, we don't show items in the trash unless explicitly requested.
+    if (isInTrash == true) {
+      whereClauses.add('isInTrash = ?');
+      whereArgs.add(1);
+    } else {
+      whereClauses.add('isInTrash = ?');
+      whereArgs.add(0);
+    }
+
+    if (folderId != null) {
+      whereClauses.add('folderId = ?');
+      whereArgs.add(folderId);
+    }
+
+    if (isFavorite == true) {
+      whereClauses.add('isFavorite = ?');
+      whereArgs.add(1);
+    }
+
+    final whereString = whereClauses.isNotEmpty ? whereClauses.join(' AND ') : null;
+
+    final maps = await db.query(
+      _notesTable,
+      where: whereString,
+      whereArgs: whereArgs,
+      orderBy: 'date DESC',
+    );
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
@@ -209,6 +242,16 @@ class NoteRepository {
   Future<void> deleteNote(String id) async {
     final db = await database;
     await db.delete(_notesTable, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> deleteNotePermanently(String id) async {
+    final db = await database;
+    await db.delete(_notesTable, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> restoreNoteFromTrash(String id) async {
+    final db = await database;
+    await db.update(_notesTable, {'isInTrash': 0}, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> close() async {

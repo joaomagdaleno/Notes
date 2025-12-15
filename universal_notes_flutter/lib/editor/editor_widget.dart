@@ -15,6 +15,7 @@ class EditorWidget extends StatefulWidget {
     required this.onDocumentChanged,
     required this.onSelectionChanged,
     this.selection,
+    this.onSelectionRectChanged,
     super.key,
   });
 
@@ -22,6 +23,7 @@ class EditorWidget extends StatefulWidget {
   final ValueChanged<DocumentModel> onDocumentChanged;
   final TextSelection? selection;
   final ValueChanged<TextSelection> onSelectionChanged;
+  final ValueChanged<Rect?>? onSelectionRectChanged;
 
   @override
   State<EditorWidget> createState() => _EditorWidgetState();
@@ -157,7 +159,7 @@ class _EditorWidgetState extends State<EditorWidget> {
 
     // If no conversion, just apply the basic edit.
     widget.onDocumentChanged(doc);
-    widget.onSelectionChanged(selection);
+    _onSelectionChanged(selection);
   }
 
   // --- Autocomplete Logic ---
@@ -213,7 +215,7 @@ class _EditorWidgetState extends State<EditorWidget> {
     final newSelection = TextSelection.collapsed(offset: start + suggestion.length);
 
     widget.onDocumentChanged(newDoc);
-    widget.onSelectionChanged(newSelection);
+    _onSelectionChanged(newSelection);
     _hideAutocomplete();
   }
 
@@ -240,7 +242,7 @@ class _EditorWidgetState extends State<EditorWidget> {
     _updateTextPainter();
     final position = _textPainter.getPositionForOffset(details.localPosition);
     final newSelection = TextSelection.collapsed(offset: position.offset);
-    widget.onSelectionChanged(newSelection);
+    _onSelectionChanged(newSelection);
     setState(() => _showCursor = true);
   }
    void _handlePanStart(DragStartDetails details) {
@@ -249,14 +251,14 @@ class _EditorWidgetState extends State<EditorWidget> {
     _updateTextPainter();
     final position = _textPainter.getPositionForOffset(details.localPosition);
     final newSelection = TextSelection.fromPosition(position);
-    widget.onSelectionChanged(newSelection);
+    _onSelectionChanged(newSelection);
     setState(() => _showCursor = true);
   }
    void _handlePanUpdate(DragUpdateDetails details) {
     _updateTextPainter();
     final position = _textPainter.getPositionForOffset(details.localPosition);
     final newSelection = _selection.copyWith(extentOffset: position.offset);
-    widget.onSelectionChanged(newSelection);
+    _onSelectionChanged(newSelection);
   }
   List<Widget> _buildSelectionHighlights() {
     if (_selection.isCollapsed) return [];
@@ -271,6 +273,37 @@ class _EditorWidgetState extends State<EditorWidget> {
         child: Container(color: Colors.blue.withOpacity(0.3)),
       );
     }).toList();
+  }
+
+  // --- Custom Callbacks ---
+  void _onSelectionChanged(TextSelection newSelection) {
+    widget.onSelectionChanged(newSelection);
+    _notifySelectionRectChanged(newSelection);
+  }
+
+  void _notifySelectionRectChanged(TextSelection selection) {
+    if (!mounted || widget.onSelectionRectChanged == null) return;
+
+    if (selection.isCollapsed) {
+      widget.onSelectionRectChanged!(null);
+      return;
+    }
+
+    // Ensure the painter is up-to-date before calculating boxes
+    _updateTextPainter();
+    final boxes = _textPainter.getBoxesForSelection(selection);
+
+    if (boxes.isNotEmpty) {
+      final firstBox = boxes.first;
+      var rect = Rect.fromLTRB(firstBox.left, firstBox.top, firstBox.right, firstBox.bottom);
+      for (var box in boxes.skip(1)) {
+        // This creates a bounding box around all the selection boxes
+        rect = rect.expandToInclude(Rect.fromLTRB(box.left, box.top, box.right, box.bottom));
+      }
+      widget.onSelectionRectChanged!(rect);
+    } else {
+      widget.onSelectionRectChanged!(null);
+    }
   }
 
   @override

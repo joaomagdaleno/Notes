@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
 import 'package:universal_notes_flutter/editor/editor_toolbar.dart';
 import 'package:universal_notes_flutter/editor/editor_widget.dart';
+import 'package:universal_notes_flutter/editor/floating_toolbar.dart';
 import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -34,6 +36,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
   Timer? _recordHistoryTimer;
+  Rect? _selectionRect;
+  bool get _isToolbarVisible => _selectionRect != null && !_selection.isCollapsed;
+  bool _isFocusMode = false;
   int _wordCount = 0;
   int _charCount = 0;
   bool _isFindBarVisible = false;
@@ -62,6 +67,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   @override
   void dispose() {
     _recordHistoryTimer?.cancel();
+    // Ensure system UI is restored when the screen is disposed
+    if (_isFocusMode) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+    }
     super.dispose();
   }
 
@@ -93,6 +102,23 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     setState(() {
       _selection = newSelection;
     });
+  }
+
+  void _onSelectionRectChanged(Rect? rect) {
+    // Prevent updating the position of the toolbar during scrolling.
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final editorRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
+
+    if (rect != null && editorRect.overlaps(rect)) {
+      setState(() {
+        _selectionRect = rect;
+      });
+    } else {
+       setState(() {
+        _selectionRect = null;
+      });
+    }
   }
 
   void _replaceAll(String replaceTerm) {
@@ -305,6 +331,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _onDocumentChanged(newDoc);
   }
 
+  void _toggleFocusMode() {
+    setState(() {
+      _isFocusMode = !_isFocusMode;
+      if (_isFocusMode) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      } else {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+      }
+    });
+  }
+
   void _showSnippetsScreen() async {
     await Navigator.push(
       context,
@@ -317,7 +354,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: _isFocusMode ? null : AppBar(
         title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
         actions: [
           IconButton(
@@ -329,50 +366,73 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               icon: const Icon(Icons.history),
               onPressed: _showHistory,
             ),
+          IconButton(
+            icon: Icon(_isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen),
+            onPressed: _toggleFocusMode,
+          ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _isFocusMode ? null : FloatingActionButton(
         onPressed: _saveNote,
         child: const Icon(Icons.save),
       ),
-      body: Column(
-        children: [
-          if (_isFindBarVisible)
-            FindReplaceBar(
-              onFindChanged: _onFindChanged,
-              onFindNext: _findNext,
-              onFindPrevious: _findPrevious,
-              onReplace: _replace,
-              onReplaceAll: _replaceAll,
-              onClose: () => setState(() => _isFindBarVisible = false),
+      body: SafeArea(
+        top: !_isFocusMode,
+        bottom: !_isFocusMode,
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                if (_isFindBarVisible && !_isFocusMode)
+                  FindReplaceBar(
+                    onFindChanged: _onFindChanged,
+                    onFindNext: _findNext,
+                    onFindPrevious: _findPrevious,
+                    onReplace: _replace,
+                    onReplaceAll: _replaceAll,
+                    onClose: () => setState(() => _isFindBarVisible = false),
+                  ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: EditorWidget(
+                      document: _document,
+                      onDocumentChanged: _onDocumentChanged,
+                      selection: _selection,
+                      onSelectionChanged: _onSelectionChanged,
+                      onSelectionRectChanged: _onSelectionRectChanged,
+                    ),
+                  ),
+                ),
+                if (!_isFocusMode)
+                  EditorToolbar(
+                    onBold: () => _toggleStyle(StyleAttribute.bold),
+                    onItalic: () => _toggleStyle(StyleAttribute.italic),
+                    onUnderline: () => _toggleStyle(StyleAttribute.underline),
+                    onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
+                    onColor: _showColorPicker,
+                    onFontSize: _showFontSizePicker,
+                    onSnippets: _showSnippetsScreen,
+                    onUndo: _undo,
+                    onRedo: _redo,
+                    canUndo: _historyManager.canUndo,
+                    canRedo: _historyManager.canRedo,
+                    wordCount: _wordCount,
+                    charCount: _charCount,
+                  ),
+              ],
             ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: EditorWidget(
-                document: _document,
-                onDocumentChanged: _onDocumentChanged,
-                selection: _selection,
-                onSelectionChanged: _onSelectionChanged,
+            if (_isToolbarVisible)
+              Positioned(
+                top: _selectionRect!.top - 55,
+                left: _selectionRect!.left,
+                child: FloatingToolbar(
+                  onBold: () => _toggleStyle(StyleAttribute.bold),
+                  onItalic: () => _toggleStyle(StyleAttribute.italic),
+                ),
               ),
-            ),
-          ),
-          EditorToolbar(
-            onBold: () => _toggleStyle(StyleAttribute.bold),
-            onItalic: () => _toggleStyle(StyleAttribute.italic),
-            onUnderline: () => _toggleStyle(StyleAttribute.underline),
-            onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
-            onColor: _showColorPicker,
-            onFontSize: _showFontSizePicker,
-            onSnippets: _showSnippetsScreen,
-            onUndo: _undo,
-            onRedo: _redo,
-            canUndo: _historyManager.canUndo,
-            canRedo: _historyManager.canRedo,
-            wordCount: _wordCount,
-            charCount: _charCount,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
