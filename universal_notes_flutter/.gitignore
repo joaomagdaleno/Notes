@@ -50,6 +50,7 @@ app.*.map.json
 
 # Android related
 /android/local.properties
+/android/key.properties
 *.apk
 
 # iOS related
