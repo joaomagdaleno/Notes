@@ -145,7 +145,10 @@ class UpdateService {
         '/repos/$_repo/releases/tags/beta-latest',
       );
     } else {
-      return Uri.parse('https://api.github.com/repos/$_repo/releases/latest');
+      return Uri.https(
+        'api.github.com',
+        '/repos/$_repo/releases/latest',
+      );
     }
   }
 
