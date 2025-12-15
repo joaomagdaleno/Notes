@@ -612,7 +612,32 @@ class _NotesScreenState extends State<NotesScreen> {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('Nenhuma nota encontrada.'));
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (_isWindows)
+                  Icon(
+                    fluent.FluentIcons.add_notes,
+                    size: 48,
+                    color: fluent.FluentTheme.of(context).disabledColor,
+                  )
+                else
+                  Icon(
+                    Icons.note_add_outlined,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                const SizedBox(height: 16),
+                Text(
+                  'Nenhuma nota ainda. Que tal criar uma?',
+                  style: _isWindows
+                      ? fluent.FluentTheme.of(context).typography.bodyLarge
+                      : Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
+            ),
+          );
         }
 
         final allNotes = snapshot.data!;
