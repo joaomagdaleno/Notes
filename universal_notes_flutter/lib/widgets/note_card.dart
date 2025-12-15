@@ -103,4 +103,14 @@ class NoteCard extends StatelessWidget {
       ),
     );
   }
+
+  void _showContextMenu(BuildContext context, Offset globalPosition) {
+    ContextMenuHelper.showContextMenu(
+      context: context,
+      position: globalPosition,
+      note: note,
+      onSave: onSave,
+      onDelete: onDelete,
+    );
+  }
 }

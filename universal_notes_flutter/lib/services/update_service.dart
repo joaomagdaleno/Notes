@@ -53,50 +53,65 @@ class UpdateService {
 
       final url = _getUpdateUrl(currentVersionStr);
 
-      final response = await _client.get(url);
+      // 🛡️ Sentinel: Add a timeout to prevent the request from hanging indefinitely.
+      final response = await _client.get(url).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
-        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        // 🛡️ Sentinel: Safely decode JSON to prevent crashes from invalid data.
+        final dynamic decodedJson = jsonDecode(response.body);
+        if (decodedJson is! Map<String, dynamic>) {
+          return UpdateCheckResult(
+            UpdateCheckStatus.error,
+            errorMessage: 'Resposta de atualização inválida do servidor.',
+          );
+        }
+        final json = decodedJson;
 
         String latestVersionStr;
         if (url.path.endsWith('/latest')) {
-          final tagName = json['tag_name'] as String;
-          latestVersionStr = tagName.startsWith('v')
-              ? tagName.substring(1)
-              : tagName;
+          // 🛡️ Sentinel: Safely access tag_name to prevent crashes.
+          final tagName = json['tag_name'];
+          if (tagName is! String) {
+            return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+          }
+          latestVersionStr =
+              tagName.startsWith('v') ? tagName.substring(1) : tagName;
         } else {
-          final body = json['body'] as String? ?? '';
-          latestVersionStr = _parseVersionFromBody(body);
+          // 🛡️ Sentinel: Safely access body to prevent crashes.
+          final body = json['body'];
+          latestVersionStr = _parseVersionFromBody(body is String ? body : '');
           if (latestVersionStr.isEmpty) {
             return UpdateCheckResult(UpdateCheckStatus.noUpdate);
           }
         }
 
         if (isNewerVersion(latestVersionStr, currentVersionStr)) {
-          final assets = json['assets'] as List<dynamic>?;
-          if (assets != null && assets.isNotEmpty) {
+          // 🛡️ Sentinel: Safely access assets list to prevent crashes.
+          final assets = json['assets'];
+          if (assets is List && assets.isNotEmpty) {
             final fileExtension = getPlatformFileExtension();
             if (fileExtension == null) {
               return UpdateCheckResult(UpdateCheckStatus.noUpdate);
             }
 
-            final releaseAsset =
-                assets.firstWhere(
-                      (dynamic asset) =>
-                          ((asset as Map<String, dynamic>)['name'] as String)
-                              .endsWith(fileExtension),
-                      orElse: () => null,
-                    )
-                    as Map<String, dynamic>?;
+            // 🛡️ Sentinel: Safely find and access release asset to prevent crashes.
+            final releaseAsset = assets.firstWhere((dynamic asset) {
+              if (asset is! Map<String, dynamic>) return false;
+              final name = asset['name'];
+              return name is String && name.endsWith(fileExtension);
+            }, orElse: () => null) as Map<String, dynamic>?;
 
             if (releaseAsset != null) {
-              return UpdateCheckResult(
-                UpdateCheckStatus.updateAvailable,
-                updateInfo: UpdateInfo(
-                  version: latestVersionStr,
-                  downloadUrl: releaseAsset['browser_download_url'] as String,
-                ),
-              );
+              final downloadUrl = releaseAsset['browser_download_url'];
+              if (downloadUrl is String) {
+                return UpdateCheckResult(
+                  UpdateCheckStatus.updateAvailable,
+                  updateInfo: UpdateInfo(
+                    version: latestVersionStr,
+                    downloadUrl: downloadUrl,
+                  ),
+                );
+              }
             }
           }
         }
@@ -130,7 +145,10 @@ class UpdateService {
         '/repos/$_repo/releases/tags/beta-latest',
       );
     } else {
-      return Uri.parse('https://api.github.com/repos/$_repo/releases/latest');
+      return Uri.https(
+        'api.github.com',
+        '/repos/$_repo/releases/latest',
+      );
     }
   }
 
