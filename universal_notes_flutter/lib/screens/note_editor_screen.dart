@@ -7,14 +7,15 @@ import 'package:universal_notes_flutter/editor/document_manipulator.dart';
 import 'package:universal_notes_flutter/editor/editor_toolbar.dart';
 import 'package:universal_notes_flutter/editor/editor_widget.dart';
 import 'package:universal_notes_flutter/editor/history_manager.dart';
+import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/screens/snippets_screen.dart';
+import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:uuid/uuid.dart';
 
-/// A screen for editing a note using a custom rich text editor.
 class NoteEditorScreen extends StatefulWidget {
-  // ... (constructor remains the same)
   const NoteEditorScreen({
     required this.onSave,
     this.note,
@@ -29,11 +30,16 @@ class NoteEditorScreen extends StatefulWidget {
 }
 
 class _NoteEditorScreenState extends State<NoteEditorScreen> {
-  // ... (state variables remain the same)
   late DocumentModel _document;
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
   Timer? _recordHistoryTimer;
+  int _wordCount = 0;
+  int _charCount = 0;
+  bool _isFindBarVisible = false;
+  String _findTerm = '';
+  List<int> _findMatches = [];
+  int _currentMatchIndex = -1;
 
   static const List<Color> _predefinedColors = [
     Colors.black, Colors.red, Colors.green, Colors.blue, Colors.orange, Colors.purple
@@ -49,19 +55,32 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _historyManager = HistoryManager(
       initialState: HistoryState(document: _document, selection: _selection),
     );
+    _updateCounts(_document);
+    SnippetConverter.precacheSnippets();
   }
 
-   @override
+  @override
   void dispose() {
     _recordHistoryTimer?.cancel();
     super.dispose();
   }
 
-  // ... (_onDocumentChanged, _onSelectionChanged, style methods remain the same)
+  void _updateCounts(DocumentModel document) {
+    final text = document.toPlainText().trim();
+    setState(() {
+      _charCount = text.length;
+      _wordCount = text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
+    });
+  }
+
   void _onDocumentChanged(DocumentModel newDocument) {
     setState(() {
       _document = newDocument;
     });
+    _updateCounts(newDocument);
+    if (_isFindBarVisible) {
+      _onFindChanged(_findTerm);
+    }
     _recordHistoryTimer?.cancel();
     _recordHistoryTimer = Timer(const Duration(milliseconds: 500), () {
       setState(() {
@@ -76,6 +95,20 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     });
   }
 
+  void _replaceAll(String replaceTerm) {
+    if (_findTerm.isEmpty || _findMatches.isEmpty) return;
+
+    DocumentModel tempDoc = _document;
+    // Iterate backwards to keep indices valid.
+    for (int i = _findMatches.length - 1; i >= 0; i--) {
+      final matchIndex = _findMatches[i];
+      tempDoc = DocumentManipulator.deleteText(tempDoc, matchIndex, _findTerm.length);
+      tempDoc = DocumentManipulator.insertText(tempDoc, matchIndex, replaceTerm);
+    }
+    _onDocumentChanged(tempDoc);
+  }
+
+  // ... (all other methods remain the same)
   void _toggleStyle(StyleAttribute attribute) {
     final newDocument = DocumentManipulator.toggleStyle(_document, _selection, attribute);
     _onDocumentChanged(newDocument);
@@ -132,6 +165,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       final state = _historyManager.undo();
       _document = state.document;
       _selection = state.selection;
+       _updateCounts(_document);
     });
   }
 
@@ -140,9 +174,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       final state = _historyManager.redo();
       _document = state.document;
       _selection = state.selection;
+      _updateCounts(_document);
     });
   }
-
 
   Future<void> _saveNote() async {
     final plainText = _document.toPlainText();
@@ -174,7 +208,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     final versions = await NoteRepository.instance.getNoteVersions(widget.note!.id);
     final now = DateTime.now();
 
-    // Save a version if there are no versions or the last one is older than 6 hours.
     if (versions.isEmpty || now.difference(versions.first.date).inHours >= 6) {
       final newVersion = NoteVersion(
         id: const Uuid().v4(),
@@ -223,12 +256,74 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _onDocumentChanged(newDocument);
   }
 
+  void _onFindChanged(String term) {
+    setState(() {
+      _findTerm = term;
+      _findMatches = [];
+      _currentMatchIndex = -1;
+      if (term.isNotEmpty) {
+        final plainText = _document.toPlainText().toLowerCase();
+        int startIndex = 0;
+        while (startIndex < plainText.length) {
+          final index = plainText.indexOf(term.toLowerCase(), startIndex);
+          if (index == -1) break;
+          _findMatches.add(index);
+          startIndex = index + 1;
+        }
+      }
+      if (_findMatches.isNotEmpty) {
+        _currentMatchIndex = 0;
+        _jumpToMatch(0);
+      }
+    });
+  }
+
+  void _jumpToMatch(int index) {
+    if (index < 0 || index >= _findMatches.length) return;
+    final start = _findMatches[index];
+    setState(() {
+      _selection = TextSelection(baseOffset: start, extentOffset: start + _findTerm.length);
+    });
+  }
+
+  void _findNext() {
+    if (_findMatches.isEmpty) return;
+    _currentMatchIndex = (_currentMatchIndex + 1) % _findMatches.length;
+    _jumpToMatch(_currentMatchIndex);
+  }
+
+  void _findPrevious() {
+    if (_findMatches.isEmpty) return;
+    _currentMatchIndex = (_currentMatchIndex - 1 + _findMatches.length) % _findMatches.length;
+    _jumpToMatch(_currentMatchIndex);
+  }
+
+  void _replace(String replaceTerm) {
+    if (_currentMatchIndex == -1 || _selection.isCollapsed) return;
+    final docAfterDelete = DocumentManipulator.deleteText(_document, _selection.start, _selection.end - _selection.start);
+    final newDoc = DocumentManipulator.insertText(docAfterDelete, _selection.start, replaceTerm);
+    _onDocumentChanged(newDoc);
+  }
+
+  void _showSnippetsScreen() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SnippetsScreen()),
+    );
+    // Reload snippets in case they were changed.
+    await SnippetConverter.precacheSnippets();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => setState(() => _isFindBarVisible = !_isFindBarVisible),
+          ),
           if (widget.note != null)
             IconButton(
               icon: const Icon(Icons.history),
@@ -242,6 +337,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       ),
       body: Column(
         children: [
+          if (_isFindBarVisible)
+            FindReplaceBar(
+              onFindChanged: _onFindChanged,
+              onFindNext: _findNext,
+              onFindPrevious: _findPrevious,
+              onReplace: _replace,
+              onReplaceAll: _replaceAll,
+              onClose: () => setState(() => _isFindBarVisible = false),
+            ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -260,10 +364,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
             onColor: _showColorPicker,
             onFontSize: _showFontSizePicker,
+            onSnippets: _showSnippetsScreen,
             onUndo: _undo,
             onRedo: _redo,
             canUndo: _historyManager.canUndo,
             canRedo: _historyManager.canRedo,
+            wordCount: _wordCount,
+            charCount: _charCount,
           ),
         ],
       ),

@@ -10,10 +10,13 @@ class EditorToolbar extends StatelessWidget {
     required this.onStrikethrough,
     required this.onColor,
     required this.onFontSize,
+    required this.onSnippets,
     required this.onUndo,
     required this.onRedo,
     required this.canUndo,
     required this.canRedo,
+    this.wordCount = 0,
+    this.charCount = 0,
     super.key,
   });
 
@@ -29,6 +32,8 @@ class EditorToolbar extends StatelessWidget {
   final VoidCallback onColor;
   /// Callback to open the font size selection UI.
   final VoidCallback onFontSize;
+  /// Callback to open the snippets management screen.
+  final VoidCallback onSnippets;
   /// Callback for when the undo button is pressed.
   final VoidCallback onUndo;
   /// Callback for when the redo button is pressed.
@@ -37,6 +42,10 @@ class EditorToolbar extends StatelessWidget {
   final bool canUndo;
   /// Whether the redo action is available.
   final bool canRedo;
+  /// The word count of the document.
+  final int wordCount;
+  /// The character count of the document.
+  final int charCount;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +87,15 @@ class EditorToolbar extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.format_size),
             onPressed: onFontSize,
+          ),
+          IconButton(
+            icon: const Icon(Icons.shortcut),
+            onPressed: onSnippets,
+          ),
+          const Spacer(),
+          Text(
+            '$wordCount words / $charCount characters',
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
       ),

@@ -1,19 +1,19 @@
 import 'dart:io';
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:system_tray/system_tray.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/services/backup_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_notes_flutter/services/backup_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,26 +32,20 @@ void main() async {
   runApp(const MyApp());
 }
 
-/// The main application widget.
 class MyApp extends StatelessWidget {
-  /// Creates a new instance of [MyApp].
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Universal Notes',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const NotesScreen(),
     );
   }
 }
 
-/// The main screen of the application, displaying a list of notes.
 class NotesScreen extends StatefulWidget {
-  /// Creates a new instance of [NotesScreen].
   const NotesScreen({super.key});
 
   @override
@@ -64,8 +58,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final NoteRepository _noteRepository = NoteRepository.instance;
   final UpdateService _updateService = UpdateService();
   final BackupService _backupService = BackupService();
-  final SystemTray _systemTray = SystemTray();
-  final AppWindow _appWindow = AppWindow();
+
+  String _viewMode = 'grid_medium';
 
   @override
   void initState() {
@@ -73,9 +67,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     windowManager.addListener(this);
     _loadNotes();
     _runAutoBackupIfNeeded();
-    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-      _initSystemTray();
-    }
   }
 
   @override
@@ -91,62 +82,12 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     });
   }
 
-  Future<void> _runAutoBackupIfNeeded() async {
-    final prefs = await SharedPreferences.getInstance();
-    final lastBackupMillis = prefs.getInt('last_backup_date') ?? 0;
-    final lastBackupDate = DateTime.fromMillisecondsSinceEpoch(lastBackupMillis);
-
-    if (DateTime.now().difference(lastBackupDate).inHours >= 24) {
-      try {
-        await _backupService.exportDatabaseToJson();
-        await prefs.setInt('last_backup_date', DateTime.now().millisecondsSinceEpoch);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Automatic backup completed.')),
-          );
-        }
-      } catch (e) {
-        // Handle backup error silently or log it
-        if (kDebugMode) {
-          print('Auto backup failed: $e');
-        }
-      }
-    }
-  }
-
-  Future<void> _initSystemTray() async {
-    await _systemTray.initSystemTray(
-      iconPath: Platform.isWindows ? 'assets/app_icon.ico' : 'assets/app_icon.png',
-    );
-    final menu = Menu()
-      ..buildFrom([
-        MenuItemLabel(label: 'Show', onClicked: (menuItem) => _appWindow.show()),
-        MenuItemLabel(label: 'Hide', onClicked: (menuItem) => _appWindow.hide()),
-        MenuItemLabel(label: 'Exit', onClicked: (menuItem) => _appWindow.close()),
-      ]);
-    await _systemTray.setContextMenu(menu);
-    _systemTray.registerSystemTrayEventHandler((eventName) {
-      if (eventName == kSystemTrayEventClick) {
-        _appWindow.show();
-      } else if (eventName == kSystemTrayEventRightClick) {
-        _systemTray.popUpContextMenu();
-      }
-    });
-  }
-
-  @override
-  void onWindowClose() {
-    final isPreventClose = windowManager.isPreventClose();
-    if (isPreventClose) {
-      _appWindow.hide();
-    }
-  }
-
   void _onFolderSelected(Folder? folder) {
     setState(() {
       _selectedFolder = folder;
     });
     _loadNotes();
+    Navigator.of(context).pop(); // Close the drawer
   }
 
   void _createNewNote() {
@@ -176,46 +117,121 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     );
   }
 
+  Future<void> _runAutoBackupIfNeeded() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastBackupMillis = prefs.getInt('last_backup_date') ?? 0;
+    final lastBackupDate = DateTime.fromMillisecondsSinceEpoch(lastBackupMillis);
+
+    if (DateTime.now().difference(lastBackupDate).inHours >= 24) {
+      try {
+        await _backupService.exportDatabaseToJson();
+        await prefs.setInt('last_backup_date', DateTime.now().millisecondsSinceEpoch);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Automatic backup completed.')),
+          );
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Auto backup failed: $e');
+        }
+      }
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  void onWindowClose() {
+    final isPreventClose = windowManager.isPreventClose();
+    if (isPreventClose) {
+      windowManager.hide();
+    }
+  }
+
+  Widget _buildMaterialUI() {
     return Scaffold(
       appBar: AppBar(
         title: Text(_selectedFolder?.name ?? 'All Notes'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.view_module),
+            onPressed: () => setState(() => _viewMode = 'grid_medium'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.view_comfy),
+            onPressed: () => setState(() => _viewMode = 'grid_large'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.view_list),
+            onPressed: () => setState(() => _viewMode = 'list'),
+          ),
+           IconButton(
             icon: const Icon(Icons.update),
             onPressed: () => _updateService.checkForUpdates(context),
           ),
         ],
       ),
-      body: Row(
-        children: [
-          Sidebar(onFolderSelected: _onFolderSelected),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(8),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200,
-                childAspectRatio: 3 / 2,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemCount: _notes.length,
-              itemBuilder: (context, index) {
-                final note = _notes[index];
-                return NoteCard(
-                  note: note,
-                  onTap: () => _openNoteEditor(note),
-                );
-              },
-            ),
-          ),
-        ],
+      drawer: Sidebar(onFolderSelected: _onFolderSelected),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(8),
+        gridDelegate: _getGridDelegate(),
+        itemCount: _notes.length,
+        itemBuilder: (context, index) {
+          final note = _notes[index];
+          return NoteCard(
+            note: note,
+            onTap: () => _openNoteEditor(note),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createNewNote,
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  SliverGridDelegate _getGridDelegate() {
+    switch (_viewMode) {
+      case 'grid_large':
+        return const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 300, childAspectRatio: 3/2, crossAxisSpacing: 8, mainAxisSpacing: 8);
+      case 'list':
+         return const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 1, childAspectRatio: 5/1);
+      default: // grid_medium
+        return const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 200, childAspectRatio: 3/2, crossAxisSpacing: 8, mainAxisSpacing: 8);
+    }
+  }
+
+  Widget _buildFluentUI() {
+    return fluent.FluentApp(
+      home: fluent.ScaffoldPage(
+        header: fluent.PageHeader(
+          title: Text(_selectedFolder?.name ?? 'All Notes'),
+        ),
+        content: GridView.builder(
+          padding: const EdgeInsets.all(8),
+          gridDelegate: _getGridDelegate(),
+          itemCount: _notes.length,
+          itemBuilder: (context, index) {
+            final note = _notes[index];
+            return NoteCard(
+              note: note,
+              onTap: () => _openNoteEditor(note),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+      return _buildMaterialUI();
+    } else {
+      return _buildMaterialUI();
+    }
   }
 }

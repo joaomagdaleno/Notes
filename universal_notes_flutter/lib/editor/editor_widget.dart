@@ -1,15 +1,15 @@
 import 'dart:async';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
 import 'package:universal_notes_flutter/editor/markdown_converter.dart';
+import 'package:universal_notes_flutter/editor/snippet_converter.dart';
+import 'package:universal_notes_flutter/services/autocomplete_service.dart';
+import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
 
-/// A widget that renders a [DocumentModel] and allows text selection and editing.
 class EditorWidget extends StatefulWidget {
-  /// Creates a new instance of [EditorWidget].
   const EditorWidget({
     required this.document,
     required this.onDocumentChanged,
@@ -18,15 +18,10 @@ class EditorWidget extends StatefulWidget {
     super.key,
   });
 
-  /// The document to render.
   final DocumentModel document;
-  /// Callback for when the document is changed by user input.
   final ValueChanged<DocumentModel> onDocumentChanged;
-  /// The current text selection.
   final TextSelection? selection;
-  /// Callback for when the text selection changes.
   final ValueChanged<TextSelection> onSelectionChanged;
-
 
   @override
   State<EditorWidget> createState() => _EditorWidgetState();
@@ -34,18 +29,21 @@ class EditorWidget extends StatefulWidget {
 
 class _EditorWidgetState extends State<EditorWidget> {
   final FocusNode _focusNode = FocusNode();
-
   late TextSelection _selection;
   bool _showCursor = true;
   Timer? _cursorTimer;
-
   final _textPainter = TextPainter(textDirection: TextDirection.ltr);
+
+  // Autocomplete state
+  OverlayEntry? _autocompleteOverlay;
+  List<String> _suggestions = [];
+  int _selectedSuggestionIndex = 0;
+  Timer? _autocompleteDebounce;
 
   @override
   void initState() {
     super.initState();
     _selection = widget.selection ?? const TextSelection.collapsed(offset: 0);
-
     _cursorTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       if (!_focusNode.hasFocus) {
         if (_showCursor) setState(() => _showCursor = false);
@@ -70,17 +68,45 @@ class _EditorWidgetState extends State<EditorWidget> {
     _focusNode.dispose();
     _cursorTimer?.cancel();
     _textPainter.dispose();
+    _autocompleteDebounce?.cancel();
+    _hideAutocomplete();
     super.dispose();
   }
 
   void _handleKeyEvent(RawKeyEvent event) {
     if (event is! RawKeyDownEvent) return;
 
+    // --- Autocomplete Keyboard Interaction ---
+    if (_autocompleteOverlay != null) {
+      if (event.logicalKey == LogicalKey.arrowDown) {
+        setState(() {
+          _selectedSuggestionIndex = (_selectedSuggestionIndex + 1) % _suggestions.length;
+        });
+        _showAutocomplete(); // Rebuild the overlay with the new selection
+        return;
+      } else if (event.logicalKey == LogicalKey.arrowUp) {
+         setState(() {
+          _selectedSuggestionIndex = (_selectedSuggestionIndex - 1 + _suggestions.length) % _suggestions.length;
+        });
+        _showAutocomplete();
+        return;
+      } else if (event.logicalKey == LogicalKey.tab || event.logicalKey == LogicalKey.enter) {
+        if (_suggestions.isNotEmpty) {
+          _acceptAutocomplete(_suggestions[_selectedSuggestionIndex]);
+        }
+        return;
+      } else if (event.logicalKey == LogicalKey.escape) {
+        _hideAutocomplete();
+        return;
+      }
+    }
+
     DocumentModel docAfterEdit;
     TextSelection selectionAfterEdit;
 
-    if (event.logicalKey == LogicalKeyboardKey.backspace) {
-      if (_selection.isCollapsed) {
+    // --- Basic Text Editing ---
+    if (event.logicalKey == LogicalKey.backspace) {
+       if (_selection.isCollapsed) {
         if (_selection.start == 0) return;
         docAfterEdit = DocumentManipulator.deleteText(widget.document, _selection.start - 1, 1);
         selectionAfterEdit = TextSelection.collapsed(offset: _selection.start - 1);
@@ -99,19 +125,104 @@ class _EditorWidgetState extends State<EditorWidget> {
         selectionAfterEdit = TextSelection.collapsed(offset: _selection.start + character.length);
       }
     } else {
+      _hideAutocomplete();
       return;
     }
 
-    // After a key event, check for Markdown conversions.
-    final conversionResult = MarkdownConverter.checkAndApply(docAfterEdit, selectionAfterEdit);
+    // --- Post-edit Actions (Converters & Autocomplete) ---
+    _runPostEditActions(docAfterEdit, selectionAfterEdit);
+  }
 
-    if (conversionResult != null) {
-      widget.onDocumentChanged(conversionResult.document);
-      widget.onSelectionChanged(conversionResult.selection);
-    } else {
-      widget.onDocumentChanged(docAfterEdit);
-      widget.onSelectionChanged(selectionAfterEdit);
+  void _runPostEditActions(DocumentModel doc, TextSelection selection) {
+    // --- Autocomplete ---
+    _autocompleteDebounce?.cancel();
+    _autocompleteDebounce = Timer(const Duration(milliseconds: 300), () {
+      _updateAutocomplete(doc, selection);
+    });
+
+    // --- Snippets & Markdown ---
+    final snippetResult = SnippetConverter.checkAndApply(doc, selection);
+    if (snippetResult != null) {
+      widget.onDocumentChanged(snippetResult.document);
+      widget.onSelectionChanged(snippetResult.selection);
+      return;
     }
+
+    final markdownResult = MarkdownConverter.checkAndApply(doc, selection);
+    if (markdownResult != null) {
+      widget.onDocumentChanged(markdownResult.document);
+      widget.onSelectionChanged(markdownResult.selection);
+      return;
+    }
+
+    // If no conversion, just apply the basic edit.
+    widget.onDocumentChanged(doc);
+    widget.onSelectionChanged(selection);
+  }
+
+  // --- Autocomplete Logic ---
+  Future<void> _updateAutocomplete(DocumentModel document, TextSelection selection) async {
+    final suggestions = await AutocompleteService.getSuggestions(
+      document.toPlainText(),
+      selection.baseOffset,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _suggestions = suggestions;
+      _selectedSuggestionIndex = 0;
+    });
+
+    if (_suggestions.isNotEmpty) {
+      _showAutocomplete();
+    } else {
+      _hideAutocomplete();
+    }
+  }
+
+  void _showAutocomplete() {
+    _hideAutocomplete(); // Remove existing overlay before showing a new one
+    final overlay = Overlay.of(context);
+    _autocompleteOverlay = OverlayEntry(
+      builder: (context) => AutocompleteOverlay(
+        suggestions: _suggestions,
+        selectedIndex: _selectedSuggestionIndex,
+        position: _getCursorOffset() + const Offset(0, 20), // Position below cursor
+        onSuggestionSelected: _acceptAutocomplete,
+      ),
+    );
+    overlay.insert(_autocompleteOverlay!);
+  }
+
+  void _hideAutocomplete() {
+    _autocompleteOverlay?.remove();
+    _autocompleteOverlay = null;
+  }
+
+  void _acceptAutocomplete(String suggestion) {
+    final plainText = widget.document.toPlainText();
+    int start = _selection.baseOffset;
+    while (start > 0 && !AutocompleteService.isWordBoundary(plainText[start - 1])) {
+      start--;
+    }
+    final wordInProgress = plainText.substring(start, _selection.baseOffset);
+
+    final docAfterDelete = DocumentManipulator.deleteText(widget.document, start, wordInProgress.length);
+    final newDoc = DocumentManipulator.insertText(docAfterDelete, start, suggestion);
+    final newSelection = TextSelection.collapsed(offset: start + suggestion.length);
+
+    widget.onDocumentChanged(newDoc);
+    widget.onSelectionChanged(newSelection);
+    _hideAutocomplete();
+  }
+
+
+  // --- UI and Gesture Handling ---
+  // ... (methods remain the same)
+  void _updateTextPainter() {
+    _textPainter.text = widget.document.toTextSpan();
+    _textPainter.layout(minWidth: 0, maxWidth: MediaQuery.of(context).size.width);
   }
 
   Offset _getCursorOffset() {
@@ -123,43 +234,34 @@ class _EditorWidgetState extends State<EditorWidget> {
     );
   }
 
-  void _updateTextPainter() {
-    _textPainter.text = widget.document.toTextSpan();
-    _textPainter.layout(
-      minWidth: 0,
-      maxWidth: MediaQuery.of(context).size.width,
-    );
-  }
-
-  void _handleTapDown(TapDownDetails details) {
+   void _handleTapDown(TapDownDetails details) {
     _focusNode.requestFocus();
+    _hideAutocomplete();
     _updateTextPainter();
     final position = _textPainter.getPositionForOffset(details.localPosition);
     final newSelection = TextSelection.collapsed(offset: position.offset);
     widget.onSelectionChanged(newSelection);
     setState(() => _showCursor = true);
   }
-
-  void _handlePanStart(DragStartDetails details) {
+   void _handlePanStart(DragStartDetails details) {
      _focusNode.requestFocus();
+    _hideAutocomplete();
     _updateTextPainter();
     final position = _textPainter.getPositionForOffset(details.localPosition);
     final newSelection = TextSelection.fromPosition(position);
     widget.onSelectionChanged(newSelection);
     setState(() => _showCursor = true);
   }
-
-  void _handlePanUpdate(DragUpdateDetails details) {
+   void _handlePanUpdate(DragUpdateDetails details) {
     _updateTextPainter();
     final position = _textPainter.getPositionForOffset(details.localPosition);
     final newSelection = _selection.copyWith(extentOffset: position.offset);
     widget.onSelectionChanged(newSelection);
   }
-
   List<Widget> _buildSelectionHighlights() {
     if (_selection.isCollapsed) return [];
     _updateTextPainter();
-    final List<TextBox> boxes = _textPainter.getBoxesForSelection(_selection);
+    final boxes = _textPainter.getBoxesForSelection(_selection);
     return boxes.map((box) {
       return Positioned(
         left: box.left,
@@ -182,19 +284,13 @@ class _EditorWidgetState extends State<EditorWidget> {
         onKey: _handleKeyEvent,
         child: Stack(
           children: [
-            RichText(
-              text: widget.document.toTextSpan(),
-            ),
+            RichText(text: widget.document.toTextSpan()),
             ..._buildSelectionHighlights(),
             if (_focusNode.hasFocus && _showCursor && _selection.isCollapsed)
               Positioned(
                 left: _getCursorOffset().dx,
                 top: _getCursorOffset().dy,
-                child: Container(
-                  width: 2,
-                  height: 20, // Approximate height
-                  color: Colors.blue,
-                ),
+                child: Container(width: 2, height: 20, color: Colors.blue),
               ),
           ],
         ),
