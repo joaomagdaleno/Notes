@@ -70,7 +70,7 @@ class FluentContextMenuHelper {
       const MenuFlyoutSeparator(),
       MenuFlyoutItem(
         leading: const Icon(FluentIcons.delete),
-        text: const Text('Delete permanently'),
+        text: const Text('Excluir permanentemente'),
         onPressed: () async {
           final shouldDelete = await showDialog<bool>(
             context: context,
