@@ -17,14 +17,13 @@ class FluentContextMenuHelper {
         return MenuFlyout(
           items: note.isInTrash
               ? _buildTrashContextMenu(context, note, onSave, onDelete)
-              : _buildDefaultContextMenu(context, note, onSave),
+              : _buildDefaultContextMenu(note, onSave),
         );
       },
     );
   }
 
   static List<MenuFlyoutItemBase> _buildDefaultContextMenu(
-    BuildContext context,
     Note note,
     void Function(Note) onSave,
   ) {
@@ -48,23 +47,6 @@ class FluentContextMenuHelper {
         onPressed: () {
           note.isInTrash = true;
           onSave(note);
-
-          displayInfoBar(
-            context,
-            builder: (context, close) {
-              return InfoBar(
-                title: const Text('Nota movida para a lixeira.'),
-                action: Button(
-                  child: const Text('Desfazer'),
-                  onPressed: () {
-                    note.isInTrash = false;
-                    onSave(note);
-                    close();
-                  },
-                ),
-              );
-            },
-          );
         },
       ),
     ];
