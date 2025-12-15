@@ -293,6 +293,43 @@ class _NotesScreenState extends State<NotesScreen> {
     });
   }
 
+  ({IconData icon, String tooltip}) _getNextViewModeInfo({
+    bool isFluent = false,
+  }) {
+    final nextIndex = (_viewMode.index + 1) % ViewMode.values.length;
+    final nextMode = ViewMode.values[nextIndex];
+
+    switch (nextMode) {
+      case ViewMode.gridSmall:
+        return (
+          icon: isFluent ? fluent.FluentIcons.grid_view : Icons.grid_on,
+          tooltip: 'Grade Pequena'
+        );
+      case ViewMode.gridMedium:
+        return (
+          icon: isFluent ? fluent.FluentIcons.grid_view : Icons.grid_view,
+          tooltip: 'Grade Média'
+        );
+      case ViewMode.gridLarge:
+        return (
+          icon: isFluent
+              ? fluent.FluentIcons.grid_view
+              : Icons.grid_view_sharp,
+          tooltip: 'Grade Grande'
+        );
+      case ViewMode.list:
+        return (
+          icon: isFluent ? fluent.FluentIcons.list : Icons.view_list,
+          tooltip: 'Lista'
+        );
+      case ViewMode.listSimple:
+        return (
+          icon: isFluent ? fluent.FluentIcons.list : Icons.view_agenda,
+          tooltip: 'Lista Simples'
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isWindows) {
@@ -310,11 +347,17 @@ class _NotesScreenState extends State<NotesScreen> {
                 await Navigator.of(context).push(route);
               },
             ),
-            fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.view),
-              label: const Text('Mudar Visualização'),
-              onPressed: _cycleViewMode,
-            ),
+            Builder(builder: (context) {
+              final next = _getNextViewModeInfo(isFluent: true);
+              return fluent.Tooltip(
+                message: next.tooltip,
+                child: fluent.CommandBarButton(
+                  icon: fluent.Icon(next.icon),
+                  label: Text(next.tooltip),
+                  onPressed: _cycleViewMode,
+                ),
+              );
+            }),
             fluent.CommandBarButton(
               icon: const fluent.Icon(fluent.FluentIcons.search),
               label: const Text('Pesquisar'),
@@ -404,10 +447,15 @@ class _NotesScreenState extends State<NotesScreen> {
                 child: Text(_getAppBarTitle()),
               ),
               actions: [
-                IconButton(
-                  icon: const Icon(Icons.view_agenda_outlined),
-                  onPressed: _cycleViewMode,
-                  tooltip: 'Mudar Visualização',
+                Builder(
+                  builder: (context) {
+                    final next = _getNextViewModeInfo();
+                    return IconButton(
+                      icon: Icon(next.icon),
+                      onPressed: _cycleViewMode,
+                      tooltip: next.tooltip,
+                    );
+                  },
                 ),
                 IconButton(
                   icon: const Icon(Icons.search),
