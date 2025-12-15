@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:universal_notes_flutter/utils/text_helpers.dart';
-import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 /// A widget that displays a note as a card.
 class NoteCard extends StatelessWidget {
@@ -41,69 +39,66 @@ class NoteCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: onTap ??
-            () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (context) =>
-                      NoteEditorScreen(note: note, onSave: onSave),
-                ),
-              );
-            },
-        onLongPress: () async {
-          final renderBox = context.findRenderObject();
-          if (renderBox is RenderBox) {
-            final position = renderBox.localToGlobal(Offset.zero);
-
-            await ContextMenuHelper.showContextMenu(
-              context: context,
-              position: position,
-              note: note,
-              onSave: onSave,
-              onDelete: onDelete,
-            );
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (note.content.isNotEmpty)
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest,
-                      borderRadius: const BorderRadius.all(Radius.circular(8)),
-                    ),
-                    child: Text(
-                      getPreviewText(note.content),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        onTap: onTap,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (note.content.isNotEmpty)
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(8)),
+                        ),
+                        child: Text(
+                          DocumentAdapter.fromJson(note.content).toPlainText(),
+                          maxLines: 5,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
+                          ),
+                        ),
                       ),
                     ),
+                  if (note.content.isNotEmpty) const SizedBox(height: 8),
+                  Text(
+                    note.title.isNotEmpty ? note.title : 'Sem Título',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _dateFormat.format(note.date),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            if (note.isDraft)
+              const Positioned(
+                top: 8,
+                right: 8,
+                child: Icon(
+                  Icons.flash_on,
+                  size: 16,
+                  color: Colors.amber,
                 ),
-              if (note.content.isNotEmpty) const SizedBox(height: 8),
-              Text(
-                note.title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
-              Text(
-                _dateFormat.format(note.date),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );

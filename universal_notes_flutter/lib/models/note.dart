@@ -13,6 +13,7 @@ class Note {
     this.isLocked = false,
     this.isInTrash = false,
     this.isDeleted = false,
+    this.isDraft = false,
     this.drawingJson,
     this.prefsJson,
     this.folderId,
@@ -34,6 +35,8 @@ class Note {
   final bool isInTrash;
   /// Whether the note is marked for deletion.
   final bool isDeleted;
+  /// Whether the note is a draft.
+  final bool isDraft;
   /// The drawing data for the note, as a JSON string.
   final String? drawingJson;
   /// The preferences for the note, as a JSON string.
@@ -52,6 +55,7 @@ class Note {
       isLocked: (map['isLocked'] as int? ?? 0) == 1,
       isInTrash: (map['isInTrash'] as int? ?? 0) == 1,
       isDeleted: (map['isDeleted'] as int? ?? 0) == 1,
+      isDraft: (map['isDraft'] as int? ?? 0) == 1,
       drawingJson: map['drawingJson'] as String?,
       prefsJson: map['prefsJson'] as String?,
       folderId: map['folderId'] as String?,
@@ -68,6 +72,7 @@ class Note {
     bool? isLocked,
     bool? isInTrash,
     bool? isDeleted,
+    bool? isDraft,
     String? drawingJson,
     String? prefsJson,
     String? folderId,
@@ -81,6 +86,7 @@ class Note {
       isLocked: isLocked ?? this.isLocked,
       isInTrash: isInTrash ?? this.isInTrash,
       isDeleted: isDeleted ?? this.isDeleted,
+      isDraft: isDraft ?? this.isDraft,
       drawingJson: drawingJson ?? this.drawingJson,
       prefsJson: prefsJson ?? this.prefsJson,
       folderId: folderId ?? this.folderId,
@@ -98,6 +104,7 @@ class Note {
       'isLocked': isLocked ? 1 : 0,
       'isInTrash': isInTrash ? 1 : 0,
       'isDeleted': isDeleted ? 1 : 0,
+      'isDraft': isDraft ? 1 : 0,
       'drawingJson': drawingJson,
       'prefsJson': prefsJson,
       'folderId': folderId,

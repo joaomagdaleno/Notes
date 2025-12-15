@@ -16,6 +16,7 @@ class NoteRepository {
 
   String? dbPath;
   Database? _database;
+  Map<String, int>? _wordFrequencyCache;
 
   static const String _dbName = 'notes_database.db';
   static const String _notesTable = 'notes';
@@ -36,7 +37,7 @@ class NoteRepository {
     final path = join(dir.path, _dbName);
     return openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -49,7 +50,7 @@ class NoteRepository {
     await db.execute('''
       CREATE TABLE $_notesTable(
         id TEXT PRIMARY KEY, title TEXT, content TEXT, date INTEGER,
-        isFavorite INTEGER, isLocked INTEGER, isInTrash INTEGER, isDeleted INTEGER,
+        isFavorite INTEGER, isLocked INTEGER, isInTrash INTEGER, isDeleted INTEGER, isDraft INTEGER,
         drawingJson TEXT, prefsJson TEXT, folderId TEXT,
         FOREIGN KEY (folderId) REFERENCES $_foldersTable(id) ON DELETE SET NULL
       )
@@ -91,6 +92,9 @@ class NoteRepository {
         )
       ''');
     }
+     if (oldVersion < 5) {
+      await db.execute('ALTER TABLE $_notesTable ADD COLUMN isDraft INTEGER DEFAULT 0');
+    }
   }
 
   // --- Snippet Methods ---
@@ -118,23 +122,24 @@ class NoteRepository {
   }
 
   // --- Autocomplete Methods ---
-  Future<List<String>> getFrequentWords(String prefix) async {
+  Future<void> _buildWordFrequencyCache() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(_notesTable, columns: ['content']);
-    final wordCounts = <String, int>{};
+    _wordFrequencyCache = <String, int>{};
 
     for (final map in maps) {
       final content = map['content'] as String;
-      // This assumes content is the JSON from our editor. A safer parsing is needed.
       try {
         final List<dynamic> spans = json.decode(content);
         for (final span in spans) {
-          final text = span['text'] as String;
-          final words = text.split(RegExp(r'\s+'));
-          for (final word in words) {
-            final cleanWord = word.replaceAll(RegExp(r'[^a-zA-Z]'), '').toLowerCase();
-            if (cleanWord.isNotEmpty) {
-              wordCounts[cleanWord] = (wordCounts[cleanWord] ?? 0) + 1;
+          if (span is Map<String, dynamic> && span['text'] is String) {
+            final text = span['text'] as String;
+            final words = text.split(RegExp(r'\s+'));
+            for (final word in words) {
+              final cleanWord = word.replaceAll(RegExp(r'[^a-zA-Z]'), '').toLowerCase();
+              if (cleanWord.isNotEmpty) {
+                _wordFrequencyCache![cleanWord] = (_wordFrequencyCache![cleanWord] ?? 0) + 1;
+              }
             }
           }
         }
@@ -142,14 +147,20 @@ class NoteRepository {
         // Ignore content that isn't valid JSON
       }
     }
+  }
 
-    final matchingWords = wordCounts.keys
+  Future<List<String>> getFrequentWords(String prefix) async {
+    if (_wordFrequencyCache == null) {
+      await _buildWordFrequencyCache();
+    }
+
+    final matchingWords = _wordFrequencyCache!.keys
         .where((word) => word.startsWith(prefix.toLowerCase()))
         .toList();
 
-    matchingWords.sort((a, b) => wordCounts[b]!.compareTo(wordCounts[a]!));
+    matchingWords.sort((a, b) => _wordFrequencyCache![b]!.compareTo(_wordFrequencyCache![a]!));
 
-    return matchingWords;
+    return matchingWords.take(10).toList(); // Limit to top 10 for performance
   }
 
   // --- Versioning Methods ---
@@ -192,6 +203,7 @@ class NoteRepository {
   Future<String> insertNote(Note note) async {
     final db = await database;
     await db.insert(_notesTable, note.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    _wordFrequencyCache = null; // Invalidate cache
     return note.id;
   }
 
@@ -234,19 +246,36 @@ class NoteRepository {
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
+  Future<List<Note>> searchAllNotes(String searchTerm) async {
+    final db = await database;
+    if (searchTerm.isEmpty) {
+      return getAllNotes(); // Return all non-trashed notes if search is empty
+    }
+    final maps = await db.query(
+      _notesTable,
+      where: '(title LIKE ? OR content LIKE ?) AND isInTrash = 0',
+      whereArgs: ['%$searchTerm%', '%$searchTerm%'],
+      orderBy: 'date DESC',
+    );
+    return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
+  }
+
   Future<void> updateNote(Note note) async {
     final db = await database;
     await db.update(_notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
+     _wordFrequencyCache = null; // Invalidate cache
   }
 
   Future<void> deleteNote(String id) async {
     final db = await database;
     await db.delete(_notesTable, where: 'id = ?', whereArgs: [id]);
+     _wordFrequencyCache = null; // Invalidate cache
   }
 
   Future<void> deleteNotePermanently(String id) async {
     final db = await database;
     await db.delete(_notesTable, where: 'id = ?', whereArgs: [id]);
+     _wordFrequencyCache = null; // Invalidate cache
   }
 
   Future<void> restoreNoteFromTrash(String id) async {
