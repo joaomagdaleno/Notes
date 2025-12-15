@@ -31,11 +31,14 @@ class NoteEditorScreen extends StatefulWidget {
   State<NoteEditorScreen> createState() => _NoteEditorScreenState();
 }
 
-class _NoteEditorScreenState extends State<NoteEditorScreen> {
+class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBindingObserver {
+  Note? _note;
   late DocumentModel _document;
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
   Timer? _recordHistoryTimer;
+  Timer? _debounceTimer;
+  Timer? _throttleTimer;
   Rect? _selectionRect;
   bool get _isToolbarVisible => _selectionRect != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
@@ -56,7 +59,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   @override
   void initState() {
     super.initState();
-    _document = DocumentAdapter.fromJson(widget.note?.content ?? '');
+    _note = widget.note;
+    WidgetsBinding.instance.addObserver(this);
+    _document = DocumentAdapter.fromJson(_note?.content ?? '');
     _historyManager = HistoryManager(
       initialState: HistoryState(document: _document, selection: _selection),
     );
@@ -65,8 +70,18 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _autosave();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _recordHistoryTimer?.cancel();
+    _debounceTimer?.cancel();
+    _throttleTimer?.cancel();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
@@ -96,6 +111,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
          _historyManager.record(HistoryState(document: newDocument, selection: _selection));
       });
     });
+
+    // --- Autosave Logic ---
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(seconds: 3), _autosave);
+
+    if (_throttleTimer == null || !_throttleTimer!.isActive) {
+      _throttleTimer = Timer(const Duration(seconds: 10), _autosave);
+    }
   }
 
   void _onSelectionChanged(TextSelection newSelection) {
@@ -204,28 +227,43 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     });
   }
 
-  Future<void> _saveNote() async {
+  Future<void> _autosave() async {
+    if (!mounted) return;
+    _debounceTimer?.cancel();
+
     final plainText = _document.toPlainText();
-    if (plainText.trim().isEmpty) {
-      if (widget.note != null) {
-        await NoteRepository.instance.deleteNote(widget.note!.id);
-      }
-      Navigator.of(context).pop();
-      return;
-    }
+    if (plainText.trim().isEmpty) return;
 
     final jsonContent = DocumentAdapter.toJson(_document);
-    await _createVersionIfNeeded(jsonContent);
 
-    final noteToSave = (widget.note ?? Note(id: const Uuid().v4(), title: '', content: '', date: DateTime.now()))
+    final noteToSave = (_note ?? Note(id: const Uuid().v4(), title: '', content: '', date: DateTime.now()))
         .copyWith(
-          title: plainText.split('\n').first,
-          content: jsonContent,
-          date: DateTime.now(),
-        );
+      title: plainText.split('\n').first,
+      content: jsonContent,
+      date: DateTime.now(),
+    );
 
-    await widget.onSave(noteToSave);
-    Navigator.of(context).pop();
+    // If it's a new note, store it in the state so we update it next time.
+    if (_note == null) {
+      setState(() {
+        _note = noteToSave;
+      });
+    }
+
+    await NoteRepository.instance.updateNoteContent(noteToSave);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Nota salva automaticamente.'), duration: Duration(seconds: 2)),
+    );
+  }
+
+  Future<void> _saveNote() async {
+     // Cancel any pending autosave before manual save
+    _debounceTimer?.cancel();
+    _throttleTimer?.cancel();
+
+    await _autosave(); // Perform a final save
+    if(mounted) Navigator.of(context).pop();
   }
 
   Future<void> _createVersionIfNeeded(String jsonContent) async {
@@ -353,8 +391,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _isFocusMode ? null : AppBar(
+    return WillPopScope(
+      onWillPop: () async {
+        await _saveNote();
+        return true;
+      },
+      child: Scaffold(
+        appBar: _isFocusMode ? null : AppBar(
         title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
         actions: [
           IconButton(
@@ -434,6 +477,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           ],
         ),
       ),
+     ),
     );
   }
 }

@@ -203,7 +203,7 @@ class NoteRepository {
   Future<String> insertNote(Note note) async {
     final db = await database;
     await db.insert(_notesTable, note.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
-    _wordFrequencyCache = null; // Invalidate cache
+    _wordFrequencyCache = null;
     return note.id;
   }
 
@@ -216,7 +216,6 @@ class NoteRepository {
     final whereClauses = <String>[];
     final whereArgs = <dynamic>[];
 
-    // By default, we don't show items in the trash unless explicitly requested.
     if (isInTrash == true) {
       whereClauses.add('isInTrash = ?');
       whereArgs.add(1);
@@ -237,8 +236,11 @@ class NoteRepository {
 
     final whereString = whereClauses.isNotEmpty ? whereClauses.join(' AND ') : null;
 
+    final columnsToFetch = Note.fromMap({}).toMap().keys.where((key) => key != 'content').toList();
+
     final maps = await db.query(
       _notesTable,
+      columns: columnsToFetch,
       where: whereString,
       whereArgs: whereArgs,
       orderBy: 'date DESC',
@@ -249,10 +251,12 @@ class NoteRepository {
   Future<List<Note>> searchAllNotes(String searchTerm) async {
     final db = await database;
     if (searchTerm.isEmpty) {
-      return getAllNotes(); // Return all non-trashed notes if search is empty
+      return getAllNotes();
     }
+    final columnsToFetch = Note.fromMap({}).toMap().keys.where((key) => key != 'content').toList();
     final maps = await db.query(
       _notesTable,
+      columns: columnsToFetch,
       where: '(title LIKE ? OR content LIKE ?) AND isInTrash = 0',
       whereArgs: ['%$searchTerm%', '%$searchTerm%'],
       orderBy: 'date DESC',
@@ -260,22 +264,40 @@ class NoteRepository {
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
+  Future<Note> getNoteWithContent(String noteId) async {
+    final db = await database;
+    final maps = await db.query(
+      _notesTable,
+      where: 'id = ?',
+      whereArgs: [noteId],
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return Note.fromMap(maps.first);
+    }
+    throw Exception('Note not found');
+  }
+
+  Future<void> updateNoteContent(Note note) async {
+    final db = await database;
+    await db.update(_notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
+    _wordFrequencyCache = null;
+  }
+
   Future<void> updateNote(Note note) async {
     final db = await database;
     await db.update(_notesTable, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
-     _wordFrequencyCache = null; // Invalidate cache
   }
 
   Future<void> deleteNote(String id) async {
     final db = await database;
     await db.delete(_notesTable, where: 'id = ?', whereArgs: [id]);
-     _wordFrequencyCache = null; // Invalidate cache
   }
 
   Future<void> deleteNotePermanently(String id) async {
     final db = await database;
     await db.delete(_notesTable, where: 'id = ?', whereArgs: [id]);
-     _wordFrequencyCache = null; // Invalidate cache
+    _wordFrequencyCache = null; // Invalidate cache on deletion
   }
 
   Future<void> restoreNoteFromTrash(String id) async {

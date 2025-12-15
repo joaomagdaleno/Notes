@@ -133,12 +133,13 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     _openNoteEditor(newNote);
   }
 
-  void _openNoteEditor(Note note) {
-    Navigator.push(
+  void _openNoteEditor(Note note) async {
+    final noteWithContent = await _noteRepository.getNoteWithContent(note.id);
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => NoteEditorScreen(
-          note: note,
+          note: noteWithContent,
           onSave: (updatedNote) async {
             // When a draft is properly saved, it's no longer a draft.
             await _noteRepository.insertNote(updatedNote.copyWith(isDraft: false));
@@ -196,11 +197,13 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   @override
-  void onWindowClose() {
-    final isPreventClose = windowManager.isPreventClose();
+  void onWindowClose() async {
+    final isPreventClose = await windowManager.isPreventClose();
     if (isPreventClose) {
+      await _noteRepository.close();
       windowManager.hide();
     }
+    super.onWindowClose();
   }
 
   Future<void> _toggleFavorite(Note note) async {
