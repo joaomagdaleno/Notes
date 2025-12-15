@@ -10,7 +10,7 @@ class AutocompleteService {
     if (text.isEmpty) return [];
 
     // 1. Extract the word being typed.
-    int start = cursorPosition;
+    var start = cursorPosition;
     while (start > 0 && !isWordBoundary(text[start - 1])) {
       start--;
     }
@@ -55,7 +55,7 @@ class AutocompleteService {
   }
 
   static Future<List<String>> _loadDictionary() async {
-    final String content = await rootBundle.loadString('assets/dictionaries/pt_br_common.txt');
+    final content = await rootBundle.loadString('assets/dictionaries/pt_br_common.txt');
     return content.split('\n');
   }
 

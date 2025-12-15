@@ -6,10 +6,10 @@ import 'package:universal_notes_flutter/editor/markdown_converter.dart';
 void main() {
   group('MarkdownConverter', () {
     test('converts *bold* pattern', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'Hello *World* '),
       ]);
-      final selection = TextSelection.collapsed(offset: 13);
+      const selection = TextSelection.collapsed(offset: 13);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
@@ -23,10 +23,10 @@ void main() {
     });
 
     test('converts _italic_ pattern', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'Hello _World_ '),
       ]);
-      final selection = TextSelection.collapsed(offset: 13);
+      const selection = TextSelection.collapsed(offset: 13);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
@@ -35,10 +35,10 @@ void main() {
     });
 
     test('converts -strikethrough- pattern', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'Hello -World- '),
       ]);
-      final selection = TextSelection.collapsed(offset: 13);
+      const selection = TextSelection.collapsed(offset: 13);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
@@ -47,10 +47,10 @@ void main() {
     });
 
     test('converts # heading pattern', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: '# My Title'),
       ]);
-      final selection = TextSelection.collapsed(offset: 2); // After "# "
+      const selection = TextSelection.collapsed(offset: 2); // After "# "
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
@@ -61,10 +61,10 @@ void main() {
     });
 
     test('converts - list pattern', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: '- '),
       ]);
-      final selection = TextSelection.collapsed(offset: 2);
+      const selection = TextSelection.collapsed(offset: 2);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
@@ -73,10 +73,10 @@ void main() {
     });
 
     test('does not convert incomplete patterns', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'Hello *World'),
       ]);
-      final selection = TextSelection.collapsed(offset: 12);
+      const selection = TextSelection.collapsed(offset: 12);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 

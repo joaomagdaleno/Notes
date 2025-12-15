@@ -10,7 +10,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   // Mock asset bundle
-  const MethodChannel channel = MethodChannel('flutter/assets');
+  const channel = MethodChannel('flutter/assets');
   channel.setMockMethodCallHandler((MethodCall methodCall) async {
     if (methodCall.method == 'loadString') {
       return 'uma\nduas\ntres'; // Mock dictionary
@@ -25,7 +25,7 @@ void main() {
       NoteRepository.instance = mockRepo; // Simple DI for test
       when(mockRepo.getFrequentWords('wor')).thenAnswer((_) async => ['work']);
 
-      final text = 'Hello world, this is a worldly test.';
+      const text = 'Hello world, this is a worldly test.';
 
       // Act
       final suggestions = await AutocompleteService.getSuggestions(text, 19); // "worldl"

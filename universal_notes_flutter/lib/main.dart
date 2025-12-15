@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
 import 'package:universal_notes_flutter/styles/app_themes.dart';
-import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {

@@ -1,5 +1,13 @@
 /// Represents a folder containing notes.
 class Folder {
+
+  /// Creates a [Folder] from a map.
+  factory Folder.fromMap(Map<String, dynamic> map) {
+    return Folder(
+      id: map['id'] as String,
+      name: map['name'] as String,
+    );
+  }
   /// Creates a new instance of [Folder].
   const Folder({
     required this.id,
@@ -10,14 +18,6 @@ class Folder {
   final String id;
   /// The name of the folder.
   final String name;
-
-  /// Creates a [Folder] from a map.
-  factory Folder.fromMap(Map<String, dynamic> map) {
-    return Folder(
-      id: map['id'] as String,
-      name: map['name'] as String,
-    );
-  }
 
   /// Converts this folder to a map.
   Map<String, dynamic> toMap() {

@@ -1,5 +1,14 @@
 /// Represents a custom snippet or shortcut.
 class Snippet {
+
+  /// Creates a [Snippet] from a map.
+  factory Snippet.fromMap(Map<String, dynamic> map) {
+    return Snippet(
+      id: map['id'] as String,
+      trigger: map['trigger'] as String,
+      content: map['content'] as String,
+    );
+  }
   /// Creates a new instance of [Snippet].
   const Snippet({
     required this.id,
@@ -13,15 +22,6 @@ class Snippet {
   final String trigger;
   /// The content that replaces the trigger.
   final String content;
-
-  /// Creates a [Snippet] from a map.
-  factory Snippet.fromMap(Map<String, dynamic> map) {
-    return Snippet(
-      id: map['id'] as String,
-      trigger: map['trigger'] as String,
-      content: map['content'] as String,
-    );
-  }
 
   /// Converts this snippet to a map.
   Map<String, dynamic> toMap() {

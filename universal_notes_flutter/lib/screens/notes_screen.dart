@@ -81,16 +81,12 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       switch (_selection.type) {
       case SidebarItemType.all:
         notes = await _noteRepository.getAllNotes();
-        break;
       case SidebarItemType.favorites:
         notes = await _noteRepository.getAllNotes(isFavorite: true);
-        break;
       case SidebarItemType.trash:
         notes = await _noteRepository.getAllNotes(isInTrash: true);
-        break;
       case SidebarItemType.folder:
         notes = await _noteRepository.getAllNotes(folderId: _selection.folder!.id);
-        break;
       }
     }
 
@@ -133,7 +129,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     _openNoteEditor(newNote);
   }
 
-  void _openNoteEditor(Note note) async {
+  Future<void> _openNoteEditor(Note note) async {
     final noteWithContent = await _noteRepository.getNoteWithContent(note.id);
     await Navigator.push(
       context,
@@ -156,7 +152,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       context: context,
       isScrollControlled: true,
       builder: (context) => QuickNoteEditor(
-        onSave: (text) => _processarNotaRapida(text),
+        onSave: _processarNotaRapida,
       ),
     );
   }
@@ -197,7 +193,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   @override
-  void onWindowClose() async {
+  Future<void> onWindowClose() async {
     final isPreventClose = await windowManager.isPreventClose();
     if (isPreventClose) {
       await _noteRepository.close();
@@ -240,7 +236,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Widget _buildMaterialUI() {
-    final bool isTrashView = _selection.type == SidebarItemType.trash;
+    final isTrashView = _selection.type == SidebarItemType.trash;
     return Scaffold(
       appBar: AppBar(
         title: Text(_getAppBarTitle()),
@@ -300,7 +296,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -309,9 +305,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 suffixIcon: _searchTerm.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                        },
+                        onPressed: _searchController.clear,
                       )
                     : null,
                 border: OutlineInputBorder(
@@ -373,12 +367,13 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         children: [
           FloatingActionButton(
             onPressed: _createNewNote,
-            child: const Icon(Icons.add),
             heroTag: 'add_note',
+            child: const Icon(Icons.add),
           ),
           const SizedBox(width: 16),
           FloatingActionButton.large(
             onPressed: _abrirEditorRapido,
+            heroTag: 'quick_note',
             child: const Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -386,7 +381,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 Text('Nota Rápida', style: TextStyle(fontSize: 10)),
               ],
             ),
-            heroTag: 'quick_note',
           ),
         ],
       ),
@@ -408,7 +402,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Widget _buildFluentUI() {
-    final bool isTrashView = _selection.type == SidebarItemType.trash;
+    final isTrashView = _selection.type == SidebarItemType.trash;
     return fluent.NavigationView(
       appBar: fluent.NavigationAppBar(
         title: Text(_getAppBarTitle()),
@@ -442,12 +436,12 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       ),
       content: ScaffoldPage(
         header: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8),
           child: fluent.TextBox(
             controller: _searchController,
             placeholder: 'Buscar em todas as notas...',
-            prefix: const Padding(padding: EdgeInsets.only(left: 8.0), child: Icon(fluent.FluentIcons.search)),
-            suffix: _searchTerm.isNotEmpty ? fluent.IconButton(icon: const Icon(fluent.FluentIcons.clear), onPressed: () => _searchController.clear()) : null,
+            prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(fluent.FluentIcons.search)),
+            suffix: _searchTerm.isNotEmpty ? fluent.IconButton(icon: const Icon(fluent.FluentIcons.clear), onPressed: _searchController.clear) : null,
           ),
         ),
         content: GridView.builder(

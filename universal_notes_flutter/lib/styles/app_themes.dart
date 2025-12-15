@@ -6,7 +6,6 @@ class AppThemes {
     brightness: Brightness.light,
     colorScheme: ColorScheme.fromSeed(
       seedColor: Colors.blue,
-      brightness: Brightness.light,
     ),
     appBarTheme: const AppBarTheme(
       elevation: 0,

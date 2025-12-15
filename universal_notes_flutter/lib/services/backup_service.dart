@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:universal_notes_flutter/models/folder.dart';
-import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 

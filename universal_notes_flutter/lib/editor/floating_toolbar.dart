@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 class FloatingToolbar extends StatelessWidget {
-  final VoidCallback? onBold;
-  final VoidCallback? onItalic;
   // Adicionaremos mais callbacks conforme necessário.
 
   const FloatingToolbar({
@@ -10,14 +8,16 @@ class FloatingToolbar extends StatelessWidget {
     this.onBold,
     this.onItalic,
   });
+  final VoidCallback? onBold;
+  final VoidCallback? onItalic;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      elevation: 5.0,
+      elevation: 5,
       borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[

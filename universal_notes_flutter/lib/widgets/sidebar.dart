@@ -5,11 +5,11 @@ import 'package:universal_notes_flutter/services/backup_service.dart';
 
 enum SidebarItemType { all, favorites, trash, folder }
 
-class SidebarSelection {
-  final SidebarItemType type;
-  final Folder? folder; // Only used when type is 'folder'
+class SidebarSelection { // Only used when type is 'folder'
 
   const SidebarSelection(this.type, {this.folder});
+  final SidebarItemType type;
+  final Folder? folder;
 
   @override
   bool operator ==(Object other) =>
@@ -115,7 +115,7 @@ class _SidebarState extends State<Sidebar> {
             title: const Text('All Notes'),
             selected: _selection.type == SidebarItemType.all,
             onTap: () {
-              final newSelection = const SidebarSelection(SidebarItemType.all);
+              const newSelection = SidebarSelection(SidebarItemType.all);
               setState(() => _selection = newSelection);
               widget.onSelectionChanged(newSelection);
             },
@@ -125,7 +125,7 @@ class _SidebarState extends State<Sidebar> {
             title: const Text('Favorites'),
             selected: _selection.type == SidebarItemType.favorites,
             onTap: () {
-              final newSelection = const SidebarSelection(SidebarItemType.favorites);
+              const newSelection = SidebarSelection(SidebarItemType.favorites);
               setState(() => _selection = newSelection);
               widget.onSelectionChanged(newSelection);
             },
@@ -135,7 +135,7 @@ class _SidebarState extends State<Sidebar> {
             title: const Text('Trash'),
             selected: _selection.type == SidebarItemType.trash,
             onTap: () {
-              final newSelection = const SidebarSelection(SidebarItemType.trash);
+              const newSelection = SidebarSelection(SidebarItemType.trash);
               setState(() => _selection = newSelection);
               widget.onSelectionChanged(newSelection);
             },

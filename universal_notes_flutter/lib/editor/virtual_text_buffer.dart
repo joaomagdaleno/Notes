@@ -20,7 +20,7 @@ class TextLine {
 class VirtualTextBuffer {
   final List<TextLine> lines = [];
   final Map<int, double> _lineHeights = {};
-  double _totalHeight = 0.0;
+  double _totalHeight = 0;
 
   double get totalHeight => _totalHeight;
 
@@ -36,13 +36,13 @@ class VirtualTextBuffer {
   void setLineHeight(int lineIndex, double height) {
     final oldHeight = _lineHeights[lineIndex] ?? 0.0;
     _lineHeights[lineIndex] = height;
-    _totalHeight += (height - oldHeight);
+    _totalHeight += height - oldHeight;
   }
 
   /// Gets the y-offset of a specific line.
   double getLineOffset(int lineIndex) {
-    double offset = 0.0;
-    for (int i = 0; i < lineIndex; i++) {
+    var offset = 0;
+    for (var i = 0; i < lineIndex; i++) {
       offset += _lineHeights[i] ?? 0.0; // Use a default/estimated height if not measured
     }
     return offset;

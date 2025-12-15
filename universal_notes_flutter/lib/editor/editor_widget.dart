@@ -204,7 +204,7 @@ class _EditorWidgetState extends State<EditorWidget> {
 
   void _acceptAutocomplete(String suggestion) {
     final plainText = widget.document.toPlainText();
-    int start = _selection.baseOffset;
+    var start = _selection.baseOffset;
     while (start > 0 && !AutocompleteService.isWordBoundary(plainText[start - 1])) {
       start--;
     }
@@ -224,7 +224,7 @@ class _EditorWidgetState extends State<EditorWidget> {
   // ... (methods remain the same)
   void _updateTextPainter() {
     _textPainter.text = widget.document.toTextSpan();
-    _textPainter.layout(minWidth: 0, maxWidth: MediaQuery.of(context).size.width);
+    _textPainter.layout(maxWidth: MediaQuery.of(context).size.width);
   }
 
   Offset _getCursorOffset() {
@@ -296,7 +296,7 @@ class _EditorWidgetState extends State<EditorWidget> {
     if (boxes.isNotEmpty) {
       final firstBox = boxes.first;
       var rect = Rect.fromLTRB(firstBox.left, firstBox.top, firstBox.right, firstBox.bottom);
-      for (var box in boxes.skip(1)) {
+      for (final box in boxes.skip(1)) {
         // This creates a bounding box around all the selection boxes
         rect = rect.expandToInclude(Rect.fromLTRB(box.left, box.top, box.right, box.bottom));
       }

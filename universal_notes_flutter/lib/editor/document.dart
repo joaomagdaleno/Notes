@@ -2,6 +2,19 @@ import 'package:flutter/material.dart';
 
 /// Represents a single continuous piece of text with a specific style.
 class TextSpanModel {
+
+  /// Creates a [TextSpanModel] from a JSON map.
+  factory TextSpanModel.fromJson(Map<String, dynamic> json) {
+    return TextSpanModel(
+      text: json['text'] as String,
+      isBold: json['isBold'] as bool? ?? false,
+      isItalic: json['isItalic'] as bool? ?? false,
+      isUnderline: json['isUnderline'] as bool? ?? false,
+      isStrikethrough: json['isStrikethrough'] as bool? ?? false,
+      fontSize: json['fontSize'] as double?,
+      color: json['color'] != null ? Color(json['color'] as int) : null,
+    );
+  }
   /// Creates a text span model.
   const TextSpanModel({
     required this.text,
@@ -27,19 +40,6 @@ class TextSpanModel {
   final double? fontSize;
   /// The color of the text. If null, uses the default.
   final Color? color;
-
-  /// Creates a [TextSpanModel] from a JSON map.
-  factory TextSpanModel.fromJson(Map<String, dynamic> json) {
-    return TextSpanModel(
-      text: json['text'] as String,
-      isBold: json['isBold'] as bool? ?? false,
-      isItalic: json['isItalic'] as bool? ?? false,
-      isUnderline: json['isUnderline'] as bool? ?? false,
-      isStrikethrough: json['isStrikethrough'] as bool? ?? false,
-      fontSize: json['fontSize'] as double?,
-      color: json['color'] != null ? Color(json['color'] as int) : null,
-    );
-  }
 
   /// Converts this model to a JSON map.
   Map<String, dynamic> toJson() {

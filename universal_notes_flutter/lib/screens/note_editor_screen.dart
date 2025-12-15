@@ -147,9 +147,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
   void _replaceAll(String replaceTerm) {
     if (_findTerm.isEmpty || _findMatches.isEmpty) return;
 
-    DocumentModel tempDoc = _document;
+    var tempDoc = _document;
     // Iterate backwards to keep indices valid.
-    for (int i = _findMatches.length - 1; i >= 0; i--) {
+    for (var i = _findMatches.length - 1; i >= 0; i--) {
       final matchIndex = _findMatches[i];
       tempDoc = DocumentManipulator.deleteText(tempDoc, matchIndex, _findTerm.length);
       tempDoc = DocumentManipulator.insertText(tempDoc, matchIndex, replaceTerm);
@@ -283,7 +283,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     }
   }
 
-  void _showHistory() async {
+  Future<void> _showHistory() async {
     if (widget.note == null) return;
     final versions = await NoteRepository.instance.getNoteVersions(widget.note!.id);
 
@@ -327,7 +327,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
       _currentMatchIndex = -1;
       if (term.isNotEmpty) {
         final plainText = _document.toPlainText().toLowerCase();
-        int startIndex = 0;
+        var startIndex = 0;
         while (startIndex < plainText.length) {
           final index = plainText.indexOf(term.toLowerCase(), startIndex);
           if (index == -1) break;
@@ -380,7 +380,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     });
   }
 
-  void _showSnippetsScreen() async {
+  Future<void> _showSnippetsScreen() async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const SnippetsScreen()),
@@ -437,7 +437,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
                   ),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16),
                     child: EditorWidget(
                       document: _document,
                       onDocumentChanged: _onDocumentChanged,

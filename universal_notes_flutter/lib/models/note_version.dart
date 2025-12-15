@@ -1,5 +1,15 @@
 /// Represents a saved version of a note's content at a specific point in time.
 class NoteVersion {
+
+  /// Creates a [NoteVersion] from a map.
+  factory NoteVersion.fromMap(Map<String, dynamic> map) {
+    return NoteVersion(
+      id: map['id'] as String,
+      noteId: map['noteId'] as String,
+      content: map['content'] as String,
+      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
+    );
+  }
   /// Creates a new instance of [NoteVersion].
   const NoteVersion({
     required this.id,
@@ -16,16 +26,6 @@ class NoteVersion {
   final String content;
   /// The date this version was saved.
   final DateTime date;
-
-  /// Creates a [NoteVersion] from a map.
-  factory NoteVersion.fromMap(Map<String, dynamic> map) {
-    return NoteVersion(
-      id: map['id'] as String,
-      noteId: map['noteId'] as String,
-      content: map['content'] as String,
-      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
-    );
-  }
 
   /// Converts this version to a map.
   Map<String, dynamic> toMap() {

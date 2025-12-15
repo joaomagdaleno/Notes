@@ -5,8 +5,8 @@ import 'package:universal_notes_flutter/editor/history_manager.dart';
 
 void main() {
   group('HistoryManager', () {
-    final initialDoc = DocumentModel(spans: [TextSpanModel(text: 'Initial')]);
-    final initialSelection = TextSelection.collapsed(offset: 0);
+    const initialDoc = DocumentModel(spans: [TextSpanModel(text: 'Initial')]);
+    const initialSelection = TextSelection.collapsed(offset: 0);
     final initialState = HistoryState(document: initialDoc, selection: initialSelection);
 
     late HistoryManager historyManager;
@@ -22,8 +22,8 @@ void main() {
     });
 
     test('record adds a new state and clears redo stack', () {
-      final newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
-      final newSelection = TextSelection.collapsed(offset: 1);
+      const newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
+      const newSelection = TextSelection.collapsed(offset: 1);
       final newState = HistoryState(document: newDoc, selection: newSelection);
 
       historyManager.record(newState);
@@ -34,8 +34,8 @@ void main() {
     });
 
     test('undo restores the previous state', () {
-      final newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
-      final newSelection = TextSelection.collapsed(offset: 1);
+      const newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
+      const newSelection = TextSelection.collapsed(offset: 1);
       final newState = HistoryState(document: newDoc, selection: newSelection);
       historyManager.record(newState);
 
@@ -47,8 +47,8 @@ void main() {
     });
 
     test('redo restores the undone state', () {
-      final newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
-      final newSelection = TextSelection.collapsed(offset: 1);
+      const newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
+      const newSelection = TextSelection.collapsed(offset: 1);
       final newState = HistoryState(document: newDoc, selection: newSelection);
       historyManager.record(newState);
       historyManager.undo();

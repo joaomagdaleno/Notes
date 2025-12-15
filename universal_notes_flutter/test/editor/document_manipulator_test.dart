@@ -6,10 +6,10 @@ import 'package:universal_notes_flutter/editor/document_manipulator.dart';
 void main() {
   group('DocumentManipulator.toggleStyle', () {
     test('applies bold to a selection in a single span', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'Hello World'),
       ]);
-      final selection = TextSelection(baseOffset: 6, extentOffset: 11); // "World"
+      const selection = TextSelection(baseOffset: 6, extentOffset: 11); // "World"
 
       final newDoc = DocumentManipulator.toggleStyle(doc, selection, StyleAttribute.bold);
 
@@ -21,11 +21,11 @@ void main() {
     });
 
     test('removes bold from a selection', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'Hello '),
         TextSpanModel(text: 'World', isBold: true),
       ]);
-      final selection = TextSelection(baseOffset: 6, extentOffset: 11);
+      const selection = TextSelection(baseOffset: 6, extentOffset: 11);
 
       final newDoc = DocumentManipulator.toggleStyle(doc, selection, StyleAttribute.bold);
 
@@ -35,12 +35,12 @@ void main() {
     });
 
      test('applies italic across multiple spans', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'One '),
         TextSpanModel(text: 'Two '),
         TextSpanModel(text: 'Three'),
       ]);
-      final selection = TextSelection(baseOffset: 2, extentOffset: 10); // "e Two Thre"
+      const selection = TextSelection(baseOffset: 2, extentOffset: 10); // "e Two Thre"
 
       final newDoc = DocumentManipulator.toggleStyle(doc, selection, StyleAttribute.italic);
 
@@ -60,7 +60,7 @@ void main() {
 
   group('DocumentManipulator.insertText', () {
     test('inserts text into a styled span', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'Hello ', isBold: true),
         TextSpanModel(text: 'World', isItalic: true),
       ]);
@@ -76,7 +76,7 @@ void main() {
 
   group('DocumentManipulator.deleteText', () {
     test('deletes text within a single span', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'Hello World', isBold: true),
       ]);
 
@@ -88,7 +88,7 @@ void main() {
     });
 
     test('deletes text across multiple spans', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'One ', isBold: true),
         TextSpanModel(text: 'Two ', isItalic: true),
         TextSpanModel(text: 'Three', isUnderline: true),
@@ -106,10 +106,10 @@ void main() {
 
   group('DocumentManipulator.applyColor', () {
     test('applies color to a selection', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'Hello World'),
       ]);
-      final selection = TextSelection(baseOffset: 0, extentOffset: 5); // "Hello"
+      const selection = TextSelection(baseOffset: 0, extentOffset: 5); // "Hello"
 
       final newDoc = DocumentManipulator.applyColor(doc, selection, Colors.red);
 
@@ -123,12 +123,12 @@ void main() {
 
   group('DocumentManipulator.applyFontSize', () {
     test('applies font size to a selection', () {
-      final doc = DocumentModel(spans: [
+      const doc = DocumentModel(spans: [
         TextSpanModel(text: 'Hello World'),
       ]);
-      final selection = TextSelection(baseOffset: 6, extentOffset: 11); // "World"
+      const selection = TextSelection(baseOffset: 6, extentOffset: 11); // "World"
 
-      final newDoc = DocumentManipulator.applyFontSize(doc, selection, 24.0);
+      final newDoc = DocumentManipulator.applyFontSize(doc, selection, 24);
 
       expect(newDoc.spans.length, 2);
       expect(newDoc.spans[0].text, 'Hello ');

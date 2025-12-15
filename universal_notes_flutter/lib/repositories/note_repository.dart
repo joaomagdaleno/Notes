@@ -136,7 +136,7 @@ class NoteRepository {
             final text = span['text'] as String;
             final words = text.split(RegExp(r'\s+'));
             for (final word in words) {
-              final cleanWord = word.replaceAll(RegExp(r'[^a-zA-Z]'), '').toLowerCase();
+              final cleanWord = word.replaceAll(RegExp('[^a-zA-Z]'), '').toLowerCase();
               if (cleanWord.isNotEmpty) {
                 _wordFrequencyCache![cleanWord] = (_wordFrequencyCache![cleanWord] ?? 0) + 1;
               }
@@ -216,7 +216,7 @@ class NoteRepository {
     final whereClauses = <String>[];
     final whereArgs = <dynamic>[];
 
-    if (isInTrash == true) {
+    if (isInTrash ?? false) {
       whereClauses.add('isInTrash = ?');
       whereArgs.add(1);
     } else {
@@ -229,14 +229,14 @@ class NoteRepository {
       whereArgs.add(folderId);
     }
 
-    if (isFavorite == true) {
+    if (isFavorite ?? false) {
       whereClauses.add('isFavorite = ?');
       whereArgs.add(1);
     }
 
     final whereString = whereClauses.isNotEmpty ? whereClauses.join(' AND ') : null;
 
-    final columnsToFetch = Note.fromMap({}).toMap().keys.where((key) => key != 'content').toList();
+    final columnsToFetch = Note.fromMap(const {}).toMap().keys.where((key) => key != 'content').toList();
 
     final maps = await db.query(
       _notesTable,
@@ -253,7 +253,7 @@ class NoteRepository {
     if (searchTerm.isEmpty) {
       return getAllNotes();
     }
-    final columnsToFetch = Note.fromMap({}).toMap().keys.where((key) => key != 'content').toList();
+    final columnsToFetch = Note.fromMap(const {}).toMap().keys.where((key) => key != 'content').toList();
     final maps = await db.query(
       _notesTable,
       columns: columnsToFetch,

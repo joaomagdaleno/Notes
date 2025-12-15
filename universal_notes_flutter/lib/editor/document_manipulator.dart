@@ -28,7 +28,7 @@ class DocumentManipulator {
     final selectionEnd = selection.end;
 
     final newSpans = <TextSpanModel>[];
-    int currentPos = 0;
+    var currentPos = 0;
 
     for (final span in spans) {
       final spanStart = currentPos;
@@ -93,7 +93,7 @@ class DocumentManipulator {
     final selectionEnd = selection.end;
 
     final newSpans = <TextSpanModel>[];
-    int currentPos = 0;
+    var currentPos = 0;
 
     for (final span in spans) {
       final spanStart = currentPos;
@@ -159,7 +159,7 @@ class DocumentManipulator {
     if (length <= 0) return document;
     final end = start + length;
     final newSpans = <TextSpanModel>[];
-    int currentPos = 0;
+    var currentPos = 0;
     for (final span in document.spans) {
       final spanStart = currentPos;
       final spanEnd = currentPos + span.text.length;
@@ -179,7 +179,7 @@ class DocumentManipulator {
   static List<TextSpanModel> _mergeSpans(List<TextSpanModel> spans) {
     if (spans.isEmpty) return [];
     final mergedSpans = <TextSpanModel>[spans.first];
-    for (int i = 1; i < spans.length; i++) {
+    for (var i = 1; i < spans.length; i++) {
       final last = mergedSpans.last;
       final current = spans[i];
       if (last.hasSameStyle(current) && last.text.isNotEmpty && current.text.isNotEmpty) {
@@ -193,9 +193,9 @@ class DocumentManipulator {
 
   static _SpanPosition _findSpanPosition(
       List<TextSpanModel> spans, int globalPosition) {
-    if (spans.isEmpty) return _SpanPosition(0, 0);
-    int accumulatedLength = 0;
-    for (int i = 0; i < spans.length; i++) {
+    if (spans.isEmpty) return const _SpanPosition(0, 0);
+    var accumulatedLength = 0;
+    for (var i = 0; i < spans.length; i++) {
       final span = spans[i];
       if (globalPosition <= accumulatedLength + span.text.length) {
         return _SpanPosition(i, globalPosition - accumulatedLength);

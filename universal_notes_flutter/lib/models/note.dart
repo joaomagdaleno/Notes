@@ -3,6 +3,24 @@ import 'package:flutter/foundation.dart';
 /// A class representing a single note.
 @immutable
 class Note {
+
+  /// Creates a [Note] from a map.
+  factory Note.fromMap(Map<String, dynamic> map) {
+    return Note(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      content: map['content'] as String,
+      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
+      isFavorite: (map['isFavorite'] as int? ?? 0) == 1,
+      isLocked: (map['isLocked'] as int? ?? 0) == 1,
+      isInTrash: (map['isInTrash'] as int? ?? 0) == 1,
+      isDeleted: (map['isDeleted'] as int? ?? 0) == 1,
+      isDraft: (map['isDraft'] as int? ?? 0) == 1,
+      drawingJson: map['drawingJson'] as String?,
+      prefsJson: map['prefsJson'] as String?,
+      folderId: map['folderId'] as String?,
+    );
+  }
   /// Creates a new instance of [Note].
   const Note({
     required this.id,
@@ -43,24 +61,6 @@ class Note {
   final String? prefsJson;
   /// The ID of the folder this note belongs to.
   final String? folderId;
-
-  /// Creates a [Note] from a map.
-  factory Note.fromMap(Map<String, dynamic> map) {
-    return Note(
-      id: map['id'] as String,
-      title: map['title'] as String,
-      content: map['content'] as String,
-      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
-      isFavorite: (map['isFavorite'] as int? ?? 0) == 1,
-      isLocked: (map['isLocked'] as int? ?? 0) == 1,
-      isInTrash: (map['isInTrash'] as int? ?? 0) == 1,
-      isDeleted: (map['isDeleted'] as int? ?? 0) == 1,
-      isDraft: (map['isDraft'] as int? ?? 0) == 1,
-      drawingJson: map['drawingJson'] as String?,
-      prefsJson: map['prefsJson'] as String?,
-      folderId: map['folderId'] as String?,
-    );
-  }
 
   /// Creates a copy of this note but with the given fields replaced.
   Note copyWith({

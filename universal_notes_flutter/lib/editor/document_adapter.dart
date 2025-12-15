@@ -8,10 +8,10 @@ class DocumentAdapter {
   /// If the string is empty or invalid, returns a document with a single empty span.
   static DocumentModel fromJson(String jsonString) {
     if (jsonString.isEmpty) {
-      return DocumentModel(spans: [TextSpanModel(text: '')]);
+      return const DocumentModel(spans: [TextSpanModel(text: '')]);
     }
     try {
-      final List<dynamic> jsonList = json.decode(jsonString) as List<dynamic>;
+      final jsonList = json.decode(jsonString) as List<dynamic>;
       final spans = jsonList
           .map((jsonItem) => TextSpanModel.fromJson(jsonItem as Map<String, dynamic>))
           .toList();
@@ -24,7 +24,7 @@ class DocumentAdapter {
 
   /// Converts a [DocumentModel] into a JSON string.
   static String toJson(DocumentModel document) {
-    final List<Map<String, dynamic>> jsonList =
+    final jsonList =
         document.spans.map((span) => span.toJson()).toList();
     return json.encode(jsonList);
   }

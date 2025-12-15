@@ -37,7 +37,7 @@ class MarkdownConverter {
     final plainText = document.toPlainText();
     if (plainText.isEmpty) return null;
 
-    int lineStart = selection.baseOffset;
+    var lineStart = selection.baseOffset;
     while (lineStart > 0 && plainText[lineStart - 1] != '\n') {
       lineStart--;
     }
@@ -74,14 +74,14 @@ class MarkdownConverter {
         // Delete the "# " part
         var newDoc = DocumentManipulator.deleteText(document, lineStart, 2);
         // Apply the font size to the rest of the line
-        newDoc = DocumentManipulator.applyFontSize(newDoc, titleSelection.copyWith(baseOffset: titleSelection.baseOffset - 2, extentOffset: titleSelection.extentOffset - 2), 32.0);
+        newDoc = DocumentManipulator.applyFontSize(newDoc, titleSelection.copyWith(baseOffset: titleSelection.baseOffset - 2, extentOffset: titleSelection.extentOffset - 2), 32);
 
         final finalSelection = TextSelection.collapsed(offset: selection.baseOffset - 2);
         return MarkdownConversionResult(document: newDoc, selection: finalSelection);
       }
 
       if (pattern == '-') {
-        final listText = '• ';
+        const listText = '• ';
         var newDoc = DocumentManipulator.deleteText(document, lineStart, 2);
         newDoc = DocumentManipulator.insertText(newDoc, lineStart, listText);
 

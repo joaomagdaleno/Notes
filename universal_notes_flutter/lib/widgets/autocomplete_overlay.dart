@@ -26,7 +26,7 @@ class AutocompleteOverlay extends StatelessWidget {
       left: position.dx,
       top: position.dy,
       child: Material(
-        elevation: 4.0,
+        elevation: 4,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 200, maxWidth: 250),
           child: ListView.builder(

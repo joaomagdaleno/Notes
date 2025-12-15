@@ -48,7 +48,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
   }
 
   void _showContextMenu(Offset globalPosition) {
-    final renderBox = context.findRenderObject() as RenderBox;
+    final renderBox = context.findRenderObject()! as RenderBox;
     final offset = renderBox.globalToLocal(globalPosition);
 
     _flyoutController.showFlyout<void>(
