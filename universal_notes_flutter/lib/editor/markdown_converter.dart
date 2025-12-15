@@ -12,6 +12,7 @@ class MarkdownConversionResult {
 
   /// The new document after conversion.
   final DocumentModel document;
+
   /// The new selection after conversion.
   final TextSelection selection;
 }
@@ -51,14 +52,30 @@ class MarkdownConverter {
         final content = match.group(1)!;
         final matchStart = lineStart + match.start;
 
-        var newDoc = DocumentManipulator.deleteText(document, matchStart, match.group(0)!.length);
+        var newDoc = DocumentManipulator.deleteText(
+          document,
+          matchStart,
+          match.group(0)!.length,
+        );
         newDoc = DocumentManipulator.insertText(newDoc, matchStart, content);
 
-        final newSelection = TextSelection(baseOffset: matchStart, extentOffset: matchStart + content.length);
-        newDoc = DocumentManipulator.toggleStyle(newDoc, newSelection, entry.value);
+        final newSelection = TextSelection(
+          baseOffset: matchStart,
+          extentOffset: matchStart + content.length,
+        );
+        newDoc = DocumentManipulator.toggleStyle(
+          newDoc,
+          newSelection,
+          entry.value,
+        );
 
-        final finalSelection = TextSelection.collapsed(offset: newSelection.end);
-        return MarkdownConversionResult(document: newDoc, selection: finalSelection);
+        final finalSelection = TextSelection.collapsed(
+          offset: newSelection.end,
+        );
+        return MarkdownConversionResult(
+          document: newDoc,
+          selection: finalSelection,
+        );
       }
     }
 
@@ -69,15 +86,29 @@ class MarkdownConverter {
       if (pattern == '#') {
         final lineEnd = plainText.indexOf('\n', lineStart);
         final finalLineEnd = lineEnd == -1 ? plainText.length : lineEnd;
-        final titleSelection = TextSelection(baseOffset: lineStart, extentOffset: finalLineEnd);
+        final titleSelection = TextSelection(
+          baseOffset: lineStart,
+          extentOffset: finalLineEnd,
+        );
 
         // Delete the "# " part
         var newDoc = DocumentManipulator.deleteText(document, lineStart, 2);
         // Apply the font size to the rest of the line
-        newDoc = DocumentManipulator.applyFontSize(newDoc, titleSelection.copyWith(baseOffset: titleSelection.baseOffset - 2, extentOffset: titleSelection.extentOffset - 2), 32);
+        // The text moved to lineStart, so baseOffset is lineStart.
+        // The length decreased by 2, so extentOffset is original extent - 2.
+        newDoc = DocumentManipulator.applyFontSize(
+          newDoc,
+          TextSelection(baseOffset: lineStart, extentOffset: finalLineEnd - 2),
+          32,
+        );
 
-        final finalSelection = TextSelection.collapsed(offset: selection.baseOffset - 2);
-        return MarkdownConversionResult(document: newDoc, selection: finalSelection);
+        final finalSelection = TextSelection.collapsed(
+          offset: selection.baseOffset - 2,
+        );
+        return MarkdownConversionResult(
+          document: newDoc,
+          selection: finalSelection,
+        );
       }
 
       if (pattern == '-') {
@@ -85,8 +116,13 @@ class MarkdownConverter {
         var newDoc = DocumentManipulator.deleteText(document, lineStart, 2);
         newDoc = DocumentManipulator.insertText(newDoc, lineStart, listText);
 
-        final finalSelection = TextSelection.collapsed(offset: lineStart + listText.length);
-        return MarkdownConversionResult(document: newDoc, selection: finalSelection);
+        final finalSelection = TextSelection.collapsed(
+          offset: lineStart + listText.length,
+        );
+        return MarkdownConversionResult(
+          document: newDoc,
+          selection: finalSelection,
+        );
       }
     }
 

@@ -41,6 +41,15 @@ class NoteCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
+        onLongPress: () {
+          final renderBox = context.findRenderObject() as RenderBox?;
+          if (renderBox != null) {
+            final offset = renderBox.localToGlobal(
+              renderBox.size.center(Offset.zero),
+            );
+            _showContextMenu(context, offset);
+          }
+        },
         child: Stack(
           children: [
             Padding(

@@ -31,7 +31,8 @@ class NoteEditorScreen extends StatefulWidget {
   State<NoteEditorScreen> createState() => _NoteEditorScreenState();
 }
 
-class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBindingObserver {
+class _NoteEditorScreenState extends State<NoteEditorScreen>
+    with WidgetsBindingObserver {
   Note? _note;
   late DocumentModel _document;
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
@@ -40,7 +41,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
   Timer? _debounceTimer;
   Timer? _throttleTimer;
   Rect? _selectionRect;
-  bool get _isToolbarVisible => _selectionRect != null && !_selection.isCollapsed;
+  bool get _isToolbarVisible =>
+      _selectionRect != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
   int _wordCount = 0;
   int _charCount = 0;
@@ -50,10 +52,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
   int _currentMatchIndex = -1;
 
   static const List<Color> _predefinedColors = [
-    Colors.black, Colors.red, Colors.green, Colors.blue, Colors.orange, Colors.purple
+    Colors.black,
+    Colors.red,
+    Colors.green,
+    Colors.blue,
+    Colors.orange,
+    Colors.purple,
   ];
   static const Map<String, double> _fontSizes = {
-    'Normal': 16.0, 'Título Médio': 24.0, 'Título Grande': 32.0,
+    'Normal': 16.0,
+    'Título Médio': 24.0,
+    'Título Grande': 32.0,
   };
 
   @override
@@ -84,7 +93,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     _throttleTimer?.cancel();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: SystemUiOverlay.values,
+      );
     }
     super.dispose();
   }
@@ -108,7 +120,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     _recordHistoryTimer?.cancel();
     _recordHistoryTimer = Timer(const Duration(milliseconds: 500), () {
       setState(() {
-         _historyManager.record(HistoryState(document: newDocument, selection: _selection));
+        _historyManager.record(
+          HistoryState(document: newDocument, selection: _selection),
+        );
       });
     });
 
@@ -138,7 +152,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
         _selectionRect = rect;
       });
     } else {
-       setState(() {
+      setState(() {
         _selectionRect = null;
       });
     }
@@ -151,60 +165,88 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     // Iterate backwards to keep indices valid.
     for (var i = _findMatches.length - 1; i >= 0; i--) {
       final matchIndex = _findMatches[i];
-      tempDoc = DocumentManipulator.deleteText(tempDoc, matchIndex, _findTerm.length);
-      tempDoc = DocumentManipulator.insertText(tempDoc, matchIndex, replaceTerm);
+      tempDoc = DocumentManipulator.deleteText(
+        tempDoc,
+        matchIndex,
+        _findTerm.length,
+      );
+      tempDoc = DocumentManipulator.insertText(
+        tempDoc,
+        matchIndex,
+        replaceTerm,
+      );
     }
     _onDocumentChanged(tempDoc);
   }
 
   // ... (all other methods remain the same)
   void _toggleStyle(StyleAttribute attribute) {
-    final newDocument = DocumentManipulator.toggleStyle(_document, _selection, attribute);
+    final newDocument = DocumentManipulator.toggleStyle(
+      _document,
+      _selection,
+      attribute,
+    );
     _onDocumentChanged(newDocument);
   }
 
   void _applyColor(Color color) {
-    final newDocument = DocumentManipulator.applyColor(_document, _selection, color);
+    final newDocument = DocumentManipulator.applyColor(
+      _document,
+      _selection,
+      color,
+    );
     _onDocumentChanged(newDocument);
   }
 
   void _applyFontSize(double fontSize) {
-    final newDocument = DocumentManipulator.applyFontSize(_document, _selection, fontSize);
+    final newDocument = DocumentManipulator.applyFontSize(
+      _document,
+      _selection,
+      fontSize,
+    );
     _onDocumentChanged(newDocument);
   }
 
   void _showColorPicker() {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select a color'),
         content: Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _predefinedColors.map((color) => GestureDetector(
-            onTap: () {
-              _applyColor(color);
-              Navigator.of(context).pop();
-            },
-            child: CircleAvatar(backgroundColor: color, radius: 20),
-          )).toList(),
+          children: _predefinedColors
+              .map(
+                (color) => GestureDetector(
+                  onTap: () {
+                    _applyColor(color);
+                    Navigator.of(context).pop();
+                  },
+                  child: CircleAvatar(backgroundColor: color, radius: 20),
+                ),
+              )
+              .toList(),
         ),
       ),
     );
   }
 
   void _showFontSizePicker() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => ListView(
         shrinkWrap: true,
-        children: _fontSizes.entries.map((entry) => ListTile(
-          title: Text(entry.key, style: TextStyle(fontSize: entry.value)),
-          onTap: () {
-            _applyFontSize(entry.value);
-            Navigator.of(context).pop();
-          },
-        )).toList(),
+        children: _fontSizes.entries
+            .map(
+              (entry) => ListTile(
+                title: Text(entry.key, style: TextStyle(fontSize: entry.value)),
+                onTap: () {
+                  _applyFontSize(entry.value);
+                  Navigator.of(context).pop();
+                },
+              ),
+            )
+            .toList(),
       ),
     );
   }
@@ -214,7 +256,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
       final state = _historyManager.undo();
       _document = state.document;
       _selection = state.selection;
-       _updateCounts(_document);
+      _updateCounts(_document);
     });
   }
 
@@ -236,12 +278,19 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
 
     final jsonContent = DocumentAdapter.toJson(_document);
 
-    final noteToSave = (_note ?? Note(id: const Uuid().v4(), title: '', content: '', date: DateTime.now()))
-        .copyWith(
-      title: plainText.split('\n').first,
-      content: jsonContent,
-      date: DateTime.now(),
-    );
+    final noteToSave =
+        (_note ??
+                Note(
+                  id: const Uuid().v4(),
+                  title: '',
+                  content: '',
+                  date: DateTime.now(),
+                ))
+            .copyWith(
+              title: plainText.split('\n').first,
+              content: jsonContent,
+              date: DateTime.now(),
+            );
 
     // If it's a new note, store it in the state so we update it next time.
     if (_note == null) {
@@ -253,23 +302,30 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     await NoteRepository.instance.updateNoteContent(noteToSave);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Nota salva automaticamente.'), duration: Duration(seconds: 2)),
+      const SnackBar(
+        content: Text('Nota salva automaticamente.'),
+        duration: Duration(seconds: 2),
+      ),
     );
+
+    await _createVersionIfNeeded(jsonContent);
   }
 
   Future<void> _saveNote() async {
-     // Cancel any pending autosave before manual save
+    // Cancel any pending autosave before manual save
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
 
     await _autosave(); // Perform a final save
-    if(mounted) Navigator.of(context).pop();
+    if (mounted) Navigator.of(context).pop();
   }
 
   Future<void> _createVersionIfNeeded(String jsonContent) async {
     if (widget.note == null) return;
 
-    final versions = await NoteRepository.instance.getNoteVersions(widget.note!.id);
+    final versions = await NoteRepository.instance.getNoteVersions(
+      widget.note!.id,
+    );
     final now = DateTime.now();
 
     if (versions.isEmpty || now.difference(versions.first.date).inHours >= 6) {
@@ -285,7 +341,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
 
   Future<void> _showHistory() async {
     if (widget.note == null) return;
-    final versions = await NoteRepository.instance.getNoteVersions(widget.note!.id);
+    final versions = await NoteRepository.instance.getNoteVersions(
+      widget.note!.id,
+    );
 
     showDialog(
       context: context,
@@ -299,7 +357,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
               final version = versions[index];
               return ListTile(
                 title: Text(DateFormat.yMMMd().add_Hms().format(version.date)),
-                subtitle: Text(DocumentAdapter.fromJson(version.content).toPlainText(), maxLines: 1, overflow: TextOverflow.ellipsis),
+                subtitle: Text(
+                  DocumentAdapter.fromJson(version.content).toPlainText(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 onTap: () {
                   _restoreVersion(version);
                   Navigator.of(context).pop();
@@ -309,7 +371,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
         ],
       ),
     );
@@ -346,7 +411,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
     if (index < 0 || index >= _findMatches.length) return;
     final start = _findMatches[index];
     setState(() {
-      _selection = TextSelection(baseOffset: start, extentOffset: start + _findTerm.length);
+      _selection = TextSelection(
+        baseOffset: start,
+        extentOffset: start + _findTerm.length,
+      );
     });
   }
 
@@ -358,14 +426,23 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
 
   void _findPrevious() {
     if (_findMatches.isEmpty) return;
-    _currentMatchIndex = (_currentMatchIndex - 1 + _findMatches.length) % _findMatches.length;
+    _currentMatchIndex =
+        (_currentMatchIndex - 1 + _findMatches.length) % _findMatches.length;
     _jumpToMatch(_currentMatchIndex);
   }
 
   void _replace(String replaceTerm) {
     if (_currentMatchIndex == -1 || _selection.isCollapsed) return;
-    final docAfterDelete = DocumentManipulator.deleteText(_document, _selection.start, _selection.end - _selection.start);
-    final newDoc = DocumentManipulator.insertText(docAfterDelete, _selection.start, replaceTerm);
+    final docAfterDelete = DocumentManipulator.deleteText(
+      _document,
+      _selection.start,
+      _selection.end - _selection.start,
+    );
+    final newDoc = DocumentManipulator.insertText(
+      docAfterDelete,
+      _selection.start,
+      replaceTerm,
+    );
     _onDocumentChanged(newDoc);
   }
 
@@ -375,7 +452,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
       if (_isFocusMode) {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       } else {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+        SystemChrome.setEnabledSystemUIMode(
+          SystemUiMode.manual,
+          overlays: SystemUiOverlay.values,
+        );
       }
     });
   }
@@ -391,93 +471,103 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
         await _saveNote();
-        return true;
+        if (context.mounted) Navigator.of(context).pop();
       },
       child: Scaffold(
-        appBar: _isFocusMode ? null : AppBar(
-        title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () => setState(() => _isFindBarVisible = !_isFindBarVisible),
-          ),
-          if (widget.note != null)
-            IconButton(
-              icon: const Icon(Icons.history),
-              onPressed: _showHistory,
-            ),
-          IconButton(
-            icon: Icon(_isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen),
-            onPressed: _toggleFocusMode,
-          ),
-        ],
-      ),
-      floatingActionButton: _isFocusMode ? null : FloatingActionButton(
-        onPressed: _saveNote,
-        child: const Icon(Icons.save),
-      ),
-      body: SafeArea(
-        top: !_isFocusMode,
-        bottom: !_isFocusMode,
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                if (_isFindBarVisible && !_isFocusMode)
-                  FindReplaceBar(
-                    onFindChanged: _onFindChanged,
-                    onFindNext: _findNext,
-                    onFindPrevious: _findPrevious,
-                    onReplace: _replace,
-                    onReplaceAll: _replaceAll,
-                    onClose: () => setState(() => _isFindBarVisible = false),
+        appBar: _isFocusMode
+            ? null
+            : AppBar(
+                title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () =>
+                        setState(() => _isFindBarVisible = !_isFindBarVisible),
                   ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: EditorWidget(
-                      document: _document,
-                      onDocumentChanged: _onDocumentChanged,
-                      selection: _selection,
-                      onSelectionChanged: _onSelectionChanged,
-                      onSelectionRectChanged: _onSelectionRectChanged,
+                  if (widget.note != null)
+                    IconButton(
+                      icon: const Icon(Icons.history),
+                      onPressed: _showHistory,
+                    ),
+                  IconButton(
+                    icon: Icon(
+                      _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
+                    ),
+                    onPressed: _toggleFocusMode,
+                  ),
+                ],
+              ),
+        floatingActionButton: _isFocusMode
+            ? null
+            : FloatingActionButton(
+                onPressed: _saveNote,
+                child: const Icon(Icons.save),
+              ),
+        body: SafeArea(
+          top: !_isFocusMode,
+          bottom: !_isFocusMode,
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  if (_isFindBarVisible && !_isFocusMode)
+                    FindReplaceBar(
+                      onFindChanged: _onFindChanged,
+                      onFindNext: _findNext,
+                      onFindPrevious: _findPrevious,
+                      onReplace: _replace,
+                      onReplaceAll: _replaceAll,
+                      onClose: () => setState(() => _isFindBarVisible = false),
+                    ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: EditorWidget(
+                        document: _document,
+                        onDocumentChanged: _onDocumentChanged,
+                        selection: _selection,
+                        onSelectionChanged: _onSelectionChanged,
+                        onSelectionRectChanged: _onSelectionRectChanged,
+                      ),
                     ),
                   ),
-                ),
-                if (!_isFocusMode)
-                  EditorToolbar(
+                  if (!_isFocusMode)
+                    EditorToolbar(
+                      onBold: () => _toggleStyle(StyleAttribute.bold),
+                      onItalic: () => _toggleStyle(StyleAttribute.italic),
+                      onUnderline: () => _toggleStyle(StyleAttribute.underline),
+                      onStrikethrough: () =>
+                          _toggleStyle(StyleAttribute.strikethrough),
+                      onColor: _showColorPicker,
+                      onFontSize: _showFontSizePicker,
+                      onSnippets: _showSnippetsScreen,
+                      onUndo: _undo,
+                      onRedo: _redo,
+                      canUndo: _historyManager.canUndo,
+                      canRedo: _historyManager.canRedo,
+                      wordCount: _wordCount,
+                      charCount: _charCount,
+                    ),
+                ],
+              ),
+              if (_isToolbarVisible)
+                Positioned(
+                  top: _selectionRect!.top - 55,
+                  left: _selectionRect!.left,
+                  child: FloatingToolbar(
                     onBold: () => _toggleStyle(StyleAttribute.bold),
                     onItalic: () => _toggleStyle(StyleAttribute.italic),
-                    onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                    onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
-                    onColor: _showColorPicker,
-                    onFontSize: _showFontSizePicker,
-                    onSnippets: _showSnippetsScreen,
-                    onUndo: _undo,
-                    onRedo: _redo,
-                    canUndo: _historyManager.canUndo,
-                    canRedo: _historyManager.canRedo,
-                    wordCount: _wordCount,
-                    charCount: _charCount,
                   ),
-              ],
-            ),
-            if (_isToolbarVisible)
-              Positioned(
-                top: _selectionRect!.top - 55,
-                left: _selectionRect!.left,
-                child: FloatingToolbar(
-                  onBold: () => _toggleStyle(StyleAttribute.bold),
-                  onItalic: () => _toggleStyle(StyleAttribute.italic),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
-     ),
     );
   }
 }

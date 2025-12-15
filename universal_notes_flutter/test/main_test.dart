@@ -6,9 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:universal_notes_flutter/main.dart';
+
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/screens/settings_screen.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
@@ -26,6 +27,8 @@ class MockUpdateService extends UpdateService {
     return UpdateCheckResult(UpdateCheckStatus.noUpdate);
   }
 }
+
+enum ViewMode { gridMedium, gridLarge, list, listSimple, gridSmall }
 
 class MockWindowManager extends Mock implements WindowManager {
   @override
@@ -1100,10 +1103,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            notesFuture: Future.value([]),
+            noteRepository: NoteRepository.instance,
             updateService: MockUpdateService(),
-            noteRepository: mockRepo,
-            debugPlatform: TargetPlatform.android,
           ),
         ),
       );
@@ -1152,10 +1153,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            notesFuture: Future.value([testNote]),
+            noteRepository: NoteRepository.instance,
             updateService: MockUpdateService(),
-            noteRepository: mockRepo,
-            debugPlatform: TargetPlatform.android,
           ),
         ),
       );
@@ -1221,9 +1220,8 @@ void main() {
       await tester.pumpWidget(
         fluent.FluentApp(
           home: NotesScreen(
-            notesFuture: Future.value([]),
+            noteRepository: NoteRepository.instance,
             updateService: MockUpdateService(),
-            debugPlatform: TargetPlatform.windows,
           ),
         ),
       );
@@ -1242,12 +1240,6 @@ void main() {
 
   group('NotesScreen Windows Interaction', () {
     testWidgets('tapping a note card on Windows navigates', (tester) async {
-      final testNote = Note(
-        id: '1',
-        title: 'Win Note',
-        content: 'Content',
-        date: DateTime.now(),
-      );
       await tester.pumpWidget(
         fluent.FluentApp(
           home: Material(
@@ -1255,9 +1247,8 @@ void main() {
             // Actually FluentApp has its own Navigator.
             // But NoteScreen uses Navigator.of(context).
             child: NotesScreen(
-              notesFuture: Future.value([testNote]),
+              noteRepository: NoteRepository.instance,
               updateService: MockUpdateService(),
-              debugPlatform: TargetPlatform.windows,
             ),
           ),
         ),
@@ -1287,9 +1278,8 @@ void main() {
       await tester.pumpWidget(
         fluent.FluentApp(
           home: NotesScreen(
-            notesFuture: Future.value([]),
+            noteRepository: NoteRepository.instance,
             updateService: MockUpdateService(),
-            debugPlatform: TargetPlatform.windows,
           ),
         ),
       );
@@ -1343,4 +1333,45 @@ void main() {
       verify(mockWindowManager.destroy()).called(1);
     });
   });
+}
+
+class MyAppWithWindowListener extends StatefulWidget {
+  final NoteRepository noteRepository;
+  final WindowManager windowManager;
+
+  const MyAppWithWindowListener({
+    super.key,
+    required this.noteRepository,
+    required this.windowManager,
+  });
+
+  @override
+  State<MyAppWithWindowListener> createState() =>
+      MyAppWithWindowListenerState();
+}
+
+class MyAppWithWindowListenerState extends State<MyAppWithWindowListener>
+    with WindowListener {
+  @override
+  void initState() {
+    super.initState();
+    widget.windowManager.addListener(this);
+  }
+
+  @override
+  void dispose() {
+    widget.windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  Future<void> onWindowClose() async {
+    await widget.noteRepository.close();
+    await widget.windowManager.destroy();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
 }
