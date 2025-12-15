@@ -24,8 +24,13 @@ class NoteSimpleListTile extends StatelessWidget {
   /// If null, it will navigate to the [NoteEditorScreen].
   final VoidCallback? onTap;
 
-@override
-Widget build(BuildContext context) {
+  // ⚡ Bolt: Memoize DateFormat for performance.
+  // Re-creating DateFormat on every build is inefficient.
+  // This avoids repeated object creation.
+  static final _dateFormat = DateFormat('d MMM');
+
+  @override
+  Widget build(BuildContext context) {
   return ListTile(
     key: key,
     contentPadding: const EdgeInsets.symmetric(
@@ -39,7 +44,7 @@ Widget build(BuildContext context) {
       child: const Icon(Icons.image_outlined, color: Colors.grey),
     ),
     title: Text(note.title),
-    trailing: Text(DateFormat('d MMM').format(note.date)),
+    trailing: Text(_dateFormat.format(note.date)),
     onTap: onTap ??
         () async {
           await Navigator.of(context).push(
