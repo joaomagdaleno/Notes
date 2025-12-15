@@ -14,7 +14,20 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isLoading = false;
+  PackageInfo? _packageInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,25 +48,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           fluent.ListTile.selectable(
             title: const Text('Sobre'),
             leading: const fluent.Icon(fluent.FluentIcons.info),
-            onPressed: _isLoading
+            onPressed: _packageInfo == null
                 ? null
                 : () async {
-                    setState(() => _isLoading = true);
-                    final packageInfo = await PackageInfo.fromPlatform();
-                    if (!context.mounted) return;
                     await Navigator.of(context).push(
                       fluent.FluentPageRoute<void>(
-                        // CORREÇÃO: Envolve o AboutScreen em um MaterialApp
                         builder: (context) => MaterialApp(
                           title: 'Sobre',
-                          home: AboutScreen(packageInfo: packageInfo),
+                          home: AboutScreen(packageInfo: _packageInfo!),
                           debugShowCheckedModeBanner: false,
                         ),
                       ),
                     );
-                    setState(() => _isLoading = false);
                   },
-            trailing: _isLoading
+            trailing: _packageInfo == null
                 ? const fluent.ProgressRing(
                     strokeWidth: 2,
                   )
@@ -74,21 +82,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             title: const Text('Sobre'),
             leading: const Icon(Icons.info_outline),
-            onTap: _isLoading
+            onTap: _packageInfo == null
                 ? null
                 : () async {
-                    setState(() => _isLoading = true);
-                    final packageInfo = await PackageInfo.fromPlatform();
-                    if (!context.mounted) return;
                     await Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (context) =>
-                            AboutScreen(packageInfo: packageInfo),
+                            AboutScreen(packageInfo: _packageInfo!),
                       ),
                     );
-                    setState(() => _isLoading = false);
                   },
-            trailing: _isLoading
+            trailing: _packageInfo == null
                 ? const SizedBox(
                     width: 24,
                     height: 24,
