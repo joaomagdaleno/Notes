@@ -45,6 +45,7 @@ dependencies:
   pub_semver: ^2.1.4
   sqflite: ^2.3.3
   sqflite_common_ffi: ^2.4.0
+  shared_preferences: ^2.2.3
   url_launcher: ^6.3.0
   uuid: ^4.5.2
   window_manager: ^0.5.1

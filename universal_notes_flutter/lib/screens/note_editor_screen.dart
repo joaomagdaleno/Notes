@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
@@ -7,19 +8,20 @@ import 'package:universal_notes_flutter/editor/editor_toolbar.dart';
 import 'package:universal_notes_flutter/editor/editor_widget.dart';
 import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/models/note_version.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:uuid/uuid.dart';
 
 /// A screen for editing a note using a custom rich text editor.
 class NoteEditorScreen extends StatefulWidget {
-  /// Creates a new instance of [NoteEditorScreen].
+  // ... (constructor remains the same)
   const NoteEditorScreen({
     required this.onSave,
     this.note,
     super.key,
   });
 
-  /// The note to edit. If null, a new note is created.
   final Note? note;
-  /// The function to call when the note is saved.
   final Future<Note> Function(Note) onSave;
 
   @override
@@ -27,6 +29,7 @@ class NoteEditorScreen extends StatefulWidget {
 }
 
 class _NoteEditorScreenState extends State<NoteEditorScreen> {
+  // ... (state variables remain the same)
   late DocumentModel _document;
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
@@ -48,12 +51,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     );
   }
 
-  @override
+   @override
   void dispose() {
     _recordHistoryTimer?.cancel();
     super.dispose();
   }
 
+  // ... (_onDocumentChanged, _onSelectionChanged, style methods remain the same)
   void _onDocumentChanged(DocumentModel newDocument) {
     setState(() {
       _document = newDocument;
@@ -139,22 +143,84 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     });
   }
 
+
   Future<void> _saveNote() async {
     final plainText = _document.toPlainText();
     if (plainText.trim().isEmpty) {
+      if (widget.note != null) {
+        await NoteRepository.instance.deleteNote(widget.note!.id);
+      }
       Navigator.of(context).pop();
       return;
     }
 
     final jsonContent = DocumentAdapter.toJson(_document);
-    final noteToSave = (widget.note ?? Note(id: '', title: '', content: '', date: DateTime.now()))
+    await _createVersionIfNeeded(jsonContent);
+
+    final noteToSave = (widget.note ?? Note(id: const Uuid().v4(), title: '', content: '', date: DateTime.now()))
         .copyWith(
           title: plainText.split('\n').first,
           content: jsonContent,
+          date: DateTime.now(),
         );
 
     await widget.onSave(noteToSave);
     Navigator.of(context).pop();
+  }
+
+  Future<void> _createVersionIfNeeded(String jsonContent) async {
+    if (widget.note == null) return;
+
+    final versions = await NoteRepository.instance.getNoteVersions(widget.note!.id);
+    final now = DateTime.now();
+
+    // Save a version if there are no versions or the last one is older than 6 hours.
+    if (versions.isEmpty || now.difference(versions.first.date).inHours >= 6) {
+      final newVersion = NoteVersion(
+        id: const Uuid().v4(),
+        noteId: widget.note!.id,
+        content: jsonContent,
+        date: now,
+      );
+      await NoteRepository.instance.createNoteVersion(newVersion);
+    }
+  }
+
+  void _showHistory() async {
+    if (widget.note == null) return;
+    final versions = await NoteRepository.instance.getNoteVersions(widget.note!.id);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Version History'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            itemCount: versions.length,
+            itemBuilder: (context, index) {
+              final version = versions[index];
+              return ListTile(
+                title: Text(DateFormat.yMMMd().add_Hms().format(version.date)),
+                subtitle: Text(DocumentAdapter.fromJson(version.content).toPlainText(), maxLines: 1, overflow: TextOverflow.ellipsis),
+                onTap: () {
+                  _restoreVersion(version);
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
+        ],
+      ),
+    );
+  }
+
+  void _restoreVersion(NoteVersion version) {
+    final newDocument = DocumentAdapter.fromJson(version.content);
+    _onDocumentChanged(newDocument);
   }
 
   @override
@@ -162,6 +228,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
+        actions: [
+          if (widget.note != null)
+            IconButton(
+              icon: const Icon(Icons.history),
+              onPressed: _showHistory,
+            ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _saveNote,
