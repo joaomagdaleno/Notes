@@ -80,24 +80,28 @@ class _EditorWidgetState extends State<EditorWidget> {
 
     // --- Autocomplete Keyboard Interaction ---
     if (_autocompleteOverlay != null) {
-      if (event.logicalKey == LogicalKey.arrowDown) {
+      if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
         setState(() {
-          _selectedSuggestionIndex = (_selectedSuggestionIndex + 1) % _suggestions.length;
+          _selectedSuggestionIndex =
+              (_selectedSuggestionIndex + 1) % _suggestions.length;
         });
         _showAutocomplete(); // Rebuild the overlay with the new selection
         return;
-      } else if (event.logicalKey == LogicalKey.arrowUp) {
-         setState(() {
-          _selectedSuggestionIndex = (_selectedSuggestionIndex - 1 + _suggestions.length) % _suggestions.length;
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+        setState(() {
+          _selectedSuggestionIndex =
+              (_selectedSuggestionIndex - 1 + _suggestions.length) %
+              _suggestions.length;
         });
         _showAutocomplete();
         return;
-      } else if (event.logicalKey == LogicalKey.tab || event.logicalKey == LogicalKey.enter) {
+      } else if (event.logicalKey == LogicalKeyboardKey.tab ||
+          event.logicalKey == LogicalKeyboardKey.enter) {
         if (_suggestions.isNotEmpty) {
           _acceptAutocomplete(_suggestions[_selectedSuggestionIndex]);
         }
         return;
-      } else if (event.logicalKey == LogicalKey.escape) {
+      } else if (event.logicalKey == LogicalKeyboardKey.escape) {
         _hideAutocomplete();
         return;
       }
@@ -107,24 +111,50 @@ class _EditorWidgetState extends State<EditorWidget> {
     TextSelection selectionAfterEdit;
 
     // --- Basic Text Editing ---
-    if (event.logicalKey == LogicalKey.backspace) {
-       if (_selection.isCollapsed) {
+    if (event.logicalKey == LogicalKeyboardKey.backspace) {
+      if (_selection.isCollapsed) {
         if (_selection.start == 0) return;
-        docAfterEdit = DocumentManipulator.deleteText(widget.document, _selection.start - 1, 1);
-        selectionAfterEdit = TextSelection.collapsed(offset: _selection.start - 1);
+        docAfterEdit = DocumentManipulator.deleteText(
+          widget.document,
+          _selection.start - 1,
+          1,
+        );
+        selectionAfterEdit = TextSelection.collapsed(
+          offset: _selection.start - 1,
+        );
       } else {
-        docAfterEdit = DocumentManipulator.deleteText(widget.document, _selection.start, _selection.end - _selection.start);
+        docAfterEdit = DocumentManipulator.deleteText(
+          widget.document,
+          _selection.start,
+          _selection.end - _selection.start,
+        );
         selectionAfterEdit = TextSelection.collapsed(offset: _selection.start);
       }
     } else if (event.character != null && event.character!.isNotEmpty) {
       final character = event.character!;
       if (_selection.isCollapsed) {
-        docAfterEdit = DocumentManipulator.insertText(widget.document, _selection.start, character);
-        selectionAfterEdit = TextSelection.collapsed(offset: _selection.start + character.length);
+        docAfterEdit = DocumentManipulator.insertText(
+          widget.document,
+          _selection.start,
+          character,
+        );
+        selectionAfterEdit = TextSelection.collapsed(
+          offset: _selection.start + character.length,
+        );
       } else {
-        final docAfterDelete = DocumentManipulator.deleteText(widget.document, _selection.start, _selection.end - _selection.start);
-        docAfterEdit = DocumentManipulator.insertText(docAfterDelete, _selection.start, character);
-        selectionAfterEdit = TextSelection.collapsed(offset: _selection.start + character.length);
+        final docAfterDelete = DocumentManipulator.deleteText(
+          widget.document,
+          _selection.start,
+          _selection.end - _selection.start,
+        );
+        docAfterEdit = DocumentManipulator.insertText(
+          docAfterDelete,
+          _selection.start,
+          character,
+        );
+        selectionAfterEdit = TextSelection.collapsed(
+          offset: _selection.start + character.length,
+        );
       }
     } else {
       _hideAutocomplete();
@@ -163,7 +193,10 @@ class _EditorWidgetState extends State<EditorWidget> {
   }
 
   // --- Autocomplete Logic ---
-  Future<void> _updateAutocomplete(DocumentModel document, TextSelection selection) async {
+  Future<void> _updateAutocomplete(
+    DocumentModel document,
+    TextSelection selection,
+  ) async {
     final suggestions = await AutocompleteService.getSuggestions(
       document.toPlainText(),
       selection.baseOffset,
@@ -190,7 +223,8 @@ class _EditorWidgetState extends State<EditorWidget> {
       builder: (context) => AutocompleteOverlay(
         suggestions: _suggestions,
         selectedIndex: _selectedSuggestionIndex,
-        position: _getCursorOffset() + const Offset(0, 20), // Position below cursor
+        position:
+            _getCursorOffset() + const Offset(0, 20), // Position below cursor
         onSuggestionSelected: _acceptAutocomplete,
       ),
     );
@@ -205,20 +239,30 @@ class _EditorWidgetState extends State<EditorWidget> {
   void _acceptAutocomplete(String suggestion) {
     final plainText = widget.document.toPlainText();
     var start = _selection.baseOffset;
-    while (start > 0 && !AutocompleteService.isWordBoundary(plainText[start - 1])) {
+    while (start > 0 &&
+        !AutocompleteService.isWordBoundary(plainText[start - 1])) {
       start--;
     }
     final wordInProgress = plainText.substring(start, _selection.baseOffset);
 
-    final docAfterDelete = DocumentManipulator.deleteText(widget.document, start, wordInProgress.length);
-    final newDoc = DocumentManipulator.insertText(docAfterDelete, start, suggestion);
-    final newSelection = TextSelection.collapsed(offset: start + suggestion.length);
+    final docAfterDelete = DocumentManipulator.deleteText(
+      widget.document,
+      start,
+      wordInProgress.length,
+    );
+    final newDoc = DocumentManipulator.insertText(
+      docAfterDelete,
+      start,
+      suggestion,
+    );
+    final newSelection = TextSelection.collapsed(
+      offset: start + suggestion.length,
+    );
 
     widget.onDocumentChanged(newDoc);
     _onSelectionChanged(newSelection);
     _hideAutocomplete();
   }
-
 
   // --- UI and Gesture Handling ---
   // ... (methods remain the same)
@@ -236,7 +280,7 @@ class _EditorWidgetState extends State<EditorWidget> {
     );
   }
 
-   void _handleTapDown(TapDownDetails details) {
+  void _handleTapDown(TapDownDetails details) {
     _focusNode.requestFocus();
     _hideAutocomplete();
     _updateTextPainter();
@@ -245,8 +289,9 @@ class _EditorWidgetState extends State<EditorWidget> {
     _onSelectionChanged(newSelection);
     setState(() => _showCursor = true);
   }
-   void _handlePanStart(DragStartDetails details) {
-     _focusNode.requestFocus();
+
+  void _handlePanStart(DragStartDetails details) {
+    _focusNode.requestFocus();
     _hideAutocomplete();
     _updateTextPainter();
     final position = _textPainter.getPositionForOffset(details.localPosition);
@@ -254,12 +299,14 @@ class _EditorWidgetState extends State<EditorWidget> {
     _onSelectionChanged(newSelection);
     setState(() => _showCursor = true);
   }
-   void _handlePanUpdate(DragUpdateDetails details) {
+
+  void _handlePanUpdate(DragUpdateDetails details) {
     _updateTextPainter();
     final position = _textPainter.getPositionForOffset(details.localPosition);
     final newSelection = _selection.copyWith(extentOffset: position.offset);
     _onSelectionChanged(newSelection);
   }
+
   List<Widget> _buildSelectionHighlights() {
     if (_selection.isCollapsed) return [];
     _updateTextPainter();
@@ -295,10 +342,17 @@ class _EditorWidgetState extends State<EditorWidget> {
 
     if (boxes.isNotEmpty) {
       final firstBox = boxes.first;
-      var rect = Rect.fromLTRB(firstBox.left, firstBox.top, firstBox.right, firstBox.bottom);
+      var rect = Rect.fromLTRB(
+        firstBox.left,
+        firstBox.top,
+        firstBox.right,
+        firstBox.bottom,
+      );
       for (final box in boxes.skip(1)) {
         // This creates a bounding box around all the selection boxes
-        rect = rect.expandToInclude(Rect.fromLTRB(box.left, box.top, box.right, box.bottom));
+        rect = rect.expandToInclude(
+          Rect.fromLTRB(box.left, box.top, box.right, box.bottom),
+        );
       }
       widget.onSelectionRectChanged!(rect);
     } else {

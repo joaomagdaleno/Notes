@@ -41,9 +41,11 @@ class VirtualTextBuffer {
 
   /// Gets the y-offset of a specific line.
   double getLineOffset(int lineIndex) {
-    var offset = 0;
+    var offset = 0.0;
     for (var i = 0; i < lineIndex; i++) {
-      offset += _lineHeights[i] ?? 0.0; // Use a default/estimated height if not measured
+      offset +=
+          _lineHeights[i] ??
+          0.0; // Use a default/estimated height if not measured
     }
     return offset;
   }

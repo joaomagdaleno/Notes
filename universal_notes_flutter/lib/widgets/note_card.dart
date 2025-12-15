@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 /// A widget that displays a note as a card.
 class NoteCard extends StatelessWidget {
@@ -53,20 +54,21 @@ class NoteCard extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(8)),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(8),
+                          ),
                         ),
                         child: Text(
                           DocumentAdapter.fromJson(note.content).toPlainText(),
                           maxLines: 5,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -75,8 +77,8 @@ class NoteCard extends StatelessWidget {
                   Text(
                     note.title.isNotEmpty ? note.title : 'Sem Título',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -19,7 +19,6 @@ import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
 
@@ -75,18 +74,20 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   Future<void> _loadNotes() async {
     List<Note> notes;
-     if (_searchTerm.isNotEmpty) {
+    if (_searchTerm.isNotEmpty) {
       notes = await _noteRepository.searchAllNotes(_searchTerm);
     } else {
       switch (_selection.type) {
-      case SidebarItemType.all:
-        notes = await _noteRepository.getAllNotes();
-      case SidebarItemType.favorites:
-        notes = await _noteRepository.getAllNotes(isFavorite: true);
-      case SidebarItemType.trash:
-        notes = await _noteRepository.getAllNotes(isInTrash: true);
-      case SidebarItemType.folder:
-        notes = await _noteRepository.getAllNotes(folderId: _selection.folder!.id);
+        case SidebarItemType.all:
+          notes = await _noteRepository.getAllNotes();
+        case SidebarItemType.favorites:
+          notes = await _noteRepository.getAllNotes(isFavorite: true);
+        case SidebarItemType.trash:
+          notes = await _noteRepository.getAllNotes(isInTrash: true);
+        case SidebarItemType.folder:
+          notes = await _noteRepository.getAllNotes(
+            folderId: _selection.folder!.id,
+          );
       }
     }
 
@@ -118,8 +119,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   void _createNewNote() {
-    final folderId = _selection.type == SidebarItemType.folder ? _selection.folder?.id : null;
-     final newNote = Note(
+    final folderId = _selection.type == SidebarItemType.folder
+        ? _selection.folder?.id
+        : null;
+    final newNote = Note(
       id: const Uuid().v4(),
       title: '',
       content: '',
@@ -138,7 +141,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           note: noteWithContent,
           onSave: (updatedNote) async {
             // When a draft is properly saved, it's no longer a draft.
-            await _noteRepository.insertNote(updatedNote.copyWith(isDraft: false));
+            await _noteRepository.insertNote(
+              updatedNote.copyWith(isDraft: false),
+            );
             _loadNotes();
             return updatedNote;
           },
@@ -164,7 +169,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       content: content,
       date: DateTime.now(),
       isDraft: true,
-      folderId: _selection.type == SidebarItemType.folder ? _selection.folder?.id : null,
+      folderId: _selection.type == SidebarItemType.folder
+          ? _selection.folder?.id
+          : null,
     );
     await _noteRepository.insertNote(newNote);
     _loadNotes();
@@ -173,12 +180,17 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   Future<void> _runAutoBackupIfNeeded() async {
     final prefs = await SharedPreferences.getInstance();
     final lastBackupMillis = prefs.getInt('last_backup_date') ?? 0;
-    final lastBackupDate = DateTime.fromMillisecondsSinceEpoch(lastBackupMillis);
+    final lastBackupDate = DateTime.fromMillisecondsSinceEpoch(
+      lastBackupMillis,
+    );
 
     if (DateTime.now().difference(lastBackupDate).inHours >= 24) {
       try {
         await _backupService.exportDatabaseToJson();
-        await prefs.setInt('last_backup_date', DateTime.now().millisecondsSinceEpoch);
+        await prefs.setInt(
+          'last_backup_date',
+          DateTime.now().millisecondsSinceEpoch,
+        );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Automatic backup completed.')),
@@ -203,7 +215,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _toggleFavorite(Note note) async {
-    await _noteRepository.updateNote(note.copyWith(isFavorite: !note.isFavorite));
+    await _noteRepository.updateNote(
+      note.copyWith(isFavorite: !note.isFavorite),
+    );
     _loadNotes();
   }
 
@@ -253,15 +267,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             icon: const Icon(Icons.view_list),
             onPressed: () => setState(() => _viewMode = 'list'),
           ),
-           IconButton(
+          IconButton(
             icon: const Icon(Icons.update),
-            onPressed: () => _updateService.checkForUpdates(context),
+            onPressed: () => _updateService.checkForUpdate(),
           ),
           IconButton(
             icon: const Icon(Icons.brightness_6),
             onPressed: () {
               Provider.of<ThemeService>(context, listen: false).toggleTheme();
-            }
+            },
           ),
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
@@ -329,16 +343,22 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                     color: isTrashView ? Colors.blue : Colors.green,
                     alignment: Alignment.centerLeft,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Icon(isTrashView ? Icons.restore_from_trash : Icons.favorite, color: Colors.white),
+                    child: Icon(
+                      isTrashView ? Icons.restore_from_trash : Icons.favorite,
+                      color: Colors.white,
+                    ),
                   ),
                   secondaryBackground: Container(
                     color: Colors.red,
                     alignment: Alignment.centerRight,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Icon(isTrashView ? Icons.delete_forever : Icons.delete, color: Colors.white),
+                    child: Icon(
+                      isTrashView ? Icons.delete_forever : Icons.delete,
+                      color: Colors.white,
+                    ),
                   ),
                   onDismissed: (direction) {
-                     if (isTrashView) {
+                    if (isTrashView) {
                       if (direction == DismissDirection.startToEnd) {
                         _restoreNote(note);
                       } else {
@@ -355,6 +375,14 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                   child: NoteCard(
                     note: note,
                     onTap: () => _openNoteEditor(note),
+                    onSave: (note) async {
+                      await _noteRepository.updateNote(note);
+                      _loadNotes();
+                      return note;
+                    },
+                    onDelete: (note) {
+                      _deletePermanently(note);
+                    },
                   ),
                 );
               },
@@ -362,28 +390,30 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           ),
         ],
       ),
-      floatingActionButton: isTrashView ? null : Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: _createNewNote,
-            heroTag: 'add_note',
-            child: const Icon(Icons.add),
-          ),
-          const SizedBox(width: 16),
-          FloatingActionButton.large(
-            onPressed: _abrirEditorRapido,
-            heroTag: 'quick_note',
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
+      floatingActionButton: isTrashView
+          ? null
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(Icons.note_add),
-                Text('Nota Rápida', style: TextStyle(fontSize: 10)),
+                FloatingActionButton(
+                  onPressed: _createNewNote,
+                  heroTag: 'add_note',
+                  child: const Icon(Icons.add),
+                ),
+                const SizedBox(width: 16),
+                FloatingActionButton.large(
+                  onPressed: _abrirEditorRapido,
+                  heroTag: 'quick_note',
+                  child: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.note_add),
+                      Text('Nota Rápida', style: TextStyle(fontSize: 10)),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -391,13 +421,23 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     switch (_viewMode) {
       case 'grid_large':
         return const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 300, childAspectRatio: 3/2, crossAxisSpacing: 8, mainAxisSpacing: 8);
+          maxCrossAxisExtent: 300,
+          childAspectRatio: 3 / 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        );
       case 'list':
-         return const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 1, childAspectRatio: 5/1);
+        return const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 1,
+          childAspectRatio: 5 / 1,
+        );
       default: // grid_medium
         return const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200, childAspectRatio: 3/2, crossAxisSpacing: 8, mainAxisSpacing: 8);
+          maxCrossAxisExtent: 200,
+          childAspectRatio: 3 / 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        );
     }
   }
 
@@ -412,19 +452,61 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             fluent.DropDownButton(
               title: const Icon(fluent.FluentIcons.sort),
               items: [
-                fluent.MenuFlyoutItem(text: const Text('Data (Mais Recentes)'), onPressed: () => setState(() {_sortOrder = SortOrder.dateDesc; _loadNotes();})),
-                fluent.MenuFlyoutItem(text: const Text('Data (Mais Antigas)'), onPressed: () => setState(() {_sortOrder = SortOrder.dateAsc; _loadNotes();})),
-                fluent.MenuFlyoutItem(text: const Text('Título (A-Z)'), onPressed: () => setState(() {_sortOrder = SortOrder.titleAsc; _loadNotes();})),
-                fluent.MenuFlyoutItem(text: const Text('Título (Z-A)'), onPressed: () => setState(() {_sortOrder = SortOrder.titleDesc; _loadNotes();})),
+                fluent.MenuFlyoutItem(
+                  text: const Text('Data (Mais Recentes)'),
+                  onPressed: () => setState(() {
+                    _sortOrder = SortOrder.dateDesc;
+                    _loadNotes();
+                  }),
+                ),
+                fluent.MenuFlyoutItem(
+                  text: const Text('Data (Mais Antigas)'),
+                  onPressed: () => setState(() {
+                    _sortOrder = SortOrder.dateAsc;
+                    _loadNotes();
+                  }),
+                ),
+                fluent.MenuFlyoutItem(
+                  text: const Text('Título (A-Z)'),
+                  onPressed: () => setState(() {
+                    _sortOrder = SortOrder.titleAsc;
+                    _loadNotes();
+                  }),
+                ),
+                fluent.MenuFlyoutItem(
+                  text: const Text('Título (Z-A)'),
+                  onPressed: () => setState(() {
+                    _sortOrder = SortOrder.titleDesc;
+                    _loadNotes();
+                  }),
+                ),
               ],
             ),
             fluent.CommandBar(
               primaryItems: [
-                fluent.CommandBarButton(icon: const Icon(fluent.FluentIcons.view_all), onPressed: () => setState(() => _viewMode = 'grid_medium')),
-                fluent.CommandBarButton(icon: const Icon(fluent.FluentIcons.grid_view), onPressed: () => setState(() => _viewMode = 'grid_large')),
-                fluent.CommandBarButton(icon: const Icon(fluent.FluentIcons.list), onPressed: () => setState(() => _viewMode = 'list')),
-                fluent.CommandBarButton(icon: const Icon(fluent.FluentIcons.update_restore), onPressed: () => _updateService.checkForUpdates(context)),
-                fluent.CommandBarButton(icon: const Icon(fluent.FluentIcons.brightness), onPressed: () => Provider.of<ThemeService>(context, listen: false).toggleTheme()),
+                fluent.CommandBarButton(
+                  icon: const Icon(fluent.FluentIcons.view_all),
+                  onPressed: () => setState(() => _viewMode = 'grid_medium'),
+                ),
+                fluent.CommandBarButton(
+                  icon: const Icon(fluent.FluentIcons.grid_view_large),
+                  onPressed: () => setState(() => _viewMode = 'grid_large'),
+                ),
+                fluent.CommandBarButton(
+                  icon: const Icon(fluent.FluentIcons.list),
+                  onPressed: () => setState(() => _viewMode = 'list'),
+                ),
+                fluent.CommandBarButton(
+                  icon: const Icon(fluent.FluentIcons.update_restore),
+                  onPressed: () => _updateService.checkForUpdate(),
+                ),
+                fluent.CommandBarButton(
+                  icon: const Icon(fluent.FluentIcons.brightness),
+                  onPressed: () => Provider.of<ThemeService>(
+                    context,
+                    listen: false,
+                  ).toggleTheme(),
+                ),
               ],
             ),
           ],
@@ -434,14 +516,22 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         displayMode: fluent.PaneDisplayMode.compact,
         header: Sidebar(onSelectionChanged: _onSelectionChanged),
       ),
-      content: ScaffoldPage(
+      content: fluent.ScaffoldPage(
         header: Padding(
           padding: const EdgeInsets.all(8),
           child: fluent.TextBox(
             controller: _searchController,
             placeholder: 'Buscar em todas as notas...',
-            prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(fluent.FluentIcons.search)),
-            suffix: _searchTerm.isNotEmpty ? fluent.IconButton(icon: const Icon(fluent.FluentIcons.clear), onPressed: _searchController.clear) : null,
+            prefix: const Padding(
+              padding: EdgeInsets.only(left: 8),
+              child: Icon(fluent.FluentIcons.search),
+            ),
+            suffix: _searchTerm.isNotEmpty
+                ? fluent.IconButton(
+                    icon: const Icon(fluent.FluentIcons.clear),
+                    onPressed: _searchController.clear,
+                  )
+                : null,
           ),
         ),
         content: GridView.builder(
@@ -450,24 +540,53 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           itemCount: _notes.length,
           itemBuilder: (context, index) {
             final note = _notes[index];
-            return NoteCard(note: note, onTap: () => _openNoteEditor(note));
+            return NoteCard(
+              note: note,
+              onTap: () => _openNoteEditor(note),
+              onSave: (note) async {
+                await _noteRepository.updateNote(note);
+                _loadNotes();
+                return note;
+              },
+              onDelete: (note) {
+                _deletePermanently(note);
+              },
+            );
           },
         ),
-        floatingActionButton: isTrashView ? null : fluent.Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            fluent.FloatingActionButton(
-              icon: const Icon(fluent.FluentIcons.add),
-              onPressed: _createNewNote,
-            ),
-            const SizedBox(width: 16),
-            fluent.FloatingActionButton(
-              icon: const Icon(fluent.FluentIcons.new_folder),
-              onPressed: _abrirEditorRapido,
-              label: const Text('Nota Rápida'),
-            ),
-          ],
-        ),
+        bottomBar: isTrashView
+            ? null
+            : Padding(
+                padding: const EdgeInsets.all(16),
+                child: fluent.Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    fluent.FilledButton(
+                      onPressed: _createNewNote,
+                      child: const fluent.Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(fluent.FluentIcons.add),
+                          SizedBox(width: 8),
+                          Text('New Note'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    fluent.Button(
+                      onPressed: _abrirEditorRapido,
+                      child: const fluent.Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(fluent.FluentIcons.quick_note),
+                          SizedBox(width: 8),
+                          Text('Quick Note'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
       ),
     );
   }

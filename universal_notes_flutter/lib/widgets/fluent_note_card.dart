@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:universal_notes_flutter/utils/text_helpers.dart';
+import 'package:universal_notes_flutter/editor/document_adapter.dart';
 
 /// A widget that displays a note as a card with a fluent design.
 class FluentNoteCard extends StatefulWidget {
@@ -53,7 +53,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
 
     _flyoutController.showFlyout<void>(
       placementMode: fluent.FlyoutPlacementMode.topLeft,
-      additionalOffset: offset,
+      additionalOffset: offset.dy,
       builder: (context) {
         return fluent.MenuFlyout(
           items: [
@@ -101,7 +101,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
                 const SizedBox(height: 8),
                 Expanded(
                   child: Text(
-                    getPreviewText(widget.note.content),
+                    DocumentAdapter.fromJson(widget.note.content).toPlainText(),
                     style: fluent.FluentTheme.of(context).typography.body,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 5,

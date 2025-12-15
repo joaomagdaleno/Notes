@@ -12,10 +12,10 @@ class AppThemes {
       backgroundColor: Colors.transparent,
       foregroundColor: Colors.black,
     ),
-    cardTheme: CardTheme(
+    cardTheme: const CardThemeData(
       elevation: 1,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
     ),
   );
@@ -26,17 +26,17 @@ class AppThemes {
     colorScheme: ColorScheme.fromSeed(
       seedColor: Colors.blue,
       brightness: Brightness.dark,
-      background: Colors.grey[900],
+      surface: Colors.grey[900],
     ),
     appBarTheme: const AppBarTheme(
       elevation: 0,
       backgroundColor: Colors.transparent,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: 1,
       color: Colors.grey[850],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
     ),
   );

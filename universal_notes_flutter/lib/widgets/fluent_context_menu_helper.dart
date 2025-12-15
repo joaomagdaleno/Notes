@@ -36,8 +36,8 @@ class FluentContextMenuHelper {
         ),
         text: Text(note.isFavorite ? 'Unfavorite' : 'Favorite'),
         onPressed: () {
-          note.isFavorite = !note.isFavorite;
-          onSave(note);
+          final updatedNote = note.copyWith(isFavorite: !note.isFavorite);
+          onSave(updatedNote);
         },
       ),
       const MenuFlyoutSeparator(),
@@ -45,8 +45,8 @@ class FluentContextMenuHelper {
         leading: const Icon(FluentIcons.delete),
         text: const Text('Move to trash'),
         onPressed: () {
-          note.isInTrash = true;
-          onSave(note);
+          final updatedNote = note.copyWith(isInTrash: true);
+          onSave(updatedNote);
         },
       ),
     ];
@@ -62,8 +62,8 @@ class FluentContextMenuHelper {
         leading: const Icon(FluentIcons.undo),
         text: const Text('Restore'),
         onPressed: () {
-          note.isInTrash = false;
-          onSave(note);
+          final updatedNote = note.copyWith(isInTrash: false);
+          onSave(updatedNote);
         },
       ),
       const MenuFlyoutSeparator(),

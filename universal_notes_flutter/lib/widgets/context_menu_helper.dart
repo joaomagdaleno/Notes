@@ -39,8 +39,8 @@ class ContextMenuHelper {
     return [
       PopupMenuItem(
         onTap: () {
-          note.isFavorite = !note.isFavorite;
-          onSave(note);
+          final updatedNote = note.copyWith(isFavorite: !note.isFavorite);
+          onSave(updatedNote);
         },
         child: Row(
           children: [
@@ -57,8 +57,8 @@ class ContextMenuHelper {
       ),
       PopupMenuItem(
         onTap: () {
-          note.isInTrash = true;
-          onSave(note);
+          final updatedNote = note.copyWith(isInTrash: true);
+          onSave(updatedNote);
         },
         child: Row(
           children: [
@@ -87,8 +87,8 @@ class ContextMenuHelper {
     return [
       PopupMenuItem(
         onTap: () {
-          note.isInTrash = false;
-          onSave(note);
+          final updatedNote = note.copyWith(isInTrash: false);
+          onSave(updatedNote);
         },
         child: Row(
           children: [
