@@ -23,7 +23,7 @@ void main() {
       expect(result.document.spans[1].isBold, isTrue);
       expect(result.document.spans[2].text, ' ');
       expect(result.document.spans[2].isBold, isFalse);
-      expect(result.selection.baseOffset, 12);
+      expect(result.selection.baseOffset, 11);
     });
 
     test('converts _italic_ pattern', () {

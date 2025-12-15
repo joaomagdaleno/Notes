@@ -86,10 +86,6 @@ class MarkdownConverter {
       if (pattern == '#') {
         final lineEnd = plainText.indexOf('\n', lineStart);
         final finalLineEnd = lineEnd == -1 ? plainText.length : lineEnd;
-        final titleSelection = TextSelection(
-          baseOffset: lineStart,
-          extentOffset: finalLineEnd,
-        );
 
         // Delete the "# " part
         var newDoc = DocumentManipulator.deleteText(document, lineStart, 2);

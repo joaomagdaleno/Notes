@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:universal_notes_flutter/models/note.dart';
@@ -18,8 +21,6 @@ import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'mocks/mocks.mocks.dart' hide MockUpdateService;
-
 // Mock class for testing purposes.
 class MockUpdateService extends UpdateService {
   @override
@@ -28,16 +29,54 @@ class MockUpdateService extends UpdateService {
   }
 }
 
-enum ViewMode { gridMedium, gridLarge, list, listSimple, gridSmall }
+class MockNoteRepository extends Mock implements NoteRepository {
+  @override
+  Future<List<Note>> getAllNotes({
+    String? folderId,
+    bool? isFavorite,
+    bool? isInTrash,
+  }) {
+    return super.noSuchMethod(
+          Invocation.method(#getAllNotes, [], {
+            #folderId: folderId,
+            #isFavorite: isFavorite,
+            #isInTrash: isInTrash,
+          }),
+          returnValue: Future.value(<Note>[]),
+          returnValueForMissingStub: Future.value(<Note>[]),
+        )
+        as Future<List<Note>>;
+  }
+
+  @override
+  Future<String> insertNote(Note? note) {
+    return super.noSuchMethod(
+          Invocation.method(#insertNote, [note]),
+          returnValue: Future.value(''),
+          returnValueForMissingStub: Future.value(''),
+        )
+        as Future<String>;
+  }
+
+  @override
+  Future<void> deleteNote(String? id) {
+    return super.noSuchMethod(
+          Invocation.method(#deleteNote, [id]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value(),
+        )
+        as Future<void>;
+  }
+}
 
 class MockWindowManager extends Mock implements WindowManager {
   @override
-  void addListener(WindowListener? listener) {
+  void addListener(WindowListener listener) {
     super.noSuchMethod(Invocation.method(#addListener, [listener]));
   }
 
   @override
-  void removeListener(WindowListener? listener) {
+  void removeListener(WindowListener listener) {
     super.noSuchMethod(Invocation.method(#removeListener, [listener]));
   }
 
@@ -50,6 +89,8 @@ class MockWindowManager extends Mock implements WindowManager {
     );
   }
 }
+
+enum ViewMode { gridMedium, gridLarge, list, listSimple, gridSmall }
 
 void main() {
   // Solves test hanging issues by ensuring the Flutter binding is initialized.
@@ -70,6 +111,28 @@ void main() {
       buildNumber: '1',
       buildSignature: '',
     );
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.flutter.io/path_provider'),
+          (MethodCall methodCall) async {
+            if (methodCall.method == 'getApplicationDocumentsDirectory' ||
+                methodCall.method == 'getApplicationSupportDirectory') {
+              return Directory.systemTemp.path;
+            }
+            return null;
+          },
+        );
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('window_manager'),
+          (MethodCall methodCall) async {
+            return null;
+          },
+        );
+
+    SharedPreferences.setMockInitialValues({});
   });
 
   setUp(() async {
@@ -106,12 +169,16 @@ void main() {
 
   group('NotesScreen State Rendering', () {
     testWidgets('shows error message when fetch fails', (tester) async {
+      final mockNoteRepository = MockNoteRepository();
+      when(
+        mockNoteRepository.getAllNotes(),
+      ).thenThrow(Exception('Failed to load notes'));
+
       // Wrap in a Future that returns an error result instead of throwing
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository
-                .instance, // Needs mock, but using instance for now as quick fix to verify compilation. Real mock needed.
+            noteRepository: mockNoteRepository,
             updateService: MockUpdateService(),
           ),
         ),
