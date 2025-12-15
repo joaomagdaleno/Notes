@@ -588,6 +588,7 @@ class _NotesScreenState extends State<NotesScreen> {
                     ],
                   ),
             floatingActionButton: FloatingActionButton(
+              tooltip: 'Nova nota',
               onPressed: () async {
                 final route = MaterialPageRoute<void>(
                   builder: (context) => NoteEditorScreen(onSave: _updateNote),
