@@ -53,7 +53,8 @@ class UpdateService {
 
       final url = _getUpdateUrl(currentVersionStr);
 
-      final response = await _client.get(url);
+      // 🛡️ Sentinel: Add a timeout to prevent the request from hanging indefinitely.
+      final response = await _client.get(url).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
