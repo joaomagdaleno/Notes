@@ -41,28 +41,39 @@ void main() async {
     databaseFactory = databaseFactoryFfi;
   }
 
-  runApp(const _MyAppWithWindowListener());
+  runApp(const MyAppWithWindowListener());
 }
 
-class _MyAppWithWindowListener extends StatefulWidget {
-  const _MyAppWithWindowListener();
+@visibleForTesting
+class MyAppWithWindowListener extends StatefulWidget {
+  const MyAppWithWindowListener({
+    super.key,
+    this.noteRepository,
+    this.windowManager,
+  });
+
+  final NoteRepository? noteRepository;
+  final WindowManager? windowManager;
 
   @override
-  State<_MyAppWithWindowListener> createState() =>
-      _MyAppWithWindowListenerState();
+  State<MyAppWithWindowListener> createState() =>
+      MyAppWithWindowListenerState();
 }
 
-class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener>
+@visibleForTesting
+class MyAppWithWindowListenerState extends State<MyAppWithWindowListener>
     with WindowListener {
+  WindowManager get _windowManager => widget.windowManager ?? windowManager;
+
   @override
   void initState() {
     super.initState();
-    windowManager.addListener(this);
+    _windowManager.addListener(this);
   }
 
   @override
   void dispose() {
-    windowManager.removeListener(this);
+    _windowManager.removeListener(this);
     super.dispose();
   }
 
@@ -73,8 +84,9 @@ class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener>
 
   @override
   Future<void> onWindowClose() async {
-    await NoteRepository.instance.close();
-    await windowManager.destroy();
+    final repo = widget.noteRepository ?? NoteRepository.instance;
+    await repo.close();
+    await _windowManager.destroy();
   }
 }
 

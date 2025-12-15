@@ -13,7 +13,11 @@ import 'package:mockito/mockito.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
+import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
+import 'package:universal_notes_flutter/screens/settings_screen.dart';
+
+import 'package:window_manager/window_manager.dart';
 
 import 'mocks/mocks.mocks.dart' hide MockUpdateService;
 
@@ -22,6 +26,27 @@ class MockUpdateService extends UpdateService {
   @override
   Future<UpdateCheckResult> checkForUpdate() async {
     return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+  }
+}
+
+class MockWindowManager extends Mock implements WindowManager {
+  @override
+  void addListener(WindowListener? listener) {
+    super.noSuchMethod(Invocation.method(#addListener, [listener]));
+  }
+
+  @override
+  void removeListener(WindowListener? listener) {
+    super.noSuchMethod(Invocation.method(#removeListener, [listener]));
+  }
+
+  @override
+  Future<void> destroy() async {
+    return super.noSuchMethod(
+      Invocation.method(#destroy, []),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value(),
+    );
   }
 }
 
@@ -1254,6 +1279,75 @@ void main() {
       // Should be in editor. Editor title check?
       // Assuming 'Win Note' is still visible as title in editor or similar.
       expect(find.byType(NoteEditorScreen), findsOneWidget);
+    });
+
+    testWidgets('tapping navigation pane items calls callbacks', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        fluent.FluentApp(
+          home: NotesScreen(
+            notesFuture: Future.value([]),
+            updateService: MockUpdateService(),
+            debugPlatform: TargetPlatform.windows,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap 'Favoritos'
+      await tester.tap(find.byIcon(fluent.FluentIcons.favorite_star));
+      await tester.pumpAndSettle();
+      // Tap 'Notas bloqueadas'
+      await tester.tap(find.byIcon(fluent.FluentIcons.lock));
+      await tester.pumpAndSettle();
+      // Tap 'Notas compartilhadas'
+      await tester.tap(find.byIcon(fluent.FluentIcons.share));
+      await tester.pumpAndSettle();
+      // Tap 'Lixeira'
+      await tester.tap(find.byIcon(fluent.FluentIcons.delete));
+      await tester.pumpAndSettle();
+      // Tap 'Pastas'
+      await tester.tap(find.byIcon(fluent.FluentIcons.folder_open));
+      await tester.pumpAndSettle();
+
+      // Tap 'Configurações' (Footer)
+      await tester.tap(find.byIcon(fluent.FluentIcons.settings));
+      await tester.pumpAndSettle();
+      expect(find.byType(SettingsScreen), findsOneWidget);
+    });
+  });
+
+  group('NotesScreen Platform Logic', () {
+    testWidgets('calls window listener onWindowClose', (tester) async {
+      final mockRepo = MockNoteRepository();
+      final mockWindowManager = MockWindowManager();
+
+      when(mockRepo.close()).thenAnswer((_) async {});
+      when(mockWindowManager.destroy()).thenAnswer((_) async {});
+      // addListener/removeListener return void, check stubs in mock class
+
+      await tester.pumpWidget(
+        MyAppWithWindowListener(
+          noteRepository: mockRepo,
+          windowManager: mockWindowManager,
+        ),
+      );
+
+      final state = tester.state<MyAppWithWindowListenerState>(
+        find.byType(MyAppWithWindowListener),
+      );
+      await state.onWindowClose();
+
+      verify(mockRepo.close()).called(1);
+      verify(mockWindowManager.destroy()).called(1);
     });
   });
 }

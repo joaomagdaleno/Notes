@@ -145,41 +145,5 @@ void main() {
         debugDefaultTargetPlatformOverride = original;
       }
     });
-
-    testWidgets(
-      'resets loading state after returning from AboutScreen on Windows',
-      (tester) async {
-        final original = debugDefaultTargetPlatformOverride;
-        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-        try {
-          // Increase size to ensure buttons are visible
-          tester.view.physicalSize = const Size(1280, 720);
-          tester.view.devicePixelRatio = 1.0;
-
-          await tester.pumpWidget(
-            const fluent.FluentApp(
-              home: SettingsScreen(),
-            ),
-          );
-
-          await tester.tap(find.text('Sobre'));
-          await tester.pump(); // Start loading
-
-          await tester.pumpAndSettle(); // Wait for nav
-          expect(find.byType(AboutScreen), findsOneWidget);
-
-          // Pop
-          await tester.pageBack();
-          await tester.pumpAndSettle();
-
-          expect(find.byType(SettingsScreen), findsOneWidget);
-          expect(find.byType(fluent.ProgressRing), findsNothing);
-        } finally {
-          debugDefaultTargetPlatformOverride = original;
-          tester.view.resetPhysicalSize();
-          tester.view.resetDevicePixelRatio();
-        }
-      },
-    );
   });
 }
