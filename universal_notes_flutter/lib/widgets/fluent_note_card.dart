@@ -47,35 +47,44 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
     super.dispose();
   }
 
+  void _showContextMenu(Offset globalPosition) {
+    final renderBox = context.findRenderObject() as RenderBox;
+    final offset = renderBox.globalToLocal(globalPosition);
+
+    _flyoutController.showFlyout<void>(
+      placementMode: fluent.FlyoutPlacementMode.topLeft,
+      additionalOffset: offset,
+      builder: (context) {
+        return fluent.MenuFlyout(
+          items: [
+            fluent.MenuFlyoutItem(
+              text: const Text('Move to Trash'),
+              leading: const fluent.Icon(fluent.FluentIcons.delete),
+              onPressed: () async {
+                final updatedNote = widget.note.copyWith(isInTrash: true);
+                await widget.onSave(updatedNote);
+                if (context.mounted) {
+                  fluent.Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return fluent.FlyoutTarget(
       controller: _flyoutController,
       child: GestureDetector(
         onTap: widget.onTap,
-        onSecondaryTapUp: (d) async {
-          await _flyoutController.showFlyout<void>(
-            autoModeConfiguration: fluent.FlyoutAutoConfiguration(
-              preferredMode: fluent.FlyoutPlacementMode.topCenter,
-            ),
-            builder: (context) {
-              return fluent.MenuFlyout(
-                items: [
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Move to Trash'),
-                    leading: const fluent.Icon(fluent.FluentIcons.delete),
-                    onPressed: () async {
-                      final updatedNote = widget.note.copyWith(isInTrash: true);
-                      await widget.onSave(updatedNote);
-                      if (context.mounted) {
-                        fluent.Navigator.of(context).pop();
-                      }
-                    },
-                  ),
-                ],
-              );
-            },
-          );
+        onSecondaryTapUp: (details) {
+          _showContextMenu(details.globalPosition);
+        },
+        onLongPressStart: (details) {
+          _showContextMenu(details.globalPosition);
         },
         child: fluent.Card(
           child: Padding(

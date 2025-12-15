@@ -40,33 +40,26 @@ class NoteCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: InkWell(
-        onTap: onTap ??
-            () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (context) =>
-                      NoteEditorScreen(note: note, onSave: onSave),
-                ),
-              );
-            },
-        onLongPress: () async {
-          final renderBox = context.findRenderObject();
-          if (renderBox is RenderBox) {
-            final position = renderBox.localToGlobal(Offset.zero);
-
-            await ContextMenuHelper.showContextMenu(
-              context: context,
-              position: position,
-              note: note,
-              onSave: onSave,
-              onDelete: onDelete,
-            );
-          }
+      child: GestureDetector(
+        onSecondaryTapUp: (details) {
+          _showContextMenu(context, details.globalPosition);
         },
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
+        onLongPressStart: (details) {
+          _showContextMenu(context, details.globalPosition);
+        },
+        child: InkWell(
+          onTap: onTap ??
+              () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) =>
+                        NoteEditorScreen(note: note, onSave: onSave),
+                  ),
+                );
+              },
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (note.content.isNotEmpty)
@@ -106,6 +99,16 @@ class NoteCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _showContextMenu(BuildContext context, Offset globalPosition) {
+    ContextMenuHelper.showContextMenu(
+      context: context,
+      position: globalPosition,
+      note: note,
+      onSave: onSave,
+      onDelete: onDelete,
     );
   }
 }
