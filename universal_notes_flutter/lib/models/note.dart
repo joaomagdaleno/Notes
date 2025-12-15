@@ -110,4 +110,31 @@ class Note {
       'prefsJson': prefsJson,
     };
   }
+
+  /// Creates a copy of this note but with the given fields replaced.
+  Note copyWith({
+    String? id,
+    String? title,
+    String? content,
+    DateTime? date,
+    bool? isFavorite,
+    bool? isLocked,
+    bool? isInTrash,
+    bool? isDeleted,
+    String? drawingJson,
+    String? prefsJson,
+  }) {
+    return Note(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      date: date ?? this.date,
+      isFavorite: isFavorite ?? this.isFavorite,
+      isLocked: isLocked ?? this.isLocked,
+      isInTrash: isInTrash ?? this.isInTrash,
+      isDeleted: isDeleted ?? this.isDeleted,
+      drawingJson: drawingJson ?? this.drawingJson,
+      prefsJson: prefsJson ?? this.prefsJson,
+    );
+  }
 }

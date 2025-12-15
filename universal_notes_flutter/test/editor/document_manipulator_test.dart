@@ -103,4 +103,38 @@ void main() {
       expect(newDoc.spans[1].isUnderline, isTrue);
     });
   });
+
+  group('DocumentManipulator.applyColor', () {
+    test('applies color to a selection', () {
+      final doc = DocumentModel(spans: [
+        TextSpanModel(text: 'Hello World'),
+      ]);
+      final selection = TextSelection(baseOffset: 0, extentOffset: 5); // "Hello"
+
+      final newDoc = DocumentManipulator.applyColor(doc, selection, Colors.red);
+
+      expect(newDoc.spans.length, 2);
+      expect(newDoc.spans[0].text, 'Hello');
+      expect(newDoc.spans[0].color, Colors.red);
+      expect(newDoc.spans[1].text, ' World');
+      expect(newDoc.spans[1].color, isNull);
+    });
+  });
+
+  group('DocumentManipulator.applyFontSize', () {
+    test('applies font size to a selection', () {
+      final doc = DocumentModel(spans: [
+        TextSpanModel(text: 'Hello World'),
+      ]);
+      final selection = TextSelection(baseOffset: 6, extentOffset: 11); // "World"
+
+      final newDoc = DocumentManipulator.applyFontSize(doc, selection, 24.0);
+
+      expect(newDoc.spans.length, 2);
+      expect(newDoc.spans[0].text, 'Hello ');
+      expect(newDoc.spans[0].fontSize, isNull);
+      expect(newDoc.spans[1].text, 'World');
+      expect(newDoc.spans[1].fontSize, 24.0);
+    });
+  });
 }

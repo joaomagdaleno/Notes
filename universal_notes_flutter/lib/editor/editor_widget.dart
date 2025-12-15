@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
+import 'package:universal_notes_flutter/editor/markdown_converter.dart';
 
 /// A widget that renders a [DocumentModel] and allows text selection and editing.
 class EditorWidget extends StatefulWidget {
@@ -75,34 +76,42 @@ class _EditorWidgetState extends State<EditorWidget> {
   void _handleKeyEvent(RawKeyEvent event) {
     if (event is! RawKeyDownEvent) return;
 
-    DocumentModel newDocument;
-    TextSelection newSelection;
+    DocumentModel docAfterEdit;
+    TextSelection selectionAfterEdit;
 
     if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_selection.isCollapsed) {
         if (_selection.start == 0) return;
-        newDocument = DocumentManipulator.deleteText(widget.document, _selection.start - 1, 1);
-        newSelection = TextSelection.collapsed(offset: _selection.start - 1);
+        docAfterEdit = DocumentManipulator.deleteText(widget.document, _selection.start - 1, 1);
+        selectionAfterEdit = TextSelection.collapsed(offset: _selection.start - 1);
       } else {
-        newDocument = DocumentManipulator.deleteText(widget.document, _selection.start, _selection.end - _selection.start);
-        newSelection = TextSelection.collapsed(offset: _selection.start);
+        docAfterEdit = DocumentManipulator.deleteText(widget.document, _selection.start, _selection.end - _selection.start);
+        selectionAfterEdit = TextSelection.collapsed(offset: _selection.start);
       }
     } else if (event.character != null && event.character!.isNotEmpty) {
       final character = event.character!;
       if (_selection.isCollapsed) {
-        newDocument = DocumentManipulator.insertText(widget.document, _selection.start, character);
-        newSelection = TextSelection.collapsed(offset: _selection.start + character.length);
+        docAfterEdit = DocumentManipulator.insertText(widget.document, _selection.start, character);
+        selectionAfterEdit = TextSelection.collapsed(offset: _selection.start + character.length);
       } else {
         final docAfterDelete = DocumentManipulator.deleteText(widget.document, _selection.start, _selection.end - _selection.start);
-        newDocument = DocumentManipulator.insertText(docAfterDelete, _selection.start, character);
-        newSelection = TextSelection.collapsed(offset: _selection.start + character.length);
+        docAfterEdit = DocumentManipulator.insertText(docAfterDelete, _selection.start, character);
+        selectionAfterEdit = TextSelection.collapsed(offset: _selection.start + character.length);
       }
     } else {
       return;
     }
 
-    widget.onDocumentChanged(newDocument);
-    widget.onSelectionChanged(newSelection);
+    // After a key event, check for Markdown conversions.
+    final conversionResult = MarkdownConverter.checkAndApply(docAfterEdit, selectionAfterEdit);
+
+    if (conversionResult != null) {
+      widget.onDocumentChanged(conversionResult.document);
+      widget.onSelectionChanged(conversionResult.selection);
+    } else {
+      widget.onDocumentChanged(docAfterEdit);
+      widget.onSelectionChanged(selectionAfterEdit);
+    }
   }
 
   Offset _getCursorOffset() {

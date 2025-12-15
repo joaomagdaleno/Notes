@@ -8,6 +8,9 @@ class TextSpanModel {
     this.isBold = false,
     this.isItalic = false,
     this.isUnderline = false,
+    this.isStrikethrough = false,
+    this.fontSize,
+    this.color,
   });
 
   /// The text content.
@@ -18,16 +21,53 @@ class TextSpanModel {
   final bool isItalic;
   /// Whether the text is underlined.
   final bool isUnderline;
+  /// Whether the text has a strikethrough.
+  final bool isStrikethrough;
+  /// The font size for the text. If null, uses the default.
+  final double? fontSize;
+  /// The color of the text. If null, uses the default.
+  final Color? color;
+
+  /// Creates a [TextSpanModel] from a JSON map.
+  factory TextSpanModel.fromJson(Map<String, dynamic> json) {
+    return TextSpanModel(
+      text: json['text'] as String,
+      isBold: json['isBold'] as bool? ?? false,
+      isItalic: json['isItalic'] as bool? ?? false,
+      isUnderline: json['isUnderline'] as bool? ?? false,
+      isStrikethrough: json['isStrikethrough'] as bool? ?? false,
+      fontSize: json['fontSize'] as double?,
+      color: json['color'] != null ? Color(json['color'] as int) : null,
+    );
+  }
+
+  /// Converts this model to a JSON map.
+  Map<String, dynamic> toJson() {
+    return {
+      'text': text,
+      'isBold': isBold,
+      'isItalic': isItalic,
+      'isUnderline': isUnderline,
+      'isStrikethrough': isStrikethrough,
+      'fontSize': fontSize,
+      'color': color?.value,
+    };
+  }
 
   /// Converts this model to a Flutter [TextSpan] for rendering.
   TextSpan toTextSpan() {
+    final decorations = <TextDecoration>[];
+    if (isUnderline) decorations.add(TextDecoration.underline);
+    if (isStrikethrough) decorations.add(TextDecoration.lineThrough);
+
     return TextSpan(
       text: text,
       style: TextStyle(
         fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
         fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
-        decoration:
-            isUnderline ? TextDecoration.underline : TextDecoration.none,
+        decoration: TextDecoration.combine(decorations),
+        fontSize: fontSize,
+        color: color,
       ),
     );
   }
@@ -38,12 +78,18 @@ class TextSpanModel {
     bool? isBold,
     bool? isItalic,
     bool? isUnderline,
+    bool? isStrikethrough,
+    double? fontSize,
+    Color? color,
   }) {
     return TextSpanModel(
       text: text ?? this.text,
       isBold: isBold ?? this.isBold,
       isItalic: isItalic ?? this.isItalic,
       isUnderline: isUnderline ?? this.isUnderline,
+      isStrikethrough: isStrikethrough ?? this.isStrikethrough,
+      fontSize: fontSize ?? this.fontSize,
+      color: color ?? this.color,
     );
   }
 
@@ -51,7 +97,10 @@ class TextSpanModel {
   bool hasSameStyle(TextSpanModel other) {
     return isBold == other.isBold &&
         isItalic == other.isItalic &&
-        isUnderline == other.isUnderline;
+        isUnderline == other.isUnderline &&
+        isStrikethrough == other.isStrikethrough &&
+        fontSize == other.fontSize &&
+        color == other.color;
   }
 }
 
