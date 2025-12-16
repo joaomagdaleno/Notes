@@ -29,6 +29,7 @@ class NoteEditorScreen extends StatefulWidget {
   const NoteEditorScreen({
     required this.onSave,
     this.note,
+    this.isCollaborative = false,
     super.key,
   });
 
@@ -37,6 +38,9 @@ class NoteEditorScreen extends StatefulWidget {
 
   /// Callback to save the note.
   final Future<Note> Function(Note) onSave;
+
+  /// Whether the note is in collaborative mode.
+  final bool isCollaborative;
 
   @override
   State<NoteEditorScreen> createState() => _NoteEditorScreenState();
@@ -63,6 +67,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
 
+  // --- Collaboration State ---
+  late bool _isCollaborative;
+  StreamSubscription? _documentSubscription;
+  StreamSubscription? _presenceSubscription;
+  Map<String, Map<String, dynamic>> _remoteCursors = {};
+  final String _userId = const Uuid().v4(); // Unique ID for this session
+  final Color _userColor =
+      Colors.primaries[DateTime.now().millisecond % Colors.primaries.length];
+
   // --- Tag state ---
   List<Tag> _noteTags = [];
   List<Tag> _allTags = [];
@@ -86,6 +99,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   void initState() {
     super.initState();
     _note = widget.note;
+    _isCollaborative = widget.isCollaborative;
     WidgetsBinding.instance.addObserver(this);
     _document = DocumentAdapter.fromJson(_note?.content ?? '');
     _historyManager = HistoryManager(
@@ -94,6 +108,28 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _updateCounts(_document);
     unawaited(SnippetConverter.precacheSnippets());
     unawaited(_loadTags());
+
+    if (_isCollaborative && _note != null) {
+      _documentSubscription = NoteRepository.instance
+          .getCollaborativeNoteStream(_note!.id)
+          .listen((note) {
+        // Avoid updating if the content is the same to prevent cursor jumps.
+        if (note.content != _document) {
+          setState(() {
+            _document = note.content;
+          });
+        }
+      });
+
+      _presenceSubscription = NoteRepository.instance
+          .getPresenceStream(_note!.id)
+          .listen((presenceData) {
+        setState(() {
+          _remoteCursors =
+              Map.from(presenceData)..remove(_userId); // Exclude self
+        });
+      });
+    }
   }
 
   Future<void> _loadTags() async {
@@ -115,12 +151,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   @override
   void dispose() {
+    if (_isCollaborative && _note != null) {
+      unawaited(NoteRepository.instance.removeUserPresence(_note!.id, _userId));
+    }
     WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     _tagController.dispose();
     _recordHistoryTimer?.cancel();
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
+    _documentSubscription?.cancel();
+    _presenceSubscription?.cancel();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
@@ -146,6 +187,26 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _document = newDocument;
     });
     _updateCounts(newDocument);
+
+    if (_isCollaborative && _note != null) {
+      // In collaborative mode, send updates to Firebase.
+      unawaited(
+        NoteRepository.instance.updateCollaborativeNote(_note!.id, newDocument),
+      );
+    } else {
+      // In local mode, use the existing autosave logic.
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(seconds: 3), () {
+        unawaited(_autosave());
+      });
+
+      if (_throttleTimer == null || !_throttleTimer!.isActive) {
+        _throttleTimer = Timer(const Duration(seconds: 10), () {
+          unawaited(_autosave());
+        });
+      }
+    }
+
     if (_isFindBarVisible) {
       _onFindChanged(_findTerm);
     }
@@ -157,24 +218,28 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         );
       });
     });
-
-    // --- Autosave Logic ---
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(seconds: 3), () {
-      unawaited(_autosave());
-    });
-
-    if (_throttleTimer == null || !_throttleTimer!.isActive) {
-      _throttleTimer = Timer(const Duration(seconds: 10), () {
-        unawaited(_autosave());
-      });
-    }
   }
 
   void _onSelectionChanged(TextSelection newSelection) {
     setState(() {
       _selection = newSelection;
     });
+    if (_isCollaborative && _note != null) {
+      unawaited(
+        NoteRepository.instance.updateUserPresence(
+          _note!.id,
+          _userId,
+          {
+            'selection': {
+              'base': newSelection.baseOffset,
+              'extent': newSelection.extentOffset,
+            },
+            'color': _userColor.value,
+            'name': 'User-${_userId.substring(0, 4)}', // Placeholder name
+          },
+        ),
+      );
+    }
   }
 
   void _onSelectionRectChanged(Rect? rect) {
@@ -315,7 +380,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   Future<void> _autosave() async {
-    if (!mounted) return;
+    if (!mounted || _isCollaborative) return;
     _debounceTimer?.cancel();
 
     final plainText = _document.toPlainText();
@@ -710,9 +775,80 @@ class ShowFormatMenuAction extends Action<ShowFormatMenuIntent> {
   }
 }
 
-extension on _NoteEditorScreenState {
+class _CollaboratorAvatars extends StatelessWidget {
+  const _CollaboratorAvatars({required this.remoteCursors});
+
+  final Map<String, Map<String, dynamic>> remoteCursors;
+
   @override
   Widget build(BuildContext context) {
+    final collaborators = remoteCursors.values.toList();
+    return Row(
+      children: [
+        for (int i = 0; i < collaborators.length; i++)
+          Align(
+            widthFactor: 0.7,
+            child: CircleAvatar(
+              backgroundColor: Color(collaborators[i]['color'] as int),
+              child: Text(
+                (collaborators[i]['name'] as String).substring(0, 2),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+extension on _NoteEditorScreenState {
+  void _showShareDialog(String noteId) {
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Share Note'),
+          content: TextField(
+            controller: TextEditingController(text: noteId),
+            readOnly: true,
+            decoration: const InputDecoration(
+              labelText: 'Copy this ID to share',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: noteId));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Note ID copied!')),
+                );
+              },
+              child: const Text('Copy'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Add the remote cursors to the editor widget
+    final editor = EditorWidget(
+      document: _document,
+      onDocumentChanged: _onDocumentChanged,
+      selection: _selection,
+      onSelectionChanged: _onSelectionChanged,
+      onSelectionRectChanged: _onSelectionRectChanged,
+      scrollController: _scrollController,
+      remoteCursors: _remoteCursors,
+    );
+
     // Define the keyboard shortcuts
     final shortcuts = {
       LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ):
@@ -770,12 +906,19 @@ extension on _NoteEditorScreenState {
                     title:
                         Text(widget.note == null ? 'New Note' : 'Edit Note'),
                     actions: [
+                      if (_isCollaborative)
+                        _CollaboratorAvatars(remoteCursors: _remoteCursors),
                       IconButton(
                         icon: const Icon(Icons.search),
                         onPressed: () => setState(
                           () => _isFindBarVisible = !_isFindBarVisible,
                         ),
                       ),
+                      if (_isCollaborative && widget.note != null)
+                        IconButton(
+                          icon: const Icon(Icons.share),
+                          onPressed: () => _showShareDialog(widget.note!.id),
+                        ),
                       if (widget.note != null)
                         IconButton(
                           icon: const Icon(Icons.history),
@@ -859,14 +1002,7 @@ extension on _NoteEditorScreenState {
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(16),
-                          child: EditorWidget(
-                            document: _document,
-                            onDocumentChanged: _onDocumentChanged,
-                            selection: _selection,
-                            onSelectionChanged: _onSelectionChanged,
-                            onSelectionRectChanged: _onSelectionRectChanged,
-                            scrollController: _scrollController,
-                          ),
+                          child: editor,
                         ),
                       ),
                       if (!_isFocusMode)

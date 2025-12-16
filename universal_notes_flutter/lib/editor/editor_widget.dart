@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
 import 'package:universal_notes_flutter/editor/markdown_converter.dart';
+import 'package:universal_notes_flutter/editor/remote_cursor.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
@@ -21,6 +22,7 @@ class EditorWidget extends StatefulWidget {
     this.selection,
     this.onSelectionRectChanged,
     this.scrollController,
+    this.remoteCursors = const {},
     super.key,
   });
 
@@ -32,6 +34,9 @@ class EditorWidget extends StatefulWidget {
 
   /// The current text selection.
   final TextSelection? selection;
+
+  /// A map of remote cursors to display.
+  final Map<String, Map<String, dynamic>> remoteCursors;
 
   /// Callback when the selection changes.
   final ValueChanged<TextSelection> onSelectionChanged;
@@ -400,23 +405,101 @@ class _EditorWidgetState extends State<EditorWidget> {
     return KeyboardListener(
       focusNode: _focusNode,
       onKeyEvent: _handleKeyEvent,
-      child: ListView.builder(
-        controller: widget.scrollController,
-        itemCount: _buffer.lines.length,
-        itemBuilder: (context, index) {
-          final line = _buffer.lines[index];
-          return _EditorLine(
-            key: _lineKeys[index],
-            line: line,
-            selection: _selection,
-            lineIndex: index,
-            buffer: _buffer,
-            focusNode: _focusNode,
-            onSelectionChanged: _onSelectionChanged,
-          );
-        },
+      child: Stack(
+        children: [
+          ListView.builder(
+            controller: widget.scrollController,
+            itemCount: _buffer.lines.length,
+            itemBuilder: (context, index) {
+              final line = _buffer.lines[index];
+              return _EditorLine(
+                key: _lineKeys[index],
+                line: line,
+                selection: _selection,
+                lineIndex: index,
+                buffer: _buffer,
+                focusNode: _focusNode,
+                onSelectionChanged: _onSelectionChanged,
+              );
+            },
+          ),
+          ..._buildRemoteCursors(),
+        ],
       ),
     );
+  }
+
+  List<Widget> _buildRemoteCursors() {
+    final cursorWidgets = <Widget>[];
+    for (final entry in widget.remoteCursors.entries) {
+      final data = entry.value;
+      final selectionData = data['selection'] as Map<String, dynamic>?;
+      if (selectionData == null) continue;
+
+      final base = selectionData['base'] as int?;
+      final extent = selectionData['extent'] as int?;
+      if (base == null || extent == null) continue;
+
+      final remoteSelection =
+          TextSelection(baseOffset: base, extentOffset: extent);
+      final color = Color(data['color'] as int? ?? Colors.grey.value);
+      final name = data['name'] as String? ?? 'Guest';
+
+      final startPos = _buffer.getLineTextPositionForOffset(remoteSelection.start);
+      final endPos = _buffer.getLineTextPositionForOffset(remoteSelection.end);
+
+      for (var i = startPos.line; i <= endPos.line; i++) {
+        final lineKey = _lineKeys[i];
+        if (lineKey == null || lineKey.currentContext == null) continue;
+        final lineBox = lineKey.currentContext!.findRenderObject() as RenderBox;
+        final line = _buffer.lines[i];
+        if (line is! TextLine) continue;
+
+        final painter =
+            TextPainter(text: line.toTextSpan(), textDirection: TextDirection.ltr);
+        painter.layout(maxWidth: lineBox.size.width);
+
+        final lineStartOffset =
+            _buffer.getOffsetForLineTextPosition(LineTextPosition(line: i, character: 0));
+
+        final localSelection = TextSelection(
+          baseOffset: math.max(0, remoteSelection.start - lineStartOffset),
+          extentOffset: math.min(
+            line.toPlainText().length,
+            remoteSelection.end - lineStartOffset,
+          ),
+        );
+
+        if (localSelection.isCollapsed) {
+          final isStart = i == startPos.line;
+          if (isStart) {
+            final cursorOffset = painter
+                .getOffsetForCaret(TextPosition(offset: localSelection.baseOffset), Rect.zero);
+            cursorWidgets.add(
+              Positioned(
+                left: lineBox.localToGlobal(Offset.zero).dx + cursorOffset.dx,
+                top: lineBox.localToGlobal(Offset.zero).dy + cursorOffset.dy,
+                child: _RemoteCursor(color: color, name: name),
+              ),
+            );
+          }
+        } else {
+          final boxes = painter.getBoxesForSelection(localSelection);
+          for (final box in boxes) {
+            cursorWidgets.add(
+              Positioned(
+                left: lineBox.localToGlobal(Offset.zero).dx + box.left,
+                top: lineBox.localToGlobal(Offset.zero).dy + box.top,
+                width: box.width,
+                height: box.height,
+                child: Container(color: color.withOpacity(0.3)),
+              ),
+            );
+          }
+        }
+      }
+    }
+    return cursorWidgets;
   }
 }
 

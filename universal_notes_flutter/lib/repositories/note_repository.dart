@@ -3,11 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/snippet.dart';
 import 'package:universal_notes_flutter/models/tag.dart';
+import 'package:universal_notes_flutter/services/firebase_service.dart';
 import 'package:uuid/uuid.dart';
 
 /// A repository for managing all app data in a local database.
@@ -16,6 +18,9 @@ class NoteRepository {
 
   /// The singleton instance of [NoteRepository].
   static NoteRepository instance = NoteRepository._();
+
+  /// The service for handling real-time collaboration.
+  final FirebaseService firebaseService = FirebaseService();
 
   /// The path to the database file.
   String? dbPath;
@@ -494,10 +499,51 @@ class NoteRepository {
     );
   }
 
+  // --- Collaborative Note Methods ---
+
+  /// Returns a stream of a collaborative note.
+  Stream<Note> getCollaborativeNoteStream(String noteId) {
+    return firebaseService.documentStream.map((docData) {
+      final contentJson = docData['content'] as Map<String, dynamic>;
+      final content = DocumentModel.fromJson(contentJson);
+      // Create a temporary Note object with the synced content.
+      // Other note properties (title, etc.) would also be synced in a full
+      // implementation.
+      return Note(
+        id: noteId,
+        title: 'Collaborative Note', // Placeholder title
+        content: content,
+        date: DateTime.now(),
+      );
+    });
+  }
+
+  /// Updates the content of a collaborative note.
+  Future<void> updateCollaborativeNote(String noteId, DocumentModel content) {
+    return firebaseService.updateDocument(noteId, content);
+  }
+
+  /// Returns a stream of presence data for a collaborative note.
+  Stream<Map<String, Map<String, dynamic>>> getPresenceStream(String noteId) {
+    return firebaseService.presenceStream;
+  }
+
+  /// Updates the presence and cursor position of the current user.
+  Future<void> updateUserPresence(
+      String noteId, String userId, Map<String, dynamic> cursorData) {
+    return firebaseService.updateUserPresence(noteId, userId, cursorData);
+  }
+
+  /// Removes the current user from the presence tracking.
+  Future<void> removeUserPresence(String noteId, String userId) {
+    return firebaseService.removeUserPresence(noteId, userId);
+  }
+
   /// Closes the database connection.
   Future<void> close() async {
     final db = await database;
     await db.close();
     _database = null;
+    firebaseService.dispose();
   }
 }
