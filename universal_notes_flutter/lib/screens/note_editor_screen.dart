@@ -45,9 +45,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
-  Rect? _selectionRect;
+  final _selectionRectNotifier = ValueNotifier<Rect?>(null);
   bool get _isToolbarVisible =>
-      _selectionRect != null && !_selection.isCollapsed;
+      _selectionRectNotifier.value != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
   final _wordCountNotifier = ValueNotifier<int>(0);
   final _charCountNotifier = ValueNotifier<int>(0);
@@ -99,6 +99,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _wordCountNotifier.dispose();
     _charCountNotifier.dispose();
     _isFindBarVisibleNotifier.dispose();
+    _selectionRectNotifier.dispose();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
@@ -161,13 +162,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     final editorRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
 
     if (rect != null && editorRect.overlaps(rect)) {
-      setState(() {
-        _selectionRect = rect;
-      });
+      _selectionRectNotifier.value = rect;
     } else {
-      setState(() {
-        _selectionRect = null;
-      });
+      _selectionRectNotifier.value = null;
     }
   }
 
@@ -593,15 +590,22 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                     ),
                 ],
               ),
-              if (_isToolbarVisible)
-                Positioned(
-                  top: _selectionRect!.top - 55,
-                  left: _selectionRect!.left,
-                  child: FloatingToolbar(
-                    onBold: () => _toggleStyle(StyleAttribute.bold),
-                    onItalic: () => _toggleStyle(StyleAttribute.italic),
-                  ),
-                ),
+              ValueListenableBuilder<Rect?>(
+                valueListenable: _selectionRectNotifier,
+                builder: (context, selectionRect, child) {
+                  if (selectionRect == null || _selection.isCollapsed) {
+                    return const SizedBox.shrink();
+                  }
+                  return Positioned(
+                    top: selectionRect.top - 55,
+                    left: selectionRect.left,
+                    child: FloatingToolbar(
+                      onBold: () => _toggleStyle(StyleAttribute.bold),
+                      onItalic: () => _toggleStyle(StyleAttribute.italic),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
