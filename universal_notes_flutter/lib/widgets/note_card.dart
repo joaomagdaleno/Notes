@@ -6,7 +6,7 @@ import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 /// A widget that displays a note as a card.
-class NoteCard extends StatelessWidget {
+class NoteCard extends StatefulWidget {
   /// Creates a new instance of [NoteCard].
   const NoteCard({
     required this.note,
@@ -34,6 +34,37 @@ class NoteCard extends StatelessWidget {
   static final _dateFormat = DateFormat('d MMM. yyyy');
 
   @override
+  State<NoteCard> createState() => _NoteCardState();
+}
+
+class _NoteCardState extends State<NoteCard> {
+  String _plainTextContent = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _plainTextContent = _computePlainText(widget.note.content);
+  }
+
+  @override
+  void didUpdateWidget(NoteCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.note.content != oldWidget.note.content) {
+      _plainTextContent = _computePlainText(widget.note.content);
+    }
+  }
+
+  // ⚡ Bolt: Caching the plain text content of a note.
+  // Parsing JSON on every build is expensive. This computes it once
+  // when the widget is created or when the note content changes.
+  String _computePlainText(String jsonContent) {
+    if (jsonContent.isEmpty) {
+      return '';
+    }
+    return DocumentAdapter.fromJson(jsonContent).toPlainText();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 1,
@@ -41,7 +72,7 @@ class NoteCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: onTap,
+        onTap: widget.onTap,
         onLongPress: () {
           final renderBox = context.findRenderObject() as RenderBox?;
           if (renderBox != null) {
@@ -58,7 +89,7 @@ class NoteCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (note.content.isNotEmpty)
+                  if (_plainTextContent.isNotEmpty)
                     Expanded(
                       child: Container(
                         width: double.infinity,
@@ -72,7 +103,7 @@ class NoteCard extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          DocumentAdapter.fromJson(note.content).toPlainText(),
+                          _plainTextContent,
                           maxLines: 5,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -83,24 +114,26 @@ class NoteCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                  if (note.content.isNotEmpty) const SizedBox(height: 8),
+                  if (_plainTextContent.isNotEmpty) const SizedBox(height: 8),
                   Text(
-                    note.title.isNotEmpty ? note.title : 'Sem Título',
+                    widget.note.title.isNotEmpty
+                        ? widget.note.title
+                        : 'Sem Título',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _dateFormat.format(note.date),
+                    NoteCard._dateFormat.format(widget.note.date),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
               ),
             ),
-            if (note.isDraft)
+            if (widget.note.isDraft)
               const Positioned(
                 top: 8,
                 right: 8,
@@ -121,9 +154,9 @@ class NoteCard extends StatelessWidget {
       ContextMenuHelper.showContextMenu(
         context: context,
         position: globalPosition,
-        note: note,
-        onSave: onSave,
-        onDelete: onDelete,
+        note: widget.note,
+        onSave: widget.onSave,
+        onDelete: widget.onDelete,
       ),
     );
   }

@@ -13,10 +13,10 @@ class EditorToolbar extends StatelessWidget {
     required this.onSnippets,
     required this.onUndo,
     required this.onRedo,
-    required this.canUndo,
-    required this.canRedo,
-    this.wordCount = 0,
-    this.charCount = 0,
+    required this.canUndoNotifier,
+    required this.canRedoNotifier,
+    required this.wordCountNotifier,
+    required this.charCountNotifier,
     super.key,
   });
 
@@ -39,13 +39,13 @@ class EditorToolbar extends StatelessWidget {
   /// Callback for when the redo button is pressed.
   final VoidCallback onRedo;
   /// Whether the undo action is available.
-  final bool canUndo;
+  final ValueNotifier<bool> canUndoNotifier;
   /// Whether the redo action is available.
-  final bool canRedo;
+  final ValueNotifier<bool> canRedoNotifier;
   /// The word count of the document.
-  final int wordCount;
+  final ValueNotifier<int> wordCountNotifier;
   /// The character count of the document.
-  final int charCount;
+  final ValueNotifier<int> charCountNotifier;
 
   @override
   Widget build(BuildContext context) {
@@ -54,13 +54,23 @@ class EditorToolbar extends StatelessWidget {
       color: Colors.grey[200],
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.undo),
-            onPressed: canUndo ? onUndo : null,
+          ValueListenableBuilder<bool>(
+            valueListenable: canUndoNotifier,
+            builder: (context, canUndo, child) {
+              return IconButton(
+                icon: const Icon(Icons.undo),
+                onPressed: canUndo ? onUndo : null,
+              );
+            },
           ),
-          IconButton(
-            icon: const Icon(Icons.redo),
-            onPressed: canRedo ? onRedo : null,
+          ValueListenableBuilder<bool>(
+            valueListenable: canRedoNotifier,
+            builder: (context, canRedo, child) {
+              return IconButton(
+                icon: const Icon(Icons.redo),
+                onPressed: canRedo ? onRedo : null,
+              );
+            },
           ),
           const VerticalDivider(),
           IconButton(
@@ -93,9 +103,19 @@ class EditorToolbar extends StatelessWidget {
             onPressed: onSnippets,
           ),
           const Spacer(),
-          Text(
-            '$wordCount words / $charCount characters',
-            style: Theme.of(context).textTheme.bodySmall,
+          ValueListenableBuilder<int>(
+            valueListenable: wordCountNotifier,
+            builder: (context, wordCount, child) {
+              return ValueListenableBuilder<int>(
+                valueListenable: charCountNotifier,
+                builder: (context, charCount, child) {
+                  return Text(
+                    '$wordCount words / $charCount characters',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
