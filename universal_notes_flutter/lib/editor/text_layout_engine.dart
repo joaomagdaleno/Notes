@@ -8,7 +8,8 @@ class TextLayoutEngine {
 
   final Map<String, double> _measurementCache = {};
 
-  /// Measures the height of a single line of text given a specific style and width constraint.
+  /// Measures the height of a single line of text given a specific style and
+  /// width constraint.
   double measureLineHeight(String line, TextStyle style, double maxWidth) {
     final cacheKey = '${line.hashCode}_${style.hashCode}_$maxWidth';
 
@@ -23,5 +24,18 @@ class TextLayoutEngine {
     _measurementCache[cacheKey] = height;
 
     return height;
+  }
+
+  /// Measures the size of the given text with the specified style.
+  Size measureText(
+    String text,
+    TextStyle style, {
+    double maxWidth = double.infinity,
+  }) {
+    final textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+    );
+    return (textPainter..layout(maxWidth: maxWidth)).size;
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _initPackageInfo();
+    unawaited(_initPackageInfo());
   }
 
   Future<void> _initPackageInfo() async {
@@ -55,13 +56,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: _packageInfo == null
                 ? null
                 : () {
-                    Navigator.of(context).push(
-                      fluent.FluentPageRoute<void>(
-                        // CORREÇÃO: Envolve o AboutScreen em um MaterialApp
-                        builder: (context) => MaterialApp(
-                          title: 'Sobre',
-                          home: AboutScreen(packageInfo: _packageInfo!),
-                          debugShowCheckedModeBanner: false,
+                    unawaited(
+                      Navigator.of(context).push(
+                        fluent.FluentPageRoute<void>(
+                          // CORREÇÃO: Envolve o AboutScreen em um MaterialApp
+                          builder: (context) => MaterialApp(
+                            title: 'Sobre',
+                            home: AboutScreen(packageInfo: _packageInfo!),
+                            debugShowCheckedModeBanner: false,
+                          ),
                         ),
                       ),
                     );
@@ -90,10 +93,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: _packageInfo == null
                 ? null
                 : () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (context) =>
-                            AboutScreen(packageInfo: _packageInfo!),
+                    unawaited(
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (context) =>
+                              AboutScreen(packageInfo: _packageInfo!),
+                        ),
                       ),
                     );
                   },

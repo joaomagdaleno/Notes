@@ -1,7 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -12,8 +12,11 @@ import 'package:uuid/uuid.dart';
 /// A repository for managing all app data in a local database.
 class NoteRepository {
   NoteRepository._();
+
+  /// The singleton instance of [NoteRepository].
   static NoteRepository instance = NoteRepository._();
 
+  /// The path to the database file.
   String? dbPath;
   Database? _database;
   Map<String, int>? _wordFrequencyCache;
@@ -24,12 +27,14 @@ class NoteRepository {
   static const String _versionsTable = 'note_versions';
   static const String _snippetsTable = 'snippets';
 
+  /// Returns the database instance, initializing it if necessary.
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await initDB();
     return _database!;
   }
 
+  /// Initializes the database.
   @visibleForTesting
   Future<Database> initDB() async {
     final dir = await getApplicationSupportDirectory();
@@ -102,6 +107,7 @@ class NoteRepository {
   }
 
   // --- Snippet Methods ---
+  /// Creates a new snippet.
   Future<Snippet> createSnippet({
     required String trigger,
     required String content,
@@ -120,6 +126,7 @@ class NoteRepository {
     return snippet;
   }
 
+  /// Retrieves all snippets from the database.
   Future<List<Snippet>> getAllSnippets() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -129,6 +136,7 @@ class NoteRepository {
     return List.generate(maps.length, (i) => Snippet.fromMap(maps[i]));
   }
 
+  /// Updates an existing snippet.
   Future<void> updateSnippet(Snippet snippet) async {
     final db = await database;
     await db.update(
@@ -139,6 +147,7 @@ class NoteRepository {
     );
   }
 
+  /// Deletes a snippet by its ID.
   Future<void> deleteSnippet(String id) async {
     final db = await database;
     await db.delete(_snippetsTable, where: 'id = ?', whereArgs: [id]);
@@ -172,12 +181,13 @@ class NoteRepository {
             }
           }
         }
-      } catch (e) {
+      } on FormatException catch (_) {
         // Ignore content that isn't valid JSON
       }
     }
   }
 
+  /// Returns a list of frequently used words starting with [prefix].
   Future<List<String>> getFrequentWords(String prefix) async {
     if (_wordFrequencyCache == null) {
       await _buildWordFrequencyCache();
@@ -187,19 +197,22 @@ class NoteRepository {
         .where((word) => word.startsWith(prefix.toLowerCase()))
         .toList();
 
-    matchingWords.sort(
-      (a, b) => _wordFrequencyCache![b]!.compareTo(_wordFrequencyCache![a]!),
-    );
+    final cache = _wordFrequencyCache!;
+    matchingWords.sort((a, b) {
+      return cache[b]!.compareTo(cache[a]!);
+    });
 
     return matchingWords.take(10).toList(); // Limit to top 10 for performance
   }
 
   // --- Versioning Methods ---
+  /// Creates a new version of a note.
   Future<void> createNoteVersion(NoteVersion version) async {
     final db = await database;
     await db.insert(_versionsTable, version.toMap());
   }
 
+  /// Retrieves all versions for a specific note.
   Future<List<NoteVersion>> getNoteVersions(String noteId) async {
     final db = await database;
     final maps = await db.query(
@@ -212,6 +225,7 @@ class NoteRepository {
   }
 
   // --- Folder Methods ---
+  /// Creates a new folder with the given [name].
   Future<Folder> createFolder(String name) async {
     final db = await database;
     final folder = Folder(id: const Uuid().v4(), name: name);
@@ -223,12 +237,14 @@ class NoteRepository {
     return folder;
   }
 
+  /// Retrieves all folders.
   Future<List<Folder>> getAllFolders() async {
     final db = await database;
     final maps = await db.query(_foldersTable);
     return List.generate(maps.length, (i) => Folder.fromMap(maps[i]));
   }
 
+  /// Updates an existing folder.
   Future<void> updateFolder(Folder folder) async {
     final db = await database;
     await db.update(
@@ -239,12 +255,14 @@ class NoteRepository {
     );
   }
 
+  /// Deletes a folder by its ID.
   Future<void> deleteFolder(String id) async {
     final db = await database;
     await db.delete(_foldersTable, where: 'id = ?', whereArgs: [id]);
   }
 
   // --- Note Methods ---
+  /// Inserts a new note into the database.
   Future<String> insertNote(Note note) async {
     final db = await database;
     await db.insert(
@@ -256,6 +274,8 @@ class NoteRepository {
     return note.id;
   }
 
+  /// Retrieves notes, optionally filtering by folder, favorite, or trash
+  /// status.
   Future<List<Note>> getAllNotes({
     String? folderId,
     bool? isFavorite,
@@ -301,6 +321,7 @@ class NoteRepository {
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
+  /// Searches all notes for the given term.
   Future<List<Note>> searchAllNotes(String searchTerm) async {
     final db = await database;
     if (searchTerm.isEmpty) {
@@ -319,6 +340,7 @@ class NoteRepository {
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
+  /// Retrieves a specific note by ID, including its content.
   Future<Note> getNoteWithContent(String noteId) async {
     final db = await database;
     final maps = await db.query(
@@ -333,6 +355,7 @@ class NoteRepository {
     throw Exception('Note not found');
   }
 
+  /// Updates the content of a note.
   Future<void> updateNoteContent(Note note) async {
     final db = await database;
     await db.update(
@@ -344,6 +367,7 @@ class NoteRepository {
     _wordFrequencyCache = null;
   }
 
+  /// Updates a note's metadata.
   Future<void> updateNote(Note note) async {
     final db = await database;
     await db.update(
@@ -354,17 +378,20 @@ class NoteRepository {
     );
   }
 
+  /// Moves a note to the trash (soft delete).
   Future<void> deleteNote(String id) async {
     final db = await database;
     await db.delete(_notesTable, where: 'id = ?', whereArgs: [id]);
   }
 
+  /// Permanently deletes a note from the database.
   Future<void> deleteNotePermanently(String id) async {
     final db = await database;
     await db.delete(_notesTable, where: 'id = ?', whereArgs: [id]);
     _wordFrequencyCache = null; // Invalidate cache on deletion
   }
 
+  /// Restores a note from the trash.
   Future<void> restoreNoteFromTrash(String id) async {
     final db = await database;
     await db.update(
@@ -375,6 +402,7 @@ class NoteRepository {
     );
   }
 
+  /// Closes the database connection.
   Future<void> close() async {
     final db = await database;
     await db.close();

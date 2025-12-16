@@ -18,21 +18,39 @@ import 'package:universal_notes_flutter/widgets/sidebar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 
+/// The main screen displaying the list of notes.
 class NotesScreen extends StatefulWidget {
-  final NoteRepository? noteRepository;
-  final UpdateService? updateService;
-
+  /// Creates a new instance of [NotesScreen].
   const NotesScreen({
     super.key,
     this.noteRepository,
     this.updateService,
   });
 
+  /// The repository for accessing note data.
+  final NoteRepository? noteRepository;
+
+  /// The service for checking app updates.
+  final UpdateService? updateService;
+
   @override
   State<NotesScreen> createState() => _NotesScreenState();
 }
 
-enum SortOrder { dateDesc, dateAsc, titleAsc, titleDesc }
+/// The order in which notes are sorted.
+enum SortOrder {
+  /// Sort by date, descending (newest first).
+  dateDesc,
+
+  /// Sort by date, ascending (oldest first).
+  dateAsc,
+
+  /// Sort by title, ascending (A-Z).
+  titleAsc,
+
+  /// Sort by title, descending (Z-A).
+  titleDesc,
+}
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
   List<Note> _notes = [];
@@ -54,16 +72,17 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     _noteRepository = widget.noteRepository ?? NoteRepository.instance;
     _updateService = widget.updateService ?? UpdateService();
     windowManager.addListener(this);
-    _loadNotes();
-    _runAutoBackupIfNeeded();
+    unawaited(_loadNotes());
+    unawaited(_runAutoBackupIfNeeded());
     _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     windowManager.removeListener(this);
-    _searchController.removeListener(_onSearchChanged);
-    _searchController.dispose();
+    _searchController
+      ..removeListener(_onSearchChanged)
+      ..dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -75,7 +94,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         setState(() {
           _searchTerm = _searchController.text;
         });
-        _loadNotes();
+        unawaited(_loadNotes());
       }
     });
   }
@@ -108,7 +127,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           return a.title.toLowerCase().compareTo(b.title.toLowerCase());
         case SortOrder.titleDesc:
           return b.title.toLowerCase().compareTo(a.title.toLowerCase());
-        default: // dateDesc
+        case SortOrder.dateDesc:
           return b.date.compareTo(a.date);
       }
     });
@@ -122,7 +141,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     setState(() {
       _selection = selection;
     });
-    _loadNotes();
+    unawaited(_loadNotes());
     Navigator.of(context).pop(); // Close the drawer
   }
 
@@ -137,14 +156,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       date: DateTime.now(),
       folderId: folderId,
     );
-    _openNoteEditor(newNote);
+    unawaited(_openNoteEditor(newNote));
   }
 
   Future<void> _openNoteEditor(Note note) async {
     final noteWithContent = await _noteRepository.getNoteWithContent(note.id);
+    if (!mounted) return;
     await Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (context) => NoteEditorScreen(
           note: noteWithContent,
           onSave: (updatedNote) async {
@@ -152,7 +172,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             await _noteRepository.insertNote(
               updatedNote.copyWith(isDraft: false),
             );
-            _loadNotes();
+            await _loadNotes();
             return updatedNote;
           },
         ),
@@ -161,11 +181,13 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   void _abrirEditorRapido() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => QuickNoteEditor(
-        onSave: _processarNotaRapida,
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => QuickNoteEditor(
+          onSave: _processarNotaRapida,
+        ),
       ),
     );
   }
@@ -182,7 +204,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           : null,
     );
     await _noteRepository.insertNote(newNote);
-    _loadNotes();
+    await _loadNotes();
   }
 
   Future<void> _runAutoBackupIfNeeded() async {
@@ -204,7 +226,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             const SnackBar(content: Text('Automatic backup completed.')),
           );
         }
-      } catch (e) {
+      } on Exception catch (e) {
         if (kDebugMode) {
           print('Auto backup failed: $e');
         }
@@ -217,7 +239,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final isPreventClose = await windowManager.isPreventClose();
     if (isPreventClose) {
       await _noteRepository.close();
-      windowManager.hide();
+      await windowManager.hide();
     }
     super.onWindowClose();
   }
@@ -226,22 +248,22 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     await _noteRepository.updateNote(
       note.copyWith(isFavorite: !note.isFavorite),
     );
-    _loadNotes();
+    await _loadNotes();
   }
 
   Future<void> _moveToTrash(Note note) async {
     await _noteRepository.updateNote(note.copyWith(isInTrash: true));
-    _loadNotes();
+    await _loadNotes();
   }
 
   Future<void> _restoreNote(Note note) async {
     await _noteRepository.restoreNoteFromTrash(note.id);
-    _loadNotes();
+    await _loadNotes();
   }
 
   Future<void> _deletePermanently(Note note) async {
     await _noteRepository.deleteNotePermanently(note.id);
-    _loadNotes();
+    await _loadNotes();
   }
 
   String _getAppBarTitle() {
@@ -277,12 +299,14 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           ),
           IconButton(
             icon: const Icon(Icons.update),
-            onPressed: () => _updateService.checkForUpdate(),
+            onPressed: () => unawaited(_updateService.checkForUpdate()),
           ),
           IconButton(
             icon: const Icon(Icons.brightness_6),
             onPressed: () {
-              Provider.of<ThemeService>(context, listen: false).toggleTheme();
+              unawaited(
+                Provider.of<ThemeService>(context, listen: false).toggleTheme(),
+              );
             },
           ),
           PopupMenuButton<SortOrder>(
@@ -291,7 +315,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               setState(() {
                 _sortOrder = result;
               });
-              _loadNotes();
+              unawaited(_loadNotes());
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<SortOrder>>[
               const PopupMenuItem<SortOrder>(
@@ -368,29 +392,27 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                   onDismissed: (direction) {
                     if (isTrashView) {
                       if (direction == DismissDirection.startToEnd) {
-                        _restoreNote(note);
+                        unawaited(_restoreNote(note));
                       } else {
-                        _deletePermanently(note);
+                        unawaited(_deletePermanently(note));
                       }
                     } else {
                       if (direction == DismissDirection.startToEnd) {
-                        _toggleFavorite(note);
+                        unawaited(_toggleFavorite(note));
                       } else {
-                        _moveToTrash(note);
+                        unawaited(_moveToTrash(note));
                       }
                     }
                   },
                   child: NoteCard(
                     note: note,
-                    onTap: () => _openNoteEditor(note),
+                    onTap: () => unawaited(_openNoteEditor(note)),
                     onSave: (note) async {
                       await _noteRepository.updateNote(note);
-                      _loadNotes();
+                      await _loadNotes();
                       return note;
                     },
-                    onDelete: (note) {
-                      _deletePermanently(note);
-                    },
+                    onDelete: _deletePermanently,
                   ),
                 );
               },
@@ -464,28 +486,28 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                   text: const Text('Data (Mais Recentes)'),
                   onPressed: () => setState(() {
                     _sortOrder = SortOrder.dateDesc;
-                    _loadNotes();
+                    unawaited(_loadNotes());
                   }),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Antigas)'),
                   onPressed: () => setState(() {
                     _sortOrder = SortOrder.dateAsc;
-                    _loadNotes();
+                    unawaited(_loadNotes());
                   }),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (A-Z)'),
                   onPressed: () => setState(() {
                     _sortOrder = SortOrder.titleAsc;
-                    _loadNotes();
+                    unawaited(_loadNotes());
                   }),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (Z-A)'),
                   onPressed: () => setState(() {
                     _sortOrder = SortOrder.titleDesc;
-                    _loadNotes();
+                    unawaited(_loadNotes());
                   }),
                 ),
               ],
@@ -506,7 +528,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.update_restore),
-                  onPressed: () => _updateService.checkForUpdate(),
+                  onPressed: () => unawaited(_updateService.checkForUpdate()),
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.brightness),
@@ -550,15 +572,13 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             final note = _notes[index];
             return NoteCard(
               note: note,
-              onTap: () => _openNoteEditor(note),
+              onTap: () => unawaited(_openNoteEditor(note)),
               onSave: (note) async {
                 await _noteRepository.updateNote(note);
-                _loadNotes();
+                await _loadNotes();
                 return note;
               },
-              onDelete: (note) {
-                _deletePermanently(note);
-              },
+              onDelete: _deletePermanently,
             );
           },
         ),

@@ -14,6 +14,7 @@ class SnippetConversionResult {
 
   /// The new document after conversion.
   final DocumentModel document;
+
   /// The new selection after conversion.
   final TextSelection selection;
 }
@@ -46,11 +47,24 @@ class SnippetConverter {
         final startOfTrigger = selection.baseOffset - 1 - triggerLength;
 
         // Perform the conversion
-        var newDoc = DocumentManipulator.deleteText(document, startOfTrigger, triggerLength + 1); // +1 for the space
-        newDoc = DocumentManipulator.insertText(newDoc, startOfTrigger, snippet.content);
+        final docAfterDelete = DocumentManipulator.deleteText(
+          document,
+          startOfTrigger,
+          triggerLength + 1, // +1 for the space
+        );
+        final docAfterInsert = DocumentManipulator.insertText(
+          docAfterDelete,
+          startOfTrigger,
+          snippet.content,
+        );
 
-        final newSelection = TextSelection.collapsed(offset: startOfTrigger + snippet.content.length);
-        return SnippetConversionResult(document: newDoc, selection: newSelection);
+        final newSelection = TextSelection.collapsed(
+          offset: startOfTrigger + snippet.content.length,
+        );
+        return SnippetConversionResult(
+          document: docAfterInsert,
+          selection: newSelection,
+        );
       }
     }
 

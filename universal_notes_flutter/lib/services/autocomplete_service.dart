@@ -6,7 +6,10 @@ class AutocompleteService {
   static List<String>? _dictionaryCache;
 
   /// Gets suggestions for the word being typed at the cursor position.
-  static Future<List<String>> getSuggestions(String text, int cursorPosition) async {
+  static Future<List<String>> getSuggestions(
+    String text,
+    int cursorPosition,
+  ) async {
     if (text.isEmpty) return [];
 
     // 1. Extract the word being typed.
@@ -34,7 +37,9 @@ class AutocompleteService {
     }
 
     // --- Priority 2: All Notes (Frequent Words) ---
-    final frequentWords = await NoteRepository.instance.getFrequentWords(wordInProgress);
+    final frequentWords = await NoteRepository.instance.getFrequentWords(
+      wordInProgress,
+    );
     for (final word in frequentWords) {
       if (word.toLowerCase() != wordInProgress) {
         suggestions.add(word);
@@ -55,10 +60,13 @@ class AutocompleteService {
   }
 
   static Future<List<String>> _loadDictionary() async {
-    final content = await rootBundle.loadString('assets/dictionaries/pt_br_common.txt');
+    final content = await rootBundle.loadString(
+      'assets/dictionaries/pt_br_common.txt',
+    );
     return content.split('\n');
   }
 
+  /// Checks if the character is a word boundary.
   static bool isWordBoundary(String char) {
     return RegExp(r'[\s,.;\n\t]').hasMatch(char);
   }

@@ -15,14 +15,19 @@ class FindReplaceBar extends StatefulWidget {
 
   /// Callback for when the find text changes.
   final ValueChanged<String> onFindChanged;
+
   /// Callback for the find next action.
   final VoidCallback onFindNext;
+
   /// Callback for the find previous action.
   final VoidCallback onFindPrevious;
+
   /// Callback for the replace action.
   final ValueChanged<String> onReplace;
+
   /// Callback for the replace all action.
   final ValueChanged<String> onReplaceAll;
+
   /// Callback to close the bar.
   final VoidCallback onClose;
 
@@ -65,9 +70,18 @@ class _FindReplaceBarState extends State<FindReplaceBar> {
                   decoration: const InputDecoration(hintText: 'Find'),
                 ),
               ),
-              IconButton(icon: const Icon(Icons.arrow_upward), onPressed: widget.onFindPrevious),
-              IconButton(icon: const Icon(Icons.arrow_downward), onPressed: widget.onFindNext),
-              IconButton(icon: const Icon(Icons.close), onPressed: widget.onClose),
+              IconButton(
+                icon: const Icon(Icons.arrow_upward),
+                onPressed: widget.onFindPrevious,
+              ),
+              IconButton(
+                icon: const Icon(Icons.arrow_downward),
+                onPressed: widget.onFindNext,
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: widget.onClose,
+              ),
             ],
           ),
           Row(

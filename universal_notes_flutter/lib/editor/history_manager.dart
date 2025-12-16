@@ -9,6 +9,7 @@ class HistoryState {
 
   /// The document state.
   final DocumentModel document;
+
   /// The selection state.
   final TextSelection selection;
 }
@@ -38,7 +39,8 @@ class HistoryManager {
   /// When a new state is recorded, the redo stack is cleared.
   void record(HistoryState state) {
     // Compare JSON representations to detect changes in style as well as text.
-    if (DocumentAdapter.toJson(state.document) == DocumentAdapter.toJson(current.document)) {
+    if (DocumentAdapter.toJson(state.document) ==
+        DocumentAdapter.toJson(current.document)) {
       return;
     }
 
@@ -61,10 +63,11 @@ class HistoryManager {
   ///
   /// If there is nothing to redo, returns the current state.
   HistoryState redo() {
-    if (!canRedo) return current;
-
-    final next = _redoStack.removeLast();
-    _undoStack.add(next);
+    if (_redoStack.isNotEmpty) {
+      final state = _redoStack.removeLast();
+      _undoStack.add(state);
+      return state;
+    }
     return current;
   }
 }

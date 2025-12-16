@@ -3,6 +3,21 @@ import 'package:flutter/foundation.dart';
 /// A class representing a single note.
 @immutable
 class Note {
+  /// Creates a new instance of [Note].
+  const Note({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.date,
+    this.isFavorite = false,
+    this.isLocked = false,
+    this.isInTrash = false,
+    this.isDeleted = false,
+    this.isDraft = false,
+    this.drawingJson,
+    this.prefsJson,
+    this.folderId,
+  });
 
   /// Creates a [Note] from a map.
   factory Note.fromMap(Map<String, dynamic> map) {
@@ -21,44 +36,40 @@ class Note {
       folderId: map['folderId'] as String?,
     );
   }
-  /// Creates a new instance of [Note].
-  const Note({
-    required this.id,
-    required this.title,
-    required this.content,
-    required this.date,
-    this.isFavorite = false,
-    this.isLocked = false,
-    this.isInTrash = false,
-    this.isDeleted = false,
-    this.isDraft = false,
-    this.drawingJson,
-    this.prefsJson,
-    this.folderId,
-  });
 
   /// The unique identifier for the note.
   final String id;
+
   /// The title of the note.
   final String title;
+
   /// The content of the note.
   final String content;
+
   /// The date the note was created or last modified.
   final DateTime date;
+
   /// Whether the note is a favorite.
   final bool isFavorite;
+
   /// Whether the note is locked.
   final bool isLocked;
+
   /// Whether the note is in the trash.
   final bool isInTrash;
+
   /// Whether the note is marked for deletion.
   final bool isDeleted;
+
   /// Whether the note is a draft.
   final bool isDraft;
+
   /// The drawing data for the note, as a JSON string.
   final String? drawingJson;
+
   /// The preferences for the note, as a JSON string.
   final String? prefsJson;
+
   /// The ID of the folder this note belongs to.
   final String? folderId;
 

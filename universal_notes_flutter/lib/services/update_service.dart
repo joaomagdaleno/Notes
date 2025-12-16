@@ -53,12 +53,18 @@ class UpdateService {
 
       final url = _getUpdateUrl(currentVersionStr);
 
-      // 🛡️ Sentinel: Add a timeout to prevent the request from hanging indefinitely.
-      final response = await _client.get(url).timeout(const Duration(seconds: 30));
+      // 🛡️ Sentinel: Add a timeout to prevent the request from hanging
+      // indefinitely.
+      final response = await _client
+          .get(url)
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
-        // 🛡️ Sentinel: Safely decode JSON to prevent crashes from invalid data.
-        final dynamic decodedJson = jsonDecode(response.body);
+        // 🛡️ Sentinel: Safely decode JSON to prevent crashes from invalid
+        // data.
+        final dynamic decodedJson = jsonDecode(
+          response.body,
+        );
         if (decodedJson is! Map<String, dynamic>) {
           return UpdateCheckResult(
             UpdateCheckStatus.error,
@@ -74,8 +80,9 @@ class UpdateService {
           if (tagName is! String) {
             return UpdateCheckResult(UpdateCheckStatus.noUpdate);
           }
-          latestVersionStr =
-              tagName.startsWith('v') ? tagName.substring(1) : tagName;
+          latestVersionStr = tagName.startsWith('v')
+              ? tagName.substring(1)
+              : tagName;
         } else {
           // 🛡️ Sentinel: Safely access body to prevent crashes.
           final body = json['body'];
@@ -94,12 +101,18 @@ class UpdateService {
               return UpdateCheckResult(UpdateCheckStatus.noUpdate);
             }
 
-            // 🛡️ Sentinel: Safely find and access release asset to prevent crashes.
-            final releaseAsset = assets.firstWhere((dynamic asset) {
-              if (asset is! Map<String, dynamic>) return false;
-              final name = asset['name'];
-              return name is String && name.endsWith(fileExtension);
-            }, orElse: () => null) as Map<String, dynamic>?;
+            // 🛡️ Sentinel: Safely find and access release asset to prevent
+            // crashes.
+            final releaseAsset =
+                assets.firstWhere(
+                      (dynamic asset) {
+                        if (asset is! Map<String, dynamic>) return false;
+                        final name = asset['name'];
+                        return name is String && name.endsWith(fileExtension);
+                      },
+                      orElse: () => null,
+                    )
+                    as Map<String, dynamic>?;
 
             if (releaseAsset != null) {
               final downloadUrl = releaseAsset['browser_download_url'];

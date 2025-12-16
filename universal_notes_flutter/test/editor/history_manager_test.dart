@@ -7,7 +7,10 @@ void main() {
   group('HistoryManager', () {
     const initialDoc = DocumentModel(spans: [TextSpanModel(text: 'Initial')]);
     const initialSelection = TextSelection.collapsed(offset: 0);
-    final initialState = HistoryState(document: initialDoc, selection: initialSelection);
+    const initialState = HistoryState(
+      document: initialDoc,
+      selection: initialSelection,
+    );
 
     late HistoryManager historyManager;
 
@@ -24,7 +27,7 @@ void main() {
     test('record adds a new state and clears redo stack', () {
       const newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
       const newSelection = TextSelection.collapsed(offset: 1);
-      final newState = HistoryState(document: newDoc, selection: newSelection);
+      const newState = HistoryState(document: newDoc, selection: newSelection);
 
       historyManager.record(newState);
 
@@ -36,7 +39,7 @@ void main() {
     test('undo restores the previous state', () {
       const newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
       const newSelection = TextSelection.collapsed(offset: 1);
-      final newState = HistoryState(document: newDoc, selection: newSelection);
+      const newState = HistoryState(document: newDoc, selection: newSelection);
       historyManager.record(newState);
 
       final undoneState = historyManager.undo();
@@ -49,9 +52,10 @@ void main() {
     test('redo restores the undone state', () {
       const newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
       const newSelection = TextSelection.collapsed(offset: 1);
-      final newState = HistoryState(document: newDoc, selection: newSelection);
-      historyManager.record(newState);
-      historyManager.undo();
+      const newState = HistoryState(document: newDoc, selection: newSelection);
+      historyManager
+        ..record(newState)
+        ..undo();
 
       final redoneState = historyManager.redo();
 

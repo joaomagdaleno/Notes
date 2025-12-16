@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 /// Represents a single line of text in the virtualized editor.
 @immutable
 class TextLine {
+  /// Creates a new instance of [TextLine].
   const TextLine({required this.text, this.style = const TextStyle()});
 
+  /// The text content of the line.
   final String text;
+
+  /// The style of the line.
   final TextStyle style;
 
+  /// Creates a copy of this line with the given fields replaced.
   TextLine copyWith({String? text, TextStyle? style}) {
     return TextLine(
       text: text ?? this.text,
@@ -18,10 +23,12 @@ class TextLine {
 
 /// Manages the collection of text lines and their overall layout.
 class VirtualTextBuffer {
+  /// The list of text lines.
   final List<TextLine> lines = [];
   final Map<int, double> _lineHeights = {};
   double _totalHeight = 0;
 
+  /// The total height of all lines.
   double get totalHeight => _totalHeight;
 
   /// Inserts text at a specific position, handling line breaks.

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
@@ -116,12 +117,14 @@ class NoteCard extends StatelessWidget {
   }
 
   void _showContextMenu(BuildContext context, Offset globalPosition) {
-    ContextMenuHelper.showContextMenu(
-      context: context,
-      position: globalPosition,
-      note: note,
-      onSave: onSave,
-      onDelete: onDelete,
+    unawaited(
+      ContextMenuHelper.showContextMenu(
+        context: context,
+        position: globalPosition,
+        note: note,
+        onSave: onSave,
+        onDelete: onDelete,
+      ),
     );
   }
 }

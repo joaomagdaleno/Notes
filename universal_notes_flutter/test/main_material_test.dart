@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
-import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
 import 'mocks/mocks.mocks.dart';

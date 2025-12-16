@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:universal_notes_flutter/editor/document_adapter.dart';
 
 /// A widget that displays a note as a card with a fluent design.
 class FluentNoteCard extends StatefulWidget {
@@ -51,26 +52,28 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
     final renderBox = context.findRenderObject()! as RenderBox;
     final offset = renderBox.globalToLocal(globalPosition);
 
-    _flyoutController.showFlyout<void>(
-      placementMode: fluent.FlyoutPlacementMode.topLeft,
-      additionalOffset: offset.dy,
-      builder: (context) {
-        return fluent.MenuFlyout(
-          items: [
-            fluent.MenuFlyoutItem(
-              text: const Text('Move to Trash'),
-              leading: const fluent.Icon(fluent.FluentIcons.delete),
-              onPressed: () async {
-                final updatedNote = widget.note.copyWith(isInTrash: true);
-                await widget.onSave(updatedNote);
-                if (context.mounted) {
-                  fluent.Navigator.of(context).pop();
-                }
-              },
-            ),
-          ],
-        );
-      },
+    unawaited(
+      _flyoutController.showFlyout<void>(
+        placementMode: fluent.FlyoutPlacementMode.topLeft,
+        additionalOffset: offset.dy,
+        builder: (context) {
+          return fluent.MenuFlyout(
+            items: [
+              fluent.MenuFlyoutItem(
+                text: const Text('Move to Trash'),
+                leading: const fluent.Icon(fluent.FluentIcons.delete),
+                onPressed: () async {
+                  final updatedNote = widget.note.copyWith(isInTrash: true);
+                  await widget.onSave(updatedNote);
+                  if (context.mounted) {
+                    fluent.Navigator.of(context).pop();
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 

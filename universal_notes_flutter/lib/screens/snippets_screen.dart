@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/snippet.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -17,7 +18,7 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadSnippets();
+    unawaited(_loadSnippets());
   }
 
   Future<void> _loadSnippets() async {
@@ -41,7 +42,9 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
             TextField(
               controller: triggerController,
               autofocus: true,
-              decoration: const InputDecoration(labelText: 'Trigger (e.g., ;email)'),
+              decoration: const InputDecoration(
+                labelText: 'Trigger (e.g., ;email)',
+              ),
             ),
             TextField(
               controller: contentController,
@@ -50,7 +53,12 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop({
@@ -72,10 +80,13 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
         );
       } else {
         await NoteRepository.instance.updateSnippet(
-          Snippet(id: snippet.id, trigger: result['trigger']!, content: result['content']!),
+          Snippet(
+            id: snippet.id,
+            trigger: result['trigger']!,
+            content: result['content']!,
+          ),
         );
       }
-      _loadSnippets();
     }
   }
 
@@ -91,20 +102,22 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
           final snippet = _snippets[index];
           return ListTile(
             title: Text(snippet.trigger),
-            subtitle: Text(snippet.content, maxLines: 1, overflow: TextOverflow.ellipsis),
-            onTap: () => _showEditDialog(snippet: snippet),
+            subtitle: Text(
+              snippet.content,
+            ),
+            onTap: () => unawaited(_showEditDialog(snippet: snippet)),
             trailing: IconButton(
               icon: const Icon(Icons.delete),
               onPressed: () async {
                 await NoteRepository.instance.deleteSnippet(snippet.id);
-                _loadSnippets();
+                await _loadSnippets();
               },
             ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showEditDialog,
+        onPressed: () => unawaited(_showEditDialog()),
         child: const Icon(Icons.add),
       ),
     );

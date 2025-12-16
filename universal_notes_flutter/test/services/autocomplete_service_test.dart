@@ -10,13 +10,15 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   // Mock asset bundle
-  const channel = MethodChannel('flutter/assets');
-  channel.setMockMethodCallHandler((MethodCall methodCall) async {
-    if (methodCall.method == 'loadString') {
-      return 'uma\nduas\ntres'; // Mock dictionary
-    }
-    return null;
-  });
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(const MethodChannel('flutter/assets'), (
+        MethodCall methodCall,
+      ) async {
+        if (methodCall.method == 'loadString') {
+          return 'uma\nduas\ntres'; // Mock dictionary
+        }
+        return null;
+      });
 
   group('AutocompleteService', () {
     test('returns suggestions from all sources in order', () async {
@@ -28,11 +30,18 @@ void main() {
       const text = 'Hello world, this is a worldly test.';
 
       // Act
-      final suggestions = await AutocompleteService.getSuggestions(text, 19); // "worldl"
+      final suggestions = await AutocompleteService.getSuggestions(
+        text,
+        19,
+      ); // "worldl"
 
       // Assert
-      expect(suggestions, contains('World')); // From current note (original case)
-      // 'work' from frequent words would not be added as we already have 'World' and 'worldly'
+      expect(
+        suggestions,
+        contains('World'),
+      ); // From current note (original case)
+      // 'work' from frequent words would not be added as we already have
+      // 'World' and 'worldly'
       expect(suggestions, contains('worldly'));
     });
   });

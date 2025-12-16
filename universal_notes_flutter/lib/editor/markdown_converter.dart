@@ -20,7 +20,8 @@ class MarkdownConversionResult {
 /// A class to handle real-time Markdown-like conversions.
 class MarkdownConverter {
   // Patterns that apply to text anywhere, like *bold*.
-  // The regex now looks for a closing symbol followed by a space or end of line.
+  // The regex now looks for a closing symbol followed by a space or end of
+  // line.
   static final Map<RegExp, StyleAttribute> _inlinePatterns = {
     RegExp(r'\*([^\*]+)\*(?=\s|$)'): StyleAttribute.bold,
     RegExp(r'_([^_]+)_(?=\s|$)'): StyleAttribute.italic,
@@ -28,7 +29,8 @@ class MarkdownConverter {
   };
 
   /// Checks the text around the cursor for Markdown patterns and applies them.
-  /// Returns a [MarkdownConversionResult] if a conversion happened, otherwise null.
+  /// Returns a [MarkdownConversionResult] if a conversion happened, otherwise
+  /// null.
   static MarkdownConversionResult? checkAndApply(
     DocumentModel document,
     TextSelection selection,

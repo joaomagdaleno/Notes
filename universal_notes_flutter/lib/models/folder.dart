@@ -1,5 +1,10 @@
 /// Represents a folder containing notes.
 class Folder {
+  /// Creates a new instance of [Folder].
+  const Folder({
+    required this.id,
+    required this.name,
+  });
 
   /// Creates a [Folder] from a map.
   factory Folder.fromMap(Map<String, dynamic> map) {
@@ -8,14 +13,10 @@ class Folder {
       name: map['name'] as String,
     );
   }
-  /// Creates a new instance of [Folder].
-  const Folder({
-    required this.id,
-    required this.name,
-  });
 
   /// The unique identifier for the folder.
   final String id;
+
   /// The name of the folder.
   final String name;
 

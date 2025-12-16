@@ -5,10 +5,13 @@ import 'package:universal_notes_flutter/editor/document.dart';
 enum StyleAttribute {
   /// Bold style.
   bold,
+
   /// Italic style.
   italic,
+
   /// Underline style.
   underline,
+
   /// Strikethrough style.
   strikethrough,
 }
@@ -44,9 +47,16 @@ class DocumentManipulator {
           ? span.text.substring(0, selectionStart - spanStart)
           : '';
 
-      final selectedTextStart = selectionStart > spanStart ? selectionStart - spanStart : 0;
-      final selectedTextEnd = selectionEnd < spanEnd ? selectionEnd - spanStart : span.text.length;
-      final selectedText = span.text.substring(selectedTextStart, selectedTextEnd);
+      final selectedTextStart = selectionStart > spanStart
+          ? selectionStart - spanStart
+          : 0;
+      final selectedTextEnd = selectionEnd < spanEnd
+          ? selectionEnd - spanStart
+          : span.text.length;
+      final selectedText = span.text.substring(
+        selectedTextStart,
+        selectedTextEnd,
+      );
 
       final afterText = selectionEnd < spanEnd
           ? span.text.substring(selectionEnd - spanStart)
@@ -57,13 +67,23 @@ class DocumentManipulator {
       }
 
       if (selectedText.isNotEmpty) {
-        newSpans.add(span.copyWith(
-          text: selectedText,
-          isBold: attribute == StyleAttribute.bold ? !span.isBold : span.isBold,
-          isItalic: attribute == StyleAttribute.italic ? !span.isItalic : span.isItalic,
-          isUnderline: attribute == StyleAttribute.underline ? !span.isUnderline : span.isUnderline,
-          isStrikethrough: attribute == StyleAttribute.strikethrough ? !span.isStrikethrough : span.isStrikethrough,
-        ));
+        newSpans.add(
+          span.copyWith(
+            text: selectedText,
+            isBold: attribute == StyleAttribute.bold
+                ? !span.isBold
+                : span.isBold,
+            isItalic: attribute == StyleAttribute.italic
+                ? !span.isItalic
+                : span.isItalic,
+            isUnderline: attribute == StyleAttribute.underline
+                ? !span.isUnderline
+                : span.isUnderline,
+            isStrikethrough: attribute == StyleAttribute.strikethrough
+                ? !span.isStrikethrough
+                : span.isStrikethrough,
+          ),
+        );
       }
 
       if (afterText.isNotEmpty) {
@@ -75,18 +95,40 @@ class DocumentManipulator {
   }
 
   /// Applies a color to the given selection.
-  static DocumentModel applyColor(DocumentModel document, TextSelection selection, Color color) {
-    return _applyStyleValue(document, selection, (span) => span.copyWith(color: color));
+  static DocumentModel applyColor(
+    DocumentModel document,
+    TextSelection selection,
+    Color color,
+  ) {
+    return _applyStyleValue(
+      document,
+      selection,
+      (span) => span.copyWith(color: color),
+    );
   }
 
   /// Applies a font size to the given selection.
-  static DocumentModel applyFontSize(DocumentModel document, TextSelection selection, double fontSize) {
-     return _applyStyleValue(document, selection, (span) => span.copyWith(fontSize: fontSize));
+  static DocumentModel applyFontSize(
+    DocumentModel document,
+    TextSelection selection,
+    double fontSize,
+  ) {
+    return _applyStyleValue(
+      document,
+      selection,
+      (span) => span.copyWith(
+        fontSize: fontSize,
+      ),
+    );
   }
 
   /// Generic function to apply a style value to the selection.
-  static DocumentModel _applyStyleValue(DocumentModel document, TextSelection selection, TextSpanModel Function(TextSpanModel) updateFunc) {
-     if (selection.isCollapsed) return document;
+  static DocumentModel _applyStyleValue(
+    DocumentModel document,
+    TextSelection selection,
+    TextSpanModel Function(TextSpanModel) updateFunc,
+  ) {
+    if (selection.isCollapsed) return document;
 
     final spans = document.spans;
     final selectionStart = selection.start;
@@ -109,9 +151,16 @@ class DocumentManipulator {
           ? span.text.substring(0, selectionStart - spanStart)
           : '';
 
-      final selectedTextStart = selectionStart > spanStart ? selectionStart - spanStart : 0;
-      final selectedTextEnd = selectionEnd < spanEnd ? selectionEnd - spanStart : span.text.length;
-      final selectedText = span.text.substring(selectedTextStart, selectedTextEnd);
+      final selectedTextStart = selectionStart > spanStart
+          ? selectionStart - spanStart
+          : 0;
+      final selectedTextEnd = selectionEnd < spanEnd
+          ? selectionEnd - spanStart
+          : span.text.length;
+      final selectedText = span.text.substring(
+        selectedTextStart,
+        selectedTextEnd,
+      );
 
       final afterText = selectionEnd < spanEnd
           ? span.text.substring(selectionEnd - spanStart)
@@ -134,6 +183,7 @@ class DocumentManipulator {
   }
 
   // --- Insert and Delete methods remain the same ---
+  /// Inserts text into the document at the specified position.
   static DocumentModel insertText(
     DocumentModel document,
     int position,
@@ -146,11 +196,15 @@ class DocumentManipulator {
     }
     final pos = _findSpanPosition(spans, position);
     final targetSpan = spans[pos.spanIndex];
-    final newText = targetSpan.text.substring(0, pos.localOffset) + text + targetSpan.text.substring(pos.localOffset);
+    final newText =
+        targetSpan.text.substring(0, pos.localOffset) +
+        text +
+        targetSpan.text.substring(pos.localOffset);
     spans[pos.spanIndex] = targetSpan.copyWith(text: newText);
     return DocumentModel(spans: spans);
   }
 
+  /// Deletes text from the document starting at [start] with length [length].
   static DocumentModel deleteText(
     DocumentModel document,
     int start,
@@ -168,8 +222,12 @@ class DocumentManipulator {
         newSpans.add(span);
         continue;
       }
-      final beforeText = start > spanStart ? span.text.substring(0, start - spanStart) : '';
-      final afterText = end < spanEnd ? span.text.substring(end - spanStart) : '';
+      final beforeText = start > spanStart
+          ? span.text.substring(0, start - spanStart)
+          : '';
+      final afterText = end < spanEnd
+          ? span.text.substring(end - spanStart)
+          : '';
       if (beforeText.isNotEmpty) newSpans.add(span.copyWith(text: beforeText));
       if (afterText.isNotEmpty) newSpans.add(span.copyWith(text: afterText));
     }
@@ -182,8 +240,12 @@ class DocumentManipulator {
     for (var i = 1; i < spans.length; i++) {
       final last = mergedSpans.last;
       final current = spans[i];
-      if (last.hasSameStyle(current) && last.text.isNotEmpty && current.text.isNotEmpty) {
-        mergedSpans[mergedSpans.length - 1] = last.copyWith(text: last.text + current.text);
+      if (last.hasSameStyle(current) &&
+          last.text.isNotEmpty &&
+          current.text.isNotEmpty) {
+        mergedSpans[mergedSpans.length - 1] = last.copyWith(
+          text: last.text + current.text,
+        );
       } else if (current.text.isNotEmpty) {
         mergedSpans.add(current);
       }
@@ -192,7 +254,9 @@ class DocumentManipulator {
   }
 
   static _SpanPosition _findSpanPosition(
-      List<TextSpanModel> spans, int globalPosition) {
+    List<TextSpanModel> spans,
+    int globalPosition,
+  ) {
     if (spans.isEmpty) return const _SpanPosition(0, 0);
     var accumulatedLength = 0;
     for (var i = 0; i < spans.length; i++) {

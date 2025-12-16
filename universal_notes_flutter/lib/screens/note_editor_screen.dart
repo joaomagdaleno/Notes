@@ -17,14 +17,19 @@ import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:uuid/uuid.dart';
 
+/// A screen for editing a note.
 class NoteEditorScreen extends StatefulWidget {
+  /// Creates a new instance of [NoteEditorScreen].
   const NoteEditorScreen({
     required this.onSave,
     this.note,
     super.key,
   });
 
+  /// The note to edit, or null if creating a new note.
   final Note? note;
+
+  /// Callback to save the note.
   final Future<Note> Function(Note) onSave;
 
   @override
@@ -75,13 +80,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       initialState: HistoryState(document: _document, selection: _selection),
     );
     _updateCounts(_document);
-    SnippetConverter.precacheSnippets();
+    unawaited(SnippetConverter.precacheSnippets());
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
-      _autosave();
+      unawaited(_autosave());
     }
   }
 
@@ -93,9 +98,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _throttleTimer?.cancel();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
-      SystemChrome.setEnabledSystemUIMode(
-        SystemUiMode.manual,
-        overlays: SystemUiOverlay.values,
+      unawaited(
+        SystemChrome.setEnabledSystemUIMode(
+          SystemUiMode.manual,
+          overlays: SystemUiOverlay.values,
+        ),
       );
     }
     super.dispose();
@@ -128,10 +135,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
     // --- Autosave Logic ---
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(seconds: 3), _autosave);
+    _debounceTimer = Timer(const Duration(seconds: 3), () {
+      unawaited(_autosave());
+    });
 
     if (_throttleTimer == null || !_throttleTimer!.isActive) {
-      _throttleTimer = Timer(const Duration(seconds: 10), _autosave);
+      _throttleTimer = Timer(const Duration(seconds: 10), () {
+        unawaited(_autosave());
+      });
     }
   }
 
@@ -208,45 +219,52 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _showColorPicker() {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select a color'),
-        content: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _predefinedColors
-              .map(
-                (color) => GestureDetector(
-                  onTap: () {
-                    _applyColor(color);
-                    Navigator.of(context).pop();
-                  },
-                  child: CircleAvatar(backgroundColor: color, radius: 20),
-                ),
-              )
-              .toList(),
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Select a color'),
+          content: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _predefinedColors
+                .map(
+                  (color) => GestureDetector(
+                    onTap: () {
+                      _applyColor(color);
+                      Navigator.of(context).pop();
+                    },
+                    child: CircleAvatar(backgroundColor: color, radius: 20),
+                  ),
+                )
+                .toList(),
+          ),
         ),
       ),
     );
   }
 
   void _showFontSizePicker() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) => ListView(
-        shrinkWrap: true,
-        children: _fontSizes.entries
-            .map(
-              (entry) => ListTile(
-                title: Text(entry.key, style: TextStyle(fontSize: entry.value)),
-                onTap: () {
-                  _applyFontSize(entry.value);
-                  Navigator.of(context).pop();
-                },
-              ),
-            )
-            .toList(),
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (context) => ListView(
+          shrinkWrap: true,
+          children: _fontSizes.entries
+              .map(
+                (entry) => ListTile(
+                  title: Text(
+                    entry.key,
+                    style: TextStyle(fontSize: entry.value),
+                  ),
+                  onTap: () {
+                    _applyFontSize(entry.value);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }
@@ -301,6 +319,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
     await NoteRepository.instance.updateNoteContent(noteToSave);
 
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Nota salva automaticamente.'),
@@ -345,7 +364,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       widget.note!.id,
     );
 
-    showDialog(
+    if (!mounted) return;
+    await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Version History'),
@@ -450,11 +470,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     setState(() {
       _isFocusMode = !_isFocusMode;
       if (_isFocusMode) {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+        unawaited(
+          SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky),
+        );
       } else {
-        SystemChrome.setEnabledSystemUIMode(
-          SystemUiMode.manual,
-          overlays: SystemUiOverlay.values,
+        unawaited(
+          SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.manual,
+            overlays: SystemUiOverlay.values,
+          ),
         );
       }
     });
@@ -463,7 +487,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Future<void> _showSnippetsScreen() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const SnippetsScreen()),
+      MaterialPageRoute<void>(builder: (context) => const SnippetsScreen()),
     );
     // Reload snippets in case they were changed.
     await SnippetConverter.precacheSnippets();
@@ -473,7 +497,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
         await _saveNote();
         if (context.mounted) Navigator.of(context).pop();
@@ -545,7 +569,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                           _toggleStyle(StyleAttribute.strikethrough),
                       onColor: _showColorPicker,
                       onFontSize: _showFontSizePicker,
-                      onSnippets: _showSnippetsScreen,
+                      onSnippets: () => unawaited(_showSnippetsScreen()),
                       onUndo: _undo,
                       onRedo: _redo,
                       canUndo: _historyManager.canUndo,

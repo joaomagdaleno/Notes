@@ -29,7 +29,9 @@ void main() async {
   );
 }
 
+/// The root widget of the application.
 class MyApp extends StatelessWidget {
+  /// Creates a new instance of [MyApp].
   const MyApp({super.key});
 
   @override

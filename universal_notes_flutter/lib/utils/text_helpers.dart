@@ -19,7 +19,7 @@ String getPreviewText(String content) {
       return buffer.toString();
     }
     return content;
-  } catch (e) {
+  } on FormatException catch (_) {
     // If it's not valid JSON, return the content as-is
     return content;
   }

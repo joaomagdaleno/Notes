@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
@@ -9,7 +8,9 @@ import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
 
+/// A widget that provides a text editor with rich text capabilities.
 class EditorWidget extends StatefulWidget {
+  /// Creates a new instance of [EditorWidget].
   const EditorWidget({
     required this.document,
     required this.onDocumentChanged,
@@ -19,10 +20,20 @@ class EditorWidget extends StatefulWidget {
     super.key,
   });
 
+  /// The current document model.
   final DocumentModel document;
+
+  /// Callback when the document changes.
   final ValueChanged<DocumentModel> onDocumentChanged;
+
+  /// The current text selection.
   final TextSelection? selection;
+
+  /// Callback when the selection changes.
   final ValueChanged<TextSelection> onSelectionChanged;
+
+  /// Callback when the selection rectangle changes (e.g., for toolbar
+  /// positioning).
   final ValueChanged<Rect?>? onSelectionRectChanged;
 
   @override
@@ -75,8 +86,8 @@ class _EditorWidgetState extends State<EditorWidget> {
     super.dispose();
   }
 
-  void _handleKeyEvent(RawKeyEvent event) {
-    if (event is! RawKeyDownEvent) return;
+  void _handleKeyEvent(KeyEvent event) {
+    if (event is! KeyDownEvent) return;
 
     // --- Autocomplete Keyboard Interaction ---
     if (_autocompleteOverlay != null) {
@@ -169,7 +180,7 @@ class _EditorWidgetState extends State<EditorWidget> {
     // --- Autocomplete ---
     _autocompleteDebounce?.cancel();
     _autocompleteDebounce = Timer(const Duration(milliseconds: 300), () {
-      _updateAutocomplete(doc, selection);
+      unawaited(_updateAutocomplete(doc, selection));
     });
 
     // --- Snippets & Markdown ---
@@ -317,7 +328,7 @@ class _EditorWidgetState extends State<EditorWidget> {
         top: box.top,
         width: box.right - box.left,
         height: box.bottom - box.top,
-        child: Container(color: Colors.blue.withOpacity(0.3)),
+        child: Container(color: Colors.blue.withValues(alpha: 0.3)),
       );
     }).toList();
   }
@@ -366,9 +377,9 @@ class _EditorWidgetState extends State<EditorWidget> {
       onTapDown: _handleTapDown,
       onPanStart: _handlePanStart,
       onPanUpdate: _handlePanUpdate,
-      child: RawKeyboardListener(
+      child: KeyboardListener(
         focusNode: _focusNode,
-        onKey: _handleKeyEvent,
+        onKeyEvent: _handleKeyEvent,
         child: Stack(
           children: [
             RichText(text: widget.document.toTextSpan()),

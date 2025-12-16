@@ -1,14 +1,36 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 
-enum SidebarItemType { all, favorites, trash, folder }
+/// The type of item selected in the sidebar.
+enum SidebarItemType {
+  /// All notes.
+  all,
 
-class SidebarSelection { // Only used when type is 'folder'
+  /// Favorite notes.
+  favorites,
 
+  /// Deleted notes (trash).
+  trash,
+
+  /// A specific folder.
+  folder,
+}
+
+/// A class representing the current selection in the sidebar.
+@immutable
+class SidebarSelection {
+  // Only used when type is 'folder'
+
+  /// Creates a sidebar selection.
   const SidebarSelection(this.type, {this.folder});
+
+  /// The type of item selected.
   final SidebarItemType type;
+
+  /// The specific folder selected, if type is [SidebarItemType.folder].
   final Folder? folder;
 
   @override
@@ -23,7 +45,6 @@ class SidebarSelection { // Only used when type is 'folder'
   int get hashCode => type.hashCode ^ folder.hashCode;
 }
 
-
 /// A sidebar widget to display and manage folders.
 class Sidebar extends StatefulWidget {
   /// Creates a new instance of [Sidebar].
@@ -32,6 +53,7 @@ class Sidebar extends StatefulWidget {
     super.key,
   });
 
+  /// Callback when the selection changes.
   final ValueChanged<SidebarSelection> onSelectionChanged;
 
   @override
@@ -46,7 +68,7 @@ class _SidebarState extends State<Sidebar> {
   @override
   void initState() {
     super.initState();
-    _loadFolders();
+    unawaited(_loadFolders());
   }
 
   Future<void> _loadFolders() async {
@@ -67,10 +89,12 @@ class _SidebarState extends State<Sidebar> {
   Future<void> _performBackup() async {
     try {
       final path = await _backupService.exportDatabaseToJson();
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Backup saved to: $path')),
       );
-    } catch (e) {
+    } on Exception catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Backup failed: $e')),
       );
@@ -108,7 +132,10 @@ class _SidebarState extends State<Sidebar> {
       child: Column(
         children: [
           DrawerHeader(
-            child: Text('My Notes', style: Theme.of(context).textTheme.headlineSmall),
+            child: Text(
+              'My Notes',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.notes),
@@ -149,9 +176,14 @@ class _SidebarState extends State<Sidebar> {
                 return ListTile(
                   leading: const Icon(Icons.folder_outlined),
                   title: Text(folder.name),
-                  selected: _selection.type == SidebarItemType.folder && _selection.folder?.id == folder.id,
+                  selected:
+                      _selection.type == SidebarItemType.folder &&
+                      _selection.folder?.id == folder.id,
                   onTap: () {
-                    final newSelection = SidebarSelection(SidebarItemType.folder, folder: folder);
+                    final newSelection = SidebarSelection(
+                      SidebarItemType.folder,
+                      folder: folder,
+                    );
                     setState(() => _selection = newSelection);
                     widget.onSelectionChanged(newSelection);
                   },
@@ -163,12 +195,12 @@ class _SidebarState extends State<Sidebar> {
           ListTile(
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('New Folder'),
-            onTap: _createNewFolder,
+            onTap: () => unawaited(_createNewFolder()),
           ),
           ListTile(
             leading: const Icon(Icons.backup),
             title: const Text('Backup Notes'),
-            onTap: _performBackup,
+            onTap: () => unawaited(_performBackup()),
           ),
         ],
       ),

@@ -2,12 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+/// A quick editor for creating simple notes.
 class QuickNoteEditor extends StatefulWidget {
+  /// Creates a new instance of [QuickNoteEditor].
   const QuickNoteEditor({
     required this.onSave,
     super.key,
   });
 
+  /// Callback when the note is saved.
   final ValueChanged<String> onSave;
 
   @override

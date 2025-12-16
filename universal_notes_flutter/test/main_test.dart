@@ -12,8 +12,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/screens/settings_screen.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
@@ -1403,14 +1403,14 @@ void main() {
 }
 
 class MyAppWithWindowListener extends StatefulWidget {
-  final NoteRepository noteRepository;
-  final WindowManager windowManager;
-
   const MyAppWithWindowListener({
-    super.key,
     required this.noteRepository,
     required this.windowManager,
+    super.key,
   });
+
+  final NoteRepository noteRepository;
+  final WindowManager windowManager;
 
   @override
   State<MyAppWithWindowListener> createState() =>

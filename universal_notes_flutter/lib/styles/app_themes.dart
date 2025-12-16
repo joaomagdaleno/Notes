@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// Defines the light and dark themes for the application.
 class AppThemes {
+  /// The light theme configuration.
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
@@ -20,6 +22,7 @@ class AppThemes {
     ),
   );
 
+  /// The dark theme configuration.
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,

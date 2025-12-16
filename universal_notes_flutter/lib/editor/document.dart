@@ -2,6 +2,16 @@ import 'package:flutter/material.dart';
 
 /// Represents a single continuous piece of text with a specific style.
 class TextSpanModel {
+  /// Creates a text span model.
+  const TextSpanModel({
+    required this.text,
+    this.isBold = false,
+    this.isItalic = false,
+    this.isUnderline = false,
+    this.isStrikethrough = false,
+    this.fontSize,
+    this.color,
+  });
 
   /// Creates a [TextSpanModel] from a JSON map.
   factory TextSpanModel.fromJson(Map<String, dynamic> json) {
@@ -15,29 +25,25 @@ class TextSpanModel {
       color: json['color'] != null ? Color(json['color'] as int) : null,
     );
   }
-  /// Creates a text span model.
-  const TextSpanModel({
-    required this.text,
-    this.isBold = false,
-    this.isItalic = false,
-    this.isUnderline = false,
-    this.isStrikethrough = false,
-    this.fontSize,
-    this.color,
-  });
 
   /// The text content.
   final String text;
+
   /// Whether the text is bold.
   final bool isBold;
+
   /// Whether the text is italic.
   final bool isItalic;
+
   /// Whether the text is underlined.
   final bool isUnderline;
+
   /// Whether the text has a strikethrough.
   final bool isStrikethrough;
+
   /// The font size for the text. If null, uses the default.
   final double? fontSize;
+
   /// The color of the text. If null, uses the default.
   final Color? color;
 
@@ -50,7 +56,13 @@ class TextSpanModel {
       'isUnderline': isUnderline,
       'isStrikethrough': isStrikethrough,
       'fontSize': fontSize,
-      'color': color?.value,
+      'color': color == null
+          ? null
+          : ((((color!.a * 255).round() & 0xff) << 24) |
+                    (((color!.r * 255).round() & 0xff) << 16) |
+                    (((color!.g * 255).round() & 0xff) << 8) |
+                    ((color!.b * 255).round() & 0xff)) &
+                0xFFFFFFFF,
     };
   }
 
@@ -112,7 +124,8 @@ class DocumentModel {
   /// The list of text spans.
   final List<TextSpanModel> spans;
 
-  /// Converts the entire document to a single Flutter [TextSpan] for [RichText].
+  /// Converts the entire document to a single Flutter [TextSpan] for
+  /// [RichText].
   TextSpan toTextSpan() {
     return TextSpan(
       children: spans.map((span) => span.toTextSpan()).toList(),
