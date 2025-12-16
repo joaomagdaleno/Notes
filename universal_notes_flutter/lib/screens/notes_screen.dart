@@ -116,6 +116,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           notes = await _noteRepository.getAllNotes(
             folderId: _selection.folder!.id,
           );
+        case SidebarItemType.tag:
+          notes = await _noteRepository.getAllNotes(tagId: _selection.tag!.id);
       }
     }
 
@@ -277,6 +279,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         return 'Trash';
       case SidebarItemType.folder:
         return _selection.folder?.name ?? 'Folder';
+      case SidebarItemType.tag:
+        return 'Tag: ${_selection.tag?.name ?? ''}';
     }
   }
 
