@@ -5,18 +5,15 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:universal_notes_flutter/services/backup_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/widgets/empty_state.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/quick_note_editor.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
-import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// The main screen displaying the list of notes.
@@ -24,12 +21,8 @@ class NotesScreen extends StatefulWidget {
   /// Creates a new instance of [NotesScreen].
   const NotesScreen({
     super.key,
-    this.noteRepository,
     this.updateService,
   });
-
-  /// The repository for accessing note data.
-  final NoteRepository? noteRepository;
 
   /// The service for checking app updates.
   final UpdateService? updateService;
@@ -54,130 +47,81 @@ enum SortOrder {
 }
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
-  // ⚡ Bolt: Use ValueNotifier to manage the notes list.
-  // This allows us to rebuild only the GridView when the notes change,
-  // instead of the entire screen, preventing unnecessary UI churn.
-  final _notesNotifier = ValueNotifier<List<Note>>([]);
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   SortOrder _sortOrder = SortOrder.dateDesc;
-  late final NoteRepository _noteRepository;
+  late final FirestoreRepository _firestoreRepository;
   late final UpdateService _updateService;
-  final BackupService _backupService = BackupService();
+  late Stream<List<Note>> _notesStream;
 
   final _searchController = TextEditingController();
-  Timer? _debounce;
-  final _searchTermNotifier = ValueNotifier<String>('');
-
   final _viewModeNotifier = ValueNotifier<String>('grid_medium');
 
   @override
   void initState() {
     super.initState();
-    _noteRepository = widget.noteRepository ?? NoteRepository.instance;
+    _firestoreRepository = FirestoreRepository();
     _updateService = widget.updateService ?? UpdateService();
     windowManager.addListener(this);
-    unawaited(_loadNotes());
-    unawaited(_runAutoBackupIfNeeded());
-    _searchController.addListener(_onSearchChanged);
+    _updateNotesStream();
   }
 
   @override
   void dispose() {
     windowManager.removeListener(this);
-    _searchController
-      ..removeListener(_onSearchChanged)
-      ..dispose();
-    _debounce?.cancel();
-    _notesNotifier.dispose();
+    _searchController.dispose();
     _viewModeNotifier.dispose();
-    _searchTermNotifier.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      if (_searchTermNotifier.value != _searchController.text) {
-        _searchTermNotifier.value = _searchController.text;
-        unawaited(_loadNotes());
-      }
-    });
-  }
+  void _updateNotesStream() {
+    bool? isFavorite;
+    bool? isInTrash;
 
-  Future<void> _loadNotes() async {
-    List<Note> notes;
-    if (_searchTermNotifier.value.isNotEmpty) {
-      notes = await _noteRepository.searchAllNotes(_searchTermNotifier.value);
-    } else {
-      switch (_selection.type) {
-        case SidebarItemType.all:
-          notes = await _noteRepository.getAllNotes();
-        case SidebarItemType.favorites:
-          notes = await _noteRepository.getAllNotes(isFavorite: true);
-        case SidebarItemType.trash:
-          notes = await _noteRepository.getAllNotes(isInTrash: true);
-        case SidebarItemType.folder:
-          notes = await _noteRepository.getAllNotes(
-            folderId: _selection.folder!.id,
-          );
-        case SidebarItemType.tag:
-          notes = await _noteRepository.getAllNotes(tagId: _selection.tag!.id);
-      }
+    switch (_selection.type) {
+      case SidebarItemType.all:
+        // Default view shows non-trashed notes
+        isInTrash = false;
+        break;
+      case SidebarItemType.favorites:
+        isFavorite = true;
+        isInTrash = false; // Favorites are not in trash
+        break;
+      case SidebarItemType.trash:
+        isInTrash = true;
+        break;
+      case SidebarItemType.folder:
+      case SidebarItemType.tag:
+        // TODO: Implement folder/tag filtering with Firestore
+        isInTrash = false; // Default to non-trashed for now
+        break;
     }
-
-    // --- Sorting ---
-    notes.sort((a, b) {
-      switch (_sortOrder) {
-        case SortOrder.dateAsc:
-          return a.date.compareTo(b.date);
-        case SortOrder.titleAsc:
-          return a.title.toLowerCase().compareTo(b.title.toLowerCase());
-        case SortOrder.titleDesc:
-          return b.title.toLowerCase().compareTo(a.title.toLowerCase());
-        case SortOrder.dateDesc:
-          return b.date.compareTo(a.date);
-      }
-    });
-
-    _notesNotifier.value = notes;
+    _notesStream = _firestoreRepository.notesStream(
+      isFavorite: isFavorite,
+      isInTrash: isInTrash,
+    );
   }
 
   void _onSelectionChanged(SidebarSelection selection) {
     setState(() {
       _selection = selection;
+      _updateNotesStream();
     });
-    unawaited(_loadNotes());
     Navigator.of(context).pop(); // Close the drawer
   }
 
   void _createNewNote() {
-    final folderId = _selection.type == SidebarItemType.folder
-        ? _selection.folder?.id
-        : null;
-    final newNote = Note(
-      id: const Uuid().v4(),
-      title: '',
-      content: '',
-      date: DateTime.now(),
-      folderId: folderId,
-    );
-    unawaited(_openNoteEditor(newNote));
+    unawaited(_firestoreRepository.addNote(title: 'Nova Nota', content: ''));
   }
 
   Future<void> _openNoteEditor(Note note) async {
-    final noteWithContent = await _noteRepository.getNoteWithContent(note.id);
     if (!mounted) return;
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
         builder: (context) => NoteEditorScreen(
-          note: noteWithContent,
+          note: note,
           onSave: (updatedNote) async {
-            // When a draft is properly saved, it's no longer a draft.
-            await _noteRepository.insertNote(
-              updatedNote.copyWith(isDraft: false),
-            );
-            await _loadNotes();
+            await _firestoreRepository.updateNote(updatedNote);
             return updatedNote;
           },
         ),
@@ -198,77 +142,36 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _processarNotaRapida(String content) async {
-    final newNote = Note(
-      id: const Uuid().v4(),
+    await _firestoreRepository.addNote(
       title: content.split('\n').first,
       content: content,
-      date: DateTime.now(),
-      isDraft: true,
-      folderId: _selection.type == SidebarItemType.folder
-          ? _selection.folder?.id
-          : null,
     );
-    await _noteRepository.insertNote(newNote);
-    await _loadNotes();
-  }
-
-  Future<void> _runAutoBackupIfNeeded() async {
-    final prefs = await SharedPreferences.getInstance();
-    final lastBackupMillis = prefs.getInt('last_backup_date') ?? 0;
-    final lastBackupDate = DateTime.fromMillisecondsSinceEpoch(
-      lastBackupMillis,
-    );
-
-    if (DateTime.now().difference(lastBackupDate).inHours >= 24) {
-      try {
-        await _backupService.exportDatabaseToJson();
-        await prefs.setInt(
-          'last_backup_date',
-          DateTime.now().millisecondsSinceEpoch,
-        );
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Automatic backup completed.')),
-          );
-        }
-      } on Exception catch (e) {
-        if (kDebugMode) {
-          print('Auto backup failed: $e');
-        }
-      }
-    }
   }
 
   @override
   Future<void> onWindowClose() async {
     final isPreventClose = await windowManager.isPreventClose();
     if (isPreventClose) {
-      await _noteRepository.close();
       await windowManager.hide();
     }
     super.onWindowClose();
   }
 
   Future<void> _toggleFavorite(Note note) async {
-    await _noteRepository.updateNote(
-      note.copyWith(isFavorite: !note.isFavorite),
-    );
-    await _loadNotes();
+    await _firestoreRepository
+        .updateNote(note.copyWith(isFavorite: !note.isFavorite));
   }
 
   Future<void> _moveToTrash(Note note) async {
-    await _noteRepository.updateNote(note.copyWith(isInTrash: true));
-    await _loadNotes();
+    await _firestoreRepository.updateNote(note.copyWith(isInTrash: true));
   }
 
   Future<void> _restoreNote(Note note) async {
-    await _noteRepository.restoreNoteFromTrash(note.id);
-    await _loadNotes();
+    await _firestoreRepository.updateNote(note.copyWith(isInTrash: false));
   }
 
   Future<void> _deletePermanently(Note note) async {
-    await _noteRepository.deleteNotePermanently(note.id);
-    await _loadNotes();
+    await _firestoreRepository.deleteNote(note.id);
   }
 
   String _getAppBarTitle() {
@@ -284,6 +187,85 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       case SidebarItemType.tag:
         return 'Tag: ${_selection.tag?.name ?? ''}';
     }
+  }
+
+  Widget _buildNotesList(List<Note> notes) {
+    final isTrashView = _selection.type == SidebarItemType.trash;
+
+    // Apply client-side sorting
+    notes.sort((a, b) {
+      switch (_sortOrder) {
+        case SortOrder.dateAsc:
+          return a.lastModified.compareTo(b.lastModified);
+        case SortOrder.titleAsc:
+          return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+        case SortOrder.titleDesc:
+          return b.title.toLowerCase().compareTo(a.title.toLowerCase());
+        case SortOrder.dateDesc:
+          return b.lastModified.compareTo(a.lastModified);
+      }
+    });
+
+    if (notes.isEmpty) {
+      return const EmptyState(
+        icon: Icons.note_add,
+        message: 'No notes yet. Create one!',
+      );
+    }
+
+    return GridView.builder(
+      padding: const EdgeInsets.all(8),
+      gridDelegate: _getGridDelegate(_viewModeNotifier.value),
+      itemCount: notes.length,
+      itemBuilder: (context, index) {
+        final note = notes[index];
+        return Dismissible(
+          key: Key(note.id),
+          background: Container(
+            color: isTrashView ? Colors.blue : Colors.green,
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Icon(
+              isTrashView ? Icons.restore_from_trash : Icons.favorite,
+              color: Colors.white,
+            ),
+          ),
+          secondaryBackground: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Icon(
+              isTrashView ? Icons.delete_forever : Icons.delete,
+              color: Colors.white,
+            ),
+          ),
+          onDismissed: (direction) {
+            if (isTrashView) {
+              if (direction == DismissDirection.startToEnd) {
+                unawaited(_restoreNote(note));
+              } else {
+                unawaited(_deletePermanently(note));
+              }
+            } else {
+              if (direction == DismissDirection.startToEnd) {
+                unawaited(_toggleFavorite(note));
+              } else {
+                unawaited(_moveToTrash(note));
+              }
+            }
+          },
+          child: NoteCard(
+            note: note,
+            onTap: () => unawaited(_openNoteEditor(note)),
+            onSave: (note) async {
+              await _firestoreRepository.updateNote(note);
+              return note;
+            },
+            onDelete: _deletePermanently,
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildMaterialUI() {
@@ -319,8 +301,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
             onSelected: (SortOrder result) {
-              _sortOrder = result;
-              unawaited(_loadNotes());
+              setState(() {
+                _sortOrder = result;
+              });
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<SortOrder>>[
               const PopupMenuItem<SortOrder>(
@@ -348,94 +331,39 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         children: [
           Padding(
             padding: const EdgeInsets.all(8),
-            child: ValueListenableBuilder<String>(
-              valueListenable: _searchTermNotifier,
-              builder: (context, searchTerm, child) {
-                return TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Buscar em todas as notas...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: searchTerm.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              _searchTermNotifier.value = '';
-                              unawaited(_loadNotes());
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search is temporarily disabled...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
               ),
+              enabled: false, // Temporarily disable search
             ),
           ),
           Expanded(
-            child: _notes.isEmpty
-                ? const EmptyState(
+            child: StreamBuilder<List<Note>>(
+              stream: _notesStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const EmptyState(
                     icon: Icons.note_add,
                     message: 'No notes yet. Create one!',
-                  )
-                : GridView.builder(
-                    padding: const EdgeInsets.all(8),
-                    gridDelegate: _getGridDelegate(),
-                    itemCount: _notes.length,
-                    itemBuilder: (context, index) {
-                      final note = _notes[index];
-                      return Dismissible(
-                        key: Key(note.id),
-                        background: Container(
-                          color: isTrashView ? Colors.blue : Colors.green,
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Icon(
-                            isTrashView
-                                ? Icons.restore_from_trash
-                                : Icons.favorite,
-                            color: Colors.white,
-                          ),
-                        ),
-                        secondaryBackground: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Icon(
-                            isTrashView ? Icons.delete_forever : Icons.delete,
-                            color: Colors.white,
-                          ),
-                        ),
-                        onDismissed: (direction) {
-                          if (isTrashView) {
-                            if (direction == DismissDirection.startToEnd) {
-                              unawaited(_restoreNote(note));
-                            } else {
-                              unawaited(_deletePermanently(note));
-                            }
-                          } else {
-                            if (direction == DismissDirection.startToEnd) {
-                              unawaited(_toggleFavorite(note));
-                            } else {
-                              unawaited(_moveToTrash(note));
-                            }
-                          }
-                        },
-                        child: NoteCard(
-                          note: note,
-                          onTap: () => unawaited(_openNoteEditor(note)),
-                          onSave: (note) async {
-                            await _noteRepository.updateNote(note);
-                            await _loadNotes();
-                            return note;
-                          },
-                          onDelete: _deletePermanently,
-                        ),
-                      );
-                    },
-                  ),
+                  );
+                }
+                return _buildNotesList(snapshot.data!);
+              },
+            ),
           ),
         ],
       ),
@@ -503,31 +431,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               items: [
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Recentes)'),
-                  onPressed: () {
-                    _sortOrder = SortOrder.dateDesc;
-                    unawaited(_loadNotes());
-                  },
+                  onPressed: () => setState(() => _sortOrder = SortOrder.dateDesc),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Antigas)'),
-                  onPressed: () {
-                    _sortOrder = SortOrder.dateAsc;
-                    unawaited(_loadNotes());
-                  },
+                  onPressed: () => setState(() => _sortOrder = SortOrder.dateAsc),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (A-Z)'),
-                  onPressed: () {
-                    _sortOrder = SortOrder.titleAsc;
-                    unawaited(_loadNotes());
-                  },
+                  onPressed: () => setState(() => _sortOrder = SortOrder.titleAsc),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (Z-A)'),
-                  onPressed: () {
-                    _sortOrder = SortOrder.titleDesc;
-                    unawaited(_loadNotes());
-                  },
+                  onPressed: () => setState(() => _sortOrder = SortOrder.titleDesc),
                 ),
               ],
             ),
@@ -568,53 +484,33 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       content: fluent.ScaffoldPage(
         header: Padding(
           padding: const EdgeInsets.all(8),
-          child: ValueListenableBuilder<String>(
-            valueListenable: _searchTermNotifier,
-            builder: (context, searchTerm, child) {
-              return fluent.TextBox(
-                controller: _searchController,
-                placeholder: 'Buscar em todas as notas...',
-                prefix: const Padding(
-                  padding: EdgeInsets.only(left: 8),
-                  child: Icon(fluent.FluentIcons.search),
-                ),
-                suffix: searchTerm.isNotEmpty
-                    ? fluent.IconButton(
-                        icon: const Icon(fluent.FluentIcons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _searchTermNotifier.value = '';
-                          unawaited(_loadNotes());
-                        },
-                      )
-                    : null,
-              );
-            },
+          child: fluent.TextBox(
+            controller: _searchController,
+            placeholder: 'Search is temporarily disabled...',
+            prefix: const Padding(
+              padding: EdgeInsets.only(left: 8),
+              child: Icon(fluent.FluentIcons.search),
+            ),
+            enabled: false,
           ),
         ),
-        content: _notes.isEmpty
-            ? const EmptyState(
-                icon: fluent.FluentIcons.note_forward,
-                message: 'No notes here. Try creating one!',
-              )
-            : GridView.builder(
-                padding: const EdgeInsets.all(8),
-                gridDelegate: _getGridDelegate(),
-                itemCount: _notes.length,
-                itemBuilder: (context, index) {
-                  final note = _notes[index];
-                  return NoteCard(
-                    note: note,
-                    onTap: () => unawaited(_openNoteEditor(note)),
-                    onSave: (note) async {
-                      await _noteRepository.updateNote(note);
-                      await _loadNotes();
-                      return note;
-                    },
-                    onDelete: _deletePermanently,
-                  );
-                },
-              ),
+        content: StreamBuilder<List<Note>>(
+            stream: _notesStream,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: fluent.ProgressRing());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const EmptyState(
+                  icon: fluent.FluentIcons.note_forward,
+                  message: 'No notes here. Try creating one!',
+                );
+              }
+              return _buildNotesList(snapshot.data!);
+            }),
         bottomBar: isTrashView
             ? null
             : Padding(
@@ -654,12 +550,18 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
-      return _buildMaterialUI();
-    } else if (Platform.isWindows) {
-      return _buildFluentUI();
-    } else {
-      return _buildMaterialUI();
-    }
+    // ValueListenableBuilder is used to rebuild the grid when view mode changes
+    return ValueListenableBuilder<String>(
+      valueListenable: _viewModeNotifier,
+      builder: (context, viewMode, child) {
+        if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+          return _buildMaterialUI();
+        } else if (Platform.isWindows) {
+          return _buildFluentUI();
+        } else {
+          return _buildMaterialUI();
+        }
+      },
+    );
   }
 }
