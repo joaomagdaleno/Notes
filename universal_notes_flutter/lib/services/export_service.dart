@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -27,9 +28,7 @@ class ExportService {
     pdf.addPage(
       pw.MultiPage(
         build: (pw.Context context) {
-          return [
-            _buildPdfContent(document),
-          ];
+          return _buildPdfWidgets(document);
         },
       ),
     );
@@ -40,33 +39,47 @@ class ExportService {
     );
   }
 
-  pw.Widget _buildPdfContent(DocumentModel document) {
-    final spans = document.spans.map((span) {
-      final decorations = <pw.TextDecoration>[];
-      if (span.isUnderline) {
-        decorations.add(pw.TextDecoration.underline);
+  List<pw.Widget> _buildPdfWidgets(DocumentModel document) {
+    final widgets = <pw.Widget>[];
+    for (final block in document.blocks) {
+      if (block is TextBlock) {
+        final spans = block.spans.map((span) {
+          final decorations = <pw.TextDecoration>[];
+          if (span.isUnderline) {
+            decorations.add(pw.TextDecoration.underline);
+          }
+          if (span.isStrikethrough) {
+            decorations.add(pw.TextDecoration.lineThrough);
+          }
+          return pw.TextSpan(
+            text: span.text,
+            style: pw.TextStyle(
+              fontWeight:
+                  span.isBold ? pw.FontWeight.bold : pw.FontWeight.normal,
+              fontStyle:
+                  span.isItalic ? pw.FontStyle.italic : pw.FontStyle.normal,
+              decoration: pw.TextDecoration.combine(decorations),
+              fontSize: span.fontSize,
+              color: span.color != null
+                  ? PdfColor.fromInt(span.color!.value)
+                  : null,
+            ),
+          );
+        }).toList();
+        widgets.add(
+          pw.Wrap(
+            children: [pw.RichText(text: pw.TextSpan(children: spans))],
+          ),
+        );
+      } else if (block is ImageBlock) {
+        final file = File(block.imagePath);
+        if (file.existsSync()) {
+          final image = pw.MemoryImage(file.readAsBytesSync());
+          widgets.add(pw.Image(image));
+        }
       }
-      if (span.isStrikethrough) {
-        decorations.add(pw.TextDecoration.lineThrough);
-      }
-
-      return pw.TextSpan(
-        text: span.text,
-        style: pw.TextStyle(
-          fontWeight: span.isBold ? pw.FontWeight.bold : pw.FontWeight.normal,
-          fontStyle: span.isItalic ? pw.FontStyle.italic : pw.FontStyle.normal,
-          decoration: pw.TextDecoration.combine(decorations),
-          fontSize: span.fontSize,
-          color: span.color != null
-              ? PdfColor.fromInt(span.color!.value)
-              : null,
-        ),
-      );
-    }).toList();
-
-    return pw.Wrap(
-      children: [pw.RichText(text: pw.TextSpan(children: spans))],
-    );
+    }
+    return widgets;
   }
 
   String _sanitizeFilename(String filename) {

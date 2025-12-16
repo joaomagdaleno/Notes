@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
@@ -516,6 +520,25 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     await SnippetConverter.precacheSnippets();
   }
 
+  Future<void> _insertImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    final appDir = await getApplicationDocumentsDirectory();
+    final fileName = p.basename(pickedFile.path);
+    final savedImage = await File(pickedFile.path).copy(
+      '${appDir.path}/$fileName',
+    );
+
+    final newDoc = DocumentManipulator.insertImage(
+      _document,
+      _selection.baseOffset,
+      savedImage.path,
+    );
+    _onDocumentChanged(newDoc);
+  }
+
   // --- Tag Methods ---
   Future<void> _addTag(Tag tag) async {
     if (widget.note == null) return;
@@ -857,6 +880,7 @@ extension on _NoteEditorScreenState {
                           onColor: _showColorPicker,
                           onFontSize: _showFontSizePicker,
                           onSnippets: () => unawaited(_showSnippetsScreen()),
+                          onImage: () => unawaited(_insertImage()),
                           onUndo: _undo,
                           onRedo: _redo,
                           canUndo: _historyManager.canUndo,

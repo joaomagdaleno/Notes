@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 
-/// Represents a single line of text in the virtualized editor,
-/// potentially containing multiple styles.
+/// A base class for a line in the virtualized editor.
 @immutable
-class TextLine {
+abstract class Line {}
+
+/// Represents a single line of text.
+class TextLine extends Line {
   /// Creates a new instance of [TextLine].
-  const TextLine({required this.spans});
+  TextLine({required this.spans});
 
   /// The list of styled text spans that make up this line.
   final List<TextSpanModel> spans;
@@ -22,6 +24,15 @@ class TextLine {
   String toPlainText() {
     return spans.map((s) => s.text).join();
   }
+}
+
+/// Represents a line containing an image.
+class ImageLine extends Line {
+  /// Creates a new instance of [ImageLine].
+  ImageLine({required this.imagePath});
+
+  /// The path to the image file.
+  final String imagePath;
 }
 
 /// Represents a position within the virtualized text buffer as a line and
@@ -47,42 +58,59 @@ class VirtualTextBuffer {
   /// The source document.
   final DocumentModel document;
 
-  /// The list of text lines generated from the document.
-  final List<TextLine> lines = [];
+  /// The list of lines generated from the document.
+  final List<Line> lines = [];
   final List<int> _lineLengths = [];
 
   void _buildLines() {
     lines.clear();
     var currentLineSpans = <TextSpanModel>[];
 
-    for (final span in document.spans) {
-      final text = span.text;
-      var start = 0;
-      int end;
-
-      while ((end = text.indexOf('\n', start)) != -1) {
-        final lineText = text.substring(start, end);
-        if (lineText.isNotEmpty) {
-          currentLineSpans.add(span.copyWith(text: lineText));
+    for (final block in document.blocks) {
+      if (block is ImageBlock) {
+        // If there's pending text, finish that line first.
+        if (currentLineSpans.isNotEmpty) {
+          lines.add(TextLine(spans: currentLineSpans));
+          currentLineSpans = [];
         }
-        lines.add(TextLine(spans: currentLineSpans));
-        currentLineSpans = [];
-        start = end + 1;
-      }
+        lines.add(ImageLine(imagePath: block.imagePath));
+      } else if (block is TextBlock) {
+        for (final span in block.spans) {
+          final text = span.text;
+          var start = 0;
+          int end;
 
-      if (start < text.length) {
-        currentLineSpans.add(span.copyWith(text: text.substring(start)));
+          while ((end = text.indexOf('\n', start)) != -1) {
+            final lineText = text.substring(start, end);
+            if (lineText.isNotEmpty) {
+              currentLineSpans.add(span.copyWith(text: lineText));
+            }
+            lines.add(TextLine(spans: currentLineSpans));
+            currentLineSpans = [];
+            start = end + 1;
+          }
+
+          if (start < text.length) {
+            currentLineSpans.add(span.copyWith(text: text.substring(start)));
+          }
+        }
       }
     }
-    lines.add(TextLine(spans: currentLineSpans));
+    // Add the last line of text if any.
+    if (currentLineSpans.isNotEmpty) {
+      lines.add(TextLine(spans: currentLineSpans));
+    }
 
     // Now, calculate lengths consistently.
     _lineLengths.clear();
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
-      final length = line.spans.fold<int>(0, (sum, s) => sum + s.text.length);
-      // Add 1 for the newline character, except for the last line.
-      _lineLengths.add(i == lines.length - 1 ? length : length + 1);
+      if (line is TextLine) {
+        final length = line.spans.fold<int>(0, (sum, s) => sum + s.text.length);
+        _lineLengths.add(i == lines.length - 1 ? length : length + 1);
+      } else {
+        _lineLengths.add(1); // Treat images as a single character offset.
+      }
     }
   }
 
@@ -91,7 +119,7 @@ class VirtualTextBuffer {
     var currentOffset = 0;
     for (var i = 0; i < lines.length; i++) {
       final lineLength = _lineLengths[i];
-      if (offset <= currentOffset + lineLength) {
+      if (offset < currentOffset + lineLength) {
         return LineTextPosition(line: i, character: offset - currentOffset);
       }
       currentOffset += lineLength;
@@ -99,7 +127,7 @@ class VirtualTextBuffer {
     // Default to the end of the last line if offset is out of bounds.
     return LineTextPosition(
       line: lines.length - 1,
-      character: lines.last.toPlainText().length,
+      character: (lines.last as TextLine).toPlainText().length,
     );
   }
 

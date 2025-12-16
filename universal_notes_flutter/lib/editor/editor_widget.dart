@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,7 +7,6 @@ import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
 import 'package:universal_notes_flutter/editor/markdown_converter.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
-import 'package:universal_notes_flutter/editor/text_layout_engine.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
@@ -125,8 +125,12 @@ class _EditorWidgetState extends State<EditorWidget> {
       if (lineKey == null || lineKey.currentContext == null) continue;
 
       final lineBox = lineKey.currentContext!.findRenderObject() as RenderBox;
+      final line = _buffer.lines[i];
+
+      if (line is! TextLine) continue;
+
       final painter = TextPainter(
-        text: _buffer.lines[i].toTextSpan(),
+        text: line.toTextSpan(),
         textDirection: TextDirection.ltr,
       );
       painter.layout(maxWidth: lineBox.size.width);
@@ -138,7 +142,7 @@ class _EditorWidgetState extends State<EditorWidget> {
       final localSelection = TextSelection(
         baseOffset: math.max(0, selection.start - lineStartOffset),
         extentOffset: math.min(
-          _buffer.lines[i].toPlainText().length,
+          line.toPlainText().length,
           selection.end - lineStartOffset,
         ),
       );
@@ -309,8 +313,11 @@ class _EditorWidgetState extends State<EditorWidget> {
     }
     final lineBox = lineKey.currentContext!.findRenderObject() as RenderBox;
 
+    final line = _buffer.lines[cursorPosition.line];
+    if (line is! TextLine) return lineBox.localToGlobal(Offset.zero);
+
     final painter = TextPainter(
-      text: _buffer.lines[cursorPosition.line].toTextSpan(),
+      text: line.toTextSpan(),
       textDirection: TextDirection.ltr,
     );
     painter.layout(maxWidth: lineBox.size.width);
@@ -424,7 +431,7 @@ class _EditorLine extends StatefulWidget {
     super.key,
   });
 
-  final TextLine line;
+  final Line line;
   final TextSelection selection;
   final int lineIndex;
   final VirtualTextBuffer buffer;
@@ -444,7 +451,7 @@ class _EditorLineState extends State<_EditorLine> {
   void initState() {
     super.initState();
     _cursorTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      if (widget.focusNode.hasFocus) {
+      if (widget.focusNode.hasFocus && widget.line is TextLine) {
         final cursorPosition = widget.buffer
             .getLineTextPositionForOffset(widget.selection.baseOffset);
         if (cursorPosition.line == widget.lineIndex) {
@@ -466,7 +473,9 @@ class _EditorLineState extends State<_EditorLine> {
   }
 
   int _getOffsetForPosition(Offset localPosition) {
-    _painter.text = widget.line.toTextSpan();
+    final line = widget.line;
+    if (line is! TextLine) return 0;
+    _painter.text = line.toTextSpan();
     _painter.layout(maxWidth: context.size!.width);
     final position = _painter.getPositionForOffset(localPosition);
     return widget.buffer.getOffsetForLineTextPosition(
@@ -475,37 +484,58 @@ class _EditorLineState extends State<_EditorLine> {
   }
 
   void _handleTapDown(TapDownDetails details) {
+    if (widget.line is! TextLine) return;
     widget.focusNode.requestFocus();
     final offset = _getOffsetForPosition(details.localPosition);
     widget.onSelectionChanged(TextSelection.collapsed(offset: offset));
   }
 
   void _handlePanStart(DragStartDetails details) {
+    if (widget.line is! TextLine) return;
     widget.focusNode.requestFocus();
     final offset = _getOffsetForPosition(details.localPosition);
     widget.onSelectionChanged(TextSelection.collapsed(offset: offset));
   }
 
   void _handlePanUpdate(DragUpdateDetails details) {
+    if (widget.line is! TextLine) return;
     final offset = _getOffsetForPosition(details.localPosition);
     widget.onSelectionChanged(
       widget.selection.copyWith(extentOffset: offset),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    _painter.text = widget.line.toTextSpan();
+  Widget _buildImage(BuildContext context, ImageLine line) {
+    return GestureDetector(
+      onTap: () {
+        unawaited(
+          showDialog<void>(
+            context: context,
+            builder: (_) =>
+                Dialog(child: Image.file(File(line.imagePath))),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Image.file(File(line.imagePath)),
+      ),
+    );
+  }
+
+  Widget _buildText(BuildContext context, TextLine line) {
+    _painter.text = line.toTextSpan();
     _painter.layout(maxWidth: context.size?.width ?? double.infinity);
 
     final cursorPosition =
         widget.buffer.getLineTextPositionForOffset(widget.selection.baseOffset);
-    final bool isCursorInThisLine =
+    final isCursorInThisLine =
         widget.selection.isCollapsed && cursorPosition.line == widget.lineIndex;
 
-    final lineStartOffset = widget.buffer
-        .getOffsetForLineTextPosition(LineTextPosition(line: widget.lineIndex, character: 0));
-    final lineEndOffset = lineStartOffset + widget.line.toPlainText().length;
+    final lineStartOffset = widget.buffer.getOffsetForLineTextPosition(
+      LineTextPosition(line: widget.lineIndex, character: 0),
+    );
+    final lineEndOffset = lineStartOffset + line.toPlainText().length;
 
     final selectionStart = math.max(
       lineStartOffset,
@@ -516,21 +546,23 @@ class _EditorLineState extends State<_EditorLine> {
       widget.selection.end,
     );
 
-    List<Widget> selectionBoxes = [];
+    final selectionBoxes = <Widget>[];
     if (selectionStart < selectionEnd) {
       final localSelection = TextSelection(
         baseOffset: selectionStart - lineStartOffset,
         extentOffset: selectionEnd - lineStartOffset,
       );
-      selectionBoxes = _painter.getBoxesForSelection(localSelection).map((box) {
-        return Positioned(
-          left: box.left,
-          top: box.top,
-          width: box.width,
-          height: box.height,
-          child: Container(color: Colors.blue.withOpacity(0.3)),
-        );
-      }).toList();
+      selectionBoxes.addAll(
+        _painter.getBoxesForSelection(localSelection).map(
+              (box) => Positioned(
+                left: box.left,
+                top: box.top,
+                width: box.width,
+                height: box.height,
+                child: Container(color: Colors.blue.withOpacity(0.3)),
+              ),
+            ),
+      );
     }
 
     return GestureDetector(
@@ -539,7 +571,7 @@ class _EditorLineState extends State<_EditorLine> {
       onPanUpdate: _handlePanUpdate,
       child: Stack(
         children: [
-          RichText(text: widget.line.toTextSpan()),
+          RichText(text: line.toTextSpan()),
           ...selectionBoxes,
           if (isCursorInThisLine && _showCursor)
             Positioned.fromRect(
@@ -553,5 +585,16 @@ class _EditorLineState extends State<_EditorLine> {
         ],
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final line = widget.line;
+    if (line is ImageLine) {
+      return _buildImage(context, line);
+    } else if (line is TextLine) {
+      return _buildText(context, line);
+    }
+    return const SizedBox.shrink();
   }
 }
