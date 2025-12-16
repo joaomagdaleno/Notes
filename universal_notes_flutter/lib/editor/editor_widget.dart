@@ -20,6 +20,7 @@ class EditorWidget extends StatefulWidget {
     required this.onSelectionChanged,
     this.selection,
     this.onSelectionRectChanged,
+    this.scrollController,
     super.key,
   });
 
@@ -38,6 +39,9 @@ class EditorWidget extends StatefulWidget {
   /// Callback when the selection rectangle changes (e.g., for toolbar
   /// positioning).
   final ValueChanged<Rect?>? onSelectionRectChanged;
+
+  /// Controls the scrolling of the editor.
+  final ScrollController? scrollController;
 
   @override
   State<EditorWidget> createState() => _EditorWidgetState();
@@ -323,17 +327,32 @@ class _EditorWidgetState extends State<EditorWidget> {
     _hideAutocomplete(); // Remove existing overlay before showing a new one
     final overlay = Overlay.of(context);
     final cursorPosition = _getCursorScreenPosition();
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Decide whether to show above or below
+    const overlayHeight = 200.0; // Estimated height of the overlay
+    final bool showAbove = cursorPosition.dy > screenHeight / 2;
+    final position = showAbove
+        ? cursorPosition - const Offset(0, overlayHeight)
+        : cursorPosition + const Offset(0, 25);
 
     _autocompleteOverlay = OverlayEntry(
       builder: (context) => AutocompleteOverlay(
         suggestions: _suggestions,
         selectedIndex: _selectedSuggestionIndex,
-        position: cursorPosition +
-            const Offset(0, 25), // Position below cursor
+        position: position,
         onSuggestionSelected: _acceptAutocomplete,
       ),
     );
     overlay.insert(_autocompleteOverlay!);
+    // Announce for screen readers
+    if (_suggestions.isNotEmpty) {
+      final suggestion = _suggestions[_selectedSuggestionIndex];
+      SemanticsService.announce(
+        'Showing suggestions. Current: $suggestion',
+        TextDirection.ltr,
+      );
+    }
   }
 
   void _hideAutocomplete() {
@@ -375,6 +394,7 @@ class _EditorWidgetState extends State<EditorWidget> {
       focusNode: _focusNode,
       onKeyEvent: _handleKeyEvent,
       child: ListView.builder(
+        controller: widget.scrollController,
         itemCount: _buffer.lines.length,
         itemBuilder: (context, index) {
           final line = _buffer.lines[index];

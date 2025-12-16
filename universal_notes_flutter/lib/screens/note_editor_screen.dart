@@ -42,6 +42,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   late DocumentModel _document;
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
+  final ScrollController _scrollController = ScrollController();
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
@@ -93,6 +94,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _scrollController.dispose();
     _recordHistoryTimer?.cancel();
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
@@ -505,6 +507,14 @@ class RedoIntent extends Intent {
   const RedoIntent();
 }
 
+class CenterLineIntent extends Intent {
+  const CenterLineIntent();
+}
+
+class ShowFormatMenuIntent extends Intent {
+  const ShowFormatMenuIntent();
+}
+
 class UndoAction extends Action<UndoIntent> {
   UndoAction(this.state);
 
@@ -524,6 +534,39 @@ class RedoAction extends Action<RedoIntent> {
   @override
   void invoke(RedoIntent intent) {
     state._redo();
+  }
+}
+
+class CenterLineAction extends Action<CenterLineIntent> {
+  CenterLineAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(CenterLineIntent intent) {
+    const averageLineHeight = 20.0; // Estimate
+    final buffer =
+        VirtualTextBuffer(state._document); // Temporary buffer to calculate
+    final line =
+        buffer.getLineTextPositionForOffset(state._selection.baseOffset).line;
+    final offset = (line * averageLineHeight) -
+        (state._scrollController.position.viewportDimension / 2);
+    state._scrollController.animateTo(
+      offset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+}
+
+class ShowFormatMenuAction extends Action<ShowFormatMenuIntent> {
+  ShowFormatMenuAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(ShowFormatMenuIntent intent) {
+    state._showFontSizePicker();
   }
 }
 
@@ -552,12 +595,22 @@ extension on _NoteEditorScreenState {
           const RedoIntent(),
       LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyY):
           const RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyE):
+          const CenterLineIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyE):
+          const CenterLineIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyP):
+          const ShowFormatMenuIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyP):
+          const ShowFormatMenuIntent(),
     };
 
     // Define the actions
     final actions = {
       UndoIntent: UndoAction(this),
       RedoIntent: RedoAction(this),
+      CenterLineIntent: CenterLineAction(this),
+      ShowFormatMenuIntent: ShowFormatMenuAction(this),
     };
     return PopScope(
       canPop: false,
@@ -643,38 +696,42 @@ extension on _NoteEditorScreenState {
                             selection: _selection,
                             onSelectionChanged: _onSelectionChanged,
                             onSelectionRectChanged: _onSelectionRectChanged,
+                            scrollController: _scrollController,
                           ),
                         ),
                       ),
                       if (!_isFocusMode)
                         EditorToolbar(
                           onBold: () => _toggleStyle(StyleAttribute.bold),
-                      onItalic: () => _toggleStyle(StyleAttribute.italic),
-                      onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                      onStrikethrough: () =>
-                          _toggleStyle(StyleAttribute.strikethrough),
-                      onColor: _showColorPicker,
-                      onFontSize: _showFontSizePicker,
-                      onSnippets: () => unawaited(_showSnippetsScreen()),
-                      onUndo: _undo,
-                      onRedo: _redo,
-                      canUndo: _historyManager.canUndo,
-                      canRedo: _historyManager.canRedo,
-                      wordCount: _wordCount,
-                      charCount: _charCount,
+                          onItalic: () => _toggleStyle(StyleAttribute.italic),
+                          onUnderline: () =>
+                              _toggleStyle(StyleAttribute.underline),
+                          onStrikethrough: () =>
+                              _toggleStyle(StyleAttribute.strikethrough),
+                          onColor: _showColorPicker,
+                          onFontSize: _showFontSizePicker,
+                          onSnippets: () => unawaited(_showSnippetsScreen()),
+                          onUndo: _undo,
+                          onRedo: _redo,
+                          canUndo: _historyManager.canUndo,
+                          canRedo: _historyManager.canRedo,
+                          wordCount: _wordCount,
+                          charCount: _charCount,
+                        ),
+                    ],
+                  ),
+                  if (_isToolbarVisible)
+                    Positioned(
+                      top: _selectionRect!.top - 55,
+                      left: _selectionRect!.left,
+                      child: FloatingToolbar(
+                        onBold: () => _toggleStyle(StyleAttribute.bold),
+                        onItalic: () => _toggleStyle(StyleAttribute.italic),
+                      ),
                     ),
                 ],
               ),
-              if (_isToolbarVisible)
-                Positioned(
-                  top: _selectionRect!.top - 55,
-                  left: _selectionRect!.left,
-                  child: FloatingToolbar(
-                    onBold: () => _toggleStyle(StyleAttribute.bold),
-                    onItalic: () => _toggleStyle(StyleAttribute.italic),
-                  ),
-                ),
-            ],
+            ),
           ),
         ),
       ),
