@@ -54,10 +54,7 @@ enum SortOrder {
 }
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
-  // ⚡ Bolt: Use ValueNotifier to manage the notes list.
-  // This allows us to rebuild only the GridView when the notes change,
-  // instead of the entire screen, preventing unnecessary UI churn.
-  final _notesNotifier = ValueNotifier<List<Note>>([]);
+  List<Note> _notes = [];
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   SortOrder _sortOrder = SortOrder.dateDesc;
   late final NoteRepository _noteRepository;
@@ -66,9 +63,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   final _searchController = TextEditingController();
   Timer? _debounce;
-  final _searchTermNotifier = ValueNotifier<String>('');
+  String _searchTerm = '';
 
-  final _viewModeNotifier = ValueNotifier<String>('grid_medium');
+  String _viewMode = 'grid_medium';
 
   @override
   void initState() {
@@ -88,17 +85,16 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       ..removeListener(_onSearchChanged)
       ..dispose();
     _debounce?.cancel();
-    _notesNotifier.dispose();
-    _viewModeNotifier.dispose();
-    _searchTermNotifier.dispose();
     super.dispose();
   }
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      if (_searchTermNotifier.value != _searchController.text) {
-        _searchTermNotifier.value = _searchController.text;
+      if (_searchTerm != _searchController.text) {
+        setState(() {
+          _searchTerm = _searchController.text;
+        });
         unawaited(_loadNotes());
       }
     });
@@ -106,8 +102,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   Future<void> _loadNotes() async {
     List<Note> notes;
-    if (_searchTermNotifier.value.isNotEmpty) {
-      notes = await _noteRepository.searchAllNotes(_searchTermNotifier.value);
+    if (_searchTerm.isNotEmpty) {
+      notes = await _noteRepository.searchAllNotes(_searchTerm);
     } else {
       switch (_selection.type) {
         case SidebarItemType.all:
@@ -137,7 +133,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       }
     });
 
-    _notesNotifier.value = notes;
+    setState(() {
+      _notes = notes;
+    });
   }
 
   void _onSelectionChanged(SidebarSelection selection) {
@@ -290,15 +288,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         actions: [
           IconButton(
             icon: const Icon(Icons.view_module),
-            onPressed: () => _viewModeNotifier.value = 'grid_medium',
+            onPressed: () => setState(() => _viewMode = 'grid_medium'),
           ),
           IconButton(
             icon: const Icon(Icons.view_comfy),
-            onPressed: () => _viewModeNotifier.value = 'grid_large',
+            onPressed: () => setState(() => _viewMode = 'grid_large'),
           ),
           IconButton(
             icon: const Icon(Icons.view_list),
-            onPressed: () => _viewModeNotifier.value = 'list',
+            onPressed: () => setState(() => _viewMode = 'list'),
           ),
           IconButton(
             icon: const Icon(Icons.update),
@@ -315,7 +313,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
             onSelected: (SortOrder result) {
-              _sortOrder = result;
+              setState(() {
+                _sortOrder = result;
+              });
               unawaited(_loadNotes());
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<SortOrder>>[
@@ -344,26 +344,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         children: [
           Padding(
             padding: const EdgeInsets.all(8),
-            child: ValueListenableBuilder<String>(
-              valueListenable: _searchTermNotifier,
-              builder: (context, searchTerm, child) {
-                return TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Buscar em todas as notas...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: searchTerm.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              _searchTermNotifier.value = '';
-                              unawaited(_loadNotes());
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Buscar em todas as notas...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchTerm.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: _searchController.clear,
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
@@ -462,8 +455,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     );
   }
 
-  SliverGridDelegate _getGridDelegate(String viewMode) {
-    switch (viewMode) {
+  SliverGridDelegate _getGridDelegate() {
+    switch (_viewMode) {
       case 'grid_large':
         return const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 300,
@@ -499,31 +492,31 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               items: [
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Recentes)'),
-                  onPressed: () {
+                  onPressed: () => setState(() {
                     _sortOrder = SortOrder.dateDesc;
                     unawaited(_loadNotes());
-                  },
+                  }),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Antigas)'),
-                  onPressed: () {
+                  onPressed: () => setState(() {
                     _sortOrder = SortOrder.dateAsc;
                     unawaited(_loadNotes());
-                  },
+                  }),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (A-Z)'),
-                  onPressed: () {
+                  onPressed: () => setState(() {
                     _sortOrder = SortOrder.titleAsc;
                     unawaited(_loadNotes());
-                  },
+                  }),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (Z-A)'),
-                  onPressed: () {
+                  onPressed: () => setState(() {
                     _sortOrder = SortOrder.titleDesc;
                     unawaited(_loadNotes());
-                  },
+                  }),
                 ),
               ],
             ),
@@ -531,15 +524,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               primaryItems: [
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.view_all),
-                  onPressed: () => _viewModeNotifier.value = 'grid_medium',
+                  onPressed: () => setState(() => _viewMode = 'grid_medium'),
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.grid_view_large),
-                  onPressed: () => _viewModeNotifier.value = 'grid_large',
+                  onPressed: () => setState(() => _viewMode = 'grid_large'),
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.list),
-                  onPressed: () => _viewModeNotifier.value = 'list',
+                  onPressed: () => setState(() => _viewMode = 'list'),
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.update_restore),
@@ -564,34 +557,25 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       content: fluent.ScaffoldPage(
         header: Padding(
           padding: const EdgeInsets.all(8),
-          child: ValueListenableBuilder<String>(
-            valueListenable: _searchTermNotifier,
-            builder: (context, searchTerm, child) {
-              return fluent.TextBox(
-                controller: _searchController,
-                placeholder: 'Buscar em todas as notas...',
-                prefix: const Padding(
-                  padding: EdgeInsets.only(left: 8),
-                  child: Icon(fluent.FluentIcons.search),
-                ),
-                suffix: searchTerm.isNotEmpty
-                    ? fluent.IconButton(
-                        icon: const Icon(fluent.FluentIcons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _searchTermNotifier.value = '';
-                          unawaited(_loadNotes());
-                        },
-                      )
-                    : null,
-              );
-            },
+          child: fluent.TextBox(
+            controller: _searchController,
+            placeholder: 'Buscar em todas as notas...',
+            prefix: const Padding(
+              padding: EdgeInsets.only(left: 8),
+              child: Icon(fluent.FluentIcons.search),
+            ),
+            suffix: _searchTerm.isNotEmpty
+                ? fluent.IconButton(
+                    icon: const Icon(fluent.FluentIcons.clear),
+                    onPressed: _searchController.clear,
+                  )
+                : null,
           ),
         ),
         content: _notes.isEmpty
             ? const EmptyState(
                 icon: fluent.FluentIcons.note_forward,
-                message: 'No notes here. Try creating one!',
+                message: 'No notes yet. Create one!',
               )
             : GridView.builder(
                 padding: const EdgeInsets.all(8),

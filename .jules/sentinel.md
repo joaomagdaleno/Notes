@@ -1,4 +1,0 @@
-## 2024-05-24 - Input Length Validation for Local DoS Prevention
-**Vulnerability:** Unvalidated input length in the `NoteRepository.searchAllNotes` method.
-**Learning:** Database queries initiated from user-controlled input without length validation can expose the application to local Denial of Service (DoS) attacks. An excessively long search term could cause the `sqflite` query to consume significant resources, leading to performance degradation or a crash.
-**Prevention:** Always sanitize and validate user input on the client-side, even for local database operations. Implement strict length limits on all data that will be used in a database query to prevent resource exhaustion attacks.

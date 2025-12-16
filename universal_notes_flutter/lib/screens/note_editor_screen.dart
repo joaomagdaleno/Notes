@@ -45,13 +45,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
-  final _selectionRectNotifier = ValueNotifier<Rect?>(null);
+  Rect? _selectionRect;
   bool get _isToolbarVisible =>
-      _selectionRectNotifier.value != null && !_selection.isCollapsed;
+      _selectionRect != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
-  final _wordCountNotifier = ValueNotifier<int>(0);
-  final _charCountNotifier = ValueNotifier<int>(0);
-  final _isFindBarVisibleNotifier = ValueNotifier<bool>(false);
+  int _wordCount = 0;
+  int _charCount = 0;
+  bool _isFindBarVisible = false;
   String _findTerm = '';
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
@@ -96,10 +96,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _recordHistoryTimer?.cancel();
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
-    _wordCountNotifier.dispose();
-    _charCountNotifier.dispose();
-    _isFindBarVisibleNotifier.dispose();
-    _selectionRectNotifier.dispose();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
@@ -114,9 +110,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   void _updateCounts(DocumentModel document) {
     final text = document.toPlainText().trim();
-    _charCountNotifier.value = text.length;
-    _wordCountNotifier.value =
-        text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
+    setState(() {
+      _charCount = text.length;
+      _wordCount = text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
+    });
   }
 
   void _onDocumentChanged(DocumentModel newDocument) {
@@ -162,9 +159,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     final editorRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
 
     if (rect != null && editorRect.overlaps(rect)) {
-      _selectionRectNotifier.value = rect;
+      setState(() {
+        _selectionRect = rect;
+      });
     } else {
-      _selectionRectNotifier.value = null;
+      setState(() {
+        _selectionRect = null;
+      });
     }
   }
 
@@ -509,18 +510,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.search),
-                    onPressed: () => _isFindBarVisibleNotifier.value =
-                        !_isFindBarVisibleNotifier.value,
+                    tooltip: 'Find & Replace',
+                    onPressed: () =>
+                        setState(() => _isFindBarVisible = !_isFindBarVisible),
                   ),
                   if (widget.note != null)
                     IconButton(
                       icon: const Icon(Icons.history),
+                      tooltip: 'Version History',
                       onPressed: _showHistory,
                     ),
                   IconButton(
                     icon: Icon(
                       _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
                     ),
+                    tooltip: 'Focus Mode',
                     onPressed: _toggleFocusMode,
                   ),
                 ],
@@ -529,6 +533,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
             ? null
             : FloatingActionButton(
                 onPressed: _saveNote,
+                tooltip: 'Save Note',
                 child: const Icon(Icons.save),
               ),
         body: SafeArea(
@@ -538,27 +543,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
             children: [
               Column(
                 children: [
-                  ValueListenableBuilder<bool>(
-                    valueListenable: _isFindBarVisibleNotifier,
-                    builder: (context, isVisible, child) {
-                      return AnimatedCrossFade(
-                        firstChild: FindReplaceBar(
-                          onFindChanged: _onFindChanged,
-                          onFindNext: _findNext,
-                          onFindPrevious: _findPrevious,
-                          onReplace: _replace,
-                          onReplaceAll: _replaceAll,
-                          onClose: () =>
-                              _isFindBarVisibleNotifier.value = false,
-                        ),
-                        secondChild: const SizedBox.shrink(),
-                        crossFadeState: isVisible && !_isFocusMode
-                            ? CrossFadeState.showFirst
-                            : CrossFadeState.showSecond,
-                        duration: const Duration(milliseconds: 200),
-                      );
-                    },
-                  ),
+                  if (_isFindBarVisible && !_isFocusMode)
+                    FindReplaceBar(
+                      onFindChanged: _onFindChanged,
+                      onFindNext: _findNext,
+                      onFindPrevious: _findPrevious,
+                      onReplace: _replace,
+                      onReplaceAll: _replaceAll,
+                      onClose: () => setState(() => _isFindBarVisible = false),
+                    ),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(16),
@@ -585,27 +578,20 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                       onRedo: _redo,
                       canUndo: _historyManager.canUndo,
                       canRedo: _historyManager.canRedo,
-                      wordCountNotifier: _wordCountNotifier,
-                      charCountNotifier: _charCountNotifier,
+                      wordCount: _wordCount,
+                      charCount: _charCount,
                     ),
                 ],
               ),
-              ValueListenableBuilder<Rect?>(
-                valueListenable: _selectionRectNotifier,
-                builder: (context, selectionRect, child) {
-                  if (selectionRect == null || _selection.isCollapsed) {
-                    return const SizedBox.shrink();
-                  }
-                  return Positioned(
-                    top: selectionRect.top - 55,
-                    left: selectionRect.left,
-                    child: FloatingToolbar(
-                      onBold: () => _toggleStyle(StyleAttribute.bold),
-                      onItalic: () => _toggleStyle(StyleAttribute.italic),
-                    ),
-                  );
-                },
-              ),
+              if (_isToolbarVisible)
+                Positioned(
+                  top: _selectionRect!.top - 55,
+                  left: _selectionRect!.left,
+                  child: FloatingToolbar(
+                    onBold: () => _toggleStyle(StyleAttribute.bold),
+                    onItalic: () => _toggleStyle(StyleAttribute.italic),
+                  ),
+                ),
             ],
           ),
         ),

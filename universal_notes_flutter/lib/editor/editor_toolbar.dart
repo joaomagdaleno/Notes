@@ -15,8 +15,8 @@ class EditorToolbar extends StatelessWidget {
     required this.onRedo,
     required this.canUndo,
     required this.canRedo,
-    required this.wordCountNotifier,
-    required this.charCountNotifier,
+    this.wordCount = 0,
+    this.charCount = 0,
     super.key,
   });
 
@@ -43,9 +43,9 @@ class EditorToolbar extends StatelessWidget {
   /// Whether the redo action is available.
   final bool canRedo;
   /// The word count of the document.
-  final ValueNotifier<int> wordCountNotifier;
+  final int wordCount;
   /// The character count of the document.
-  final ValueNotifier<int> charCountNotifier;
+  final int charCount;
 
   @override
   Widget build(BuildContext context) {
@@ -93,19 +93,9 @@ class EditorToolbar extends StatelessWidget {
             onPressed: onSnippets,
           ),
           const Spacer(),
-          ValueListenableBuilder<int>(
-            valueListenable: wordCountNotifier,
-            builder: (context, wordCount, child) {
-              return ValueListenableBuilder<int>(
-                valueListenable: charCountNotifier,
-                builder: (context, charCount, child) {
-                  return Text(
-                    '$wordCount words / $charCount characters',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  );
-                },
-              );
-            },
+          Text(
+            '$wordCount words / $charCount characters',
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
       ),
