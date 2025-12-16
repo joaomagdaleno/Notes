@@ -65,7 +65,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   final _searchController = TextEditingController();
   Timer? _debounce;
-  String _searchTerm = '';
+  final _searchTermNotifier = ValueNotifier<String>('');
 
   final _viewModeNotifier = ValueNotifier<String>('grid_medium');
 
@@ -89,16 +89,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     _debounce?.cancel();
     _notesNotifier.dispose();
     _viewModeNotifier.dispose();
+    _searchTermNotifier.dispose();
     super.dispose();
   }
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      if (_searchTerm != _searchController.text) {
-        setState(() {
-          _searchTerm = _searchController.text;
-        });
+      if (_searchTermNotifier.value != _searchController.text) {
+        _searchTermNotifier.value = _searchController.text;
         unawaited(_loadNotes());
       }
     });
@@ -106,8 +105,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   Future<void> _loadNotes() async {
     List<Note> notes;
-    if (_searchTerm.isNotEmpty) {
-      notes = await _noteRepository.searchAllNotes(_searchTerm);
+    if (_searchTermNotifier.value.isNotEmpty) {
+      notes = await _noteRepository.searchAllNotes(_searchTermNotifier.value);
     } else {
       switch (_selection.type) {
         case SidebarItemType.all:
@@ -344,19 +343,26 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         children: [
           Padding(
             padding: const EdgeInsets.all(8),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Buscar em todas as notas...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchTerm.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: _searchController.clear,
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+            child: ValueListenableBuilder<String>(
+              valueListenable: _searchTermNotifier,
+              builder: (context, searchTerm, child) {
+                return TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Buscar em todas as notas...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: searchTerm.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              _searchTermNotifier.value = '';
+                              unawaited(_loadNotes());
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
@@ -560,19 +566,28 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       content: fluent.ScaffoldPage(
         header: Padding(
           padding: const EdgeInsets.all(8),
-          child: fluent.TextBox(
-            controller: _searchController,
-            placeholder: 'Buscar em todas as notas...',
-            prefix: const Padding(
-              padding: EdgeInsets.only(left: 8),
-              child: Icon(fluent.FluentIcons.search),
-            ),
-            suffix: _searchTerm.isNotEmpty
-                ? fluent.IconButton(
-                    icon: const Icon(fluent.FluentIcons.clear),
-                    onPressed: _searchController.clear,
-                  )
-                : null,
+          child: ValueListenableBuilder<String>(
+            valueListenable: _searchTermNotifier,
+            builder: (context, searchTerm, child) {
+              return fluent.TextBox(
+                controller: _searchController,
+                placeholder: 'Buscar em todas as notas...',
+                prefix: const Padding(
+                  padding: EdgeInsets.only(left: 8),
+                  child: Icon(fluent.FluentIcons.search),
+                ),
+                suffix: searchTerm.isNotEmpty
+                    ? fluent.IconButton(
+                        icon: const Icon(fluent.FluentIcons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _searchTermNotifier.value = '';
+                          unawaited(_loadNotes());
+                        },
+                      )
+                    : null,
+              );
+            },
           ),
         ),
         content: ValueListenableBuilder<String>(
