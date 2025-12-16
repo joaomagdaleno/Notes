@@ -54,43 +54,70 @@ class EditorToolbar extends StatelessWidget {
       color: Colors.grey[200],
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.undo),
-            onPressed: canUndo ? onUndo : null,
+          Semantics(
+            label: 'Undo',
+            child: IconButton(
+              icon: const Icon(Icons.undo),
+              onPressed: canUndo ? onUndo : null,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.redo),
-            onPressed: canRedo ? onRedo : null,
-          ),
-          const VerticalDivider(),
-          IconButton(
-            icon: const Icon(Icons.format_bold),
-            onPressed: onBold,
-          ),
-          IconButton(
-            icon: const Icon(Icons.format_italic),
-            onPressed: onItalic,
-          ),
-          IconButton(
-            icon: const Icon(Icons.format_underline),
-            onPressed: onUnderline,
-          ),
-          IconButton(
-            icon: const Icon(Icons.format_strikethrough),
-            onPressed: onStrikethrough,
+          Semantics(
+            label: 'Redo',
+            child: IconButton(
+              icon: const Icon(Icons.redo),
+              onPressed: canRedo ? onRedo : null,
+            ),
           ),
           const VerticalDivider(),
-          IconButton(
-            icon: const Icon(Icons.format_color_text),
-            onPressed: onColor,
+          Semantics(
+            label: 'Bold',
+            child: IconButton(
+              icon: const Icon(Icons.format_bold),
+              onPressed: onBold,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.format_size),
-            onPressed: onFontSize,
+          Semantics(
+            label: 'Italic',
+            child: IconButton(
+              icon: const Icon(Icons.format_italic),
+              onPressed: onItalic,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.shortcut),
-            onPressed: onSnippets,
+          Semantics(
+            label: 'Underline',
+            child: IconButton(
+              icon: const Icon(Icons.format_underline),
+              onPressed: onUnderline,
+            ),
+          ),
+          Semantics(
+            label: 'Strikethrough',
+            child: IconButton(
+              icon: const Icon(Icons.format_strikethrough),
+              onPressed: onStrikethrough,
+            ),
+          ),
+          const VerticalDivider(),
+          Semantics(
+            label: 'Text color',
+            child: IconButton(
+              icon: const Icon(Icons.format_color_text),
+              onPressed: onColor,
+            ),
+          ),
+          Semantics(
+            label: 'Font size',
+            child: IconButton(
+              icon: const Icon(Icons.format_size),
+              onPressed: onFontSize,
+            ),
+          ),
+          Semantics(
+            label: 'Snippets',
+            child: IconButton(
+              icon: const Icon(Icons.shortcut),
+              onPressed: onSnippets,
+            ),
           ),
           const Spacer(),
           Text(

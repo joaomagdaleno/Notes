@@ -279,6 +279,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _redo() {
+    if (!_historyManager.canRedo) return;
     setState(() {
       final state = _historyManager.redo();
       _document = state.document;
@@ -492,9 +493,72 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     // Reload snippets in case they were changed.
     await SnippetConverter.precacheSnippets();
   }
+}
+
+// --- Keyboard Shortcut Actions and Intents ---
+
+class UndoIntent extends Intent {
+  const UndoIntent();
+}
+
+class RedoIntent extends Intent {
+  const RedoIntent();
+}
+
+class UndoAction extends Action<UndoIntent> {
+  UndoAction(this.state);
+
+  final _NoteEditorScreenState state;
 
   @override
+  void invoke(UndoIntent intent) {
+    state._undo();
+  }
+}
+
+class RedoAction extends Action<RedoIntent> {
+  RedoAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(RedoIntent intent) {
+    state._redo();
+  }
+}
+
+extension on _NoteEditorScreenState {
+  @override
   Widget build(BuildContext context) {
+    // Define the keyboard shortcuts
+    final shortcuts = {
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ):
+          const UndoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ):
+          const UndoIntent(),
+      LogicalKeySet(
+        LogicalKeyboardKey.control,
+        LogicalKeyboardKey.shift,
+        LogicalKeyboardKey.keyZ,
+      ):
+          const RedoIntent(),
+      LogicalKeySet(
+        LogicalKeyboardKey.meta,
+        LogicalKeyboardKey.shift,
+        LogicalKeyboardKey.keyZ,
+      ):
+          const RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY):
+          const RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyY):
+          const RedoIntent(),
+    };
+
+    // Define the actions
+    final actions = {
+      UndoIntent: UndoAction(this),
+      RedoIntent: RedoAction(this),
+    };
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -502,67 +566,89 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         await _saveNote();
         if (context.mounted) Navigator.of(context).pop();
       },
-      child: Scaffold(
-        appBar: _isFocusMode
-            ? null
-            : AppBar(
-                title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () =>
-                        setState(() => _isFindBarVisible = !_isFindBarVisible),
-                  ),
-                  if (widget.note != null)
-                    IconButton(
-                      icon: const Icon(Icons.history),
-                      onPressed: _showHistory,
-                    ),
-                  IconButton(
-                    icon: Icon(
-                      _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
-                    ),
-                    onPressed: _toggleFocusMode,
-                  ),
-                ],
-              ),
-        floatingActionButton: _isFocusMode
-            ? null
-            : FloatingActionButton(
-                onPressed: _saveNote,
-                child: const Icon(Icons.save),
-              ),
-        body: SafeArea(
-          top: !_isFocusMode,
-          bottom: !_isFocusMode,
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  if (_isFindBarVisible && !_isFocusMode)
-                    FindReplaceBar(
-                      onFindChanged: _onFindChanged,
-                      onFindNext: _findNext,
-                      onFindPrevious: _findPrevious,
-                      onReplace: _replace,
-                      onReplaceAll: _replaceAll,
-                      onClose: () => setState(() => _isFindBarVisible = false),
-                    ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      child: EditorWidget(
-                        document: _document,
-                        onDocumentChanged: _onDocumentChanged,
-                        selection: _selection,
-                        onSelectionChanged: _onSelectionChanged,
-                        onSelectionRectChanged: _onSelectionRectChanged,
+      child: Actions(
+        actions: actions,
+        child: Shortcuts(
+          shortcuts: shortcuts,
+          child: Scaffold(
+            appBar: _isFocusMode
+                ? null
+                : AppBar(
+                    title:
+                        Text(widget.note == null ? 'New Note' : 'Edit Note'),
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () => setState(
+                          () => _isFindBarVisible = !_isFindBarVisible,
+                        ),
                       ),
-                    ),
+                      if (widget.note != null)
+                        IconButton(
+                          icon: const Icon(Icons.history),
+                          onPressed: _showHistory,
+                        ),
+                      IconButton(
+                        icon: Icon(
+                          _isFocusMode
+                              ? Icons.fullscreen_exit
+                              : Icons.fullscreen,
+                        ),
+                        onPressed: _toggleFocusMode,
+                      ),
+                    ],
                   ),
-                  if (!_isFocusMode)
-                    EditorToolbar(
-                      onBold: () => _toggleStyle(StyleAttribute.bold),
+            floatingActionButton: _isFocusMode
+                ? null
+                : FloatingActionButton(
+                    onPressed: _saveNote,
+                    child: const Icon(Icons.save),
+                  ),
+            body: SafeArea(
+              top: !_isFocusMode,
+              bottom: !_isFocusMode,
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          return SizeTransition(
+                            sizeFactor: animation,
+                            child: child,
+                          );
+                        },
+                        child: _isFindBarVisible && !_isFocusMode
+                            ? FindReplaceBar(
+                                key: const ValueKey('findBar'),
+                                onFindChanged: _onFindChanged,
+                                onFindNext: _findNext,
+                                onFindPrevious: _findPrevious,
+                                onReplace: _replace,
+                                onReplaceAll: _replaceAll,
+                                onClose: () => setState(
+                                  () => _isFindBarVisible = false,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: EditorWidget(
+                            document: _document,
+                            onDocumentChanged: _onDocumentChanged,
+                            selection: _selection,
+                            onSelectionChanged: _onSelectionChanged,
+                            onSelectionRectChanged: _onSelectionRectChanged,
+                          ),
+                        ),
+                      ),
+                      if (!_isFocusMode)
+                        EditorToolbar(
+                          onBold: () => _toggleStyle(StyleAttribute.bold),
                       onItalic: () => _toggleStyle(StyleAttribute.italic),
                       onUnderline: () => _toggleStyle(StyleAttribute.underline),
                       onStrikethrough: () =>
