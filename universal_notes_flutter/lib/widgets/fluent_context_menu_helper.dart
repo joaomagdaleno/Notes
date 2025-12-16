@@ -1,5 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/services/export_service.dart';
 
 /// A helper class for showing a context menu for a note.
 class FluentContextMenuHelper {
@@ -13,20 +15,22 @@ class FluentContextMenuHelper {
   }) async {
     await controller.showFlyout<void>(
       dismissOnPointerMoveAway: true,
-      builder: (context) {
+      builder: (flyoutContext) {
         return MenuFlyout(
           items: note.isInTrash
               ? _buildTrashContextMenu(note, onSave, onDelete)
-              : _buildDefaultContextMenu(note, onSave),
+              : _buildDefaultContextMenu(context, note, onSave),
         );
       },
     );
   }
 
   static List<MenuFlyoutItemBase> _buildDefaultContextMenu(
+    BuildContext context,
     Note note,
     void Function(Note) onSave,
   ) {
+    final exportService = ExportService();
     return [
       MenuFlyoutItem(
         leading: Icon(
@@ -47,6 +51,31 @@ class FluentContextMenuHelper {
         onPressed: () {
           final updatedNote = note.copyWith(isInTrash: true);
           onSave(updatedNote);
+        },
+      ),
+      const MenuFlyoutSeparator(),
+      MenuFlyoutItem(
+        leading: const Icon(FluentIcons.save_as),
+        text: const Text('Export to TXT'),
+        onPressed: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Exporting to TXT...')),
+          );
+          final noteWithContent =
+              await NoteRepository.instance.getNoteWithContent(note.id);
+          await exportService.exportToTxt(noteWithContent);
+        },
+      ),
+      MenuFlyoutItem(
+        leading: const Icon(FluentIcons.pdf),
+        text: const Text('Export to PDF'),
+        onPressed: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Exporting to PDF...')),
+          );
+          final noteWithContent =
+              await NoteRepository.instance.getNoteWithContent(note.id);
+          await exportService.exportToPdf(noteWithContent);
         },
       ),
     ];

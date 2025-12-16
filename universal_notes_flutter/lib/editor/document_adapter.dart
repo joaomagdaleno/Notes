@@ -4,32 +4,74 @@ import 'package:universal_notes_flutter/editor/document.dart';
 /// A class to adapt a [DocumentModel] to and from a JSON string.
 class DocumentAdapter {
   /// Converts a JSON string into a [DocumentModel].
-  ///
-  /// If the string is empty or invalid, returns a document with a single empty
-  /// span.
   static DocumentModel fromJson(String jsonString) {
     if (jsonString.isEmpty) {
-      return const DocumentModel(spans: [TextSpanModel(text: '')]);
+      return DocumentModel(
+        blocks: [TextBlock(spans: const [TextSpanModel(text: '')])],
+      );
     }
     try {
       final jsonList = json.decode(jsonString) as List<dynamic>;
-      final spans = jsonList.map(
-        (jsonItem) {
-          final itemMap = jsonItem as Map<String, dynamic>;
-          return TextSpanModel.fromJson(itemMap);
-        },
-      ).toList();
-      return DocumentModel(spans: spans);
-    } on FormatException catch (_) {
-      // If parsing fails, return a document containing the original string as
-      // plain text.
-      return DocumentModel(spans: [TextSpanModel(text: jsonString)]);
+      final blocks = jsonList.map((jsonItem) {
+        final itemMap = jsonItem as Map<String, dynamic>;
+        final type = itemMap['type'];
+        if (type == 'image') {
+          return ImageBlock(imagePath: itemMap['imagePath'] as String);
+        } else {
+          final spans = (itemMap['spans'] as List<dynamic>)
+              .map((s) => TextSpanModel.fromJson(s as Map<String, dynamic>))
+              .toList();
+          return TextBlock(spans: spans);
+        }
+      }).toList();
+      return DocumentModel(blocks: blocks);
+    } on Exception catch (_) {
+      // Fallback for old plain text content or malformed JSON
+      return DocumentModel(
+        blocks: [TextBlock(spans: [TextSpanModel(text: jsonString)])],
+      );
     }
   }
 
   /// Converts a [DocumentModel] into a JSON string.
   static String toJson(DocumentModel document) {
-    final jsonList = document.spans.map((span) => span.toJson()).toList();
+    final jsonList = document.blocks.map((block) {
+      if (block is ImageBlock) {
+        return {'type': 'image', 'imagePath': block.imagePath};
+      } else if (block is TextBlock) {
+        return {
+          'type': 'text',
+          'spans': block.spans.map((s) => s.toJson()).toList(),
+        };
+      }
+      return <String, dynamic>{};
+    }).toList();
     return json.encode(jsonList);
+  }
+}
+
+extension on TextSpanModel {
+  Map<String, dynamic> toJson() {
+    return {
+      'text': text,
+      'isBold': isBold,
+      'isItalic': isItalic,
+      'isUnderline': isUnderline,
+      'isStrikethrough': isStrikethrough,
+      'fontSize': fontSize,
+      'color': color?.value,
+    };
+  }
+
+  factory TextSpanModel.fromJson(Map<String, dynamic> json) {
+    return TextSpanModel(
+      text: json['text'] as String,
+      isBold: json['isBold'] as bool? ?? false,
+      isItalic: json['isItalic'] as bool? ?? false,
+      isUnderline: json['isUnderline'] as bool? ?? false,
+      isStrikethrough: json['isStrikethrough'] as bool? ?? false,
+      fontSize: json['fontSize'] as double?,
+      color: json['color'] != null ? Color(json['color'] as int) : null,
+    );
   }
 }

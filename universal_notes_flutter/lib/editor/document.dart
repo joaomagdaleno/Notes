@@ -13,19 +13,6 @@ class TextSpanModel {
     this.color,
   });
 
-  /// Creates a [TextSpanModel] from a JSON map.
-  factory TextSpanModel.fromJson(Map<String, dynamic> json) {
-    return TextSpanModel(
-      text: json['text'] as String,
-      isBold: json['isBold'] as bool? ?? false,
-      isItalic: json['isItalic'] as bool? ?? false,
-      isUnderline: json['isUnderline'] as bool? ?? false,
-      isStrikethrough: json['isStrikethrough'] as bool? ?? false,
-      fontSize: json['fontSize'] as double?,
-      color: json['color'] != null ? Color(json['color'] as int) : null,
-    );
-  }
-
   /// The text content.
   final String text;
 
@@ -46,25 +33,6 @@ class TextSpanModel {
 
   /// The color of the text. If null, uses the default.
   final Color? color;
-
-  /// Converts this model to a JSON map.
-  Map<String, dynamic> toJson() {
-    return {
-      'text': text,
-      'isBold': isBold,
-      'isItalic': isItalic,
-      'isUnderline': isUnderline,
-      'isStrikethrough': isStrikethrough,
-      'fontSize': fontSize,
-      'color': color == null
-          ? null
-          : ((((color!.a * 255).round() & 0xff) << 24) |
-                    (((color!.r * 255).round() & 0xff) << 16) |
-                    (((color!.g * 255).round() & 0xff) << 8) |
-                    ((color!.b * 255).round() & 0xff)) &
-                0xFFFFFFFF,
-    };
-  }
 
   /// Converts this model to a Flutter [TextSpan] for rendering.
   TextSpan toTextSpan() {
@@ -104,36 +72,59 @@ class TextSpanModel {
       color: color ?? this.color,
     );
   }
-
-  /// Checks if this span has the same style attributes as another.
-  bool hasSameStyle(TextSpanModel other) {
-    return isBold == other.isBold &&
-        isItalic == other.isItalic &&
-        isUnderline == other.isUnderline &&
-        isStrikethrough == other.isStrikethrough &&
-        fontSize == other.fontSize &&
-        color == other.color;
-  }
 }
 
-/// Represents the entire document as a list of styled text spans.
+/// A base class for a block of content in a document.
+abstract class DocumentBlock {}
+
+/// A block of text content, composed of multiple styled spans.
+class TextBlock extends DocumentBlock {
+  /// Creates a text block.
+  TextBlock({required this.spans});
+
+  /// The list of styled text spans.
+  final List<TextSpanModel> spans;
+}
+
+/// A block representing an image.
+class ImageBlock extends DocumentBlock {
+  /// Creates an image block.
+  ImageBlock({required this.imagePath});
+
+  /// The local file path to the image.
+  final String imagePath;
+}
+
+/// Represents the entire document as a list of content blocks.
 class DocumentModel {
   /// Creates a document model.
-  const DocumentModel({required this.spans});
+  const DocumentModel({required this.blocks});
 
-  /// The list of text spans.
-  final List<TextSpanModel> spans;
+  /// The list of content blocks.
+  final List<DocumentBlock> blocks;
 
   /// Converts the entire document to a single Flutter [TextSpan] for
   /// [RichText].
   TextSpan toTextSpan() {
-    return TextSpan(
-      children: spans.map((span) => span.toTextSpan()).toList(),
-    );
+    final children = <TextSpan>[];
+    for (final block in blocks) {
+      if (block is TextBlock) {
+        children.addAll(block.spans.map((span) => span.toTextSpan()));
+      }
+    }
+    return TextSpan(children: children);
   }
 
   /// Converts the document to a plain text string.
   String toPlainText() {
-    return spans.map((span) => span.text).join();
+    final buffer = StringBuffer();
+    for (final block in blocks) {
+      if (block is TextBlock) {
+        for (final span in block.spans) {
+          buffer.write(span.text);
+        }
+      }
+    }
+    return buffer.toString();
   }
 }
