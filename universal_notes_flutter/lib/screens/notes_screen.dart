@@ -53,7 +53,10 @@ enum SortOrder {
 }
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
-  List<Note> _notes = [];
+  // ⚡ Bolt: Use ValueNotifier to manage the notes list.
+  // This allows us to rebuild only the GridView when the notes change,
+  // instead of the entire screen, preventing unnecessary UI churn.
+  final _notesNotifier = ValueNotifier<List<Note>>([]);
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   SortOrder _sortOrder = SortOrder.dateDesc;
   late final NoteRepository _noteRepository;
@@ -84,6 +87,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       ..removeListener(_onSearchChanged)
       ..dispose();
     _debounce?.cancel();
+    _notesNotifier.dispose();
     super.dispose();
   }
 
@@ -132,9 +136,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       }
     });
 
-    setState(() {
-      _notes = notes;
-    });
+    _notesNotifier.value = notes;
   }
 
   void _onSelectionChanged(SidebarSelection selection) {
@@ -363,14 +365,17 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             ),
           ),
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(8),
-              gridDelegate: _getGridDelegate(),
-              itemCount: _notes.length,
-              itemBuilder: (context, index) {
-                final note = _notes[index];
-                return Dismissible(
-                  key: Key(note.id),
+            child: ValueListenableBuilder<List<Note>>(
+              valueListenable: _notesNotifier,
+              builder: (context, notes, child) {
+                return GridView.builder(
+                  padding: const EdgeInsets.all(8),
+                  gridDelegate: _getGridDelegate(),
+                  itemCount: notes.length,
+                  itemBuilder: (context, index) {
+                    final note = notes[index];
+                    return Dismissible(
+                      key: Key(note.id),
                   background: Container(
                     color: isTrashView ? Colors.blue : Colors.green,
                     alignment: Alignment.centerLeft,
@@ -404,16 +409,18 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                       }
                     }
                   },
-                  child: NoteCard(
-                    note: note,
-                    onTap: () => unawaited(_openNoteEditor(note)),
-                    onSave: (note) async {
-                      await _noteRepository.updateNote(note);
-                      await _loadNotes();
-                      return note;
-                    },
-                    onDelete: _deletePermanently,
-                  ),
+                      child: NoteCard(
+                        note: note,
+                        onTap: () => unawaited(_openNoteEditor(note)),
+                        onSave: (note) async {
+                          await _noteRepository.updateNote(note);
+                          await _loadNotes();
+                          return note;
+                        },
+                        onDelete: _deletePermanently,
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -564,21 +571,26 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 : null,
           ),
         ),
-        content: GridView.builder(
-          padding: const EdgeInsets.all(8),
-          gridDelegate: _getGridDelegate(),
-          itemCount: _notes.length,
-          itemBuilder: (context, index) {
-            final note = _notes[index];
-            return NoteCard(
-              note: note,
-              onTap: () => unawaited(_openNoteEditor(note)),
-              onSave: (note) async {
-                await _noteRepository.updateNote(note);
-                await _loadNotes();
-                return note;
+        content: ValueListenableBuilder<List<Note>>(
+          valueListenable: _notesNotifier,
+          builder: (context, notes, child) {
+            return GridView.builder(
+              padding: const EdgeInsets.all(8),
+              gridDelegate: _getGridDelegate(),
+              itemCount: notes.length,
+              itemBuilder: (context, index) {
+                final note = notes[index];
+                return NoteCard(
+                  note: note,
+                  onTap: () => unawaited(_openNoteEditor(note)),
+                  onSave: (note) async {
+                    await _noteRepository.updateNote(note);
+                    await _loadNotes();
+                    return note;
+                  },
+                  onDelete: _deletePermanently,
+                );
               },
-              onDelete: _deletePermanently,
             );
           },
         ),
