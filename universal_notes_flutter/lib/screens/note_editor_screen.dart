@@ -16,10 +16,10 @@ import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
-import 'package:universal_notes_flutter/models/tag.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
+import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/services/tag_suggestion_service.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:uuid/uuid.dart';
@@ -53,8 +53,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   late DocumentModel _document;
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
-  final _canUndoNotifier = ValueNotifier<bool>(false);
-  final _canRedoNotifier = ValueNotifier<bool>(false);
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey<EditorWidgetState> _editorKey =
+      GlobalKey<EditorWidgetState>();
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
@@ -68,21 +69,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   String _findTerm = '';
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
+  final _firestoreRepository = FirestoreRepository();
+  final _storageService = StorageService();
+  final _imagePicker = ImagePicker();
 
-  // --- Collaboration State ---
-  late bool _isCollaborative;
-  StreamSubscription? _documentSubscription;
-  StreamSubscription? _presenceSubscription;
+  // --- Collaboration State (Temporarily disabled) ---
+  final bool _isCollaborative = false;
   Map<String, Map<String, dynamic>> _remoteCursors = {};
-  static final String _userId = const Uuid().v4(); // Unique ID for this session
-  final Color _userColor =
-      Colors.primaries[DateTime.now().millisecond % Colors.primaries.length];
 
   // --- Tag state ---
-  List<Tag> _noteTags = [];
-  List<Tag> _allTags = [];
-  List<Tag> _suggestedTags = [];
-  Timer? _tagSuggestionDebounce;
+  List<String> _currentTags = [];
   final _tagController = TextEditingController();
 
   static const List<Color> _predefinedColors = [
@@ -103,49 +99,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   void initState() {
     super.initState();
     _note = widget.note;
-    _isCollaborative = widget.isCollaborative;
+    _currentTags = _note?.tags.toList() ?? [];
     WidgetsBinding.instance.addObserver(this);
     _document = DocumentAdapter.fromJson(_note?.content ?? '');
     _historyManager = HistoryManager(
       initialState: HistoryState(document: _document, selection: _selection),
     );
-    _canUndoNotifier.value = _historyManager.canUndo;
-    _canRedoNotifier.value = _historyManager.canRedo;
     _updateCounts(_document);
     unawaited(SnippetConverter.precacheSnippets());
-    unawaited(_loadTags());
-
-    if (_isCollaborative && _note != null) {
-      _documentSubscription = NoteRepository.instance
-          .getCollaborativeNoteStream(_note!.id)
-          .listen((note) {
-        // Avoid updating if the content is the same to prevent cursor jumps.
-        if (note.content != _document) {
-          setState(() {
-            _document = note.content;
-          });
-        }
-      });
-
-      _presenceSubscription = NoteRepository.instance
-          .getPresenceStream(_note!.id)
-          .listen((presenceData) {
-        setState(() {
-          _remoteCursors =
-              Map.from(presenceData)..remove(_userId); // Exclude self
-        });
-      });
-    }
-  }
-
-  Future<void> _loadTags() async {
-    if (widget.note != null) {
-      _noteTags = await NoteRepository.instance.getTagsForNote(widget.note!.id);
-    }
-    _allTags = await NoteRepository.instance.getAllTags();
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   @override
@@ -157,21 +118,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   @override
   void dispose() {
-    if (_isCollaborative && _note != null) {
-      unawaited(NoteRepository.instance.removeUserPresence(_note!.id, _userId));
-    }
     WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     _tagController.dispose();
     _recordHistoryTimer?.cancel();
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
-    _wordCountNotifier.dispose();
-    _charCountNotifier.dispose();
-    _isFindBarVisibleNotifier.dispose();
-    _selectionRectNotifier.dispose();
-    _canUndoNotifier.dispose();
-    _canRedoNotifier.dispose();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
@@ -182,19 +134,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       );
     }
     super.dispose();
-  }
-
-  void _updateTagSuggestions() {
-    final suggestions = TagSuggestionService.getSuggestions(
-      document: _document,
-      allTags: _allTags,
-      currentTags: _noteTags,
-    );
-    if (mounted) {
-      setState(() {
-        _suggestedTags = suggestions;
-      });
-    }
   }
 
   void _updateCounts(DocumentModel document) {
@@ -210,29 +149,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     });
     _updateCounts(newDocument);
 
-    // Debounce tag suggestions
-    _tagSuggestionDebounce?.cancel();
-    _tagSuggestionDebounce = Timer(const Duration(seconds: 2), () {
-      _updateTagSuggestions();
+    // Autosave logic
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(seconds: 3), () {
+      unawaited(_autosave());
     });
 
-    if (_isCollaborative && _note != null) {
-      // In collaborative mode, send updates to Firebase.
-      unawaited(
-        NoteRepository.instance.updateCollaborativeNote(_note!.id, newDocument),
-      );
-    } else {
-      // In local mode, use the existing autosave logic.
-      _debounceTimer?.cancel();
-      _debounceTimer = Timer(const Duration(seconds: 3), () {
+    if (_throttleTimer == null || !_throttleTimer!.isActive) {
+      _throttleTimer = Timer(const Duration(seconds: 10), () {
         unawaited(_autosave());
       });
-
-      if (_throttleTimer == null || !_throttleTimer!.isActive) {
-        _throttleTimer = Timer(const Duration(seconds: 10), () {
-          unawaited(_autosave());
-        });
-      }
     }
 
     if (_isFindBarVisible) {
@@ -240,11 +166,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     }
     _recordHistoryTimer?.cancel();
     _recordHistoryTimer = Timer(const Duration(milliseconds: 500), () {
-      _historyManager.record(
-        HistoryState(document: newDocument, selection: _selection),
-      );
-      _canUndoNotifier.value = _historyManager.canUndo;
-      _canRedoNotifier.value = _historyManager.canRedo;
+      setState(() {
+        _historyManager.record(
+          HistoryState(document: newDocument, selection: _selection),
+        );
+      });
     });
   }
 
@@ -252,22 +178,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     setState(() {
       _selection = newSelection;
     });
-    if (_isCollaborative && _note != null) {
-      unawaited(
-        NoteRepository.instance.updateUserPresence(
-          _note!.id,
-          _userId,
-          {
-            'selection': {
-              'base': newSelection.baseOffset,
-              'extent': newSelection.extentOffset,
-            },
-            'color': _userColor.value,
-            'name': 'User-${_userId.substring(0, 4)}', // Placeholder name
-          },
-        ),
-      );
-    }
   }
 
   void _onSelectionRectChanged(Rect? rect) {
@@ -391,8 +301,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _selection = state.selection;
       _updateCounts(_document);
     });
-    _canUndoNotifier.value = _historyManager.canUndo;
-    _canRedoNotifier.value = _historyManager.canRedo;
   }
 
   void _redo() {
@@ -403,8 +311,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _selection = state.selection;
       _updateCounts(_document);
     });
-    _canUndoNotifier.value = _historyManager.canUndo;
-    _canRedoNotifier.value = _historyManager.canRedo;
   }
 
   Future<void> _autosave() async {
@@ -416,28 +322,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
     final jsonContent = DocumentAdapter.toJson(_document);
 
-    final noteToSave =
-        (_note ??
-                Note(
-                  id: const Uuid().v4(),
-                  title: '',
-                  content: '',
-                  date: DateTime.now(),
-                ))
-            .copyWith(
-              title: plainText.split('\n').first,
-              content: jsonContent,
-              date: DateTime.now(),
-            );
-
-    // If it's a new note, store it in the state so we update it next time.
+    // If it's a new note, create it. Otherwise, update it.
     if (_note == null) {
-      setState(() {
-        _note = noteToSave;
-      });
+      // We don't have enough info to create a full note,
+      // so we rely on the manual save for new notes.
+      // Or we could create a draft here. For now, we do nothing.
+      return;
+    } else {
+      final noteToSave = _note!.copyWith(
+        title: plainText.split('\n').first,
+        content: jsonContent,
+        lastModified: DateTime.now(),
+        tags: _currentTags,
+      );
+      await _firestoreRepository.updateNote(noteToSave);
     }
-
-    await NoteRepository.instance.updateNoteContent(noteToSave);
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -446,8 +345,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         duration: Duration(seconds: 2),
       ),
     );
-
-    await _createVersionIfNeeded(jsonContent);
   }
 
   Future<void> _saveNote() async {
@@ -456,73 +353,39 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _throttleTimer?.cancel();
 
     await _autosave(); // Perform a final save
+    // Also call the onSave callback from the parent screen
+    final plainText = _document.toPlainText();
+    if (plainText.trim().isEmpty) {
+      if (mounted) Navigator.of(context).pop();
+      return;
+    }
+    final jsonContent = DocumentAdapter.toJson(_document);
+
+    if (_note == null) return; // Should not happen if text is not empty
+
+    final noteToSave = _note!.copyWith(
+      title: plainText.split('\n').first,
+      content: jsonContent,
+      lastModified: DateTime.now(),
+      tags: _currentTags,
+    );
+    await widget.onSave(noteToSave);
     if (mounted) Navigator.of(context).pop();
   }
 
-  Future<void> _createVersionIfNeeded(String jsonContent) async {
-    if (widget.note == null) return;
+  Future<void> _attachImage() async {
+    final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
 
-    final versions = await NoteRepository.instance.getNoteVersions(
-      widget.note!.id,
-    );
-    final now = DateTime.now();
-
-    if (versions.isEmpty || now.difference(versions.first.date).inHours >= 6) {
-      final newVersion = NoteVersion(
-        id: const Uuid().v4(),
-        noteId: widget.note!.id,
-        content: jsonContent,
-        date: now,
-      );
-      await NoteRepository.instance.createNoteVersion(newVersion);
+    final imageUrl =
+        await _storageService.uploadImage(File(pickedFile.path));
+    if (imageUrl != null) {
+      setState(() {
+        _note = _note?.copyWith(imageUrl: imageUrl);
+      });
+      // Trigger autosave
+      unawaited(_autosave());
     }
-  }
-
-  Future<void> _showHistory() async {
-    if (widget.note == null) return;
-    final versions = await NoteRepository.instance.getNoteVersions(
-      widget.note!.id,
-    );
-
-    if (!mounted) return;
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Version History'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            itemCount: versions.length,
-            itemBuilder: (context, index) {
-              final version = versions[index];
-              return ListTile(
-                title: Text(DateFormat.yMMMd().add_Hms().format(version.date)),
-                subtitle: Text(
-                  DocumentAdapter.fromJson(version.content).toPlainText(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: () {
-                  _restoreVersion(version);
-                  Navigator.of(context).pop();
-                },
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _restoreVersion(NoteVersion version) {
-    final newDocument = DocumentAdapter.fromJson(version.content);
-    _onDocumentChanged(newDocument);
   }
 
   void _onFindChanged(String term) {
@@ -633,37 +496,20 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   // --- Tag Methods ---
-  Future<void> _addTag(Tag tag) async {
-    if (widget.note == null) return;
-    await NoteRepository.instance.addTagToNote(widget.note!.id, tag.id);
-    await _loadTags();
-  }
 
-  Future<void> _removeTag(Tag tag) async {
-    if (widget.note == null) return;
-    await NoteRepository.instance.removeTagFromNote(widget.note!.id, tag.id);
-    await _loadTags();
-  }
-
-  Future<void> _onTagSubmitted(String tagName) async {
-    if (tagName.isEmpty) return;
-    _tagController.clear();
-
-    // Check if tag already exists
-    final existingTag = _allTags.firstWhere(
-      (t) => t.name.toLowerCase() == tagName.toLowerCase(),
-      orElse: () => const Tag(id: '', name: ''),
-    );
-
-    if (existingTag.id.isNotEmpty) {
-      await _addTag(existingTag);
-    } else {
-      // Create new tag
-      final newTag = await NoteRepository.instance.createTag(
-        Tag(id: const Uuid().v4(), name: tagName),
-      );
-      await _addTag(newTag);
+  void _addTag(String tagName) {
+    if (tagName.isNotEmpty && !_currentTags.contains(tagName)) {
+      setState(() {
+        _currentTags.add(tagName);
+      });
+      _tagController.clear();
     }
+  }
+
+  void _removeTag(String tagName) {
+    setState(() {
+      _currentTags.remove(tagName);
+    });
   }
 
   Widget _buildTagEditor() {
@@ -675,79 +521,22 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           Wrap(
             spacing: 8,
             runSpacing: 4,
-            children: _noteTags
+            children: _currentTags
                 .map(
                   (tag) => Chip(
-                    label: Text(tag.name),
-                    onDeleted: () => unawaited(_removeTag(tag)),
+                    label: Text(tag),
+                    onDeleted: () => _removeTag(tag),
                   ),
                 )
                 .toList(),
           ),
-          if (_suggestedTags.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Tags Sugeridas:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: _suggestedTags
-                        .map(
-                          (tag) => ActionChip(
-                            label: Text(tag.name),
-                            onPressed: () => unawaited(_addTag(tag)),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ],
-              ),
+          TextField(
+            controller: _tagController,
+            decoration: const InputDecoration(
+              hintText: 'Add a tag...',
+              border: InputBorder.none,
             ),
-          Autocomplete<Tag>(
-            optionsBuilder: (TextEditingValue textEditingValue) {
-              if (textEditingValue.text.isEmpty) {
-                return const Iterable<Tag>.empty();
-              }
-              return _allTags.where(
-                (Tag option) {
-                  return option.name
-                      .toLowerCase()
-                      .contains(textEditingValue.text.toLowerCase());
-                },
-              );
-            },
-            displayStringForOption: (Tag option) => option.name,
-            onSelected: (Tag selection) {
-              unawaited(_addTag(selection));
-              _tagController.clear();
-            },
-            fieldViewBuilder: (
-              BuildContext context,
-              TextEditingController fieldTextEditingController,
-              FocusNode fieldFocusNode,
-              VoidCallback onFieldSubmitted,
-            ) {
-              // This is a bit of a hack to use our own controller
-              _tagController.text = fieldTextEditingController.text;
-              return TextField(
-                controller: fieldTextEditingController,
-                focusNode: fieldFocusNode,
-                decoration: const InputDecoration(
-                  hintText: 'Add a tag...',
-                  border: InputBorder.none,
-                ),
-                onSubmitted: (value) {
-                  unawaited(_onTagSubmitted(value));
-                  onFieldSubmitted();
-                },
-              );
-            },
+            onSubmitted: _addTag,
           ),
         ],
       ),
@@ -844,36 +633,102 @@ class _CollaboratorAvatars extends StatelessWidget {
 }
 
 extension on _NoteEditorScreenState {
-  void _showShareDialog(String noteId) {
+  void _showShareDialog() {
+    final emailController = TextEditingController();
+    String permission = 'viewer'; // Default permission
+
     unawaited(
       showDialog<void>(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Share Note'),
-          content: TextField(
-            controller: TextEditingController(text: noteId),
-            readOnly: true,
-            decoration: const InputDecoration(
-              labelText: 'Copy this ID to share',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: noteId));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Note ID copied!')),
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Share Note'),
+            content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Add new collaborator:'),
+                      TextField(
+                        controller: emailController,
+                        decoration:
+                            const InputDecoration(labelText: 'User Email'),
+                      ),
+                      DropdownButton<String>(
+                        value: permission,
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              permission = newValue;
+                            });
+                          }
+                        },
+                        items: <String>['viewer', 'editor']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                      const Divider(),
+                      const Text('Current collaborators:'),
+                      if (_note!.collaborators.isEmpty)
+                        const Text('None')
+                      else
+                        ..._note!.collaborators.entries.map((entry) {
+                          return ListTile(
+                            title: Text(entry.key), // Ideally, show email/name
+                            subtitle: Text(entry.value),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.remove_circle_outline),
+                              onPressed: () async {
+                                await _firestoreRepository
+                                    .unshareNoteWithCollaborator(
+                                        _note!.id, entry.key);
+                                // Refresh note from parent
+                              },
+                            ),
+                          );
+                        }),
+                    ],
+                  ),
                 );
               },
-              child: const Text('Copy'),
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  final success =
+                      await _firestoreRepository.shareNoteWithEmail(
+                    _note!.id,
+                    emailController.text,
+                    permission,
+                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          success
+                              ? 'Note shared successfully!'
+                              : 'User not found.',
+                        ),
+                      ),
+                    );
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text('Share'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -938,76 +793,119 @@ extension on _NoteEditorScreenState {
         await _saveNote();
         if (context.mounted) Navigator.of(context).pop();
       },
-      child: Scaffold(
-        appBar: _isFocusMode
-            ? null
-            : AppBar(
-                title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () => _isFindBarVisibleNotifier.value =
-                        !_isFindBarVisibleNotifier.value,
-                  ),
-                  if (widget.note != null)
-                    IconButton(
-                      icon: const Icon(Icons.history),
-                      tooltip: 'Version History',
-                      onPressed: _showHistory,
-                    ),
-                  IconButton(
-                    icon: Icon(
-                      _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
-                    ),
-                    tooltip: 'Focus Mode',
-                    onPressed: _toggleFocusMode,
-                  ),
-                ],
-              ),
-        floatingActionButton: _isFocusMode
-            ? null
-            : FloatingActionButton(
-                onPressed: _saveNote,
-                tooltip: 'Save Note',
-                child: const Icon(Icons.save),
-              ),
-        body: SafeArea(
-          top: !_isFocusMode,
-          bottom: !_isFocusMode,
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  ValueListenableBuilder<bool>(
-                    valueListenable: _isFindBarVisibleNotifier,
-                    builder: (context, isVisible, child) {
-                      return AnimatedCrossFade(
-                        firstChild: FindReplaceBar(
-                          onFindChanged: _onFindChanged,
-                          onFindNext: _findNext,
-                          onFindPrevious: _findPrevious,
-                          onReplace: _replace,
-                          onReplaceAll: _replaceAll,
-                          onClose: () =>
-                              _isFindBarVisibleNotifier.value = false,
+      child: Actions(
+        actions: actions,
+        child: Shortcuts(
+          shortcuts: shortcuts,
+          child: Scaffold(
+            appBar: _isFocusMode
+                ? null
+                : AppBar(
+                    title:
+                        Text(widget.note == null ? 'New Note' : 'Edit Note'),
+                    actions: [
+                      if (_isCollaborative)
+                        _CollaboratorAvatars(remoteCursors: _remoteCursors),
+                      IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () => setState(
+                          () => _isFindBarVisible = !_isFindBarVisible,
                         ),
-                        secondChild: const SizedBox.shrink(),
-                        crossFadeState: isVisible && !_isFocusMode
-                            ? CrossFadeState.showFirst
-                            : CrossFadeState.showSecond,
-                        duration: const Duration(milliseconds: 200),
-                      );
-                    },
+                      ),
+                      if (widget.note != null)
+                        IconButton(
+                          icon: const Icon(Icons.share),
+                          onPressed: () => _showShareDialog(),
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.attach_file),
+                        onPressed: _attachImage,
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          _isFocusMode
+                              ? Icons.fullscreen_exit
+                              : Icons.fullscreen,
+                        ),
+                        onPressed: _toggleFocusMode,
+                      ),
+                      PopupMenuButton<String>(
+                        onSelected: (value) async {
+                          if (widget.note == null) return;
+                          final exportService = ExportService();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Exportando...'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          if (value == 'txt') {
+                            await exportService.exportToTxt(widget.note!);
+                          } else if (value == 'pdf') {
+                            await exportService.exportToPdf(widget.note!);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'txt',
+                            child: Text('Exportar para TXT'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'pdf',
+                            child: Text('Exportar para PDF'),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      child: EditorWidget(
-                        document: _document,
-                        onDocumentChanged: _onDocumentChanged,
-                        selection: _selection,
-                        onSelectionChanged: _onSelectionChanged,
-                        onSelectionRectChanged: _onSelectionRectChanged,
+            floatingActionButton: _isFocusMode
+                ? null
+                : FloatingActionButton(
+                    onPressed: _saveNote,
+                    child: const Icon(Icons.save),
+                  ),
+            body: SafeArea(
+              top: !_isFocusMode,
+              bottom: !_isFocusMode,
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          return SizeTransition(
+                            sizeFactor: animation,
+                            child: child,
+                          );
+                        },
+                        child: _isFindBarVisible && !_isFocusMode
+                            ? FindReplaceBar(
+                                key: const ValueKey('findBar'),
+                                onFindChanged: _onFindChanged,
+                                onFindNext: _findNext,
+                                onFindPrevious: _findPrevious,
+                                onReplace: _replace,
+                                onReplaceAll: _replaceAll,
+                                onClose: () => setState(
+                                  () => _isFindBarVisible = false,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                      if (!_isFocusMode) _buildTagEditor(),
+                      if (_note?.imageUrl != null)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.network(_note!.imageUrl!),
+                        ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: editor,
+                        ),
                       ),
                       if (!_isFocusMode)
                         EditorToolbar(
@@ -1030,42 +928,18 @@ extension on _NoteEditorScreenState {
                         ),
                     ],
                   ),
-                  if (!_isFocusMode)
-                    EditorToolbar(
-                      onBold: () => _toggleStyle(StyleAttribute.bold),
-                      onItalic: () => _toggleStyle(StyleAttribute.italic),
-                      onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                      onStrikethrough: () =>
-                          _toggleStyle(StyleAttribute.strikethrough),
-                      onColor: _showColorPicker,
-                      onFontSize: _showFontSizePicker,
-                      onSnippets: () => unawaited(_showSnippetsScreen()),
-                      onUndo: _undo,
-                      onRedo: _redo,
-                      canUndoNotifier: _canUndoNotifier,
-                      canRedoNotifier: _canRedoNotifier,
-                      wordCountNotifier: _wordCountNotifier,
-                      charCountNotifier: _charCountNotifier,
+                  if (_isToolbarVisible)
+                    Positioned(
+                      top: _selectionRect!.top - 55,
+                      left: _selectionRect!.left,
+                      child: FloatingToolbar(
+                        onBold: () => _toggleStyle(StyleAttribute.bold),
+                        onItalic: () => _toggleStyle(StyleAttribute.italic),
+                      ),
                     ),
                 ],
               ),
-              ValueListenableBuilder<Rect?>(
-                valueListenable: _selectionRectNotifier,
-                builder: (context, selectionRect, child) {
-                  if (selectionRect == null || _selection.isCollapsed) {
-                    return const SizedBox.shrink();
-                  }
-                  return Positioned(
-                    top: selectionRect.top - 55,
-                    left: selectionRect.left,
-                    child: FloatingToolbar(
-                      onBold: () => _toggleStyle(StyleAttribute.bold),
-                      onItalic: () => _toggleStyle(StyleAttribute.italic),
-                    ),
-                  );
-                },
-              ),
-            ],
+            ),
           ),
         ),
       ),

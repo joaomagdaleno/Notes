@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_notes_flutter/screens/auth_screen.dart';
 import 'package:universal_notes_flutter/screens/notes_screen.dart';
+import 'package:universal_notes_flutter/services/auth_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:universal_notes_flutter/firebase_options.dart';
@@ -27,8 +30,14 @@ void main() async {
     });
   }
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeService(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+        StreamProvider<User?>.value(
+          value: AuthService().authStateChanges,
+          initialData: null,
+        ),
+      ],
       child: const MyApp(),
     ),
   );
@@ -48,9 +57,23 @@ class MyApp extends StatelessWidget {
           theme: AppThemes.lightTheme,
           darkTheme: AppThemes.darkTheme,
           themeMode: themeService.themeMode,
-          home: const NotesScreen(),
+          home: const AuthWrapper(),
         );
       },
     );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final firebaseUser = context.watch<User?>();
+
+    if (firebaseUser != null) {
+      return const NotesScreen();
+    }
+    return const AuthScreen();
   }
 }

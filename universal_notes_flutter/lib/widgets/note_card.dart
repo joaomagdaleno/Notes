@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
-import 'package:universal_notes_flutter/widgets/note_preview_dialog.dart';
 
 /// A widget that displays a note as a card.
 class NoteCard extends StatefulWidget {
@@ -34,21 +32,6 @@ class NoteCard extends StatefulWidget {
   // Re-creating DateFormat on every build is inefficient.
   // This avoids repeated object creation.
   static final _dateFormat = DateFormat('d MMM. yyyy');
-
-  Future<void> _showPreview(BuildContext context) async {
-    final noteWithContent =
-        await NoteRepository.instance.getNoteWithContent(note.id);
-    final tags = await NoteRepository.instance.getTagsForNote(note.id);
-    if (context.mounted) {
-      unawaited(
-        showDialog<void>(
-          context: context,
-          builder: (context) =>
-              NotePreviewDialog(note: noteWithContent, tags: tags),
-        ),
-      );
-    }
-  }
 
   @override
   State<NoteCard> createState() => _NoteCardState();
@@ -83,11 +66,14 @@ class _NoteCardState extends State<NoteCard> {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasImage = widget.note.imageUrl?.isNotEmpty ?? false;
+
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      clipBehavior: Clip.antiAlias, // Important for the image background
       child: InkWell(
         onTap: widget.onTap,
         onLongPress: () {
@@ -100,66 +86,55 @@ class _NoteCardState extends State<NoteCard> {
           }
         },
         child: Stack(
+          fit: StackFit.expand,
           children: [
+            if (hasImage)
+              Image.network(
+                widget.note.imageUrl!,
+                fit: BoxFit.cover,
+              ),
+            // Gradient overlay for text readability
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withOpacity(0.6),
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.8),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (_plainTextContent.isNotEmpty)
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          _plainTextContent,
-                          maxLines: 5,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (_plainTextContent.isNotEmpty) const SizedBox(height: 8),
                   Text(
                     widget.note.title.isNotEmpty
                         ? widget.note.title
                         : 'Sem Título',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    NoteCard._dateFormat.format(widget.note.date),
-                    style: Theme.of(context).textTheme.bodySmall,
+                    NoteCard._dateFormat.format(widget.note.lastModified),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Colors.white70),
                   ),
                 ],
               ),
             ),
-            if (widget.note.isDraft)
-              const Positioned(
-                top: 8,
-                right: 40,
-                child: Icon(
-                  Icons.flash_on,
-                  size: 16,
-                  color: Colors.amber,
-                ),
-              ),
           ],
         ),
       ),
