@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
@@ -12,8 +16,11 @@ import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
+import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
+import 'package:universal_notes_flutter/services/export_service.dart';
+import 'package:universal_notes_flutter/services/tag_suggestion_service.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:uuid/uuid.dart';
 
@@ -23,6 +30,7 @@ class NoteEditorScreen extends StatefulWidget {
   const NoteEditorScreen({
     required this.onSave,
     this.note,
+    this.isCollaborative = false,
     super.key,
   });
 
@@ -31,6 +39,9 @@ class NoteEditorScreen extends StatefulWidget {
 
   /// Callback to save the note.
   final Future<Note> Function(Note) onSave;
+
+  /// Whether the note is in collaborative mode.
+  final bool isCollaborative;
 
   @override
   State<NoteEditorScreen> createState() => _NoteEditorScreenState();
@@ -58,6 +69,22 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
 
+  // --- Collaboration State ---
+  late bool _isCollaborative;
+  StreamSubscription? _documentSubscription;
+  StreamSubscription? _presenceSubscription;
+  Map<String, Map<String, dynamic>> _remoteCursors = {};
+  static final String _userId = const Uuid().v4(); // Unique ID for this session
+  final Color _userColor =
+      Colors.primaries[DateTime.now().millisecond % Colors.primaries.length];
+
+  // --- Tag state ---
+  List<Tag> _noteTags = [];
+  List<Tag> _allTags = [];
+  List<Tag> _suggestedTags = [];
+  Timer? _tagSuggestionDebounce;
+  final _tagController = TextEditingController();
+
   static const List<Color> _predefinedColors = [
     Colors.black,
     Colors.red,
@@ -76,6 +103,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   void initState() {
     super.initState();
     _note = widget.note;
+    _isCollaborative = widget.isCollaborative;
     WidgetsBinding.instance.addObserver(this);
     _document = DocumentAdapter.fromJson(_note?.content ?? '');
     _historyManager = HistoryManager(
@@ -85,6 +113,39 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _canRedoNotifier.value = _historyManager.canRedo;
     _updateCounts(_document);
     unawaited(SnippetConverter.precacheSnippets());
+    unawaited(_loadTags());
+
+    if (_isCollaborative && _note != null) {
+      _documentSubscription = NoteRepository.instance
+          .getCollaborativeNoteStream(_note!.id)
+          .listen((note) {
+        // Avoid updating if the content is the same to prevent cursor jumps.
+        if (note.content != _document) {
+          setState(() {
+            _document = note.content;
+          });
+        }
+      });
+
+      _presenceSubscription = NoteRepository.instance
+          .getPresenceStream(_note!.id)
+          .listen((presenceData) {
+        setState(() {
+          _remoteCursors =
+              Map.from(presenceData)..remove(_userId); // Exclude self
+        });
+      });
+    }
+  }
+
+  Future<void> _loadTags() async {
+    if (widget.note != null) {
+      _noteTags = await NoteRepository.instance.getTagsForNote(widget.note!.id);
+    }
+    _allTags = await NoteRepository.instance.getAllTags();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -96,7 +157,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   @override
   void dispose() {
+    if (_isCollaborative && _note != null) {
+      unawaited(NoteRepository.instance.removeUserPresence(_note!.id, _userId));
+    }
     WidgetsBinding.instance.removeObserver(this);
+    _scrollController.dispose();
+    _tagController.dispose();
     _recordHistoryTimer?.cancel();
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
@@ -109,13 +175,26 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
-        SystemChrome.setEnabledSystemUIMode(
+        SystemChrome.setEnabledSystemUimode(
           SystemUiMode.manual,
           overlays: SystemUiOverlay.values,
         ),
       );
     }
     super.dispose();
+  }
+
+  void _updateTagSuggestions() {
+    final suggestions = TagSuggestionService.getSuggestions(
+      document: _document,
+      allTags: _allTags,
+      currentTags: _noteTags,
+    );
+    if (mounted) {
+      setState(() {
+        _suggestedTags = suggestions;
+      });
+    }
   }
 
   void _updateCounts(DocumentModel document) {
@@ -130,6 +209,32 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _document = newDocument;
     });
     _updateCounts(newDocument);
+
+    // Debounce tag suggestions
+    _tagSuggestionDebounce?.cancel();
+    _tagSuggestionDebounce = Timer(const Duration(seconds: 2), () {
+      _updateTagSuggestions();
+    });
+
+    if (_isCollaborative && _note != null) {
+      // In collaborative mode, send updates to Firebase.
+      unawaited(
+        NoteRepository.instance.updateCollaborativeNote(_note!.id, newDocument),
+      );
+    } else {
+      // In local mode, use the existing autosave logic.
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(seconds: 3), () {
+        unawaited(_autosave());
+      });
+
+      if (_throttleTimer == null || !_throttleTimer!.isActive) {
+        _throttleTimer = Timer(const Duration(seconds: 10), () {
+          unawaited(_autosave());
+        });
+      }
+    }
+
     if (_isFindBarVisible) {
       _onFindChanged(_findTerm);
     }
@@ -141,24 +246,28 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _canUndoNotifier.value = _historyManager.canUndo;
       _canRedoNotifier.value = _historyManager.canRedo;
     });
-
-    // --- Autosave Logic ---
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(seconds: 3), () {
-      unawaited(_autosave());
-    });
-
-    if (_throttleTimer == null || !_throttleTimer!.isActive) {
-      _throttleTimer = Timer(const Duration(seconds: 10), () {
-        unawaited(_autosave());
-      });
-    }
   }
 
   void _onSelectionChanged(TextSelection newSelection) {
     setState(() {
       _selection = newSelection;
     });
+    if (_isCollaborative && _note != null) {
+      unawaited(
+        NoteRepository.instance.updateUserPresence(
+          _note!.id,
+          _userId,
+          {
+            'selection': {
+              'base': newSelection.baseOffset,
+              'extent': newSelection.extentOffset,
+            },
+            'color': _userColor.value,
+            'name': 'User-${_userId.substring(0, 4)}', // Placeholder name
+          },
+        ),
+      );
+    }
   }
 
   void _onSelectionRectChanged(Rect? rect) {
@@ -275,6 +384,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _undo() {
+    if (!_historyManager.canUndo) return;
     setState(() {
       final state = _historyManager.undo();
       _document = state.document;
@@ -286,6 +396,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _redo() {
+    if (!_historyManager.canRedo) return;
     setState(() {
       final state = _historyManager.redo();
       _document = state.document;
@@ -297,7 +408,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   Future<void> _autosave() async {
-    if (!mounted) return;
+    if (!mounted || _isCollaborative) return;
     _debounceTimer?.cancel();
 
     final plainText = _document.toPlainText();
@@ -502,8 +613,324 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     await SnippetConverter.precacheSnippets();
   }
 
+  Future<void> _insertImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    final appDir = await getApplicationDocumentsDirectory();
+    final fileName = p.basename(pickedFile.path);
+    final savedImage = await File(pickedFile.path).copy(
+      '${appDir.path}/$fileName',
+    );
+
+    final newDoc = DocumentManipulator.insertImage(
+      _document,
+      _selection.baseOffset,
+      savedImage.path,
+    );
+    _onDocumentChanged(newDoc);
+  }
+
+  // --- Tag Methods ---
+  Future<void> _addTag(Tag tag) async {
+    if (widget.note == null) return;
+    await NoteRepository.instance.addTagToNote(widget.note!.id, tag.id);
+    await _loadTags();
+  }
+
+  Future<void> _removeTag(Tag tag) async {
+    if (widget.note == null) return;
+    await NoteRepository.instance.removeTagFromNote(widget.note!.id, tag.id);
+    await _loadTags();
+  }
+
+  Future<void> _onTagSubmitted(String tagName) async {
+    if (tagName.isEmpty) return;
+    _tagController.clear();
+
+    // Check if tag already exists
+    final existingTag = _allTags.firstWhere(
+      (t) => t.name.toLowerCase() == tagName.toLowerCase(),
+      orElse: () => const Tag(id: '', name: ''),
+    );
+
+    if (existingTag.id.isNotEmpty) {
+      await _addTag(existingTag);
+    } else {
+      // Create new tag
+      final newTag = await NoteRepository.instance.createTag(
+        Tag(id: const Uuid().v4(), name: tagName),
+      );
+      await _addTag(newTag);
+    }
+  }
+
+  Widget _buildTagEditor() {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: _noteTags
+                .map(
+                  (tag) => Chip(
+                    label: Text(tag.name),
+                    onDeleted: () => unawaited(_removeTag(tag)),
+                  ),
+                )
+                .toList(),
+          ),
+          if (_suggestedTags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Tags Sugeridas:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: _suggestedTags
+                        .map(
+                          (tag) => ActionChip(
+                            label: Text(tag.name),
+                            onPressed: () => unawaited(_addTag(tag)),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+          Autocomplete<Tag>(
+            optionsBuilder: (TextEditingValue textEditingValue) {
+              if (textEditingValue.text.isEmpty) {
+                return const Iterable<Tag>.empty();
+              }
+              return _allTags.where(
+                (Tag option) {
+                  return option.name
+                      .toLowerCase()
+                      .contains(textEditingValue.text.toLowerCase());
+                },
+              );
+            },
+            displayStringForOption: (Tag option) => option.name,
+            onSelected: (Tag selection) {
+              unawaited(_addTag(selection));
+              _tagController.clear();
+            },
+            fieldViewBuilder: (
+              BuildContext context,
+              TextEditingController fieldTextEditingController,
+              FocusNode fieldFocusNode,
+              VoidCallback onFieldSubmitted,
+            ) {
+              // This is a bit of a hack to use our own controller
+              _tagController.text = fieldTextEditingController.text;
+              return TextField(
+                controller: fieldTextEditingController,
+                focusNode: fieldFocusNode,
+                decoration: const InputDecoration(
+                  hintText: 'Add a tag...',
+                  border: InputBorder.none,
+                ),
+                onSubmitted: (value) {
+                  unawaited(_onTagSubmitted(value));
+                  onFieldSubmitted();
+                },
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- Keyboard Shortcut Actions and Intents ---
+
+class UndoIntent extends Intent {
+  const UndoIntent();
+}
+
+class RedoIntent extends Intent {
+  const RedoIntent();
+}
+
+class CenterLineIntent extends Intent {
+  const CenterLineIntent();
+}
+
+class ShowFormatMenuIntent extends Intent {
+  const ShowFormatMenuIntent();
+}
+
+class UndoAction extends Action<UndoIntent> {
+  UndoAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(UndoIntent intent) {
+    state._undo();
+  }
+}
+
+class RedoAction extends Action<RedoIntent> {
+  RedoAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(RedoIntent intent) {
+    state._redo();
+  }
+}
+
+class CenterLineAction extends Action<CenterLineIntent> {
+  CenterLineAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(CenterLineIntent intent) {
+    state._editorKey.currentState?.centerLine();
+  }
+}
+
+class ShowFormatMenuAction extends Action<ShowFormatMenuIntent> {
+  ShowFormatMenuAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(ShowFormatMenuIntent intent) {
+    state._showFontSizePicker();
+  }
+}
+
+class _CollaboratorAvatars extends StatelessWidget {
+  const _CollaboratorAvatars({required this.remoteCursors});
+
+  final Map<String, Map<String, dynamic>> remoteCursors;
+
   @override
   Widget build(BuildContext context) {
+    final collaborators = remoteCursors.values.toList();
+    return Row(
+      children: [
+        for (int i = 0; i < collaborators.length; i++)
+          Align(
+            widthFactor: 0.7,
+            child: CircleAvatar(
+              backgroundColor: Color(collaborators[i]['color'] as int),
+              child: Text(
+                (collaborators[i]['name'] as String).substring(0, 2),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+extension on _NoteEditorScreenState {
+  void _showShareDialog(String noteId) {
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Share Note'),
+          content: TextField(
+            controller: TextEditingController(text: noteId),
+            readOnly: true,
+            decoration: const InputDecoration(
+              labelText: 'Copy this ID to share',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: noteId));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Note ID copied!')),
+                );
+              },
+              child: const Text('Copy'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Add the remote cursors to the editor widget
+    final editor = EditorWidget(
+      key: _editorKey,
+      document: _document,
+      onDocumentChanged: _onDocumentChanged,
+      selection: _selection,
+      onSelectionChanged: _onSelectionChanged,
+      onSelectionRectChanged: _onSelectionRectChanged,
+      scrollController: _scrollController,
+      remoteCursors: _remoteCursors,
+    );
+
+    // Define the keyboard shortcuts
+    final shortcuts = {
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ):
+          const UndoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ):
+          const UndoIntent(),
+      LogicalKeySet(
+        LogicalKeyboardKey.control,
+        LogicalKeyboardKey.shift,
+        LogicalKeyboardKey.keyZ,
+      ):
+          const RedoIntent(),
+      LogicalKeySet(
+        LogicalKeyboardKey.meta,
+        LogicalKeyboardKey.shift,
+        LogicalKeyboardKey.keyZ,
+      ):
+          const RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY):
+          const RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyY):
+          const RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyE):
+          const CenterLineIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyE):
+          const CenterLineIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyP):
+          const ShowFormatMenuIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyP):
+          const ShowFormatMenuIntent(),
+    };
+
+    // Define the actions
+    final actions = {
+      UndoIntent: UndoAction(this),
+      RedoIntent: RedoAction(this),
+      CenterLineIntent: CenterLineAction(this),
+      ShowFormatMenuIntent: ShowFormatMenuAction(this),
+    };
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -525,12 +952,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                   if (widget.note != null)
                     IconButton(
                       icon: const Icon(Icons.history),
+                      tooltip: 'Version History',
                       onPressed: _showHistory,
                     ),
                   IconButton(
                     icon: Icon(
                       _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
                     ),
+                    tooltip: 'Focus Mode',
                     onPressed: _toggleFocusMode,
                   ),
                 ],
@@ -539,6 +968,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
             ? null
             : FloatingActionButton(
                 onPressed: _saveNote,
+                tooltip: 'Save Note',
                 child: const Icon(Icons.save),
               ),
         body: SafeArea(
@@ -579,7 +1009,26 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                         onSelectionChanged: _onSelectionChanged,
                         onSelectionRectChanged: _onSelectionRectChanged,
                       ),
-                    ),
+                      if (!_isFocusMode)
+                        EditorToolbar(
+                          onBold: () => _toggleStyle(StyleAttribute.bold),
+                          onItalic: () => _toggleStyle(StyleAttribute.italic),
+                          onUnderline: () =>
+                              _toggleStyle(StyleAttribute.underline),
+                          onStrikethrough: () =>
+                              _toggleStyle(StyleAttribute.strikethrough),
+                          onColor: _showColorPicker,
+                          onFontSize: _showFontSizePicker,
+                          onSnippets: () => unawaited(_showSnippetsScreen()),
+                          onImage: () => unawaited(_insertImage()),
+                          onUndo: _undo,
+                          onRedo: _redo,
+                          canUndo: _historyManager.canUndo,
+                          canRedo: _historyManager.canRedo,
+                          wordCount: _wordCount,
+                          charCount: _charCount,
+                        ),
+                    ],
                   ),
                   if (!_isFocusMode)
                     EditorToolbar(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// A floating overlay that displays autocomplete suggestions.
-class AutocompleteOverlay extends StatelessWidget {
+class AutocompleteOverlay extends StatefulWidget {
   /// Creates a new instance of [AutocompleteOverlay].
   const AutocompleteOverlay({
     required this.suggestions,
@@ -21,26 +21,58 @@ class AutocompleteOverlay extends StatelessWidget {
   final int selectedIndex;
 
   @override
+  State<AutocompleteOverlay> createState() => _AutocompleteOverlayState();
+}
+
+class _AutocompleteOverlayState extends State<AutocompleteOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: position.dx,
-      top: position.dy,
-      child: Material(
-        elevation: 4,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 200, maxWidth: 250),
-          child: ListView.builder(
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            itemCount: suggestions.length,
-            itemBuilder: (context, index) {
-              final suggestion = suggestions[index];
-              return ListTile(
-                title: Text(suggestion),
-                selected: index == selectedIndex,
-                onTap: () => onSuggestionSelected(suggestion),
-              );
-            },
+      left: widget.position.dx,
+      top: widget.position.dy,
+      child: FadeTransition(
+        opacity: _animation,
+        child: Material(
+          elevation: 4,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 200, maxWidth: 250),
+            child: ListView.builder(
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              itemCount: widget.suggestions.length,
+              itemBuilder: (context, index) {
+                final suggestion = widget.suggestions[index];
+                return ListTile(
+                  title: Text(suggestion),
+                  selected: index == widget.selectedIndex,
+                  onTap: () => widget.onSuggestionSelected(suggestion),
+                );
+              },
+            ),
           ),
         ),
       ),

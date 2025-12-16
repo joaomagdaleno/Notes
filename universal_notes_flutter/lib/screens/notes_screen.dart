@@ -12,6 +12,7 @@ import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
+import 'package:universal_notes_flutter/widgets/empty_state.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/quick_note_editor.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
@@ -119,6 +120,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           notes = await _noteRepository.getAllNotes(
             folderId: _selection.folder!.id,
           );
+        case SidebarItemType.tag:
+          notes = await _noteRepository.getAllNotes(tagId: _selection.tag!.id);
       }
     }
 
@@ -278,6 +281,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         return 'Trash';
       case SidebarItemType.folder:
         return _selection.folder?.name ?? 'Folder';
+      case SidebarItemType.tag:
+        return 'Tag: ${_selection.tag?.name ?? ''}';
     }
   }
 

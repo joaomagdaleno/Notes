@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/services/export_service.dart';
 
 /// A helper class for showing a context menu for a note.
 class ContextMenuHelper {
@@ -36,6 +38,7 @@ class ContextMenuHelper {
     Note note,
     void Function(Note) onSave,
   ) {
+    final exportService = ExportService();
     return [
       PopupMenuItem(
         onTap: () {
@@ -72,6 +75,29 @@ class ContextMenuHelper {
             ),
           ],
         ),
+      ),
+      const PopupMenuDivider(),
+      PopupMenuItem(
+        onTap: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Exportando para TXT...')),
+          );
+          final noteWithContent =
+              await NoteRepository.instance.getNoteWithContent(note.id);
+          await exportService.exportToTxt(noteWithContent);
+        },
+        child: const Text('Exportar para TXT'),
+      ),
+      PopupMenuItem(
+        onTap: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Exportando para PDF...')),
+          );
+          final noteWithContent =
+              await NoteRepository.instance.getNoteWithContent(note.id);
+          await exportService.exportToPdf(noteWithContent);
+        },
+        child: const Text('Exportar para PDF'),
       ),
     ];
   }

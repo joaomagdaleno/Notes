@@ -11,6 +11,7 @@ class EditorToolbar extends StatelessWidget {
     required this.onColor,
     required this.onFontSize,
     required this.onSnippets,
+    required this.onImage,
     required this.onUndo,
     required this.onRedo,
     required this.canUndoNotifier,
@@ -22,22 +23,34 @@ class EditorToolbar extends StatelessWidget {
 
   /// Callback for when the bold button is pressed.
   final VoidCallback onBold;
+
   /// Callback for when the italic button is pressed.
   final VoidCallback onItalic;
+
   /// Callback for when the underline button is pressed.
   final VoidCallback onUnderline;
+
   /// Callback for when the strikethrough button is pressed.
   final VoidCallback onStrikethrough;
+
   /// Callback to open the color selection UI.
   final VoidCallback onColor;
+
   /// Callback to open the font size selection UI.
   final VoidCallback onFontSize;
+
   /// Callback to open the snippets management screen.
   final VoidCallback onSnippets;
+
+  /// Callback to insert an image.
+  final VoidCallback onImage;
+
   /// Callback for when the undo button is pressed.
   final VoidCallback onUndo;
+
   /// Callback for when the redo button is pressed.
   final VoidCallback onRedo;
+
   /// Whether the undo action is available.
   final ValueNotifier<bool> canUndoNotifier;
   /// Whether the redo action is available.
@@ -73,34 +86,62 @@ class EditorToolbar extends StatelessWidget {
             },
           ),
           const VerticalDivider(),
-          IconButton(
-            icon: const Icon(Icons.format_bold),
-            onPressed: onBold,
+          Semantics(
+            label: 'Bold',
+            child: IconButton(
+              icon: const Icon(Icons.format_bold),
+              onPressed: onBold,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.format_italic),
-            onPressed: onItalic,
+          Semantics(
+            label: 'Italic',
+            child: IconButton(
+              icon: const Icon(Icons.format_italic),
+              onPressed: onItalic,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.format_underline),
-            onPressed: onUnderline,
+          Semantics(
+            label: 'Underline',
+            child: IconButton(
+              icon: const Icon(Icons.format_underline),
+              onPressed: onUnderline,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.format_strikethrough),
-            onPressed: onStrikethrough,
+          Semantics(
+            label: 'Strikethrough',
+            child: IconButton(
+              icon: const Icon(Icons.format_strikethrough),
+              onPressed: onStrikethrough,
+            ),
           ),
           const VerticalDivider(),
-          IconButton(
-            icon: const Icon(Icons.format_color_text),
-            onPressed: onColor,
+          Semantics(
+            label: 'Text color',
+            child: IconButton(
+              icon: const Icon(Icons.format_color_text),
+              onPressed: onColor,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.format_size),
-            onPressed: onFontSize,
+          Semantics(
+            label: 'Font size',
+            child: IconButton(
+              icon: const Icon(Icons.format_size),
+              onPressed: onFontSize,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.shortcut),
-            onPressed: onSnippets,
+          Semantics(
+            label: 'Snippets',
+            child: IconButton(
+              icon: const Icon(Icons.shortcut),
+              onPressed: onSnippets,
+            ),
+          ),
+          Semantics(
+            label: 'Insert image',
+            child: IconButton(
+              icon: const Icon(Icons.image),
+              onPressed: onImage,
+            ),
           ),
           const Spacer(),
           ValueListenableBuilder<int>(
