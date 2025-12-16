@@ -15,6 +15,7 @@ import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
+import 'package:universal_notes_flutter/services/export_service.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:uuid/uuid.dart';
 
@@ -290,6 +291,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _undo() {
+    if (!_historyManager.canUndo) return;
     setState(() {
       final state = _historyManager.undo();
       _document = state.document;
@@ -763,6 +765,34 @@ extension on _NoteEditorScreenState {
                               : Icons.fullscreen,
                         ),
                         onPressed: _toggleFocusMode,
+                      ),
+                      PopupMenuButton<String>(
+                        onSelected: (value) async {
+                          if (widget.note == null) return;
+                          final exportService = ExportService();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Exportando...'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          if (value == 'txt') {
+                            await exportService.exportToTxt(widget.note!);
+                          } else if (value == 'pdf') {
+                            await exportService.exportToPdf(widget.note!);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'txt',
+                            child: Text('Exportar para TXT'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'pdf',
+                            child: Text('Exportar para PDF'),
+                          ),
+                        ],
                       ),
                     ],
                   ),
