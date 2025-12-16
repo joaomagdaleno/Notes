@@ -59,13 +59,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
-  final _selectionRectNotifier = ValueNotifier<Rect?>(null);
+  Rect? _selectionRect;
   bool get _isToolbarVisible =>
-      _selectionRectNotifier.value != null && !_selection.isCollapsed;
+      _selectionRect != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
-  final _wordCountNotifier = ValueNotifier<int>(0);
-  final _charCountNotifier = ValueNotifier<int>(0);
-  final _isFindBarVisibleNotifier = ValueNotifier<bool>(false);
+  int _wordCount = 0;
+  int _charCount = 0;
+  bool _isFindBarVisible = false;
   String _findTerm = '';
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
@@ -165,9 +165,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _recordHistoryTimer?.cancel();
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
-    _documentSubscription?.cancel();
-    _presenceSubscription?.cancel();
-    _tagSuggestionDebounce?.cancel();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
@@ -195,9 +192,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   void _updateCounts(DocumentModel document) {
     final text = document.toPlainText().trim();
-    _charCountNotifier.value = text.length;
-    _wordCountNotifier.value =
-        text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
+    setState(() {
+      _charCount = text.length;
+      _wordCount = text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
+    });
   }
 
   void _onDocumentChanged(DocumentModel newDocument) {
@@ -273,9 +271,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     final editorRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
 
     if (rect != null && editorRect.overlaps(rect)) {
-      _selectionRectNotifier.value = rect;
+      setState(() {
+        _selectionRect = rect;
+      });
     } else {
-      _selectionRectNotifier.value = null;
+      setState(() {
+        _selectionRect = null;
+      });
     }
   }
 
@@ -930,115 +932,65 @@ extension on _NoteEditorScreenState {
         await _saveNote();
         if (context.mounted) Navigator.of(context).pop();
       },
-      child: Actions(
-        actions: actions,
-        child: Shortcuts(
-          shortcuts: shortcuts,
-          child: Scaffold(
-            appBar: _isFocusMode
-                ? null
-                : AppBar(
-                    title:
-                        Text(widget.note == null ? 'New Note' : 'Edit Note'),
-                    actions: [
-                      if (_isCollaborative)
-                        _CollaboratorAvatars(remoteCursors: _remoteCursors),
-                      IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: () => setState(
-                          () => _isFindBarVisible = !_isFindBarVisible,
-                        ),
-                      ),
-                      if (_isCollaborative && widget.note != null)
-                        IconButton(
-                          icon: const Icon(Icons.share),
-                          onPressed: () => _showShareDialog(widget.note!.id),
-                        ),
-                      if (widget.note != null)
-                        IconButton(
-                          icon: const Icon(Icons.history),
-                          onPressed: _showHistory,
-                        ),
-                      IconButton(
-                        icon: Icon(
-                          _isFocusMode
-                              ? Icons.fullscreen_exit
-                              : Icons.fullscreen,
-                        ),
-                        onPressed: _toggleFocusMode,
-                      ),
-                      PopupMenuButton<String>(
-                        onSelected: (value) async {
-                          if (widget.note == null) return;
-                          final exportService = ExportService();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Exportando...'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                          if (value == 'txt') {
-                            await exportService.exportToTxt(widget.note!);
-                          } else if (value == 'pdf') {
-                            await exportService.exportToPdf(widget.note!);
-                          }
-                        },
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'txt',
-                            child: Text('Exportar para TXT'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'pdf',
-                            child: Text('Exportar para PDF'),
-                          ),
-                        ],
-                      ),
-                    ],
+      child: Scaffold(
+        appBar: _isFocusMode
+            ? null
+            : AppBar(
+                title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    tooltip: 'Find & Replace',
+                    onPressed: () =>
+                        setState(() => _isFindBarVisible = !_isFindBarVisible),
                   ),
-            floatingActionButton: _isFocusMode
-                ? null
-                : FloatingActionButton(
-                    onPressed: _saveNote,
-                    child: const Icon(Icons.save),
+                  if (widget.note != null)
+                    IconButton(
+                      icon: const Icon(Icons.history),
+                      tooltip: 'Version History',
+                      onPressed: _showHistory,
+                    ),
+                  IconButton(
+                    icon: Icon(
+                      _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
+                    ),
+                    tooltip: 'Focus Mode',
+                    onPressed: _toggleFocusMode,
                   ),
-            body: SafeArea(
-              top: !_isFocusMode,
-              bottom: !_isFocusMode,
-              child: Stack(
+                ],
+              ),
+        floatingActionButton: _isFocusMode
+            ? null
+            : FloatingActionButton(
+                onPressed: _saveNote,
+                tooltip: 'Save Note',
+                child: const Icon(Icons.save),
+              ),
+        body: SafeArea(
+          top: !_isFocusMode,
+          bottom: !_isFocusMode,
+          child: Stack(
+            children: [
+              Column(
                 children: [
-                  Column(
-                    children: [
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder:
-                            (Widget child, Animation<double> animation) {
-                          return SizeTransition(
-                            sizeFactor: animation,
-                            child: child,
-                          );
-                        },
-                        child: _isFindBarVisible && !_isFocusMode
-                            ? FindReplaceBar(
-                                key: const ValueKey('findBar'),
-                                onFindChanged: _onFindChanged,
-                                onFindNext: _findNext,
-                                onFindPrevious: _findPrevious,
-                                onReplace: _replace,
-                                onReplaceAll: _replaceAll,
-                                onClose: () => setState(
-                                  () => _isFindBarVisible = false,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                      if (!_isFocusMode) _buildTagEditor(),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: editor,
-                        ),
+                  if (_isFindBarVisible && !_isFocusMode)
+                    FindReplaceBar(
+                      onFindChanged: _onFindChanged,
+                      onFindNext: _findNext,
+                      onFindPrevious: _findPrevious,
+                      onReplace: _replace,
+                      onReplaceAll: _replaceAll,
+                      onClose: () => setState(() => _isFindBarVisible = false),
+                    ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: EditorWidget(
+                        document: _document,
+                        onDocumentChanged: _onDocumentChanged,
+                        selection: _selection,
+                        onSelectionChanged: _onSelectionChanged,
+                        onSelectionRectChanged: _onSelectionRectChanged,
                       ),
                       if (!_isFocusMode)
                         EditorToolbar(
@@ -1061,18 +1013,35 @@ extension on _NoteEditorScreenState {
                         ),
                     ],
                   ),
-                  if (_isToolbarVisible)
-                    Positioned(
-                      top: _selectionRect!.top - 55,
-                      left: _selectionRect!.left,
-                      child: FloatingToolbar(
-                        onBold: () => _toggleStyle(StyleAttribute.bold),
-                        onItalic: () => _toggleStyle(StyleAttribute.italic),
-                      ),
+                  if (!_isFocusMode)
+                    EditorToolbar(
+                      onBold: () => _toggleStyle(StyleAttribute.bold),
+                      onItalic: () => _toggleStyle(StyleAttribute.italic),
+                      onUnderline: () => _toggleStyle(StyleAttribute.underline),
+                      onStrikethrough: () =>
+                          _toggleStyle(StyleAttribute.strikethrough),
+                      onColor: _showColorPicker,
+                      onFontSize: _showFontSizePicker,
+                      onSnippets: () => unawaited(_showSnippetsScreen()),
+                      onUndo: _undo,
+                      onRedo: _redo,
+                      canUndo: _historyManager.canUndo,
+                      canRedo: _historyManager.canRedo,
+                      wordCount: _wordCount,
+                      charCount: _charCount,
                     ),
                 ],
               ),
-            ),
+              if (_isToolbarVisible)
+                Positioned(
+                  top: _selectionRect!.top - 55,
+                  left: _selectionRect!.left,
+                  child: FloatingToolbar(
+                    onBold: () => _toggleStyle(StyleAttribute.bold),
+                    onItalic: () => _toggleStyle(StyleAttribute.italic),
+                  ),
+                ),
+            ],
           ),
         ),
       ),

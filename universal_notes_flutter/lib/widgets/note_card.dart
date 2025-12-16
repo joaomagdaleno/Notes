@@ -8,7 +8,7 @@ import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 import 'package:universal_notes_flutter/widgets/note_preview_dialog.dart';
 
 /// A widget that displays a note as a card.
-class NoteCard extends StatefulWidget {
+class NoteCard extends StatelessWidget {
   /// Creates a new instance of [NoteCard].
   const NoteCard({
     required this.note,
@@ -51,37 +51,6 @@ class NoteCard extends StatefulWidget {
   }
 
   @override
-  State<NoteCard> createState() => _NoteCardState();
-}
-
-class _NoteCardState extends State<NoteCard> {
-  String _plainTextContent = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _plainTextContent = _computePlainText(widget.note.content);
-  }
-
-  @override
-  void didUpdateWidget(NoteCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.note.content != oldWidget.note.content) {
-      _plainTextContent = _computePlainText(widget.note.content);
-    }
-  }
-
-  // ⚡ Bolt: Caching the plain text content of a note.
-  // Parsing JSON on every build is expensive. This computes it once
-  // when the widget is created or when the note content changes.
-  String _computePlainText(String jsonContent) {
-    if (jsonContent.isEmpty) {
-      return '';
-    }
-    return DocumentAdapter.fromJson(jsonContent).toPlainText();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 1,
@@ -89,7 +58,7 @@ class _NoteCardState extends State<NoteCard> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: widget.onTap,
+        onTap: onTap,
         onLongPress: () {
           final renderBox = context.findRenderObject() as RenderBox?;
           if (renderBox != null) {
@@ -106,7 +75,7 @@ class _NoteCardState extends State<NoteCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (_plainTextContent.isNotEmpty)
+                  if (note.content.isNotEmpty)
                     Expanded(
                       child: Container(
                         width: double.infinity,
@@ -120,7 +89,7 @@ class _NoteCardState extends State<NoteCard> {
                           ),
                         ),
                         child: Text(
-                          _plainTextContent,
+                          DocumentAdapter.fromJson(note.content).toPlainText(),
                           maxLines: 5,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -131,33 +100,21 @@ class _NoteCardState extends State<NoteCard> {
                         ),
                       ),
                     ),
-                  if (_plainTextContent.isNotEmpty) const SizedBox(height: 8),
+                  if (note.content.isNotEmpty) const SizedBox(height: 8),
                   Text(
-                    widget.note.title.isNotEmpty
-                        ? widget.note.title
-                        : 'Sem Título',
+                    note.title.isNotEmpty ? note.title : 'Sem Título',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    NoteCard._dateFormat.format(widget.note.date),
+                    _dateFormat.format(note.date),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
-              ),
-            ),
-            Positioned(
-              top: 4,
-              right: 4,
-              child: IconButton(
-                icon: const Icon(Icons.visibility_outlined),
-                iconSize: 20,
-                onPressed: () => unawaited(_showPreview(context)),
-                tooltip: 'Show preview',
               ),
             ),
             if (note.isDraft)
@@ -181,9 +138,9 @@ class _NoteCardState extends State<NoteCard> {
       ContextMenuHelper.showContextMenu(
         context: context,
         position: globalPosition,
-        note: widget.note,
-        onSave: widget.onSave,
-        onDelete: widget.onDelete,
+        note: note,
+        onSave: onSave,
+        onDelete: onDelete,
       ),
     );
   }
