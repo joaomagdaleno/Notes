@@ -612,36 +612,102 @@ class _CollaboratorAvatars extends StatelessWidget {
 }
 
 extension on _NoteEditorScreenState {
-  void _showShareDialog(String noteId) {
+  void _showShareDialog() {
+    final emailController = TextEditingController();
+    String permission = 'viewer'; // Default permission
+
     unawaited(
       showDialog<void>(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Share Note'),
-          content: TextField(
-            controller: TextEditingController(text: noteId),
-            readOnly: true,
-            decoration: const InputDecoration(
-              labelText: 'Copy this ID to share',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: noteId));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Note ID copied!')),
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Share Note'),
+            content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Add new collaborator:'),
+                      TextField(
+                        controller: emailController,
+                        decoration:
+                            const InputDecoration(labelText: 'User Email'),
+                      ),
+                      DropdownButton<String>(
+                        value: permission,
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              permission = newValue;
+                            });
+                          }
+                        },
+                        items: <String>['viewer', 'editor']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                      const Divider(),
+                      const Text('Current collaborators:'),
+                      if (_note!.collaborators.isEmpty)
+                        const Text('None')
+                      else
+                        ..._note!.collaborators.entries.map((entry) {
+                          return ListTile(
+                            title: Text(entry.key), // Ideally, show email/name
+                            subtitle: Text(entry.value),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.remove_circle_outline),
+                              onPressed: () async {
+                                await _firestoreRepository
+                                    .unshareNoteWithCollaborator(
+                                        _note!.id, entry.key);
+                                // Refresh note from parent
+                              },
+                            ),
+                          );
+                        }),
+                    ],
+                  ),
                 );
               },
-              child: const Text('Copy'),
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  final success =
+                      await _firestoreRepository.shareNoteWithEmail(
+                    _note!.id,
+                    emailController.text,
+                    permission,
+                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          success
+                              ? 'Note shared successfully!'
+                              : 'User not found.',
+                        ),
+                      ),
+                    );
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text('Share'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -725,10 +791,10 @@ extension on _NoteEditorScreenState {
                           () => _isFindBarVisible = !_isFindBarVisible,
                         ),
                       ),
-                      if (_isCollaborative && widget.note != null)
+                      if (widget.note != null)
                         IconButton(
                           icon: const Icon(Icons.share),
-                          onPressed: () => _showShareDialog(widget.note!.id),
+                          onPressed: () => _showShareDialog(),
                         ),
                       IconButton(
                         icon: Icon(

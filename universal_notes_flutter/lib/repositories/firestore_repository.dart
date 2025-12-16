@@ -6,11 +6,13 @@ class FirestoreRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Reference to the 'notes' collection
+  // Reference to the collections
   late final CollectionReference<Map<String, dynamic>> _notesCollection;
+  late final CollectionReference<Map<String, dynamic>> _usersCollection;
 
   FirestoreRepository() {
     _notesCollection = _firestore.collection('notes');
+    _usersCollection = _firestore.collection('users');
   }
 
   Stream<List<Note>> notesStream({
@@ -24,7 +26,7 @@ class FirestoreRepository {
     }
 
     Query<Map<String, dynamic>> query =
-        _notesCollection.where('ownerId', isEqualTo: user.uid);
+        _notesCollection.where('memberIds', arrayContains: user.uid);
 
     if (isFavorite != null) {
       query = query.where('isFavorite', isEqualTo: isFavorite);
@@ -61,6 +63,7 @@ class FirestoreRepository {
       'ownerId': user.uid,
       'collaborators': {},
       'tags': [],
+      'memberIds': [user.uid], // Owner is always a member
       'isFavorite': false,
       'isInTrash': false,
     });
@@ -92,6 +95,30 @@ class FirestoreRepository {
         tags.addAll(note.tags);
       }
       return tags.toList()..sort();
+    });
+  }
+
+  Future<bool> shareNoteWithEmail(
+      String noteId, String email, String permission) async {
+    final querySnapshot =
+        await _usersCollection.where('email', isEqualTo: email).limit(1).get();
+    if (querySnapshot.docs.isEmpty) {
+      return false; // User not found
+    }
+    final collaboratorId = querySnapshot.docs.first.id;
+
+    await _notesCollection.doc(noteId).update({
+      'collaborators.$collaboratorId': permission,
+      'memberIds': FieldValue.arrayUnion([collaboratorId]),
+    });
+    return true;
+  }
+
+  Future<void> unshareNoteWithCollaborator(
+      String noteId, String collaboratorId) async {
+    await _notesCollection.doc(noteId).update({
+      'collaborators.$collaboratorId': FieldValue.delete(),
+      'memberIds': FieldValue.arrayRemove([collaboratorId]),
     });
   }
 }

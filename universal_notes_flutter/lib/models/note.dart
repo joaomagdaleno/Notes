@@ -14,6 +14,7 @@ class Note {
     required this.ownerId,
     this.collaborators = const {},
     this.tags = const [],
+    this.memberIds = const [],
     this.isFavorite = false,
     this.isInTrash = false,
   });
@@ -30,6 +31,7 @@ class Note {
       ownerId: data['ownerId'] as String,
       collaborators: Map<String, String>.from(data['collaborators'] ?? {}),
       tags: List<String>.from(data['tags'] ?? []),
+      memberIds: List<String>.from(data['memberIds'] ?? []),
       isFavorite: data['isFavorite'] as bool? ?? false,
       isInTrash: data['isInTrash'] as bool? ?? false,
     );
@@ -59,6 +61,9 @@ class Note {
   /// A list of tags for the note.
   final List<String> tags;
 
+  /// A list of user IDs who have access to this note (owner + collaborators).
+  final List<String> memberIds;
+
   /// Whether the note is a favorite.
   final bool isFavorite;
 
@@ -75,6 +80,7 @@ class Note {
     String? ownerId,
     Map<String, String>? collaborators,
     List<String>? tags,
+    List<String>? memberIds,
     bool? isFavorite,
     bool? isInTrash,
   }) {
@@ -87,6 +93,7 @@ class Note {
       ownerId: ownerId ?? this.ownerId,
       collaborators: collaborators ?? this.collaborators,
       tags: tags ?? this.tags,
+      memberIds: memberIds ?? this.memberIds,
       isFavorite: isFavorite ?? this.isFavorite,
       isInTrash: isInTrash ?? this.isInTrash,
     );
@@ -102,6 +109,7 @@ class Note {
       'ownerId': ownerId,
       'collaborators': collaborators,
       'tags': tags,
+      'memberIds': memberIds,
       'isFavorite': isFavorite,
       'isInTrash': isInTrash,
     };
