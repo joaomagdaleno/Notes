@@ -12,6 +12,7 @@ import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
+import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
@@ -57,6 +58,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
 
+  // --- Tag state ---
+  List<Tag> _noteTags = [];
+  List<Tag> _allTags = [];
+  final _tagController = TextEditingController();
+
   static const List<Color> _predefinedColors = [
     Colors.black,
     Colors.red,
@@ -82,6 +88,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     );
     _updateCounts(_document);
     unawaited(SnippetConverter.precacheSnippets());
+    unawaited(_loadTags());
+  }
+
+  Future<void> _loadTags() async {
+    if (widget.note != null) {
+      _noteTags = await NoteRepository.instance.getTagsForNote(widget.note!.id);
+    }
+    _allTags = await NoteRepository.instance.getAllTags();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -95,6 +112,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
+    _tagController.dispose();
     _recordHistoryTimer?.cancel();
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
@@ -495,6 +513,103 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     // Reload snippets in case they were changed.
     await SnippetConverter.precacheSnippets();
   }
+
+  // --- Tag Methods ---
+  Future<void> _addTag(Tag tag) async {
+    if (widget.note == null) return;
+    await NoteRepository.instance.addTagToNote(widget.note!.id, tag.id);
+    await _loadTags();
+  }
+
+  Future<void> _removeTag(Tag tag) async {
+    if (widget.note == null) return;
+    await NoteRepository.instance.removeTagFromNote(widget.note!.id, tag.id);
+    await _loadTags();
+  }
+
+  Future<void> _onTagSubmitted(String tagName) async {
+    if (tagName.isEmpty) return;
+    _tagController.clear();
+
+    // Check if tag already exists
+    final existingTag = _allTags.firstWhere(
+      (t) => t.name.toLowerCase() == tagName.toLowerCase(),
+      orElse: () => const Tag(id: '', name: ''),
+    );
+
+    if (existingTag.id.isNotEmpty) {
+      await _addTag(existingTag);
+    } else {
+      // Create new tag
+      final newTag = await NoteRepository.instance.createTag(
+        Tag(id: const Uuid().v4(), name: tagName),
+      );
+      await _addTag(newTag);
+    }
+  }
+
+  Widget _buildTagEditor() {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: _noteTags
+                .map(
+                  (tag) => Chip(
+                    label: Text(tag.name),
+                    onDeleted: () => unawaited(_removeTag(tag)),
+                  ),
+                )
+                .toList(),
+          ),
+          Autocomplete<Tag>(
+            optionsBuilder: (TextEditingValue textEditingValue) {
+              if (textEditingValue.text.isEmpty) {
+                return const Iterable<Tag>.empty();
+              }
+              return _allTags.where(
+                (Tag option) {
+                  return option.name
+                      .toLowerCase()
+                      .contains(textEditingValue.text.toLowerCase());
+                },
+              );
+            },
+            displayStringForOption: (Tag option) => option.name,
+            onSelected: (Tag selection) {
+              unawaited(_addTag(selection));
+              _tagController.clear();
+            },
+            fieldViewBuilder: (
+              BuildContext context,
+              TextEditingController fieldTextEditingController,
+              FocusNode fieldFocusNode,
+              VoidCallback onFieldSubmitted,
+            ) {
+              // This is a bit of a hack to use our own controller
+              _tagController.text = fieldTextEditingController.text;
+              return TextField(
+                controller: fieldTextEditingController,
+                focusNode: fieldFocusNode,
+                decoration: const InputDecoration(
+                  hintText: 'Add a tag...',
+                  border: InputBorder.none,
+                ),
+                onSubmitted: (value) {
+                  unawaited(_onTagSubmitted(value));
+                  onFieldSubmitted();
+                },
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // --- Keyboard Shortcut Actions and Intents ---
@@ -687,6 +802,7 @@ extension on _NoteEditorScreenState {
                               )
                             : const SizedBox.shrink(),
                       ),
+                      if (!_isFocusMode) _buildTagEditor(),
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(16),

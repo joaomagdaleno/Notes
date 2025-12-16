@@ -7,6 +7,7 @@ import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/snippet.dart';
+import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:uuid/uuid.dart';
 
 /// A repository for managing all app data in a local database.
@@ -26,6 +27,8 @@ class NoteRepository {
   static const String _foldersTable = 'folders';
   static const String _versionsTable = 'note_versions';
   static const String _snippetsTable = 'snippets';
+  static const String _tagsTable = 'tags';
+  static const String _noteTagsTable = 'note_tags';
 
   /// Returns the database instance, initializing it if necessary.
   Future<Database> get database async {
@@ -42,7 +45,7 @@ class NoteRepository {
     final path = join(dir.path, _dbName);
     return openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -71,6 +74,22 @@ class NoteRepository {
         id TEXT PRIMARY KEY,
         trigger TEXT UNIQUE,
         content TEXT
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE $_tagsTable(
+        id TEXT PRIMARY KEY,
+        name TEXT UNIQUE,
+        color INTEGER
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE $_noteTagsTable(
+        note_id TEXT,
+        tag_id TEXT,
+        PRIMARY KEY (note_id, tag_id),
+        FOREIGN KEY (note_id) REFERENCES $_notesTable(id) ON DELETE CASCADE,
+        FOREIGN KEY (tag_id) REFERENCES $_tagsTable(id) ON DELETE CASCADE
       )
     ''');
   }
@@ -104,6 +123,76 @@ class NoteRepository {
         'ALTER TABLE $_notesTable ADD COLUMN isDraft INTEGER DEFAULT 0',
       );
     }
+    if (oldVersion < 6) {
+      await db.execute('''
+        CREATE TABLE $_tagsTable(
+          id TEXT PRIMARY KEY,
+          name TEXT UNIQUE,
+          color INTEGER
+        )
+      ''');
+      await db.execute('''
+        CREATE TABLE $_noteTagsTable(
+          note_id TEXT,
+          tag_id TEXT,
+          PRIMARY KEY (note_id, tag_id),
+          FOREIGN KEY (note_id) REFERENCES $_notesTable(id) ON DELETE CASCADE,
+          FOREIGN KEY (tag_id) REFERENCES $_tagsTable(id) ON DELETE CASCADE
+        )
+      ''');
+    }
+  }
+
+  // --- Tag Methods ---
+  Future<Tag> createTag(Tag tag) async {
+    final db = await database;
+    await db.insert(_tagsTable, tag.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+    return tag;
+  }
+
+  Future<List<Tag>> getAllTags() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(_tagsTable);
+    return List.generate(maps.length, (i) => Tag.fromMap(maps[i]));
+  }
+
+  Future<void> updateTag(Tag tag) async {
+    final db = await database;
+    await db.update(_tagsTable, tag.toMap(), where: 'id = ?', whereArgs: [tag.id]);
+  }
+
+  Future<void> deleteTag(String id) async {
+    final db = await database;
+    await db.delete(_tagsTable, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> addTagToNote(String noteId, String tagId) async {
+    final db = await database;
+    await db.insert(
+      _noteTagsTable,
+      {'note_id': noteId, 'tag_id': tagId},
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+  }
+
+  Future<void> removeTagFromNote(String noteId, String tagId) async {
+    final db = await database;
+    await db.delete(
+      _noteTagsTable,
+      where: 'note_id = ? AND tag_id = ?',
+      whereArgs: [noteId, tagId],
+    );
+  }
+
+  Future<List<Tag>> getTagsForNote(String noteId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT T.* FROM $_tagsTable T
+      INNER JOIN $_noteTagsTable NT ON T.id = NT.tag_id
+      WHERE NT.note_id = ?
+    ''', [noteId]);
+    return List.generate(maps.length, (i) => Tag.fromMap(maps[i]));
   }
 
   // --- Snippet Methods ---
@@ -171,9 +260,8 @@ class NoteRepository {
             final text = span['text'] as String;
             final words = text.split(RegExp(r'\s+'));
             for (final word in words) {
-              final cleanWord = word
-                  .replaceAll(RegExp('[^a-zA-Z]'), '')
-                  .toLowerCase();
+              final cleanWord =
+                  word.replaceAll(RegExp('[^a-zA-Z]'), '').toLowerCase();
               if (cleanWord.isNotEmpty) {
                 _wordFrequencyCache![cleanWord] =
                     (_wordFrequencyCache![cleanWord] ?? 0) + 1;
@@ -278,46 +366,50 @@ class NoteRepository {
   /// status.
   Future<List<Note>> getAllNotes({
     String? folderId,
+    String? tagId,
     bool? isFavorite,
     bool? isInTrash,
   }) async {
     final db = await database;
+    var query = 'SELECT DISTINCT N.* FROM $_notesTable N';
     final whereClauses = <String>[];
     final whereArgs = <dynamic>[];
 
+    if (tagId != null) {
+      query +=
+          ' INNER JOIN $_noteTagsTable NT ON N.id = NT.note_id AND NT.tag_id = ?';
+      whereArgs.add(tagId);
+    }
+
     if (isInTrash ?? false) {
-      whereClauses.add('isInTrash = ?');
+      whereClauses.add('N.isInTrash = ?');
       whereArgs.add(1);
     } else {
-      whereClauses.add('isInTrash = ?');
+      whereClauses.add('N.isInTrash = ?');
       whereArgs.add(0);
     }
 
     if (folderId != null) {
-      whereClauses.add('folderId = ?');
+      whereClauses.add('N.folderId = ?');
       whereArgs.add(folderId);
     }
 
     if (isFavorite ?? false) {
-      whereClauses.add('isFavorite = ?');
+      whereClauses.add('N.isFavorite = ?');
       whereArgs.add(1);
     }
 
-    final whereString = whereClauses.isNotEmpty
-        ? whereClauses.join(' AND ')
-        : null;
+    if (whereClauses.isNotEmpty) {
+      query += ' WHERE ${whereClauses.join(' AND ')}';
+    }
+
+    query += ' ORDER BY N.date DESC';
 
     final columnsToFetch = Note.fromMap(
       const {},
     ).toMap().keys.where((key) => key != 'content').toList();
 
-    final maps = await db.query(
-      _notesTable,
-      columns: columnsToFetch,
-      where: whereString,
-      whereArgs: whereArgs,
-      orderBy: 'date DESC',
-    );
+    final maps = await db.rawQuery(query, whereArgs);
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
