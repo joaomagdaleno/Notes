@@ -19,6 +19,7 @@ import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
+import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/services/tag_suggestion_service.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:uuid/uuid.dart';
@@ -69,6 +70,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
   final _firestoreRepository = FirestoreRepository();
+  final _storageService = StorageService();
+  final _imagePicker = ImagePicker();
 
   // --- Collaboration State (Temporarily disabled) ---
   final bool _isCollaborative = false;
@@ -357,7 +360,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       return;
     }
     final jsonContent = DocumentAdapter.toJson(_document);
-    final noteToSave = widget.note!.copyWith(
+
+    if (_note == null) return; // Should not happen if text is not empty
+
+    final noteToSave = _note!.copyWith(
       title: plainText.split('\n').first,
       content: jsonContent,
       lastModified: DateTime.now(),
@@ -365,6 +371,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     );
     await widget.onSave(noteToSave);
     if (mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _attachImage() async {
+    final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    final imageUrl =
+        await _storageService.uploadImage(File(pickedFile.path));
+    if (imageUrl != null) {
+      setState(() {
+        _note = _note?.copyWith(imageUrl: imageUrl);
+      });
+      // Trigger autosave
+      unawaited(_autosave());
+    }
   }
 
   void _onFindChanged(String term) {
@@ -797,6 +818,10 @@ extension on _NoteEditorScreenState {
                           onPressed: () => _showShareDialog(),
                         ),
                       IconButton(
+                        icon: const Icon(Icons.attach_file),
+                        onPressed: _attachImage,
+                      ),
+                      IconButton(
                         icon: Icon(
                           _isFocusMode
                               ? Icons.fullscreen_exit
@@ -871,6 +896,11 @@ extension on _NoteEditorScreenState {
                             : const SizedBox.shrink(),
                       ),
                       if (!_isFocusMode) _buildTagEditor(),
+                      if (_note?.imageUrl != null)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.network(_note!.imageUrl!),
+                        ),
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(16),

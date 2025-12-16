@@ -17,6 +17,7 @@ class Note {
     this.memberIds = const [],
     this.isFavorite = false,
     this.isInTrash = false,
+    this.imageUrl,
   });
 
   /// Creates a [Note] from a Firestore document snapshot.
@@ -34,6 +35,7 @@ class Note {
       memberIds: List<String>.from(data['memberIds'] ?? []),
       isFavorite: data['isFavorite'] as bool? ?? false,
       isInTrash: data['isInTrash'] as bool? ?? false,
+      imageUrl: data['imageUrl'] as String?,
     );
   }
 
@@ -70,6 +72,9 @@ class Note {
   /// Whether the note is in the trash.
   final bool isInTrash;
 
+  /// The URL of an attached image.
+  final String? imageUrl;
+
   /// Creates a copy of this note but with the given fields replaced.
   Note copyWith({
     String? id,
@@ -83,6 +88,7 @@ class Note {
     List<String>? memberIds,
     bool? isFavorite,
     bool? isInTrash,
+    String? imageUrl,
   }) {
     return Note(
       id: id ?? this.id,
@@ -96,6 +102,7 @@ class Note {
       memberIds: memberIds ?? this.memberIds,
       isFavorite: isFavorite ?? this.isFavorite,
       isInTrash: isInTrash ?? this.isInTrash,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 
@@ -112,6 +119,7 @@ class Note {
       'memberIds': memberIds,
       'isFavorite': isFavorite,
       'isInTrash': isInTrash,
+      'imageUrl': imageUrl,
     };
   }
 }
