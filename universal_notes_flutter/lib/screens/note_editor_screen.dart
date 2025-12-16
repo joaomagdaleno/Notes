@@ -51,7 +51,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   bool _isFocusMode = false;
   final _wordCountNotifier = ValueNotifier<int>(0);
   final _charCountNotifier = ValueNotifier<int>(0);
-  bool _isFindBarVisible = false;
+  final _isFindBarVisibleNotifier = ValueNotifier<bool>(false);
   String _findTerm = '';
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
@@ -98,6 +98,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _throttleTimer?.cancel();
     _wordCountNotifier.dispose();
     _charCountNotifier.dispose();
+    _isFindBarVisibleNotifier.dispose();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
@@ -511,8 +512,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.search),
-                    onPressed: () =>
-                        setState(() => _isFindBarVisible = !_isFindBarVisible),
+                    onPressed: () => _isFindBarVisibleNotifier.value =
+                        !_isFindBarVisibleNotifier.value,
                   ),
                   if (widget.note != null)
                     IconButton(
@@ -540,15 +541,27 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
             children: [
               Column(
                 children: [
-                  if (_isFindBarVisible && !_isFocusMode)
-                    FindReplaceBar(
-                      onFindChanged: _onFindChanged,
-                      onFindNext: _findNext,
-                      onFindPrevious: _findPrevious,
-                      onReplace: _replace,
-                      onReplaceAll: _replaceAll,
-                      onClose: () => setState(() => _isFindBarVisible = false),
-                    ),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _isFindBarVisibleNotifier,
+                    builder: (context, isVisible, child) {
+                      return AnimatedCrossFade(
+                        firstChild: FindReplaceBar(
+                          onFindChanged: _onFindChanged,
+                          onFindNext: _findNext,
+                          onFindPrevious: _findPrevious,
+                          onReplace: _replace,
+                          onReplaceAll: _replaceAll,
+                          onClose: () =>
+                              _isFindBarVisibleNotifier.value = false,
+                        ),
+                        secondChild: const SizedBox.shrink(),
+                        crossFadeState: isVisible && !_isFocusMode
+                            ? CrossFadeState.showFirst
+                            : CrossFadeState.showSecond,
+                        duration: const Duration(milliseconds: 200),
+                      );
+                    },
+                  ),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(16),
