@@ -67,7 +67,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   Timer? _debounce;
   String _searchTerm = '';
 
-  String _viewMode = 'grid_medium';
+  final _viewModeNotifier = ValueNotifier<String>('grid_medium');
 
   @override
   void initState() {
@@ -88,6 +88,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       ..dispose();
     _debounce?.cancel();
     _notesNotifier.dispose();
+    _viewModeNotifier.dispose();
     super.dispose();
   }
 
@@ -289,15 +290,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         actions: [
           IconButton(
             icon: const Icon(Icons.view_module),
-            onPressed: () => setState(() => _viewMode = 'grid_medium'),
+            onPressed: () => _viewModeNotifier.value = 'grid_medium',
           ),
           IconButton(
             icon: const Icon(Icons.view_comfy),
-            onPressed: () => setState(() => _viewMode = 'grid_large'),
+            onPressed: () => _viewModeNotifier.value = 'grid_large',
           ),
           IconButton(
             icon: const Icon(Icons.view_list),
-            onPressed: () => setState(() => _viewMode = 'list'),
+            onPressed: () => _viewModeNotifier.value = 'list',
           ),
           IconButton(
             icon: const Icon(Icons.update),
@@ -365,15 +366,18 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             ),
           ),
           Expanded(
-            child: ValueListenableBuilder<List<Note>>(
-              valueListenable: _notesNotifier,
-              builder: (context, notes, child) {
-                return GridView.builder(
-                  padding: const EdgeInsets.all(8),
-                  gridDelegate: _getGridDelegate(),
-                  itemCount: notes.length,
-                  itemBuilder: (context, index) {
-                    final note = notes[index];
+            child: ValueListenableBuilder<String>(
+              valueListenable: _viewModeNotifier,
+              builder: (context, viewMode, child) {
+                return ValueListenableBuilder<List<Note>>(
+                  valueListenable: _notesNotifier,
+                  builder: (context, notes, child) {
+                    return GridView.builder(
+                      padding: const EdgeInsets.all(8),
+                      gridDelegate: _getGridDelegate(viewMode),
+                      itemCount: notes.length,
+                      itemBuilder: (context, index) {
+                        final note = notes[index];
                     return Dismissible(
                       key: Key(note.id),
                   background: Container(
@@ -409,16 +413,18 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                       }
                     }
                   },
-                      child: NoteCard(
-                        note: note,
-                        onTap: () => unawaited(_openNoteEditor(note)),
-                        onSave: (note) async {
-                          await _noteRepository.updateNote(note);
-                          await _loadNotes();
-                          return note;
-                        },
-                        onDelete: _deletePermanently,
-                      ),
+                          child: NoteCard(
+                            note: note,
+                            onTap: () => unawaited(_openNoteEditor(note)),
+                            onSave: (note) async {
+                              await _noteRepository.updateNote(note);
+                              await _loadNotes();
+                              return note;
+                            },
+                            onDelete: _deletePermanently,
+                          ),
+                        );
+                      },
                     );
                   },
                 );
@@ -454,8 +460,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     );
   }
 
-  SliverGridDelegate _getGridDelegate() {
-    switch (_viewMode) {
+  SliverGridDelegate _getGridDelegate(String viewMode) {
+    switch (viewMode) {
       case 'grid_large':
         return const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 300,
@@ -523,15 +529,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               primaryItems: [
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.view_all),
-                  onPressed: () => setState(() => _viewMode = 'grid_medium'),
+                  onPressed: () => _viewModeNotifier.value = 'grid_medium',
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.grid_view_large),
-                  onPressed: () => setState(() => _viewMode = 'grid_large'),
+                  onPressed: () => _viewModeNotifier.value = 'grid_large',
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.list),
-                  onPressed: () => setState(() => _viewMode = 'list'),
+                  onPressed: () => _viewModeNotifier.value = 'list',
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.update_restore),
@@ -571,24 +577,29 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 : null,
           ),
         ),
-        content: ValueListenableBuilder<List<Note>>(
-          valueListenable: _notesNotifier,
-          builder: (context, notes, child) {
-            return GridView.builder(
-              padding: const EdgeInsets.all(8),
-              gridDelegate: _getGridDelegate(),
-              itemCount: notes.length,
-              itemBuilder: (context, index) {
-                final note = notes[index];
-                return NoteCard(
-                  note: note,
-                  onTap: () => unawaited(_openNoteEditor(note)),
-                  onSave: (note) async {
-                    await _noteRepository.updateNote(note);
-                    await _loadNotes();
-                    return note;
+        content: ValueListenableBuilder<String>(
+          valueListenable: _viewModeNotifier,
+          builder: (context, viewMode, child) {
+            return ValueListenableBuilder<List<Note>>(
+              valueListenable: _notesNotifier,
+              builder: (context, notes, child) {
+                return GridView.builder(
+                  padding: const EdgeInsets.all(8),
+                  gridDelegate: _getGridDelegate(viewMode),
+                  itemCount: notes.length,
+                  itemBuilder: (context, index) {
+                    final note = notes[index];
+                    return NoteCard(
+                      note: note,
+                      onTap: () => unawaited(_openNoteEditor(note)),
+                      onSave: (note) async {
+                        await _noteRepository.updateNote(note);
+                        await _loadNotes();
+                        return note;
+                      },
+                      onDelete: _deletePermanently,
+                    );
                   },
-                  onDelete: _deletePermanently,
                 );
               },
             );
