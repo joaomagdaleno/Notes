@@ -20,6 +20,7 @@ import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
+import 'package:universal_notes_flutter/services/tag_suggestion_service.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:uuid/uuid.dart';
 
@@ -53,6 +54,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
   final ScrollController _scrollController = ScrollController();
+  final GlobalKey<EditorWidgetState> _editorKey =
+      GlobalKey<EditorWidgetState>();
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
@@ -72,13 +75,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   StreamSubscription? _documentSubscription;
   StreamSubscription? _presenceSubscription;
   Map<String, Map<String, dynamic>> _remoteCursors = {};
-  final String _userId = const Uuid().v4(); // Unique ID for this session
+  static final String _userId = const Uuid().v4(); // Unique ID for this session
   final Color _userColor =
       Colors.primaries[DateTime.now().millisecond % Colors.primaries.length];
 
   // --- Tag state ---
   List<Tag> _noteTags = [];
   List<Tag> _allTags = [];
+  List<Tag> _suggestedTags = [];
+  Timer? _tagSuggestionDebounce;
   final _tagController = TextEditingController();
 
   static const List<Color> _predefinedColors = [
@@ -162,16 +167,30 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _throttleTimer?.cancel();
     _documentSubscription?.cancel();
     _presenceSubscription?.cancel();
+    _tagSuggestionDebounce?.cancel();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
-        SystemChrome.setEnabledSystemUIMode(
+        SystemChrome.setEnabledSystemUimode(
           SystemUiMode.manual,
           overlays: SystemUiOverlay.values,
         ),
       );
     }
     super.dispose();
+  }
+
+  void _updateTagSuggestions() {
+    final suggestions = TagSuggestionService.getSuggestions(
+      document: _document,
+      allTags: _allTags,
+      currentTags: _noteTags,
+    );
+    if (mounted) {
+      setState(() {
+        _suggestedTags = suggestions;
+      });
+    }
   }
 
   void _updateCounts(DocumentModel document) {
@@ -187,6 +206,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _document = newDocument;
     });
     _updateCounts(newDocument);
+
+    // Debounce tag suggestions
+    _tagSuggestionDebounce?.cancel();
+    _tagSuggestionDebounce = Timer(const Duration(seconds: 2), () {
+      _updateTagSuggestions();
+    });
 
     if (_isCollaborative && _note != null) {
       // In collaborative mode, send updates to Firebase.
@@ -656,6 +681,31 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                 )
                 .toList(),
           ),
+          if (_suggestedTags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Tags Sugeridas:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: _suggestedTags
+                        .map(
+                          (tag) => ActionChip(
+                            label: Text(tag.name),
+                            onPressed: () => unawaited(_addTag(tag)),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
           Autocomplete<Tag>(
             optionsBuilder: (TextEditingValue textEditingValue) {
               if (textEditingValue.text.isEmpty) {
@@ -749,18 +799,7 @@ class CenterLineAction extends Action<CenterLineIntent> {
 
   @override
   void invoke(CenterLineIntent intent) {
-    const averageLineHeight = 20.0; // Estimate
-    final buffer =
-        VirtualTextBuffer(state._document); // Temporary buffer to calculate
-    final line =
-        buffer.getLineTextPositionForOffset(state._selection.baseOffset).line;
-    final offset = (line * averageLineHeight) -
-        (state._scrollController.position.viewportDimension / 2);
-    state._scrollController.animateTo(
-      offset,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    state._editorKey.currentState?.centerLine();
   }
 }
 
@@ -840,6 +879,7 @@ extension on _NoteEditorScreenState {
   Widget build(BuildContext context) {
     // Add the remote cursors to the editor widget
     final editor = EditorWidget(
+      key: _editorKey,
       document: _document,
       onDocumentChanged: _onDocumentChanged,
       selection: _selection,

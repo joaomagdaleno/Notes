@@ -49,10 +49,10 @@ class EditorWidget extends StatefulWidget {
   final ScrollController? scrollController;
 
   @override
-  State<EditorWidget> createState() => _EditorWidgetState();
+  State<EditorWidget> createState() => EditorWidgetState();
 }
 
-class _EditorWidgetState extends State<EditorWidget> {
+class EditorWidgetState extends State<EditorWidget> {
   final FocusNode _focusNode = FocusNode();
   late TextSelection _selection;
   late VirtualTextBuffer _buffer;
@@ -283,6 +283,20 @@ class _EditorWidgetState extends State<EditorWidget> {
     // If no conversion, just apply the basic edit.
     widget.onDocumentChanged(doc);
     _onSelectionChanged(selection);
+  }
+
+  /// Scrolls the editor to center the current line of the selection.
+  void centerLine() {
+    final line = _buffer.getLineTextPositionForOffset(_selection.baseOffset).line;
+    final lineKey = _lineKeys[line];
+    if (lineKey != null && lineKey.currentContext != null) {
+      Scrollable.ensureVisible(
+        lineKey.currentContext!,
+        alignment: 0.5, // Center of the viewport
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   // --- Autocomplete Logic ---
