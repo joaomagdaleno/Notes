@@ -59,13 +59,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
-  Rect? _selectionRect;
+  final _selectionRectNotifier = ValueNotifier<Rect?>(null);
   bool get _isToolbarVisible =>
-      _selectionRect != null && !_selection.isCollapsed;
+      _selectionRectNotifier.value != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
-  int _wordCount = 0;
-  int _charCount = 0;
-  bool _isFindBarVisible = false;
+  final _wordCountNotifier = ValueNotifier<int>(0);
+  final _charCountNotifier = ValueNotifier<int>(0);
+  final _isFindBarVisibleNotifier = ValueNotifier<bool>(false);
   String _findTerm = '';
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
@@ -195,10 +195,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   void _updateCounts(DocumentModel document) {
     final text = document.toPlainText().trim();
-    setState(() {
-      _charCount = text.length;
-      _wordCount = text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
-    });
+    _charCountNotifier.value = text.length;
+    _wordCountNotifier.value =
+        text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
   }
 
   void _onDocumentChanged(DocumentModel newDocument) {
@@ -274,13 +273,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     final editorRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
 
     if (rect != null && editorRect.overlaps(rect)) {
-      setState(() {
-        _selectionRect = rect;
-      });
+      _selectionRectNotifier.value = rect;
     } else {
-      setState(() {
-        _selectionRect = null;
-      });
+      _selectionRectNotifier.value = null;
     }
   }
 
