@@ -12,6 +12,7 @@ import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
+import 'package:universal_notes_flutter/widgets/empty_state.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/quick_note_editor.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
@@ -363,60 +364,67 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             ),
           ),
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(8),
-              gridDelegate: _getGridDelegate(),
-              itemCount: _notes.length,
-              itemBuilder: (context, index) {
-                final note = _notes[index];
-                return Dismissible(
-                  key: Key(note.id),
-                  background: Container(
-                    color: isTrashView ? Colors.blue : Colors.green,
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Icon(
-                      isTrashView ? Icons.restore_from_trash : Icons.favorite,
-                      color: Colors.white,
-                    ),
-                  ),
-                  secondaryBackground: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Icon(
-                      isTrashView ? Icons.delete_forever : Icons.delete,
-                      color: Colors.white,
-                    ),
-                  ),
-                  onDismissed: (direction) {
-                    if (isTrashView) {
-                      if (direction == DismissDirection.startToEnd) {
-                        unawaited(_restoreNote(note));
-                      } else {
-                        unawaited(_deletePermanently(note));
-                      }
-                    } else {
-                      if (direction == DismissDirection.startToEnd) {
-                        unawaited(_toggleFavorite(note));
-                      } else {
-                        unawaited(_moveToTrash(note));
-                      }
-                    }
-                  },
-                  child: NoteCard(
-                    note: note,
-                    onTap: () => unawaited(_openNoteEditor(note)),
-                    onSave: (note) async {
-                      await _noteRepository.updateNote(note);
-                      await _loadNotes();
-                      return note;
+            child: _notes.isEmpty
+                ? const EmptyState(
+                    icon: Icons.note_add,
+                    message: 'No notes yet. Create one!',
+                  )
+                : GridView.builder(
+                    padding: const EdgeInsets.all(8),
+                    gridDelegate: _getGridDelegate(),
+                    itemCount: _notes.length,
+                    itemBuilder: (context, index) {
+                      final note = _notes[index];
+                      return Dismissible(
+                        key: Key(note.id),
+                        background: Container(
+                          color: isTrashView ? Colors.blue : Colors.green,
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Icon(
+                            isTrashView
+                                ? Icons.restore_from_trash
+                                : Icons.favorite,
+                            color: Colors.white,
+                          ),
+                        ),
+                        secondaryBackground: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Icon(
+                            isTrashView ? Icons.delete_forever : Icons.delete,
+                            color: Colors.white,
+                          ),
+                        ),
+                        onDismissed: (direction) {
+                          if (isTrashView) {
+                            if (direction == DismissDirection.startToEnd) {
+                              unawaited(_restoreNote(note));
+                            } else {
+                              unawaited(_deletePermanently(note));
+                            }
+                          } else {
+                            if (direction == DismissDirection.startToEnd) {
+                              unawaited(_toggleFavorite(note));
+                            } else {
+                              unawaited(_moveToTrash(note));
+                            }
+                          }
+                        },
+                        child: NoteCard(
+                          note: note,
+                          onTap: () => unawaited(_openNoteEditor(note)),
+                          onSave: (note) async {
+                            await _noteRepository.updateNote(note);
+                            await _loadNotes();
+                            return note;
+                          },
+                          onDelete: _deletePermanently,
+                        ),
+                      );
                     },
-                    onDelete: _deletePermanently,
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -564,24 +572,29 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 : null,
           ),
         ),
-        content: GridView.builder(
-          padding: const EdgeInsets.all(8),
-          gridDelegate: _getGridDelegate(),
-          itemCount: _notes.length,
-          itemBuilder: (context, index) {
-            final note = _notes[index];
-            return NoteCard(
-              note: note,
-              onTap: () => unawaited(_openNoteEditor(note)),
-              onSave: (note) async {
-                await _noteRepository.updateNote(note);
-                await _loadNotes();
-                return note;
-              },
-              onDelete: _deletePermanently,
-            );
-          },
-        ),
+        content: _notes.isEmpty
+            ? const EmptyState(
+                icon: fluent.FluentIcons.note_forward,
+                message: 'No notes here. Try creating one!',
+              )
+            : GridView.builder(
+                padding: const EdgeInsets.all(8),
+                gridDelegate: _getGridDelegate(),
+                itemCount: _notes.length,
+                itemBuilder: (context, index) {
+                  final note = _notes[index];
+                  return NoteCard(
+                    note: note,
+                    onTap: () => unawaited(_openNoteEditor(note)),
+                    onSave: (note) async {
+                      await _noteRepository.updateNote(note);
+                      await _loadNotes();
+                      return note;
+                    },
+                    onDelete: _deletePermanently,
+                  );
+                },
+              ),
         bottomBar: isTrashView
             ? null
             : Padding(
