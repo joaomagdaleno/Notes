@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/widgets/note_preview_dialog.dart';
 
 /// A widget that displays a note as a card with a fluent design.
 class FluentNoteCard extends StatefulWidget {
@@ -77,6 +79,21 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
     );
   }
 
+  Future<void> _showPreview(BuildContext context) async {
+    final noteWithContent =
+        await NoteRepository.instance.getNoteWithContent(widget.note.id);
+    final tags = await NoteRepository.instance.getTagsForNote(widget.note.id);
+    if (context.mounted) {
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (context) =>
+              NotePreviewDialog(note: noteWithContent, tags: tags),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return fluent.FlyoutTarget(
@@ -90,33 +107,46 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
           _showContextMenu(details.globalPosition);
         },
         child: fluent.Card(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.note.title,
-                  style: fluent.FluentTheme.of(context).typography.bodyLarge,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.note.title,
+                      style: fluent.FluentTheme.of(context).typography.bodyLarge,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: Text(
+                        DocumentAdapter.fromJson(widget.note.content)
+                            .toPlainText(),
+                        style: fluent.FluentTheme.of(context).typography.body,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      FluentNoteCard._dateFormat.format(widget.note.date),
+                      style: fluent.FluentTheme.of(context).typography.caption,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Text(
-                    DocumentAdapter.fromJson(widget.note.content).toPlainText(),
-                    style: fluent.FluentTheme.of(context).typography.body,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 5,
-                  ),
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: fluent.IconButton(
+                  icon: const fluent.Icon(fluent.FluentIcons.view),
+                  onPressed: () => unawaited(_showPreview(context)),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  FluentNoteCard._dateFormat.format(widget.note.date),
-                  style: fluent.FluentTheme.of(context).typography.caption,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
