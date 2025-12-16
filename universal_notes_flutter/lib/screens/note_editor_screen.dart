@@ -49,8 +49,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   bool get _isToolbarVisible =>
       _selectionRect != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
-  int _wordCount = 0;
-  int _charCount = 0;
+  final _wordCountNotifier = ValueNotifier<int>(0);
+  final _charCountNotifier = ValueNotifier<int>(0);
   bool _isFindBarVisible = false;
   String _findTerm = '';
   List<int> _findMatches = [];
@@ -96,6 +96,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _recordHistoryTimer?.cancel();
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
+    _wordCountNotifier.dispose();
+    _charCountNotifier.dispose();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
@@ -110,10 +112,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   void _updateCounts(DocumentModel document) {
     final text = document.toPlainText().trim();
-    setState(() {
-      _charCount = text.length;
-      _wordCount = text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
-    });
+    _charCountNotifier.value = text.length;
+    _wordCountNotifier.value =
+        text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
   }
 
   void _onDocumentChanged(DocumentModel newDocument) {
@@ -574,8 +575,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                       onRedo: _redo,
                       canUndo: _historyManager.canUndo,
                       canRedo: _historyManager.canRedo,
-                      wordCount: _wordCount,
-                      charCount: _charCount,
+                      wordCountNotifier: _wordCountNotifier,
+                      charCountNotifier: _charCountNotifier,
                     ),
                 ],
               ),
