@@ -47,13 +47,13 @@ class FirestoreRepository {
     });
   }
 
-  Future<void> addNote({required String title, required String content}) async {
+  Future<Note> addNote({required String title, required String content}) async {
     final user = _auth.currentUser;
     if (user == null) {
       throw Exception('User not logged in');
     }
     final now = DateTime.now();
-    await _notesCollection.add({
+    final docRef = await _notesCollection.add({
       'title': title,
       'content': content,
       'createdAt': Timestamp.fromDate(now),
@@ -64,6 +64,8 @@ class FirestoreRepository {
       'isFavorite': false,
       'isInTrash': false,
     });
+    final snapshot = await docRef.get();
+    return Note.fromFirestore(snapshot);
   }
 
   Future<void> updateNote(Note note) async {

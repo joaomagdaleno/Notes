@@ -150,7 +150,17 @@ class _NoteCardState extends State<NoteCard> {
                 ],
               ),
             ),
-            if (widget.note.isDraft)
+            Positioned(
+              top: 4,
+              right: 4,
+              child: IconButton(
+                icon: const Icon(Icons.visibility_outlined),
+                iconSize: 20,
+                onPressed: () => unawaited(_showPreview(context)),
+                tooltip: 'Show preview',
+              ),
+            ),
+            if (note.isDraft)
               const Positioned(
                 top: 8,
                 right: 40,

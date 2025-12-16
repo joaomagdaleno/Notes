@@ -114,8 +114,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     Navigator.of(context).pop(); // Close the drawer
   }
 
-  void _createNewNote() {
-    unawaited(_firestoreRepository.addNote(title: 'Nova Nota', content: ''));
+  Future<void> _createNewNote() async {
+    final newNote =
+        await _firestoreRepository.addNote(title: 'Nova Nota', content: '');
+    unawaited(_openNoteEditor(newNote));
   }
 
   Future<void> _openNoteEditor(Note note) async {
@@ -147,10 +149,11 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _processarNotaRapida(String content) async {
-    await _firestoreRepository.addNote(
+    final newNote = await _firestoreRepository.addNote(
       title: content.split('\n').first,
       content: content,
     );
+    unawaited(_openNoteEditor(newNote));
   }
 
   @override
