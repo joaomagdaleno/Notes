@@ -67,7 +67,7 @@ class Sidebar extends StatefulWidget {
 
 class _SidebarState extends State<Sidebar> {
   // Folder logic remains, but we will use a Stream for tags.
-  List<Folder> _folders = [];
+  final List<Folder> _folders = [];
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final BackupService _backupService = BackupService();
   final FirestoreRepository _firestoreRepository = FirestoreRepository();

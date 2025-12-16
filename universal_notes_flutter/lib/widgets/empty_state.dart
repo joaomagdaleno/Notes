@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 class EmptyState extends StatelessWidget {
   /// Creates a new instance of [EmptyState].
   const EmptyState({
-    super.key,
-    required this.message,
+    required this.message, super.key,
     this.icon = Icons.inbox,
   });
 

@@ -7,11 +7,11 @@ class StorageService {
 
   Future<String?> uploadImage(File imageFile) async {
     try {
-      final String fileName = const Uuid().v4();
-      final Reference ref = _storage.ref().child('note_images').child(fileName);
-      final UploadTask uploadTask = ref.putFile(imageFile);
-      final TaskSnapshot snapshot = await uploadTask;
-      final String downloadUrl = await snapshot.ref.getDownloadURL();
+      final fileName = const Uuid().v4();
+      final ref = _storage.ref().child('note_images').child(fileName);
+      final uploadTask = ref.putFile(imageFile);
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
       return downloadUrl;
     } catch (e) {
       print('Error uploading image: $e');

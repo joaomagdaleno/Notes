@@ -129,7 +129,7 @@ class EditorWidgetState extends State<EditorWidget> {
       final lineKey = _lineKeys[i];
       if (lineKey == null || lineKey.currentContext == null) continue;
 
-      final lineBox = lineKey.currentContext!.findRenderObject() as RenderBox;
+      final lineBox = lineKey.currentContext!.findRenderObject()! as RenderBox;
       final line = _buffer.lines[i];
 
       if (line is! TextLine) continue;
@@ -330,7 +330,7 @@ class EditorWidgetState extends State<EditorWidget> {
     if (lineKey == null || lineKey.currentContext == null) {
       return Offset.zero;
     }
-    final lineBox = lineKey.currentContext!.findRenderObject() as RenderBox;
+    final lineBox = lineKey.currentContext!.findRenderObject()! as RenderBox;
 
     final line = _buffer.lines[cursorPosition.line];
     if (line is! TextLine) return lineBox.localToGlobal(Offset.zero);
@@ -357,7 +357,7 @@ class EditorWidgetState extends State<EditorWidget> {
 
     // Decide whether to show above or below
     const overlayHeight = 200.0; // Estimated height of the overlay
-    final bool showAbove = cursorPosition.dy > screenHeight / 2;
+    final showAbove = cursorPosition.dy > screenHeight / 2;
     final position = showAbove
         ? cursorPosition - const Offset(0, overlayHeight)
         : cursorPosition + const Offset(0, 25);
@@ -465,7 +465,7 @@ class EditorWidgetState extends State<EditorWidget> {
       for (var i = startPos.line; i <= endPos.line; i++) {
         final lineKey = _lineKeys[i];
         if (lineKey == null || lineKey.currentContext == null) continue;
-        final lineBox = lineKey.currentContext!.findRenderObject() as RenderBox;
+        final lineBox = lineKey.currentContext!.findRenderObject()! as RenderBox;
         final line = _buffer.lines[i];
         if (line is! TextLine) continue;
 

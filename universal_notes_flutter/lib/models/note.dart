@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package.flutter/foundation.dart';
+import 'package:universal_notes_flutter/models/package.flutter/foundation.dart';
 
 /// A class representing a single note, adapted for Firestore.
 @immutable

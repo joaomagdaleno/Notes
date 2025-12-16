@@ -43,7 +43,7 @@ class _AuthScreenState extends State<AuthScreen> {
       appBar: AppBar(title: const Text('Authentication')),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

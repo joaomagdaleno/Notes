@@ -9,7 +9,7 @@ import 'package:universal_notes_flutter/models/document_model.dart';
 /// sincronizar os dados da nota e o status de presença dos colaboradores.
 class FirebaseService {
   // Simula um "documento" do Firestore para a nota.
-  Map<String, dynamic> _documentData = {
+  final Map<String, dynamic> _documentData = {
     'content': DocumentModel.empty().toJson(),
   };
 

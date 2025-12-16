@@ -3,17 +3,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 
 class FirestoreRepository {
+
+  FirestoreRepository() {
+    _notesCollection = _firestore.collection('notes');
+    _usersCollection = _firestore.collection('users');
+  }
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Reference to the collections
   late final CollectionReference<Map<String, dynamic>> _notesCollection;
   late final CollectionReference<Map<String, dynamic>> _usersCollection;
-
-  FirestoreRepository() {
-    _notesCollection = _firestore.collection('notes');
-    _usersCollection = _firestore.collection('users');
-  }
 
   Stream<List<Note>> notesStream({
     bool? isFavorite,
@@ -25,7 +25,7 @@ class FirestoreRepository {
       return Stream.value([]);
     }
 
-    Query<Map<String, dynamic>> query =
+    var query =
         _notesCollection.where('memberIds', arrayContains: user.uid);
 
     if (isFavorite != null) {
@@ -45,7 +45,7 @@ class FirestoreRepository {
 
 
     return query.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => Note.fromFirestore(doc)).toList();
+      return snapshot.docs.map(Note.fromFirestore).toList();
     });
   }
 

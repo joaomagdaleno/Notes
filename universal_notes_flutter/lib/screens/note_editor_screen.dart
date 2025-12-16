@@ -75,7 +75,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   // --- Collaboration State (Temporarily disabled) ---
   final bool _isCollaborative = false;
-  Map<String, Map<String, dynamic>> _remoteCursors = {};
+  final Map<String, Map<String, dynamic>> _remoteCursors = {};
 
   // --- Tag state ---
   List<String> _currentTags = [];
@@ -635,7 +635,7 @@ class _CollaboratorAvatars extends StatelessWidget {
 extension on _NoteEditorScreenState {
   void _showShareDialog() {
     final emailController = TextEditingController();
-    String permission = 'viewer'; // Default permission
+    var permission = 'viewer'; // Default permission
 
     unawaited(
       showDialog<void>(
@@ -815,7 +815,7 @@ extension on _NoteEditorScreenState {
                       if (widget.note != null)
                         IconButton(
                           icon: const Icon(Icons.share),
-                          onPressed: () => _showShareDialog(),
+                          onPressed: _showShareDialog,
                         ),
                       IconButton(
                         icon: const Icon(Icons.attach_file),
@@ -898,7 +898,7 @@ extension on _NoteEditorScreenState {
                       if (!_isFocusMode) _buildTagEditor(),
                       if (_note?.imageUrl != null)
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8),
                           child: Image.network(_note!.imageUrl!),
                         ),
                       Expanded(

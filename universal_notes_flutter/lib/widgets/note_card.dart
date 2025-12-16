@@ -66,7 +66,7 @@ class _NoteCardState extends State<NoteCard> {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasImage = widget.note.imageUrl?.isNotEmpty ?? false;
+    final hasImage = widget.note.imageUrl?.isNotEmpty ?? false;
 
     return Card(
       elevation: 1,
