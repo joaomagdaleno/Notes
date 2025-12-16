@@ -315,9 +315,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
             onSelected: (SortOrder result) {
-              setState(() {
-                _sortOrder = result;
-              });
+              _sortOrder = result;
               unawaited(_loadNotes());
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<SortOrder>>[
@@ -497,31 +495,31 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               items: [
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Recentes)'),
-                  onPressed: () => setState(() {
+                  onPressed: () {
                     _sortOrder = SortOrder.dateDesc;
                     unawaited(_loadNotes());
-                  }),
+                  },
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Antigas)'),
-                  onPressed: () => setState(() {
+                  onPressed: () {
                     _sortOrder = SortOrder.dateAsc;
                     unawaited(_loadNotes());
-                  }),
+                  },
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (A-Z)'),
-                  onPressed: () => setState(() {
+                  onPressed: () {
                     _sortOrder = SortOrder.titleAsc;
                     unawaited(_loadNotes());
-                  }),
+                  },
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (Z-A)'),
-                  onPressed: () => setState(() {
+                  onPressed: () {
                     _sortOrder = SortOrder.titleDesc;
                     unawaited(_loadNotes());
-                  }),
+                  },
                 ),
               ],
             ),
