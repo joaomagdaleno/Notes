@@ -53,19 +53,18 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   late DocumentModel _document;
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
-  final ScrollController _scrollController = ScrollController();
-  final GlobalKey<EditorWidgetState> _editorKey =
-      GlobalKey<EditorWidgetState>();
+  final _canUndoNotifier = ValueNotifier<bool>(false);
+  final _canRedoNotifier = ValueNotifier<bool>(false);
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
-  Rect? _selectionRect;
+  final _selectionRectNotifier = ValueNotifier<Rect?>(null);
   bool get _isToolbarVisible =>
-      _selectionRect != null && !_selection.isCollapsed;
+      _selectionRectNotifier.value != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
-  int _wordCount = 0;
-  int _charCount = 0;
-  bool _isFindBarVisible = false;
+  final _wordCountNotifier = ValueNotifier<int>(0);
+  final _charCountNotifier = ValueNotifier<int>(0);
+  final _isFindBarVisibleNotifier = ValueNotifier<bool>(false);
   String _findTerm = '';
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
@@ -110,6 +109,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _historyManager = HistoryManager(
       initialState: HistoryState(document: _document, selection: _selection),
     );
+    _canUndoNotifier.value = _historyManager.canUndo;
+    _canRedoNotifier.value = _historyManager.canRedo;
     _updateCounts(_document);
     unawaited(SnippetConverter.precacheSnippets());
     unawaited(_loadTags());
@@ -165,6 +166,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _recordHistoryTimer?.cancel();
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
+    _wordCountNotifier.dispose();
+    _charCountNotifier.dispose();
+    _isFindBarVisibleNotifier.dispose();
+    _selectionRectNotifier.dispose();
+    _canUndoNotifier.dispose();
+    _canRedoNotifier.dispose();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
@@ -192,10 +199,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   void _updateCounts(DocumentModel document) {
     final text = document.toPlainText().trim();
-    setState(() {
-      _charCount = text.length;
-      _wordCount = text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
-    });
+    _charCountNotifier.value = text.length;
+    _wordCountNotifier.value =
+        text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
   }
 
   void _onDocumentChanged(DocumentModel newDocument) {
@@ -234,11 +240,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     }
     _recordHistoryTimer?.cancel();
     _recordHistoryTimer = Timer(const Duration(milliseconds: 500), () {
-      setState(() {
-        _historyManager.record(
-          HistoryState(document: newDocument, selection: _selection),
-        );
-      });
+      _historyManager.record(
+        HistoryState(document: newDocument, selection: _selection),
+      );
+      _canUndoNotifier.value = _historyManager.canUndo;
+      _canRedoNotifier.value = _historyManager.canRedo;
     });
   }
 
@@ -271,13 +277,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     final editorRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
 
     if (rect != null && editorRect.overlaps(rect)) {
-      setState(() {
-        _selectionRect = rect;
-      });
+      _selectionRectNotifier.value = rect;
     } else {
-      setState(() {
-        _selectionRect = null;
-      });
+      _selectionRectNotifier.value = null;
     }
   }
 
@@ -389,6 +391,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _selection = state.selection;
       _updateCounts(_document);
     });
+    _canUndoNotifier.value = _historyManager.canUndo;
+    _canRedoNotifier.value = _historyManager.canRedo;
   }
 
   void _redo() {
@@ -399,6 +403,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _selection = state.selection;
       _updateCounts(_document);
     });
+    _canUndoNotifier.value = _historyManager.canUndo;
+    _canRedoNotifier.value = _historyManager.canRedo;
   }
 
   Future<void> _autosave() async {
@@ -940,9 +946,8 @@ extension on _NoteEditorScreenState {
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.search),
-                    tooltip: 'Find & Replace',
-                    onPressed: () =>
-                        setState(() => _isFindBarVisible = !_isFindBarVisible),
+                    onPressed: () => _isFindBarVisibleNotifier.value =
+                        !_isFindBarVisibleNotifier.value,
                   ),
                   if (widget.note != null)
                     IconButton(
@@ -973,15 +978,27 @@ extension on _NoteEditorScreenState {
             children: [
               Column(
                 children: [
-                  if (_isFindBarVisible && !_isFocusMode)
-                    FindReplaceBar(
-                      onFindChanged: _onFindChanged,
-                      onFindNext: _findNext,
-                      onFindPrevious: _findPrevious,
-                      onReplace: _replace,
-                      onReplaceAll: _replaceAll,
-                      onClose: () => setState(() => _isFindBarVisible = false),
-                    ),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _isFindBarVisibleNotifier,
+                    builder: (context, isVisible, child) {
+                      return AnimatedCrossFade(
+                        firstChild: FindReplaceBar(
+                          onFindChanged: _onFindChanged,
+                          onFindNext: _findNext,
+                          onFindPrevious: _findPrevious,
+                          onReplace: _replace,
+                          onReplaceAll: _replaceAll,
+                          onClose: () =>
+                              _isFindBarVisibleNotifier.value = false,
+                        ),
+                        secondChild: const SizedBox.shrink(),
+                        crossFadeState: isVisible && !_isFocusMode
+                            ? CrossFadeState.showFirst
+                            : CrossFadeState.showSecond,
+                        duration: const Duration(milliseconds: 200),
+                      );
+                    },
+                  ),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(16),
@@ -1025,22 +1042,29 @@ extension on _NoteEditorScreenState {
                       onSnippets: () => unawaited(_showSnippetsScreen()),
                       onUndo: _undo,
                       onRedo: _redo,
-                      canUndo: _historyManager.canUndo,
-                      canRedo: _historyManager.canRedo,
-                      wordCount: _wordCount,
-                      charCount: _charCount,
+                      canUndoNotifier: _canUndoNotifier,
+                      canRedoNotifier: _canRedoNotifier,
+                      wordCountNotifier: _wordCountNotifier,
+                      charCountNotifier: _charCountNotifier,
                     ),
                 ],
               ),
-              if (_isToolbarVisible)
-                Positioned(
-                  top: _selectionRect!.top - 55,
-                  left: _selectionRect!.left,
-                  child: FloatingToolbar(
-                    onBold: () => _toggleStyle(StyleAttribute.bold),
-                    onItalic: () => _toggleStyle(StyleAttribute.italic),
-                  ),
-                ),
+              ValueListenableBuilder<Rect?>(
+                valueListenable: _selectionRectNotifier,
+                builder: (context, selectionRect, child) {
+                  if (selectionRect == null || _selection.isCollapsed) {
+                    return const SizedBox.shrink();
+                  }
+                  return Positioned(
+                    top: selectionRect.top - 55,
+                    left: selectionRect.left,
+                    child: FloatingToolbar(
+                      onBold: () => _toggleStyle(StyleAttribute.bold),
+                      onItalic: () => _toggleStyle(StyleAttribute.italic),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
