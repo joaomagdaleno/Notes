@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
+import 'package:universal_notes_flutter/widgets/note_preview_dialog.dart';
 
 /// A widget that displays a note as a card.
 class NoteCard extends StatefulWidget {
@@ -32,6 +34,21 @@ class NoteCard extends StatefulWidget {
   // Re-creating DateFormat on every build is inefficient.
   // This avoids repeated object creation.
   static final _dateFormat = DateFormat('d MMM. yyyy');
+
+  Future<void> _showPreview(BuildContext context) async {
+    final noteWithContent =
+        await NoteRepository.instance.getNoteWithContent(note.id);
+    final tags = await NoteRepository.instance.getTagsForNote(note.id);
+    if (context.mounted) {
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (context) =>
+              NotePreviewDialog(note: noteWithContent, tags: tags),
+        ),
+      );
+    }
+  }
 
   @override
   State<NoteCard> createState() => _NoteCardState();
@@ -133,10 +150,20 @@ class _NoteCardState extends State<NoteCard> {
                 ],
               ),
             ),
-            if (widget.note.isDraft)
+            Positioned(
+              top: 4,
+              right: 4,
+              child: IconButton(
+                icon: const Icon(Icons.visibility_outlined),
+                iconSize: 20,
+                onPressed: () => unawaited(_showPreview(context)),
+                tooltip: 'Show preview',
+              ),
+            ),
+            if (note.isDraft)
               const Positioned(
                 top: 8,
-                right: 8,
+                right: 40,
                 child: Icon(
                   Icons.flash_on,
                   size: 16,
