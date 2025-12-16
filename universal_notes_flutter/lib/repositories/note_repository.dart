@@ -421,13 +421,6 @@ class NoteRepository {
   /// Searches all notes for the given term.
   Future<List<Note>> searchAllNotes(String searchTerm) async {
     final db = await database;
-
-    // 🛡️ Sentinel: Add input length validation to prevent local DoS attacks
-    // from excessively long search terms.
-    if (searchTerm.length > 256) {
-      return [];
-    }
-
     if (searchTerm.isEmpty) {
       return getAllNotes();
     }

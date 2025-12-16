@@ -14,8 +14,8 @@ class EditorToolbar extends StatelessWidget {
     required this.onImage,
     required this.onUndo,
     required this.onRedo,
-    required this.canUndo,
-    required this.canRedo,
+    required this.canUndoNotifier,
+    required this.canRedoNotifier,
     required this.wordCountNotifier,
     required this.charCountNotifier,
     super.key,
@@ -52,14 +52,11 @@ class EditorToolbar extends StatelessWidget {
   final VoidCallback onRedo;
 
   /// Whether the undo action is available.
-  final bool canUndo;
-
+  final ValueNotifier<bool> canUndoNotifier;
   /// Whether the redo action is available.
-  final bool canRedo;
-
+  final ValueNotifier<bool> canRedoNotifier;
   /// The word count of the document.
-  final int wordCount;
-
+  final ValueNotifier<int> wordCountNotifier;
   /// The character count of the document.
   final ValueNotifier<int> charCountNotifier;
 
@@ -70,19 +67,23 @@ class EditorToolbar extends StatelessWidget {
       color: Colors.grey[200],
       child: Row(
         children: [
-          Semantics(
-            label: 'Undo',
-            child: IconButton(
-              icon: const Icon(Icons.undo),
-              onPressed: canUndo ? onUndo : null,
-            ),
+          ValueListenableBuilder<bool>(
+            valueListenable: canUndoNotifier,
+            builder: (context, canUndo, child) {
+              return IconButton(
+                icon: const Icon(Icons.undo),
+                onPressed: canUndo ? onUndo : null,
+              );
+            },
           ),
-          Semantics(
-            label: 'Redo',
-            child: IconButton(
-              icon: const Icon(Icons.redo),
-              onPressed: canRedo ? onRedo : null,
-            ),
+          ValueListenableBuilder<bool>(
+            valueListenable: canRedoNotifier,
+            builder: (context, canRedo, child) {
+              return IconButton(
+                icon: const Icon(Icons.redo),
+                onPressed: canRedo ? onRedo : null,
+              );
+            },
           ),
           const VerticalDivider(),
           Semantics(

@@ -52,9 +52,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   late DocumentModel _document;
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
-  final ScrollController _scrollController = ScrollController();
-  final GlobalKey<EditorWidgetState> _editorKey =
-      GlobalKey<EditorWidgetState>();
+  final _canUndoNotifier = ValueNotifier<bool>(false);
+  final _canRedoNotifier = ValueNotifier<bool>(false);
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
@@ -102,6 +101,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _historyManager = HistoryManager(
       initialState: HistoryState(document: _document, selection: _selection),
     );
+    _canUndoNotifier.value = _historyManager.canUndo;
+    _canRedoNotifier.value = _historyManager.canRedo;
     _updateCounts(_document);
     unawaited(SnippetConverter.precacheSnippets());
   }
@@ -163,11 +164,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     }
     _recordHistoryTimer?.cancel();
     _recordHistoryTimer = Timer(const Duration(milliseconds: 500), () {
-      setState(() {
-        _historyManager.record(
-          HistoryState(document: newDocument, selection: _selection),
-        );
-      });
+      _historyManager.record(
+        HistoryState(document: newDocument, selection: _selection),
+      );
+      _canUndoNotifier.value = _historyManager.canUndo;
+      _canRedoNotifier.value = _historyManager.canRedo;
     });
   }
 
@@ -298,6 +299,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _selection = state.selection;
       _updateCounts(_document);
     });
+    _canUndoNotifier.value = _historyManager.canUndo;
+    _canRedoNotifier.value = _historyManager.canRedo;
   }
 
   void _redo() {
@@ -308,6 +311,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _selection = state.selection;
       _updateCounts(_document);
     });
+    _canUndoNotifier.value = _historyManager.canUndo;
+    _canRedoNotifier.value = _historyManager.canRedo;
   }
 
   Future<void> _autosave() async {
@@ -768,48 +773,65 @@ extension on _NoteEditorScreenState {
                       ),
                     ],
                   ),
-            floatingActionButton: _isFocusMode
-                ? null
-                : FloatingActionButton(
-                    onPressed: _saveNote,
-                    child: const Icon(Icons.save),
+                  if (widget.note != null)
+                    IconButton(
+                      icon: const Icon(Icons.history),
+                      tooltip: 'Version History',
+                      onPressed: _showHistory,
+                    ),
+                  IconButton(
+                    icon: Icon(
+                      _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
+                    ),
+                    tooltip: 'Focus Mode',
+                    onPressed: _toggleFocusMode,
                   ),
-            body: SafeArea(
-              top: !_isFocusMode,
-              bottom: !_isFocusMode,
-              child: Stack(
+                ],
+              ),
+        floatingActionButton: _isFocusMode
+            ? null
+            : FloatingActionButton(
+                onPressed: _saveNote,
+                tooltip: 'Save Note',
+                child: const Icon(Icons.save),
+              ),
+        body: SafeArea(
+          top: !_isFocusMode,
+          bottom: !_isFocusMode,
+          child: Stack(
+            children: [
+              Column(
                 children: [
-                  Column(
-                    children: [
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder:
-                            (Widget child, Animation<double> animation) {
-                          return SizeTransition(
-                            sizeFactor: animation,
-                            child: child,
-                          );
-                        },
-                        child: _isFindBarVisible && !_isFocusMode
-                            ? FindReplaceBar(
-                                key: const ValueKey('findBar'),
-                                onFindChanged: _onFindChanged,
-                                onFindNext: _findNext,
-                                onFindPrevious: _findPrevious,
-                                onReplace: _replace,
-                                onReplaceAll: _replaceAll,
-                                onClose: () => setState(
-                                  () => _isFindBarVisible = false,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                      if (!_isFocusMode) _buildTagEditor(),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: editor,
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _isFindBarVisibleNotifier,
+                    builder: (context, isVisible, child) {
+                      return AnimatedCrossFade(
+                        firstChild: FindReplaceBar(
+                          onFindChanged: _onFindChanged,
+                          onFindNext: _findNext,
+                          onFindPrevious: _findPrevious,
+                          onReplace: _replace,
+                          onReplaceAll: _replaceAll,
+                          onClose: () =>
+                              _isFindBarVisibleNotifier.value = false,
                         ),
+                        secondChild: const SizedBox.shrink(),
+                        crossFadeState: isVisible && !_isFocusMode
+                            ? CrossFadeState.showFirst
+                            : CrossFadeState.showSecond,
+                        duration: const Duration(milliseconds: 200),
+                      );
+                    },
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: EditorWidget(
+                        document: _document,
+                        onDocumentChanged: _onDocumentChanged,
+                        selection: _selection,
+                        onSelectionChanged: _onSelectionChanged,
+                        onSelectionRectChanged: _onSelectionRectChanged,
                       ),
                       if (!_isFocusMode)
                         EditorToolbar(
@@ -832,18 +854,42 @@ extension on _NoteEditorScreenState {
                         ),
                     ],
                   ),
-                  if (_isToolbarVisible)
-                    Positioned(
-                      top: _selectionRect!.top - 55,
-                      left: _selectionRect!.left,
-                      child: FloatingToolbar(
-                        onBold: () => _toggleStyle(StyleAttribute.bold),
-                        onItalic: () => _toggleStyle(StyleAttribute.italic),
-                      ),
+                  if (!_isFocusMode)
+                    EditorToolbar(
+                      onBold: () => _toggleStyle(StyleAttribute.bold),
+                      onItalic: () => _toggleStyle(StyleAttribute.italic),
+                      onUnderline: () => _toggleStyle(StyleAttribute.underline),
+                      onStrikethrough: () =>
+                          _toggleStyle(StyleAttribute.strikethrough),
+                      onColor: _showColorPicker,
+                      onFontSize: _showFontSizePicker,
+                      onSnippets: () => unawaited(_showSnippetsScreen()),
+                      onUndo: _undo,
+                      onRedo: _redo,
+                      canUndoNotifier: _canUndoNotifier,
+                      canRedoNotifier: _canRedoNotifier,
+                      wordCountNotifier: _wordCountNotifier,
+                      charCountNotifier: _charCountNotifier,
                     ),
                 ],
               ),
-            ),
+              ValueListenableBuilder<Rect?>(
+                valueListenable: _selectionRectNotifier,
+                builder: (context, selectionRect, child) {
+                  if (selectionRect == null || _selection.isCollapsed) {
+                    return const SizedBox.shrink();
+                  }
+                  return Positioned(
+                    top: selectionRect.top - 55,
+                    left: selectionRect.left,
+                    child: FloatingToolbar(
+                      onBold: () => _toggleStyle(StyleAttribute.bold),
+                      onItalic: () => _toggleStyle(StyleAttribute.italic),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
