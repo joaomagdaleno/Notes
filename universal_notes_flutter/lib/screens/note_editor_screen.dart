@@ -16,8 +16,7 @@ import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
-import 'package:universal_notes_flutter/models/tag.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
 import 'package:universal_notes_flutter/services/tag_suggestion_service.dart';
@@ -69,21 +68,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   String _findTerm = '';
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
+  final _firestoreRepository = FirestoreRepository();
 
-  // --- Collaboration State ---
-  late bool _isCollaborative;
-  StreamSubscription? _documentSubscription;
-  StreamSubscription? _presenceSubscription;
+  // --- Collaboration State (Temporarily disabled) ---
+  final bool _isCollaborative = false;
   Map<String, Map<String, dynamic>> _remoteCursors = {};
-  static final String _userId = const Uuid().v4(); // Unique ID for this session
-  final Color _userColor =
-      Colors.primaries[DateTime.now().millisecond % Colors.primaries.length];
 
   // --- Tag state ---
-  List<Tag> _noteTags = [];
-  List<Tag> _allTags = [];
-  List<Tag> _suggestedTags = [];
-  Timer? _tagSuggestionDebounce;
+  List<String> _currentTags = [];
   final _tagController = TextEditingController();
 
   static const List<Color> _predefinedColors = [
@@ -104,7 +96,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   void initState() {
     super.initState();
     _note = widget.note;
-    _isCollaborative = widget.isCollaborative;
+    _currentTags = _note?.tags.toList() ?? [];
     WidgetsBinding.instance.addObserver(this);
     _document = DocumentAdapter.fromJson(_note?.content ?? '');
     _historyManager = HistoryManager(
@@ -112,39 +104,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     );
     _updateCounts(_document);
     unawaited(SnippetConverter.precacheSnippets());
-    unawaited(_loadTags());
-
-    if (_isCollaborative && _note != null) {
-      _documentSubscription = NoteRepository.instance
-          .getCollaborativeNoteStream(_note!.id)
-          .listen((note) {
-        // Avoid updating if the content is the same to prevent cursor jumps.
-        if (note.content != _document) {
-          setState(() {
-            _document = note.content;
-          });
-        }
-      });
-
-      _presenceSubscription = NoteRepository.instance
-          .getPresenceStream(_note!.id)
-          .listen((presenceData) {
-        setState(() {
-          _remoteCursors =
-              Map.from(presenceData)..remove(_userId); // Exclude self
-        });
-      });
-    }
-  }
-
-  Future<void> _loadTags() async {
-    if (widget.note != null) {
-      _noteTags = await NoteRepository.instance.getTagsForNote(widget.note!.id);
-    }
-    _allTags = await NoteRepository.instance.getAllTags();
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   @override
@@ -156,18 +115,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   @override
   void dispose() {
-    if (_isCollaborative && _note != null) {
-      unawaited(NoteRepository.instance.removeUserPresence(_note!.id, _userId));
-    }
     WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     _tagController.dispose();
     _recordHistoryTimer?.cancel();
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
-    _documentSubscription?.cancel();
-    _presenceSubscription?.cancel();
-    _tagSuggestionDebounce?.cancel();
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
@@ -178,19 +131,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       );
     }
     super.dispose();
-  }
-
-  void _updateTagSuggestions() {
-    final suggestions = TagSuggestionService.getSuggestions(
-      document: _document,
-      allTags: _allTags,
-      currentTags: _noteTags,
-    );
-    if (mounted) {
-      setState(() {
-        _suggestedTags = suggestions;
-      });
-    }
   }
 
   void _updateCounts(DocumentModel document) {
@@ -206,29 +146,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     });
     _updateCounts(newDocument);
 
-    // Debounce tag suggestions
-    _tagSuggestionDebounce?.cancel();
-    _tagSuggestionDebounce = Timer(const Duration(seconds: 2), () {
-      _updateTagSuggestions();
+    // Autosave logic
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(seconds: 3), () {
+      unawaited(_autosave());
     });
 
-    if (_isCollaborative && _note != null) {
-      // In collaborative mode, send updates to Firebase.
-      unawaited(
-        NoteRepository.instance.updateCollaborativeNote(_note!.id, newDocument),
-      );
-    } else {
-      // In local mode, use the existing autosave logic.
-      _debounceTimer?.cancel();
-      _debounceTimer = Timer(const Duration(seconds: 3), () {
+    if (_throttleTimer == null || !_throttleTimer!.isActive) {
+      _throttleTimer = Timer(const Duration(seconds: 10), () {
         unawaited(_autosave());
       });
-
-      if (_throttleTimer == null || !_throttleTimer!.isActive) {
-        _throttleTimer = Timer(const Duration(seconds: 10), () {
-          unawaited(_autosave());
-        });
-      }
     }
 
     if (_isFindBarVisible) {
@@ -248,22 +175,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     setState(() {
       _selection = newSelection;
     });
-    if (_isCollaborative && _note != null) {
-      unawaited(
-        NoteRepository.instance.updateUserPresence(
-          _note!.id,
-          _userId,
-          {
-            'selection': {
-              'base': newSelection.baseOffset,
-              'extent': newSelection.extentOffset,
-            },
-            'color': _userColor.value,
-            'name': 'User-${_userId.substring(0, 4)}', // Placeholder name
-          },
-        ),
-      );
-    }
   }
 
   void _onSelectionRectChanged(Rect? rect) {
@@ -408,28 +319,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
     final jsonContent = DocumentAdapter.toJson(_document);
 
-    final noteToSave =
-        (_note ??
-                Note(
-                  id: const Uuid().v4(),
-                  title: '',
-                  content: '',
-                  date: DateTime.now(),
-                ))
-            .copyWith(
-              title: plainText.split('\n').first,
-              content: jsonContent,
-              date: DateTime.now(),
-            );
-
-    // If it's a new note, store it in the state so we update it next time.
+    // If it's a new note, create it. Otherwise, update it.
     if (_note == null) {
-      setState(() {
-        _note = noteToSave;
-      });
+      // We don't have enough info to create a full note,
+      // so we rely on the manual save for new notes.
+      // Or we could create a draft here. For now, we do nothing.
+      return;
+    } else {
+      final noteToSave = _note!.copyWith(
+        title: plainText.split('\n').first,
+        content: jsonContent,
+        lastModified: DateTime.now(),
+        tags: _currentTags,
+      );
+      await _firestoreRepository.updateNote(noteToSave);
     }
-
-    await NoteRepository.instance.updateNoteContent(noteToSave);
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -438,8 +342,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         duration: Duration(seconds: 2),
       ),
     );
-
-    await _createVersionIfNeeded(jsonContent);
   }
 
   Future<void> _saveNote() async {
@@ -448,73 +350,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _throttleTimer?.cancel();
 
     await _autosave(); // Perform a final save
-    if (mounted) Navigator.of(context).pop();
-  }
-
-  Future<void> _createVersionIfNeeded(String jsonContent) async {
-    if (widget.note == null) return;
-
-    final versions = await NoteRepository.instance.getNoteVersions(
-      widget.note!.id,
-    );
-    final now = DateTime.now();
-
-    if (versions.isEmpty || now.difference(versions.first.date).inHours >= 6) {
-      final newVersion = NoteVersion(
-        id: const Uuid().v4(),
-        noteId: widget.note!.id,
-        content: jsonContent,
-        date: now,
-      );
-      await NoteRepository.instance.createNoteVersion(newVersion);
+    // Also call the onSave callback from the parent screen
+    final plainText = _document.toPlainText();
+    if (plainText.trim().isEmpty) {
+      if (mounted) Navigator.of(context).pop();
+      return;
     }
-  }
-
-  Future<void> _showHistory() async {
-    if (widget.note == null) return;
-    final versions = await NoteRepository.instance.getNoteVersions(
-      widget.note!.id,
+    final jsonContent = DocumentAdapter.toJson(_document);
+    final noteToSave = widget.note!.copyWith(
+      title: plainText.split('\n').first,
+      content: jsonContent,
+      lastModified: DateTime.now(),
+      tags: _currentTags,
     );
-
-    if (!mounted) return;
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Version History'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            itemCount: versions.length,
-            itemBuilder: (context, index) {
-              final version = versions[index];
-              return ListTile(
-                title: Text(DateFormat.yMMMd().add_Hms().format(version.date)),
-                subtitle: Text(
-                  DocumentAdapter.fromJson(version.content).toPlainText(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: () {
-                  _restoreVersion(version);
-                  Navigator.of(context).pop();
-                },
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _restoreVersion(NoteVersion version) {
-    final newDocument = DocumentAdapter.fromJson(version.content);
-    _onDocumentChanged(newDocument);
+    await widget.onSave(noteToSave);
+    if (mounted) Navigator.of(context).pop();
   }
 
   void _onFindChanged(String term) {
@@ -625,37 +475,20 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   // --- Tag Methods ---
-  Future<void> _addTag(Tag tag) async {
-    if (widget.note == null) return;
-    await NoteRepository.instance.addTagToNote(widget.note!.id, tag.id);
-    await _loadTags();
-  }
 
-  Future<void> _removeTag(Tag tag) async {
-    if (widget.note == null) return;
-    await NoteRepository.instance.removeTagFromNote(widget.note!.id, tag.id);
-    await _loadTags();
-  }
-
-  Future<void> _onTagSubmitted(String tagName) async {
-    if (tagName.isEmpty) return;
-    _tagController.clear();
-
-    // Check if tag already exists
-    final existingTag = _allTags.firstWhere(
-      (t) => t.name.toLowerCase() == tagName.toLowerCase(),
-      orElse: () => const Tag(id: '', name: ''),
-    );
-
-    if (existingTag.id.isNotEmpty) {
-      await _addTag(existingTag);
-    } else {
-      // Create new tag
-      final newTag = await NoteRepository.instance.createTag(
-        Tag(id: const Uuid().v4(), name: tagName),
-      );
-      await _addTag(newTag);
+  void _addTag(String tagName) {
+    if (tagName.isNotEmpty && !_currentTags.contains(tagName)) {
+      setState(() {
+        _currentTags.add(tagName);
+      });
+      _tagController.clear();
     }
+  }
+
+  void _removeTag(String tagName) {
+    setState(() {
+      _currentTags.remove(tagName);
+    });
   }
 
   Widget _buildTagEditor() {
@@ -667,79 +500,22 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           Wrap(
             spacing: 8,
             runSpacing: 4,
-            children: _noteTags
+            children: _currentTags
                 .map(
                   (tag) => Chip(
-                    label: Text(tag.name),
-                    onDeleted: () => unawaited(_removeTag(tag)),
+                    label: Text(tag),
+                    onDeleted: () => _removeTag(tag),
                   ),
                 )
                 .toList(),
           ),
-          if (_suggestedTags.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Tags Sugeridas:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: _suggestedTags
-                        .map(
-                          (tag) => ActionChip(
-                            label: Text(tag.name),
-                            onPressed: () => unawaited(_addTag(tag)),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ],
-              ),
+          TextField(
+            controller: _tagController,
+            decoration: const InputDecoration(
+              hintText: 'Add a tag...',
+              border: InputBorder.none,
             ),
-          Autocomplete<Tag>(
-            optionsBuilder: (TextEditingValue textEditingValue) {
-              if (textEditingValue.text.isEmpty) {
-                return const Iterable<Tag>.empty();
-              }
-              return _allTags.where(
-                (Tag option) {
-                  return option.name
-                      .toLowerCase()
-                      .contains(textEditingValue.text.toLowerCase());
-                },
-              );
-            },
-            displayStringForOption: (Tag option) => option.name,
-            onSelected: (Tag selection) {
-              unawaited(_addTag(selection));
-              _tagController.clear();
-            },
-            fieldViewBuilder: (
-              BuildContext context,
-              TextEditingController fieldTextEditingController,
-              FocusNode fieldFocusNode,
-              VoidCallback onFieldSubmitted,
-            ) {
-              // This is a bit of a hack to use our own controller
-              _tagController.text = fieldTextEditingController.text;
-              return TextField(
-                controller: fieldTextEditingController,
-                focusNode: fieldFocusNode,
-                decoration: const InputDecoration(
-                  hintText: 'Add a tag...',
-                  border: InputBorder.none,
-                ),
-                onSubmitted: (value) {
-                  unawaited(_onTagSubmitted(value));
-                  onFieldSubmitted();
-                },
-              );
-            },
+            onSubmitted: _addTag,
           ),
         ],
       ),
@@ -953,11 +729,6 @@ extension on _NoteEditorScreenState {
                         IconButton(
                           icon: const Icon(Icons.share),
                           onPressed: () => _showShareDialog(widget.note!.id),
-                        ),
-                      if (widget.note != null)
-                        IconButton(
-                          icon: const Icon(Icons.history),
-                          onPressed: _showHistory,
                         ),
                       IconButton(
                         icon: Icon(

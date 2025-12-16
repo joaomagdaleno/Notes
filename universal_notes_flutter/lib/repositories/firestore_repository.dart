@@ -16,6 +16,7 @@ class FirestoreRepository {
   Stream<List<Note>> notesStream({
     bool? isFavorite,
     bool? isInTrash,
+    String? tag,
   }) {
     final user = _auth.currentUser;
     if (user == null) {
@@ -28,6 +29,10 @@ class FirestoreRepository {
     if (isFavorite != null) {
       query = query.where('isFavorite', isEqualTo: isFavorite);
     }
+    if (tag != null) {
+      query = query.where('tags', arrayContains: tag);
+    }
+
     // For the "All Notes" view, we want notes that are not in trash.
     // For other views (like Favorites), we also respect the trash status.
     if (isInTrash != null) {
@@ -67,5 +72,24 @@ class FirestoreRepository {
 
   Future<void> deleteNote(String noteId) async {
     await _notesCollection.doc(noteId).delete();
+  }
+
+  Stream<List<String>> getAllTagsStream() {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return Stream.value([]);
+    }
+
+    return _notesCollection
+        .where('ownerId', isEqualTo: user.uid)
+        .snapshots()
+        .map((snapshot) {
+      final tags = <String>{};
+      for (final doc in snapshot.docs) {
+        final note = Note.fromFirestore(doc);
+        tags.addAll(note.tags);
+      }
+      return tags.toList()..sort();
+    });
   }
 }

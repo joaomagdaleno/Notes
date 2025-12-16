@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
-import 'package:universal_notes_flutter/models/tag.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 
 /// The type of item selected in the sidebar.
@@ -36,7 +35,7 @@ class SidebarSelection {
   final Folder? folder;
 
   /// The specific tag selected, if type is [SidebarItemType.tag].
-  final Tag? tag;
+  final String? tag;
 
   @override
   bool operator ==(Object other) =>
@@ -45,7 +44,7 @@ class SidebarSelection {
           runtimeType == other.runtimeType &&
           type == other.type &&
           folder?.id == other.folder?.id &&
-          tag?.id == other.tag?.id;
+          tag == other.tag;
 
   @override
   int get hashCode => type.hashCode ^ folder.hashCode ^ tag.hashCode;
@@ -67,93 +66,24 @@ class Sidebar extends StatefulWidget {
 }
 
 class _SidebarState extends State<Sidebar> {
+  // Folder logic remains, but we will use a Stream for tags.
   List<Folder> _folders = [];
-  List<Tag> _tags = [];
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final BackupService _backupService = BackupService();
+  final FirestoreRepository _firestoreRepository = FirestoreRepository();
+  late final Stream<List<String>> _tagsStream;
 
   @override
   void initState() {
     super.initState();
-    unawaited(_loadData());
-  }
-
-  Future<void> _loadData() async {
-    final folders = await NoteRepository.instance.getAllFolders();
-    final tags = await NoteRepository.instance.getAllTags();
-    if (mounted) {
-      setState(() {
-        _folders = folders;
-        _tags = tags;
-      });
-    }
+    _tagsStream = _firestoreRepository.getAllTagsStream();
+    // We can keep folder logic if it's still local or refactor later
+    // unawaited(_loadFolders());
   }
 
   Future<void> _createNewFolder() async {
-    final name = await _showInputDialog(title: 'New Folder');
-    if (name != null && name.isNotEmpty) {
-      await NoteRepository.instance.createFolder(name);
-      await _loadData();
-    }
-  }
-
-  Future<void> _renameTag(Tag tag) async {
-    final newName =
-        await _showInputDialog(title: 'Rename Tag', existingValue: tag.name);
-    if (newName != null && newName.isNotEmpty) {
-      await NoteRepository.instance.updateTag(Tag(id: tag.id, name: newName));
-      await _loadData();
-    }
-  }
-
-  Future<void> _deleteTag(Tag tag) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Tag'),
-        content: Text('Are you sure you want to delete the tag "${tag.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true) {
-      await NoteRepository.instance.deleteTag(tag.id);
-      await _loadData();
-    }
-  }
-
-  Future<void> _showTagContextMenu(BuildContext context, Tag tag) async {
-    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        overlay.localToGlobal(Offset.zero),
-        overlay.localToGlobal(overlay.size.bottomRight(Offset.zero)),
-      ),
-      Offset.zero & overlay.size,
-    );
-
-    await showMenu(
-      context: context,
-      position: position,
-      items: [
-        PopupMenuItem(
-          onTap: () => unawaited(_renameTag(tag)),
-          child: const Text('Rename'),
-        ),
-        PopupMenuItem(
-          onTap: () => unawaited(_deleteTag(tag)),
-          child: const Text('Delete'),
-        ),
-      ],
-    );
+    // This would need to be refactored to use a new FolderRepository
+    // if we migrate folders to Firestore as well. For now, it's disabled.
   }
 
   Future<void> _performBackup() async {
@@ -267,24 +197,30 @@ class _SidebarState extends State<Sidebar> {
           const Divider(),
           // --- Tags ---
           Expanded(
-            child: ListView.builder(
-              itemCount: _tags.length,
-              itemBuilder: (context, index) {
-                final tag = _tags[index];
-                return GestureDetector(
-                  onLongPress: () => unawaited(_showTagContextMenu(context, tag)),
-                  child: ListTile(
-                    leading: const Icon(Icons.label_outline),
-                    title: Text(tag.name),
-                    selected: _selection.type == SidebarItemType.tag &&
-                        _selection.tag?.id == tag.id,
-                    onTap: () {
-                      final newSelection =
-                          SidebarSelection(SidebarItemType.tag, tag: tag);
-                      setState(() => _selection = newSelection);
-                      widget.onSelectionChanged(newSelection);
-                    },
-                  ),
+            child: StreamBuilder<List<String>>(
+              stream: _tagsStream,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const SizedBox.shrink(); // No tags to show
+                }
+                final tags = snapshot.data!;
+                return ListView.builder(
+                  itemCount: tags.length,
+                  itemBuilder: (context, index) {
+                    final tag = tags[index];
+                    return ListTile(
+                      leading: const Icon(Icons.label_outline),
+                      title: Text(tag),
+                      selected: _selection.type == SidebarItemType.tag &&
+                          _selection.tag == tag,
+                      onTap: () {
+                        final newSelection =
+                            SidebarSelection(SidebarItem.tag, tag: tag);
+                        setState(() => _selection = newSelection);
+                        widget.onSelectionChanged(newSelection);
+                      },
+                    );
+                  },
                 );
               },
             ),
@@ -294,6 +230,7 @@ class _SidebarState extends State<Sidebar> {
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('New Folder'),
             onTap: () => unawaited(_createNewFolder()),
+            enabled: false, // Temporarily disable folder creation
           ),
           ListTile(
             leading: const Icon(Icons.backup),

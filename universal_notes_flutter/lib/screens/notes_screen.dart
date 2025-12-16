@@ -90,10 +90,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         isInTrash = true;
         break;
       case SidebarItemType.folder:
-      case SidebarItemType.tag:
-        // TODO: Implement folder/tag filtering with Firestore
+        // TODO: Implement folder filtering with Firestore
         isInTrash = false; // Default to non-trashed for now
         break;
+      case SidebarItemType.tag:
+        _notesStream = _firestoreRepository.notesStream(
+          tag: _selection.tag,
+          isInTrash: false, // Tags are not in trash
+        );
+        return; // Return early as the stream is set
     }
     _notesStream = _firestoreRepository.notesStream(
       isFavorite: isFavorite,
