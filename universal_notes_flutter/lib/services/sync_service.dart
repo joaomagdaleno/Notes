@@ -15,9 +15,11 @@ class SyncService {
   // StreamControllers to broadcast local data changes
   final _notesController = StreamController<List<Note>>.broadcast();
   final _foldersController = StreamController<List<Folder>>.broadcast();
+  final _tagsController = StreamController<List<String>>.broadcast();
 
   Stream<List<Note>> get notesStream => _notesController.stream;
   Stream<List<Folder>> get foldersStream => _foldersController.stream;
+  Stream<List<String>> get tagsStream => _tagsController.stream;
 
   /// Initial fetch from local DB to populate streams
   Future<void> init() async {
@@ -45,6 +47,9 @@ class SyncService {
 
     final folders = await _noteRepository.getAllFolders();
     _foldersController.add(folders);
+
+    final tags = await _noteRepository.getAllTagNames();
+    _tagsController.add(tags);
   }
 
   // --- Synchronization Logic ---

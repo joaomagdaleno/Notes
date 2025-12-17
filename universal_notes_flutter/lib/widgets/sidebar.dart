@@ -79,8 +79,7 @@ class _SidebarState extends State<Sidebar> {
   void initState() {
     super.initState();
     _foldersStream = _syncService.foldersStream;
-    // Temporary: NoteRepository doesn't expose stream for tags yet
-    _tagsStream = Stream.value([]);
+    _tagsStream = _syncService.tagsStream;
   }
 
   Future<void> _createNewFolder() async {

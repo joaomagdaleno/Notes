@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
@@ -698,16 +696,28 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
-    final appDir = await getApplicationDocumentsDirectory();
-    final fileName = p.basename(pickedFile.path);
-    final savedImage = await File(pickedFile.path).copy(
-      '${appDir.path}/$fileName',
-    );
+    // Upload to Firebase Storage for sync compatibility
+    final storageService = StorageService();
+    final url = await storageService.uploadImage(File(pickedFile.path));
+
+    if (url == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to upload image. Check internet connection.'),
+          ),
+        );
+      }
+      return;
+    }
+
+    // Use the URL
+    final savedImagePath = url;
 
     final result = DocumentManipulator.insertImage(
       _document,
       _selection.baseOffset,
-      savedImage.path,
+      savedImagePath,
     );
     final newDoc = result.document;
     _handleNoteEvent(result.eventType, result.eventPayload);

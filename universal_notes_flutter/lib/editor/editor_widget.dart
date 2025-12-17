@@ -759,18 +759,23 @@ class _EditorLine extends StatelessWidget {
   }
 
   Widget _buildImage(BuildContext context, ImageLine line) {
+    final isNetwork = line.imagePath.startsWith('http');
+    Widget getImage() => isNetwork
+        ? Image.network(line.imagePath)
+        : Image.file(File(line.imagePath));
+
     return GestureDetector(
       onTap: () {
         unawaited(
           showDialog<void>(
             context: context,
-            builder: (_) => Dialog(child: Image.file(File(line.imagePath))),
+            builder: (_) => Dialog(child: getImage()),
           ),
         );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Image.file(File(line.imagePath)),
+        child: getImage(),
       ),
     );
   }

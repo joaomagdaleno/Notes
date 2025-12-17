@@ -91,8 +91,9 @@ class FirestoreRepository {
       query = query.where('isInTrash', isEqualTo: false);
     }
 
-    // Apply limit
-    query = query.limit(limit);
+    // Apply order and limit
+    // Ordering by lastModified ensures we fetch/sync the most recent notes first
+    query = query.orderBy('lastModified', descending: true).limit(limit);
 
     return query.snapshots().map((snapshot) {
       return snapshot.docs.map(Note.fromFirestore).toList();

@@ -464,11 +464,14 @@ class NoteRepository {
   /// Inserts a new note into the database.
   Future<String> insertNote(Note note) async {
     final db = await database;
-    await db.insert(
-      _notesTable,
-      note.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.transaction((txn) async {
+      await txn.insert(
+        _notesTable,
+        note.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      await _updateTagsForNote(txn, note);
+    });
     _wordFrequencyCache = null;
     return note.id;
   }
@@ -581,12 +584,59 @@ class NoteRepository {
   /// Updates a note's metadata.
   Future<void> updateNote(Note note) async {
     final db = await database;
-    await db.update(
-      _notesTable,
-      note.toMap(),
-      where: 'id = ?',
+    await db.transaction((txn) async {
+      await txn.update(
+        _notesTable,
+        note.toMap(),
+        where: 'id = ?',
+        whereArgs: [note.id],
+      );
+      await _updateTagsForNote(txn, note);
+    });
+  }
+
+  /// Helper to update relational tag tables.
+  Future<void> _updateTagsForNote(Transaction txn, Note note) async {
+    // 1. Clear existing tags for this note
+    await txn.delete(
+      _noteTagsTable,
+      where: 'note_id = ?',
       whereArgs: [note.id],
     );
+
+    // 2. Insert new tags
+    for (final tag in note.tags) {
+      if (tag.isEmpty) continue;
+
+      // Ensure tag definitions exist (using tag name as ID)
+      await txn.insert(
+        _tagsTable,
+        {'id': tag, 'name': tag, 'color': null},
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+
+      // Link tag to note
+      await txn.insert(
+        _noteTagsTable,
+        {'note_id': note.id, 'tag_id': tag},
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+  }
+
+  /// Retrieves all distinct tag names used in the database.
+  Future<List<String>> getAllTagNames() async {
+    final db = await database;
+    // We fetch from _tagsTable, but maybe only those that are used?
+    // Since we lazy-create tags, _tagsTable might have orphans if we remove tags from notes.
+    // Ideally we join with _noteTagsTable to find used tags.
+    // Or just return all known tags. Let's return all known tags to allow reuse.
+    final result = await db.query(
+      _tagsTable,
+      columns: ['name'],
+      orderBy: 'name',
+    );
+    return result.map((row) => row['name'] as String).toList();
   }
 
   /// Moves a note to the trash (soft delete).
