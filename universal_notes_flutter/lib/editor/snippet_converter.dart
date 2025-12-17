@@ -10,6 +10,7 @@ class SnippetConversionResult {
   const SnippetConversionResult({
     required this.document,
     required this.selection,
+    required this.results,
   });
 
   /// The new document after conversion.
@@ -17,6 +18,9 @@ class SnippetConversionResult {
 
   /// The new selection after conversion.
   final TextSelection selection;
+
+  /// The manipulation results that led to this state.
+  final List<ManipulationResult> results;
 }
 
 /// A class to handle real-time snippet conversions.
@@ -47,16 +51,19 @@ class SnippetConverter {
         final startOfTrigger = selection.baseOffset - 1 - triggerLength;
 
         // Perform the conversion
-        final docAfterDelete = DocumentManipulator.deleteText(
+        final deleteResult = DocumentManipulator.deleteText(
           document,
           startOfTrigger,
           triggerLength + 1, // +1 for the space
         );
-        final docAfterInsert = DocumentManipulator.insertText(
+        final docAfterDelete = deleteResult.document;
+
+        final insertResult = DocumentManipulator.insertText(
           docAfterDelete,
           startOfTrigger,
           snippet.content,
         );
+        final docAfterInsert = insertResult.document;
 
         final newSelection = TextSelection.collapsed(
           offset: startOfTrigger + snippet.content.length,
@@ -64,6 +71,7 @@ class SnippetConverter {
         return SnippetConversionResult(
           document: docAfterInsert,
           selection: newSelection,
+          results: [deleteResult, insertResult],
         );
       }
     }

@@ -67,9 +67,13 @@ class FirestoreRepository {
       throw Exception('User not logged in');
     }
     final now = DateTime.now();
+
+    // Create snippet (first 100 chars)
+    final snippet = content.length > 100 ? content.substring(0, 100) : content;
+
     final docRef = await _notesCollection.add({
       'title': title,
-      'content': content,
+      'content': snippet, // Store only snippet in main doc
       'createdAt': Timestamp.fromDate(now),
       'lastModified': Timestamp.fromDate(now),
       'ownerId': user.uid,
@@ -79,17 +83,45 @@ class FirestoreRepository {
       'isFavorite': false,
       'isInTrash': false,
     });
+
+    // Store full content in subcollection
+    await docRef.collection('content').doc('main').set({
+      'fullContent': content,
+    });
+
     final snapshot = await docRef.get();
+    // Start with snippet, Editor will fetch full content
     return Note.fromFirestore(snapshot);
   }
 
   /// Updates an existing [note].
   Future<void> updateNote(Note note) async {
-    await _notesCollection.doc(note.id).update(note.toFirestore());
+    // Update metadata and snippet in main doc
+    final snippet = note.content.length > 100
+        ? note.content.substring(0, 100)
+        : note.content;
+
+    // Create a map of fields to update in the main document
+    // We manually construct this to ensure 'content' is the snippet
+    final noteData = note.toFirestore();
+    noteData['content'] = snippet;
+
+    await _notesCollection.doc(note.id).update(noteData);
+
+    // Update full content in subcollection
+    await _notesCollection.doc(note.id).collection('content').doc('main').set({
+      'fullContent': note.content,
+    }, SetOptions(merge: true));
   }
 
   /// Deletes a note by its [noteId].
   Future<void> deleteNote(String noteId) async {
+    // Delete content subcollection document first
+    await _notesCollection
+        .doc(noteId)
+        .collection('content')
+        .doc('main')
+        .delete();
     await _notesCollection.doc(noteId).delete();
   }
 
@@ -218,6 +250,24 @@ class FirestoreRepository {
       data['id'] = doc.id;
       return data;
     }).toList();
+  }
+
+  /// Fetches the full content of a note from the subcollection.
+  Future<String> getNoteContent(String noteId) async {
+    try {
+      final doc = await _notesCollection
+          .doc(noteId)
+          .collection('content')
+          .doc('main')
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        return doc.data()!['fullContent'] as String? ?? '';
+      }
+      return '';
+    } catch (e) {
+      return '';
+    }
   }
 
   Future<List<Note>> getAllNotes() async {

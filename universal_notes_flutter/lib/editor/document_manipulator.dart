@@ -1,5 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
+
+/// The result of a document manipulation, including the new document state
+/// and the event payload describing the change.
+class ManipulationResult {
+  const ManipulationResult({
+    required this.document,
+    required this.eventPayload,
+    required this.eventType,
+  });
+
+  /// The new state of the document.
+  final DocumentModel document;
+
+  /// The payload description of the operation (JSON-serializable).
+  final Map<String, dynamic> eventPayload;
+
+  /// The type of event (insert, delete, etc.).
+  final NoteEventType eventType;
+}
 
 /// An attribute that can be applied to a text span.
 enum StyleAttribute {
@@ -19,7 +39,7 @@ enum StyleAttribute {
 /// A class containing static methods to manipulate a [DocumentModel].
 class DocumentManipulator {
   /// Inserts an image block at the specified position.
-  static DocumentModel insertImage(
+  static ManipulationResult insertImage(
     DocumentModel document,
     int position,
     String imagePath,
@@ -27,64 +47,75 @@ class DocumentManipulator {
     final blocks = List<DocumentBlock>.from(document.blocks);
     final pos = _findBlockPosition(blocks, position);
 
+    DocumentModel newDoc;
     if (pos.blockIndex == -1) {
       blocks.add(ImageBlock(imagePath: imagePath));
-      return DocumentModel(blocks: blocks);
-    }
-
-    final targetBlock = blocks[pos.blockIndex];
-    if (targetBlock is! TextBlock) {
-      blocks.insert(pos.blockIndex, ImageBlock(imagePath: imagePath));
-      return DocumentModel(blocks: blocks);
-    }
-
-    final beforeSpans = <TextSpanModel>[];
-    final afterSpans = <TextSpanModel>[];
-    var currentOffset = 0;
-    var foundSplit = false;
-
-    for (final span in targetBlock.spans) {
-      if (foundSplit) {
-        afterSpans.add(span);
-        continue;
-      }
-      final spanEnd = currentOffset + span.text.length;
-      if (pos.localOffset >= currentOffset && pos.localOffset <= spanEnd) {
-        final splitIndex = pos.localOffset - currentOffset;
-        final beforeText = span.text.substring(0, splitIndex);
-        final afterText = span.text.substring(splitIndex);
-
-        if (beforeText.isNotEmpty) {
-          beforeSpans.add(span.copyWith(text: beforeText));
-        }
-        if (afterText.isNotEmpty) {
-          afterSpans.add(span.copyWith(text: afterText));
-        }
-        foundSplit = true;
+      newDoc = DocumentModel(blocks: blocks);
+    } else {
+      final targetBlock = blocks[pos.blockIndex];
+      // simplified logic from original...
+      if (targetBlock is! TextBlock) {
+        blocks.insert(pos.blockIndex, ImageBlock(imagePath: imagePath));
+        newDoc = DocumentModel(blocks: blocks);
       } else {
-        beforeSpans.add(span);
+        final beforeSpans = <TextSpanModel>[];
+        final afterSpans = <TextSpanModel>[];
+        var currentOffset = 0;
+        var foundSplit = false;
+
+        for (final span in targetBlock.spans) {
+          if (foundSplit) {
+            afterSpans.add(span);
+            continue;
+          }
+          final spanEnd = currentOffset + span.text.length;
+          if (pos.localOffset >= currentOffset && pos.localOffset <= spanEnd) {
+            final splitIndex = pos.localOffset - currentOffset;
+            final beforeText = span.text.substring(0, splitIndex);
+            final afterText = span.text.substring(splitIndex);
+
+            if (beforeText.isNotEmpty) {
+              beforeSpans.add(span.copyWith(text: beforeText));
+            }
+            if (afterText.isNotEmpty) {
+              afterSpans.add(span.copyWith(text: afterText));
+            }
+            foundSplit = true;
+          } else {
+            beforeSpans.add(span);
+          }
+          currentOffset += span.text.length;
+        }
+
+        blocks.removeAt(pos.blockIndex);
+        final newBlocks = <DocumentBlock>[];
+        if (beforeSpans.isNotEmpty)
+          newBlocks.add(TextBlock(spans: beforeSpans));
+        newBlocks.add(ImageBlock(imagePath: imagePath));
+        if (afterSpans.isNotEmpty) newBlocks.add(TextBlock(spans: afterSpans));
+
+        blocks.insertAll(pos.blockIndex, newBlocks);
+        newDoc = DocumentModel(blocks: blocks);
       }
-      currentOffset += span.text.length;
     }
 
-    blocks.removeAt(pos.blockIndex);
-    final newBlocks = <DocumentBlock>[];
-    if (beforeSpans.isNotEmpty) newBlocks.add(TextBlock(spans: beforeSpans));
-    newBlocks.add(ImageBlock(imagePath: imagePath));
-    if (afterSpans.isNotEmpty) newBlocks.add(TextBlock(spans: afterSpans));
-
-    blocks.insertAll(pos.blockIndex, newBlocks);
-
-    return DocumentModel(blocks: blocks);
+    return ManipulationResult(
+      document: newDoc,
+      eventType: NoteEventType.image_insert,
+      eventPayload: {
+        'pos': position,
+        'path': imagePath,
+      },
+    );
   }
 
   /// Toggles a style for the given selection.
-  static DocumentModel toggleStyle(
+  static ManipulationResult toggleStyle(
     DocumentModel document,
     TextSelection selection,
     StyleAttribute attribute,
   ) {
-    return _applyToSelection(
+    final newDoc = _applyToSelection(
       document,
       selection,
       (span) => span.copyWith(
@@ -100,31 +131,58 @@ class DocumentManipulator {
             : span.isStrikethrough,
       ),
     );
+    return ManipulationResult(
+      document: newDoc,
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'pos': selection.start,
+        'len': selection.end - selection.start,
+        'attr': attribute.name,
+      },
+    );
   }
 
   /// Applies a color to the given selection.
-  static DocumentModel applyColor(
+  static ManipulationResult applyColor(
     DocumentModel document,
     TextSelection selection,
     Color color,
   ) {
-    return _applyToSelection(
+    final newDoc = _applyToSelection(
       document,
       selection,
       (span) => span.copyWith(color: color),
     );
+    return ManipulationResult(
+      document: newDoc,
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'pos': selection.start,
+        'len': selection.end - selection.start,
+        'color': color.value,
+      },
+    );
   }
 
   /// Applies a font size to the given selection.
-  static DocumentModel applyFontSize(
+  static ManipulationResult applyFontSize(
     DocumentModel document,
     TextSelection selection,
     double fontSize,
   ) {
-    return _applyToSelection(
+    final newDoc = _applyToSelection(
       document,
       selection,
       (span) => span.copyWith(fontSize: fontSize),
+    );
+    return ManipulationResult(
+      document: newDoc,
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'pos': selection.start,
+        'len': selection.end - selection.start,
+        'fontSize': fontSize,
+      },
     );
   }
 
@@ -198,7 +256,7 @@ class DocumentManipulator {
   }
 
   /// Inserts text into the document at the specified position.
-  static DocumentModel insertText(
+  static ManipulationResult insertText(
     DocumentModel document,
     int position,
     String text,
@@ -208,7 +266,11 @@ class DocumentManipulator {
 
     if (pos.blockIndex == -1 || blocks[pos.blockIndex] is! TextBlock) {
       // Cannot insert text into an image block or at the end
-      return document;
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
     }
     final targetBlock = blocks[pos.blockIndex] as TextBlock;
     final spans = List<TextSpanModel>.from(targetBlock.spans);
@@ -221,16 +283,30 @@ class DocumentManipulator {
         '${targetSpan.text.substring(spanPos.localOffset)}';
     spans[spanPos.spanIndex] = targetSpan.copyWith(text: newText);
     blocks[pos.blockIndex] = TextBlock(spans: spans);
-    return DocumentModel(blocks: blocks);
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.insert,
+      eventPayload: {
+        'pos': position,
+        'text': text,
+      },
+    );
   }
 
   /// Deletes text from the document.
-  static DocumentModel deleteText(
+  static ManipulationResult deleteText(
     DocumentModel document,
     int start,
     int length,
   ) {
-    if (length <= 0) return document;
+    if (length <= 0) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
 
     final end = start + length;
     final newBlocks = <DocumentBlock>[];
@@ -281,7 +357,15 @@ class DocumentManipulator {
       // it is implicitly not added to newBlocks.
       currentPos = blockEnd;
     }
-    return DocumentModel(blocks: newBlocks);
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: newBlocks),
+      eventType: NoteEventType.delete,
+      eventPayload: {
+        'pos': start,
+        'len': length,
+      },
+    );
   }
 
   static List<TextSpanModel> _mergeSpans(List<TextSpanModel> spans) {

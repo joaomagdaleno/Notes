@@ -8,6 +8,7 @@ class MarkdownConversionResult {
   const MarkdownConversionResult({
     required this.document,
     required this.selection,
+    required this.results,
   });
 
   /// The new document after conversion.
@@ -15,6 +16,9 @@ class MarkdownConversionResult {
 
   /// The new selection after conversion.
   final TextSelection selection;
+
+  /// The manipulation results that led to this state.
+  final List<ManipulationResult> results;
 }
 
 /// A class to handle real-time Markdown-like conversions.
@@ -54,22 +58,30 @@ class MarkdownConverter {
         final content = match.group(1)!;
         final matchStart = lineStart + match.start;
 
-        var newDoc = DocumentManipulator.deleteText(
+        final deleteResult = DocumentManipulator.deleteText(
           document,
           matchStart,
           match.group(0)!.length,
         );
-        newDoc = DocumentManipulator.insertText(newDoc, matchStart, content);
+        var newDoc = deleteResult.document;
+
+        final insertResult = DocumentManipulator.insertText(
+          newDoc,
+          matchStart,
+          content,
+        );
+        newDoc = insertResult.document;
 
         final newSelection = TextSelection(
           baseOffset: matchStart,
           extentOffset: matchStart + content.length,
         );
-        newDoc = DocumentManipulator.toggleStyle(
+        final formatResult = DocumentManipulator.toggleStyle(
           newDoc,
           newSelection,
           entry.value,
         );
+        newDoc = formatResult.document;
 
         final finalSelection = TextSelection.collapsed(
           offset: newSelection.end,
@@ -77,6 +89,7 @@ class MarkdownConverter {
         return MarkdownConversionResult(
           document: newDoc,
           selection: finalSelection,
+          results: [deleteResult, insertResult, formatResult],
         );
       }
     }
@@ -90,15 +103,22 @@ class MarkdownConverter {
         final finalLineEnd = lineEnd == -1 ? plainText.length : lineEnd;
 
         // Delete the "# " part
-        var newDoc = DocumentManipulator.deleteText(document, lineStart, 2);
+        // Delete the "# " part
+        final deleteResult = DocumentManipulator.deleteText(
+          document,
+          lineStart,
+          2,
+        );
+        var newDoc = deleteResult.document;
         // Apply the font size to the rest of the line
         // The text moved to lineStart, so baseOffset is lineStart.
         // The length decreased by 2, so extentOffset is original extent - 2.
-        newDoc = DocumentManipulator.applyFontSize(
+        final formatResult = DocumentManipulator.applyFontSize(
           newDoc,
           TextSelection(baseOffset: lineStart, extentOffset: finalLineEnd - 2),
           32,
         );
+        newDoc = formatResult.document;
 
         final finalSelection = TextSelection.collapsed(
           offset: selection.baseOffset - 2,
@@ -106,13 +126,24 @@ class MarkdownConverter {
         return MarkdownConversionResult(
           document: newDoc,
           selection: finalSelection,
+          results: [deleteResult, formatResult],
         );
       }
 
       if (pattern == '-') {
         const listText = '• ';
-        var newDoc = DocumentManipulator.deleteText(document, lineStart, 2);
-        newDoc = DocumentManipulator.insertText(newDoc, lineStart, listText);
+        final deleteResult = DocumentManipulator.deleteText(
+          document,
+          lineStart,
+          2,
+        );
+        var newDoc = deleteResult.document;
+        final insertResult = DocumentManipulator.insertText(
+          newDoc,
+          lineStart,
+          listText,
+        );
+        newDoc = insertResult.document;
 
         final finalSelection = TextSelection.collapsed(
           offset: lineStart + listText.length,
@@ -120,6 +151,7 @@ class MarkdownConverter {
         return MarkdownConversionResult(
           document: newDoc,
           selection: finalSelection,
+          results: [deleteResult, insertResult],
         );
       }
     }

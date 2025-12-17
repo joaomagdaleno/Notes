@@ -58,7 +58,6 @@ void main() {
         },
         navigatorObservers: [mockNavigatorObserver],
         home: NotesScreen(
-          firestoreRepository: mockNoteRepository,
           updateService: mockUpdateService,
         ),
       ),

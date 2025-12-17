@@ -8,6 +8,7 @@ import 'package:universal_notes_flutter/firebase_options.dart';
 import 'package:universal_notes_flutter/screens/auth_screen.dart';
 import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
+import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
 import 'package:universal_notes_flutter/styles/app_themes.dart';
 import 'package:window_manager/window_manager.dart';
@@ -29,6 +30,9 @@ void main() async {
       await windowManager.focus();
     });
   }
+
+  await SyncService.instance.init();
+
   runApp(
     MultiProvider(
       providers: [

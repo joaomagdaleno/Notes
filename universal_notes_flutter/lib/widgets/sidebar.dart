@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:universal_notes_flutter/models/folder.dart';
-import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
+import 'package:universal_notes_flutter/services/sync_service.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/models/folder.dart';
 
 /// The type of item selected in the sidebar.
 enum SidebarItemType {
@@ -67,17 +68,19 @@ class Sidebar extends StatefulWidget {
 
 class _SidebarState extends State<Sidebar> {
   // Folder logic
-  late final Stream<List<Map<String, dynamic>>> _foldersStream;
+  late final Stream<List<Folder>> _foldersStream;
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final BackupService _backupService = BackupService();
-  final FirestoreRepository _firestoreRepository = FirestoreRepository();
+  final SyncService _syncService = SyncService.instance;
+  final NoteRepository _noteRepository = NoteRepository.instance;
   late final Stream<List<String>> _tagsStream;
 
   @override
   void initState() {
     super.initState();
-    _tagsStream = _firestoreRepository.getAllTagsStream();
-    _foldersStream = _firestoreRepository.getFoldersStream();
+    _foldersStream = _syncService.foldersStream;
+    // Temporary: NoteRepository doesn't expose stream for tags yet
+    _tagsStream = Stream.value([]);
   }
 
   Future<void> _createNewFolder() async {
@@ -105,7 +108,8 @@ class _SidebarState extends State<Sidebar> {
     );
 
     if (name != null && name.trim().isNotEmpty) {
-      await _firestoreRepository.createFolder(name.trim());
+      await _noteRepository.createFolder(name.trim());
+      await _syncService.refreshLocalData();
     }
   }
 
@@ -117,7 +121,8 @@ class _SidebarState extends State<Sidebar> {
       setState(() => _selection = newSelection);
       widget.onSelectionChanged(newSelection);
     }
-    await _firestoreRepository.deleteFolder(folderId);
+    await _noteRepository.deleteFolder(folderId);
+    await _syncService.refreshLocalData();
   }
 
   Future<void> _performBackup() async {
@@ -186,12 +191,11 @@ class _SidebarState extends State<Sidebar> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<Map<String, dynamic>>>(
+            child: StreamBuilder<List<Folder>>(
               stream: _foldersStream,
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return const SizedBox.shrink();
-                final foldersData = snapshot.data!;
-                final folders = foldersData.map(Folder.fromMap).toList();
+                final folders = snapshot.data!;
 
                 return ListView.builder(
                   itemCount: folders.length,

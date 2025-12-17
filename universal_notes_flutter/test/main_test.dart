@@ -201,7 +201,6 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: NotesScreen(
-          firestoreRepository: createDefaultMockRepository(),
           updateService: MockUpdateService(),
         ),
       ),
@@ -227,7 +226,6 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: mockNoteRepository,
             updateService: MockUpdateService(),
           ),
         ),
@@ -244,7 +242,6 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -277,7 +274,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
@@ -312,7 +308,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
@@ -362,7 +357,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
@@ -398,7 +392,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
@@ -421,7 +414,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -449,7 +441,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -481,7 +472,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -510,7 +500,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -552,7 +541,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
@@ -605,7 +593,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
@@ -640,7 +627,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -671,7 +657,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -716,7 +701,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
@@ -754,7 +738,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
@@ -791,7 +774,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
@@ -822,7 +804,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -858,7 +839,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -1101,7 +1081,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -1154,7 +1133,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -1215,7 +1193,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: mockRepo,
             updateService: MockUpdateService(),
           ),
         ),
@@ -1278,7 +1255,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: mockRepo,
             updateService: MockUpdateService(),
           ),
         ),
@@ -1305,7 +1281,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -1345,7 +1320,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         fluent.FluentApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -1372,7 +1346,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
             // Actually FluentApp has its own Navigator.
             // But NoteScreen uses Navigator.of(context).
             child: NotesScreen(
-              firestoreRepository: createDefaultMockRepository(),
               updateService: MockUpdateService(),
             ),
           ),
@@ -1403,7 +1376,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await tester.pumpWidget(
         fluent.FluentApp(
           home: NotesScreen(
-            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),

@@ -12,6 +12,7 @@ import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
 
 /// A widget that provides a text editor with rich text capabilities.
 class EditorWidget extends StatefulWidget {
@@ -24,6 +25,7 @@ class EditorWidget extends StatefulWidget {
     this.onSelectionRectChanged,
     this.scrollController,
     this.remoteCursors = const {},
+    this.onEvent,
     super.key,
   });
 
@@ -45,6 +47,10 @@ class EditorWidget extends StatefulWidget {
   /// Callback when the selection rectangle changes (e.g., for toolbar
   /// positioning).
   final ValueChanged<Rect?>? onSelectionRectChanged;
+
+  /// Callback when an editing event occurs.
+  final void Function(NoteEventType type, Map<String, dynamic> payload)?
+  onEvent;
 
   /// Controls the scrolling of the editor.
   final ScrollController? scrollController;
@@ -208,44 +214,56 @@ class EditorWidgetState extends State<EditorWidget> {
     if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_selection.isCollapsed) {
         if (_selection.start == 0) return;
-        docAfterEdit = DocumentManipulator.deleteText(
+        final result = DocumentManipulator.deleteText(
           widget.document,
           _selection.start - 1,
           1,
         );
+        docAfterEdit = result.document;
+        widget.onEvent?.call(result.eventType, result.eventPayload);
         selectionAfterEdit = TextSelection.collapsed(
           offset: _selection.start - 1,
         );
       } else {
-        docAfterEdit = DocumentManipulator.deleteText(
+        final result = DocumentManipulator.deleteText(
           widget.document,
           _selection.start,
           _selection.end - _selection.start,
         );
+        docAfterEdit = result.document;
+        widget.onEvent?.call(result.eventType, result.eventPayload);
         selectionAfterEdit = TextSelection.collapsed(offset: _selection.start);
       }
     } else if (event.character != null && event.character!.isNotEmpty) {
       final character = event.character!;
       if (_selection.isCollapsed) {
-        docAfterEdit = DocumentManipulator.insertText(
+        final result = DocumentManipulator.insertText(
           widget.document,
           _selection.start,
           character,
         );
+        docAfterEdit = result.document;
+        widget.onEvent?.call(result.eventType, result.eventPayload);
         selectionAfterEdit = TextSelection.collapsed(
           offset: _selection.start + character.length,
         );
       } else {
-        final docAfterDelete = DocumentManipulator.deleteText(
+        final deleteResult = DocumentManipulator.deleteText(
           widget.document,
           _selection.start,
           _selection.end - _selection.start,
         );
-        docAfterEdit = DocumentManipulator.insertText(
+        final docAfterDelete = deleteResult.document;
+        widget.onEvent?.call(deleteResult.eventType, deleteResult.eventPayload);
+
+        final insertResult = DocumentManipulator.insertText(
           docAfterDelete,
           _selection.start,
           character,
         );
+        docAfterEdit = insertResult.document;
+        widget.onEvent?.call(insertResult.eventType, insertResult.eventPayload);
+
         selectionAfterEdit = TextSelection.collapsed(
           offset: _selection.start + character.length,
         );
@@ -271,6 +289,9 @@ class EditorWidgetState extends State<EditorWidget> {
     if (snippetResult != null) {
       widget.onDocumentChanged(snippetResult.document);
       _onSelectionChanged(snippetResult.selection);
+      for (final result in snippetResult.results) {
+        widget.onEvent?.call(result.eventType, result.eventPayload);
+      }
       return;
     }
 
@@ -278,6 +299,9 @@ class EditorWidgetState extends State<EditorWidget> {
     if (markdownResult != null) {
       widget.onDocumentChanged(markdownResult.document);
       _onSelectionChanged(markdownResult.selection);
+      for (final result in markdownResult.results) {
+        widget.onEvent?.call(result.eventType, result.eventPayload);
+      }
       return;
     }
 
@@ -405,16 +429,21 @@ class EditorWidgetState extends State<EditorWidget> {
     }
     final wordInProgress = plainText.substring(start, _selection.baseOffset);
 
-    final docAfterDelete = DocumentManipulator.deleteText(
+    final deleteResult = DocumentManipulator.deleteText(
       widget.document,
       start,
       wordInProgress.length,
     );
-    final newDoc = DocumentManipulator.insertText(
+    final docAfterDelete = deleteResult.document;
+    widget.onEvent?.call(deleteResult.eventType, deleteResult.eventPayload);
+
+    final insertResult = DocumentManipulator.insertText(
       docAfterDelete,
       start,
       suggestion,
     );
+    final newDoc = insertResult.document;
+    widget.onEvent?.call(insertResult.eventType, insertResult.eventPayload);
     final newSelection = TextSelection.collapsed(
       offset: start + suggestion.length,
     );

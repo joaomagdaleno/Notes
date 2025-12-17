@@ -61,7 +61,6 @@ void main() {
           );
         },
         home: NotesScreen(
-          firestoreRepository: mockNoteRepository,
           updateService: mockUpdateService,
         ),
       ),

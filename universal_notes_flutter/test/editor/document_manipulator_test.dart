@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
 
 void main() {
   group('DocumentManipulator.toggleStyle', () {
@@ -20,11 +21,15 @@ void main() {
         extentOffset: 11,
       ); // "World"
 
-      final newDoc = DocumentManipulator.toggleStyle(
+      final result = DocumentManipulator.toggleStyle(
         doc,
         selection,
         StyleAttribute.bold,
       );
+      final newDoc = result.document;
+
+      expect(result.eventType, NoteEventType.format);
+      expect(result.eventPayload['attr'], 'bold');
 
       expect((newDoc.blocks.first as TextBlock).spans.length, 2);
       expect((newDoc.blocks.first as TextBlock).spans[0].text, 'Hello ');
@@ -46,11 +51,14 @@ void main() {
       );
       const selection = TextSelection(baseOffset: 6, extentOffset: 11);
 
-      final newDoc = DocumentManipulator.toggleStyle(
+      final result = DocumentManipulator.toggleStyle(
         doc,
         selection,
         StyleAttribute.bold,
       );
+      final newDoc = result.document;
+
+      expect(result.eventType, NoteEventType.format);
 
       expect((newDoc.blocks.first as TextBlock).spans.length, 1);
       expect((newDoc.blocks.first as TextBlock).spans[0].text, 'Hello World');
@@ -74,11 +82,14 @@ void main() {
         extentOffset: 10,
       ); // "e Two Thre"
 
-      final newDoc = DocumentManipulator.toggleStyle(
+      final result = DocumentManipulator.toggleStyle(
         doc,
         selection,
         StyleAttribute.italic,
       );
+      final newDoc = result.document;
+
+      expect(result.eventType, NoteEventType.format);
 
       expect((newDoc.blocks.first as TextBlock).spans.length, 5);
       expect((newDoc.blocks.first as TextBlock).spans[0].text, 'On');
@@ -107,7 +118,11 @@ void main() {
         ],
       );
 
-      final newDoc = DocumentManipulator.insertText(doc, 8, 'Cruel ');
+      final result = DocumentManipulator.insertText(doc, 8, 'Cruel ');
+      final newDoc = result.document;
+
+      expect(result.eventType, NoteEventType.insert);
+      expect(result.eventPayload['text'], 'Cruel ');
 
       expect((newDoc.blocks.first as TextBlock).spans.length, 2);
       expect((newDoc.blocks.first as TextBlock).spans[1].text, 'WoCruel rld');
@@ -128,7 +143,10 @@ void main() {
         ],
       );
 
-      final newDoc = DocumentManipulator.deleteText(doc, 5, 6); // " World"
+      final result = DocumentManipulator.deleteText(doc, 5, 6); // " World"
+      final newDoc = result.document;
+
+      expect(result.eventType, NoteEventType.delete);
 
       expect((newDoc.blocks.first as TextBlock).spans.length, 1);
       expect((newDoc.blocks.first as TextBlock).spans[0].text, 'Hello');
@@ -148,7 +166,10 @@ void main() {
         ],
       );
 
-      final newDoc = DocumentManipulator.deleteText(doc, 2, 8); // "e Two Th"
+      final result = DocumentManipulator.deleteText(doc, 2, 8); // "e Two Th"
+      final newDoc = result.document;
+
+      expect(result.eventType, NoteEventType.delete);
 
       expect((newDoc.blocks.first as TextBlock).spans.length, 2);
       expect((newDoc.blocks.first as TextBlock).spans[0].text, 'On');
@@ -174,7 +195,11 @@ void main() {
         extentOffset: 5,
       ); // "Hello"
 
-      final newDoc = DocumentManipulator.applyColor(doc, selection, Colors.red);
+      final result = DocumentManipulator.applyColor(doc, selection, Colors.red);
+      final newDoc = result.document;
+
+      expect(result.eventType, NoteEventType.format);
+      expect(result.eventPayload['color'], Colors.red.value);
 
       expect((newDoc.blocks.first as TextBlock).spans.length, 2);
       expect((newDoc.blocks.first as TextBlock).spans[0].text, 'Hello');
@@ -200,7 +225,11 @@ void main() {
         extentOffset: 11,
       ); // "World"
 
-      final newDoc = DocumentManipulator.applyFontSize(doc, selection, 24);
+      final result = DocumentManipulator.applyFontSize(doc, selection, 24);
+      final newDoc = result.document;
+
+      expect(result.eventType, NoteEventType.format);
+      expect(result.eventPayload['fontSize'], 24.0);
 
       expect((newDoc.blocks.first as TextBlock).spans.length, 2);
       expect((newDoc.blocks.first as TextBlock).spans[0].text, 'Hello ');

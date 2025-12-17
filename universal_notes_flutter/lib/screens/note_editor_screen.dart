@@ -12,6 +12,9 @@ import 'package:universal_notes_flutter/editor/editor_toolbar.dart';
 import 'package:universal_notes_flutter/editor/editor_widget.dart';
 import 'package:universal_notes_flutter/editor/floating_toolbar.dart';
 import 'package:universal_notes_flutter/editor/history_manager.dart';
+import 'package:universal_notes_flutter/models/note_version.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:uuid/uuid.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
@@ -19,6 +22,7 @@ import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
 import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
 
 /// A screen for editing a note.
 class NoteEditorScreen extends StatefulWidget {
@@ -98,12 +102,43 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _note = widget.note;
     _currentTags = _note?.tags.toList() ?? [];
     WidgetsBinding.instance.addObserver(this);
-    _document = DocumentAdapter.fromJson(_note?.content ?? '');
+
+    _initializeEditor(_note?.content ?? '');
+
+    if (_note != null) {
+      _fetchContent();
+    }
+
+    unawaited(SnippetConverter.precacheSnippets());
+  }
+
+  Future<void> _fetchContent() async {
+    if (_note != null && _note!.id.isNotEmpty) {
+      // Check if note is shared
+      bool isShared =
+          _note!.memberIds.length > 1 || _note!.collaborators.isNotEmpty;
+
+      if (isShared) {
+        final fullContent = await _firestoreRepository.getNoteContent(
+          _note!.id,
+        );
+        if (fullContent.isNotEmpty && mounted) {
+          setState(() {
+            _initializeEditor(fullContent);
+          });
+        }
+      }
+      // For local notes, widget.note.content is assumed to be full content
+      // (loaded from SQLite via SyncService)
+    }
+  }
+
+  void _initializeEditor(String content) {
+    _document = DocumentAdapter.fromJson(content);
     _historyManager = HistoryManager(
       initialState: HistoryState(document: _document, selection: _selection),
     );
     _updateCounts(_document);
-    unawaited(SnippetConverter.precacheSnippets());
   }
 
   @override
@@ -198,45 +233,73 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     // Iterate backwards to keep indices valid.
     for (var i = _findMatches.length - 1; i >= 0; i--) {
       final matchIndex = _findMatches[i];
-      tempDoc = DocumentManipulator.deleteText(
+      final deleteResult = DocumentManipulator.deleteText(
         tempDoc,
         matchIndex,
         _findTerm.length,
       );
-      tempDoc = DocumentManipulator.insertText(
+      tempDoc = deleteResult.document;
+      _handleNoteEvent(deleteResult.eventType, deleteResult.eventPayload);
+
+      final insertResult = DocumentManipulator.insertText(
         tempDoc,
         matchIndex,
         replaceTerm,
       );
+      tempDoc = insertResult.document;
+      _handleNoteEvent(insertResult.eventType, insertResult.eventPayload);
     }
     _onDocumentChanged(tempDoc);
   }
 
+  Future<void> _handleNoteEvent(
+    NoteEventType type,
+    Map<String, dynamic> payload,
+  ) async {
+    if (_note == null || type == NoteEventType.unknown) return;
+
+    final event = NoteEvent(
+      id: const Uuid().v4(),
+      noteId: _note!.id,
+      type: type,
+      payload: payload,
+      timestamp: DateTime.now(),
+    );
+
+    await NoteRepository.instance.addNoteEvent(event);
+  }
+
   // ... (all other methods remain the same)
   void _toggleStyle(StyleAttribute attribute) {
-    final newDocument = DocumentManipulator.toggleStyle(
+    final result = DocumentManipulator.toggleStyle(
       _document,
       _selection,
       attribute,
     );
+    final newDocument = result.document;
+    _handleNoteEvent(result.eventType, result.eventPayload);
     _onDocumentChanged(newDocument);
   }
 
   void _applyColor(Color color) {
-    final newDocument = DocumentManipulator.applyColor(
+    final result = DocumentManipulator.applyColor(
       _document,
       _selection,
       color,
     );
+    final newDocument = result.document;
+    _handleNoteEvent(result.eventType, result.eventPayload);
     _onDocumentChanged(newDocument);
   }
 
   void _applyFontSize(double fontSize) {
-    final newDocument = DocumentManipulator.applyFontSize(
+    final result = DocumentManipulator.applyFontSize(
       _document,
       _selection,
       fontSize,
     );
+    final newDocument = result.document;
+    _handleNoteEvent(result.eventType, result.eventPayload);
     _onDocumentChanged(newDocument);
   }
 
@@ -312,27 +375,47 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   Future<void> _autosave() async {
-    if (!mounted || _isCollaborative) return;
+    if (!mounted) return;
     _debounceTimer?.cancel();
+
+    if (_note == null) return;
 
     final plainText = _document.toPlainText();
     if (plainText.trim().isEmpty) return;
 
     final jsonContent = DocumentAdapter.toJson(_document);
 
-    // If it's a new note, create it. Otherwise, update it.
-    if (_note == null) {
-      // We don't have enough info to create a full note,
-      // so we rely on the manual save for new notes.
-      // Or we could create a draft here. For now, we do nothing.
-      return;
-    } else {
-      final noteToSave = _note!.copyWith(
-        title: plainText.split('\n').first,
-        content: jsonContent,
-        lastModified: DateTime.now(),
-        tags: _currentTags,
-      );
+    final noteToSave = _note!.copyWith(
+      title: plainText.split('\n').first,
+      content: jsonContent,
+      lastModified: DateTime.now(),
+      tags: _currentTags,
+    );
+
+    // Always save locally (SQLite) via callback
+    await widget.onSave(noteToSave);
+
+    // Create a Version Snapshot locally (if not empty)
+    // We do this after saving the note itself.
+    // Ideally we'd compare content with last version to avoid duplicates,
+    // but for now, we'll create a version on every "Autosave" that is triggered.
+    // To avoid spamming versions on every character (handled by debounce),
+    // we might want to limit frequency (e.g. 1 per hour) in the future.
+    // For now, let's keep it simple: Create version.
+    /* 
+       Wait, creating a version on every autosave (debounce 1s) is too much. 
+       Let's ONLY create version on:
+       1. Manual Save.
+       2. Or if X minutes passed since last version?
+       
+       For this Step, let's enable it on Manual Save primarily.
+       So, I will NOT put it here in _autosave unless I add a flag 'createVersion'.
+    */
+
+    // If Shared, push to Firestore (Real-Time / Sync)
+    bool isShared =
+        noteToSave.memberIds.length > 1 || noteToSave.collaborators.isNotEmpty;
+    if (isShared) {
       await _firestoreRepository.updateNote(noteToSave);
     }
 
@@ -340,7 +423,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Nota salva automaticamente.'),
-        duration: Duration(seconds: 2),
+        duration: Duration(seconds: 1),
       ),
     );
   }
@@ -350,24 +433,25 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _debounceTimer?.cancel();
     _throttleTimer?.cancel();
 
-    await _autosave(); // Perform a final save
-    // Also call the onSave callback from the parent screen
-    final plainText = _document.toPlainText();
-    if (plainText.trim().isEmpty) {
-      if (mounted) Navigator.of(context).pop();
-      return;
+    // Perform the save
+    await _autosave();
+
+    // Create a specific Version Snapshot on Manual Save
+    if (_note != null) {
+      // We need to construct the version from current state
+      final jsonContent = DocumentAdapter.toJson(_document);
+      final version = NoteVersion(
+        id: const Uuid().v4(),
+        noteId: _note!.id,
+        content: jsonContent,
+        date: DateTime.now(),
+      );
+      // We need access to repository directly.
+      // Ideally we'd use a service or the repository instance if we kept it.
+      // We removed _noteRepository field earlier. Let's add it back or use singleton.
+      await NoteRepository.instance.createNoteVersion(version);
     }
-    final jsonContent = DocumentAdapter.toJson(_document);
 
-    if (_note == null) return; // Should not happen if text is not empty
-
-    final noteToSave = _note!.copyWith(
-      title: plainText.split('\n').first,
-      content: jsonContent,
-      lastModified: DateTime.now(),
-      tags: _currentTags,
-    );
-    await widget.onSave(noteToSave);
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -385,6 +469,92 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       // Trigger autosave
       unawaited(_autosave());
     }
+  }
+
+  Future<void> _showHistoryDialog() async {
+    if (_note == null) return;
+
+    // Fetch versions
+    final versions = await NoteRepository.instance.getNoteVersions(_note!.id);
+
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Histórico de Versões'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: versions.isEmpty
+                ? const Text('Nenhuma versão anterior encontrada.')
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: versions.length,
+                    itemBuilder: (context, index) {
+                      final version = versions[index];
+                      // Simple date formatting
+                      final dateStr =
+                          '${version.date.day}/${version.date.month}/${version.date.year} ${version.date.hour}:${version.date.minute}';
+
+                      return ListTile(
+                        title: Text(dateStr),
+                        subtitle: Text(
+                          version.content.length > 50
+                              ? '${version.content.substring(0, 50)}...'
+                              : 'Conteúdo: ${version.content.length} chars',
+                        ),
+                        onTap: () async {
+                          // Restore logic
+                          bool confirm =
+                              await showDialog(
+                                context: context,
+                                builder: (c) => AlertDialog(
+                                  title: const Text('Restaurar Versão?'),
+                                  content: const Text(
+                                    'Isso substituirá o conteúdo atual pela versão selecionada.',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(c, false),
+                                      child: const Text('Cancelar'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(c, true),
+                                      child: const Text('Restaurar'),
+                                    ),
+                                  ],
+                                ),
+                              ) ??
+                              false;
+
+                          if (confirm && mounted) {
+                            _initializeEditor(version.content);
+                            Navigator.pop(context); // Close History Dialog
+
+                            // Trigger save to persist restoration
+                            unawaited(_autosave());
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Versão restaurada com sucesso.'),
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    },
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _onFindChanged(String term) {
@@ -435,16 +605,22 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   void _replace(String replaceTerm) {
     if (_currentMatchIndex == -1 || _selection.isCollapsed) return;
-    final docAfterDelete = DocumentManipulator.deleteText(
+    final deleteResult = DocumentManipulator.deleteText(
       _document,
       _selection.start,
       _selection.end - _selection.start,
     );
-    final newDoc = DocumentManipulator.insertText(
+    final docAfterDelete = deleteResult.document;
+    _handleNoteEvent(deleteResult.eventType, deleteResult.eventPayload);
+
+    final insertResult = DocumentManipulator.insertText(
       docAfterDelete,
       _selection.start,
       replaceTerm,
     );
+    final newDoc = insertResult.document;
+    _handleNoteEvent(insertResult.eventType, insertResult.eventPayload);
+
     _onDocumentChanged(newDoc);
   }
 
@@ -486,11 +662,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       '${appDir.path}/$fileName',
     );
 
-    final newDoc = DocumentManipulator.insertImage(
+    final result = DocumentManipulator.insertImage(
       _document,
       _selection.baseOffset,
       savedImage.path,
     );
+    final newDoc = result.document;
+    _handleNoteEvent(result.eventType, result.eventPayload);
     _onDocumentChanged(newDoc);
   }
 
@@ -766,6 +944,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                                 child: Text('Exportar para PDF'),
                               ),
                             ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.history),
+                        tooltip: 'Ver Histórico',
+                        onPressed: _showHistoryDialog,
                       ),
                     ],
                   ),

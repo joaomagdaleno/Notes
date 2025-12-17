@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/snippet.dart';
 import 'package:universal_notes_flutter/models/tag.dart';
@@ -34,6 +35,7 @@ class NoteRepository {
   static const String _snippetsTable = 'snippets';
   static const String _tagsTable = 'tags';
   static const String _noteTagsTable = 'note_tags';
+  static const String _noteEventsTable = 'note_events';
 
   /// Returns the database instance, initializing it if necessary.
   Future<Database> get database async {
@@ -50,7 +52,7 @@ class NoteRepository {
     final path = join(dir.path, _dbName);
     return openDatabase(
       path,
-      version: 6,
+      version: 7,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -95,6 +97,16 @@ class NoteRepository {
         PRIMARY KEY (note_id, tag_id),
         FOREIGN KEY (note_id) REFERENCES $_notesTable(id) ON DELETE CASCADE,
         FOREIGN KEY (tag_id) REFERENCES $_tagsTable(id) ON DELETE CASCADE
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE $_noteEventsTable(
+        id TEXT PRIMARY KEY,
+        noteId TEXT,
+        type TEXT,
+        payload TEXT,
+        timestamp INTEGER,
+        FOREIGN KEY (noteId) REFERENCES $_notesTable(id) ON DELETE CASCADE
       )
     ''');
   }
@@ -143,6 +155,18 @@ class NoteRepository {
           PRIMARY KEY (note_id, tag_id),
           FOREIGN KEY (note_id) REFERENCES $_notesTable(id) ON DELETE CASCADE,
           FOREIGN KEY (tag_id) REFERENCES $_tagsTable(id) ON DELETE CASCADE
+        )
+      ''');
+    }
+    if (oldVersion < 7) {
+      await db.execute('''
+        CREATE TABLE $_noteEventsTable(
+          id TEXT PRIMARY KEY,
+          noteId TEXT,
+          type TEXT,
+          payload TEXT,
+          timestamp INTEGER,
+          FOREIGN KEY (noteId) REFERENCES $_notesTable(id) ON DELETE CASCADE
         )
       ''');
     }
@@ -577,5 +601,29 @@ class NoteRepository {
     await db.close();
     _database = null;
     firebaseService.dispose();
+  }
+
+  // --- Event Sourcing Methods ---
+
+  /// Adds a new event to the log.
+  Future<void> addNoteEvent(NoteEvent event) async {
+    final db = await database;
+    await db.insert(
+      _noteEventsTable,
+      event.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Retrieves all events for a specific note, ordered by timestamp.
+  Future<List<NoteEvent>> getNoteEvents(String noteId) async {
+    final db = await database;
+    final maps = await db.query(
+      _noteEventsTable,
+      where: 'noteId = ?',
+      whereArgs: [noteId],
+      orderBy: 'timestamp ASC',
+    );
+    return List.generate(maps.length, (i) => NoteEvent.fromMap(maps[i]));
   }
 }

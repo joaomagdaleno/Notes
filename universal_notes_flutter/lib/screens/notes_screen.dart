@@ -6,7 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
+import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
@@ -22,14 +24,10 @@ class NotesScreen extends StatefulWidget {
   const NotesScreen({
     super.key,
     this.updateService,
-    this.firestoreRepository,
   });
 
   /// The service for checking app updates.
   final UpdateService? updateService;
-
-  /// The repository for managing notes in Firestore.
-  final FirestoreRepository? firestoreRepository;
 
   @override
   State<NotesScreen> createState() => _NotesScreenState();
@@ -53,23 +51,23 @@ enum SortOrder {
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   SortOrder _sortOrder = SortOrder.dateDesc;
-  late final FirestoreRepository _firestoreRepository;
+  final SyncService _syncService = SyncService.instance;
   late final UpdateService _updateService;
   late Stream<List<Note>> _notesStream;
 
   final _searchController = TextEditingController();
   final _viewModeNotifier = ValueNotifier<String>('grid_medium');
   final ScrollController _scrollController = ScrollController();
-  int _notesLimit = 20;
 
   @override
   void initState() {
     super.initState();
-    _firestoreRepository = widget.firestoreRepository ?? FirestoreRepository();
+    // Removed direct FirestoreRepository usage
     _updateService = widget.updateService ?? UpdateService();
+    _notesStream = _syncService.notesStream; // Point to sync service stream
     windowManager.addListener(this);
-    _scrollController.addListener(_onScroll);
-    _updateNotesStream();
+    // _scrollController.addListener(_onScroll); // Disabled pagination listener
+    _updateNotesStream(); // Initial fetch
     _searchController.addListener(() {
       setState(() {});
     });
@@ -87,62 +85,42 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   void _updateNotesStream() {
     bool? isFavorite;
     bool? isInTrash;
+    String? folderId;
+    String? tagId;
 
     switch (_selection.type) {
       case SidebarItemType.all:
-        // Default view shows non-trashed notes
         isInTrash = false;
       case SidebarItemType.favorites:
         isFavorite = true;
-        isInTrash = false; // Favorites are not in trash
+        isInTrash = false;
       case SidebarItemType.trash:
         isInTrash = true;
       case SidebarItemType.folder:
         if (_selection.folder != null) {
-          _notesStream = _firestoreRepository.notesStream(
-            folderId: _selection.folder!.id,
-            isInTrash: false,
-            limit: _notesLimit,
-          );
-        } else {
-          _notesStream = Stream.value([]);
+          folderId = _selection.folder!.id;
+          isInTrash = false;
         }
-        return; // Return early as the stream is set
       case SidebarItemType.tag:
-        _notesStream = _firestoreRepository.notesStream(
-          tag: _selection.tag,
-          isInTrash: false, // Tags are not in trash
-          limit: _notesLimit,
-        );
-        return; // Return early as the stream is set
+        tagId = _selection.tag;
+        isInTrash = false;
     }
-    _notesStream = _firestoreRepository.notesStream(
+
+    // Trigger refresh of local data into the stream
+    _syncService.refreshLocalData(
+      folderId: folderId,
+      tagId: tagId,
       isFavorite: isFavorite,
       isInTrash: isInTrash,
-      limit: _notesLimit,
     );
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      if (_notesLimit < 1000) {
-        // Safety cap
-        setState(() {
-          _notesLimit += 20;
-          _updateNotesStream();
-        });
-      }
-    }
   }
 
   void _onSelectionChanged(SidebarSelection selection) {
     setState(() {
       _selection = selection;
-      _notesLimit = 20; // Reset pagination
       _updateNotesStream();
     });
-    Navigator.of(context).pop(); // Close the drawer
+    Navigator.of(context).pop();
   }
 
   Future<void> _createNewNote() async {
@@ -182,10 +160,18 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _processarNotaRapida(String content) async {
-    final newNote = await _firestoreRepository.addNote(
+    final noteRepository = NoteRepository.instance;
+    final now = DateTime.now();
+    final newNote = Note(
+      id: now.millisecondsSinceEpoch.toString(),
       title: content.split('\n').first,
       content: content,
+      createdAt: now,
+      lastModified: now,
+      ownerId: 'local_user',
     );
+    await noteRepository.insertNote(newNote);
+    await _syncService.refreshLocalData();
     unawaited(_openNoteEditor(newNote));
   }
 
@@ -199,21 +185,29 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _toggleFavorite(Note note) async {
-    await _firestoreRepository.updateNote(
+    final noteRepository = NoteRepository.instance;
+    await noteRepository.updateNote(
       note.copyWith(isFavorite: !note.isFavorite),
     );
+    await _syncService.refreshLocalData();
   }
 
   Future<void> _moveToTrash(Note note) async {
-    await _firestoreRepository.updateNote(note.copyWith(isInTrash: true));
+    final noteRepository = NoteRepository.instance;
+    await noteRepository.updateNote(note.copyWith(isInTrash: true));
+    await _syncService.refreshLocalData();
   }
 
   Future<void> _restoreNote(Note note) async {
-    await _firestoreRepository.updateNote(note.copyWith(isInTrash: false));
+    final noteRepository = NoteRepository.instance;
+    await noteRepository.updateNote(note.copyWith(isInTrash: false));
+    await _syncService.refreshLocalData();
   }
 
   Future<void> _deletePermanently(Note note) async {
-    await _firestoreRepository.deleteNote(note.id);
+    final noteRepository = NoteRepository.instance;
+    await noteRepository.deleteNotePermanently(note.id);
+    await _syncService.refreshLocalData();
   }
 
   String _getAppBarTitle() {
@@ -310,7 +304,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             note: note,
             onTap: () => unawaited(_openNoteEditor(note)),
             onSave: (note) async {
-              await _firestoreRepository.updateNote(note);
+              final noteRepository = NoteRepository.instance;
+              await noteRepository.updateNote(note);
+              await _syncService.refreshLocalData();
               return note;
             },
             onDelete: _deletePermanently,
@@ -386,7 +382,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search notes...',
+                hintText: 'Search titles & snippets...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
