@@ -59,6 +59,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   final _searchController = TextEditingController();
   final _viewModeNotifier = ValueNotifier<String>('grid_medium');
+  final ScrollController _scrollController = ScrollController();
+  int _notesLimit = 20;
 
   @override
   void initState() {
@@ -66,12 +68,17 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     _firestoreRepository = widget.firestoreRepository ?? FirestoreRepository();
     _updateService = widget.updateService ?? UpdateService();
     windowManager.addListener(this);
+    _scrollController.addListener(_onScroll);
     _updateNotesStream();
+    _searchController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
   void dispose() {
     windowManager.removeListener(this);
+    _scrollController.dispose();
     _searchController.dispose();
     _viewModeNotifier.dispose();
     super.dispose();
@@ -91,24 +98,48 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       case SidebarItemType.trash:
         isInTrash = true;
       case SidebarItemType.folder:
-        // TODO(developer): Implement folder filtering with Firestore
-        isInTrash = false; // Default to non-trashed for now
+        if (_selection.folder != null) {
+          _notesStream = _firestoreRepository.notesStream(
+            folderId: _selection.folder!.id,
+            isInTrash: false,
+            limit: _notesLimit,
+          );
+        } else {
+          _notesStream = Stream.value([]);
+        }
+        return; // Return early as the stream is set
       case SidebarItemType.tag:
         _notesStream = _firestoreRepository.notesStream(
           tag: _selection.tag,
           isInTrash: false, // Tags are not in trash
+          limit: _notesLimit,
         );
         return; // Return early as the stream is set
     }
     _notesStream = _firestoreRepository.notesStream(
       isFavorite: isFavorite,
       isInTrash: isInTrash,
+      limit: _notesLimit,
     );
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (_notesLimit < 1000) {
+        // Safety cap
+        setState(() {
+          _notesLimit += 20;
+          _updateNotesStream();
+        });
+      }
+    }
   }
 
   void _onSelectionChanged(SidebarSelection selection) {
     setState(() {
       _selection = selection;
+      _notesLimit = 20; // Reset pagination
       _updateNotesStream();
     });
     Navigator.of(context).pop(); // Close the drawer
@@ -203,6 +234,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   Widget _buildNotesList(List<Note> notes) {
     final isTrashView = _selection.type == SidebarItemType.trash;
 
+    // Filter by search query
+    final query = _searchController.text.toLowerCase();
+    if (query.isNotEmpty) {
+      notes = notes.where((note) {
+        return note.title.toLowerCase().contains(query) ||
+            note.content.toLowerCase().contains(query);
+      }).toList();
+    }
+
     // Apply client-side sorting
     notes.sort((a, b) {
       switch (_sortOrder) {
@@ -225,6 +265,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     }
 
     return GridView.builder(
+      controller: _scrollController,
       padding: const EdgeInsets.all(8),
       gridDelegate: _getGridDelegate(_viewModeNotifier.value),
       itemCount: notes.length,
@@ -345,7 +386,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search is temporarily disabled...',
+                hintText: 'Search notes...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -353,7 +394,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 ),
                 filled: true,
               ),
-              enabled: false, // Temporarily disable search
+              enabled: true,
             ),
           ),
           Expanded(

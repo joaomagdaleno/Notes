@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 
 /// Service for handling authentication.
 class AuthService {
@@ -30,10 +32,21 @@ class AuthService {
     String password,
   ) async {
     try {
-      return await _firebaseAuth.createUserWithEmailAndPassword(
+      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      if (credential.user != null) {
+        // Create user profile in Firestore
+        try {
+          final firestoreRepository = FirestoreRepository();
+          await firestoreRepository.createUser(credential.user!);
+        } catch (e) {
+          debugPrint('Error creating user profile: $e');
+        }
+      }
+      return credential;
     } on FirebaseAuthException catch (_) {
       // Handle errors
       // print(e.message);

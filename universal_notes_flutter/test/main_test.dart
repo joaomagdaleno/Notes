@@ -36,12 +36,16 @@ class MockFirestoreRepository extends Mock implements FirestoreRepository {
     bool? isFavorite,
     bool? isInTrash,
     String? tag,
+    String? folderId,
+    int? limit,
   }) {
     return super.noSuchMethod(
           Invocation.method(#notesStream, [], {
             #isFavorite: isFavorite,
             #isInTrash: isInTrash,
             #tag: tag,
+            #folderId: folderId,
+            #limit: limit,
           }),
           returnValue: Stream.value(<Note>[]),
           returnValueForMissingStub: Stream.value(<Note>[]),
@@ -129,6 +133,8 @@ MockFirestoreRepository createDefaultMockRepository() {
       isFavorite: anyNamed('isFavorite'),
       isInTrash: anyNamed('isInTrash'),
       tag: anyNamed('tag'),
+      folderId: anyNamed('folderId'),
+      limit: anyNamed('limit'),
     ),
   ).thenAnswer((_) => Stream.value(<Note>[]));
   when(mockRepo.notesStream()).thenAnswer((_) => Stream.value(<Note>[]));

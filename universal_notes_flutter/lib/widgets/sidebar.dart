@@ -66,8 +66,8 @@ class Sidebar extends StatefulWidget {
 }
 
 class _SidebarState extends State<Sidebar> {
-  // Folder logic remains, but we will use a Stream for tags.
-  final List<Folder> _folders = [];
+  // Folder logic
+  late final Stream<List<Map<String, dynamic>>> _foldersStream;
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final BackupService _backupService = BackupService();
   final FirestoreRepository _firestoreRepository = FirestoreRepository();
@@ -77,13 +77,47 @@ class _SidebarState extends State<Sidebar> {
   void initState() {
     super.initState();
     _tagsStream = _firestoreRepository.getAllTagsStream();
-    // We can keep folder logic if it's still local or refactor later
-    // unawaited(_loadFolders());
+    _foldersStream = _firestoreRepository.getFoldersStream();
   }
 
   Future<void> _createNewFolder() async {
-    // This would need to be refactored to use a new FolderRepository
-    // if we migrate folders to Firestore as well. For now, it's disabled.
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('New Folder'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Folder Name'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+
+    if (name != null && name.trim().isNotEmpty) {
+      await _firestoreRepository.createFolder(name.trim());
+    }
+  }
+
+  Future<void> _deleteFolder(String folderId) async {
+    // If selected folder is deleted, switch to All Notes
+    if (_selection.type == SidebarItemType.folder &&
+        _selection.folder?.id == folderId) {
+      const newSelection = SidebarSelection(SidebarItemType.all);
+      setState(() => _selection = newSelection);
+      widget.onSelectionChanged(newSelection);
+    }
+    await _firestoreRepository.deleteFolder(folderId);
   }
 
   Future<void> _performBackup() async {
@@ -144,24 +178,53 @@ class _SidebarState extends State<Sidebar> {
           ),
           const Divider(),
           // --- Folders ---
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Folders', style: TextStyle(color: Colors.grey)),
+            ),
+          ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _folders.length,
-              itemBuilder: (context, index) {
-                final folder = _folders[index];
-                return ListTile(
-                  leading: const Icon(Icons.folder_outlined),
-                  title: Text(folder.name),
-                  selected:
-                      _selection.type == SidebarItemType.folder &&
-                      _selection.folder?.id == folder.id,
-                  onTap: () {
-                    final newSelection = SidebarSelection(
-                      SidebarItemType.folder,
-                      folder: folder,
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: _foldersStream,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox.shrink();
+                final foldersData = snapshot.data!;
+                final folders = foldersData.map(Folder.fromMap).toList();
+
+                return ListView.builder(
+                  itemCount: folders.length,
+                  itemBuilder: (context, index) {
+                    final folder = folders[index];
+                    return ListTile(
+                      leading: const Icon(Icons.folder_outlined),
+                      title: Text(folder.name),
+                      selected:
+                          _selection.type == SidebarItemType.folder &&
+                          _selection.folder?.id == folder.id,
+                      trailing: PopupMenuButton(
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Text('Delete'),
+                          ),
+                        ],
+                        onSelected: (value) async {
+                          if (value == 'delete') {
+                            await _deleteFolder(folder.id);
+                          }
+                        },
+                      ),
+                      onTap: () {
+                        final newSelection = SidebarSelection(
+                          SidebarItemType.folder,
+                          folder: folder,
+                        );
+                        setState(() => _selection = newSelection);
+                        widget.onSelectionChanged(newSelection);
+                      },
                     );
-                    setState(() => _selection = newSelection);
-                    widget.onSelectionChanged(newSelection);
                   },
                 );
               },
@@ -206,7 +269,6 @@ class _SidebarState extends State<Sidebar> {
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('New Folder'),
             onTap: () => unawaited(_createNewFolder()),
-            enabled: false, // Temporarily disable folder creation
           ),
           ListTile(
             leading: const Icon(Icons.backup),
