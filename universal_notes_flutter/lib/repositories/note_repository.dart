@@ -626,4 +626,15 @@ class NoteRepository {
     );
     return List.generate(maps.length, (i) => NoteEvent.fromMap(maps[i]));
   }
+
+  /// Updates an existing event (e.g., to mark as synced).
+  Future<void> updateNoteEvent(NoteEvent event) async {
+    final db = await database;
+    await db.update(
+      _noteEventsTable,
+      event.toMap(),
+      where: 'id = ?',
+      whereArgs: [event.id],
+    );
+  }
 }

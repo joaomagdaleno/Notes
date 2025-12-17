@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
@@ -123,6 +124,55 @@ class SyncService {
     } else {
       // Update
       await _firestoreRepository.updateNote(note);
+    }
+  }
+
+  // =========================================================================
+  // Event-Based Sync Methods
+  // =========================================================================
+
+  /// Syncs local unsynced events to Firestore for a specific note.
+  Future<void> syncUpEvents(String noteId) async {
+    final localEvents = await _noteRepository.getNoteEvents(noteId);
+
+    // Filter to only unsynced events
+    final unsyncedEvents = localEvents
+        .where((e) => e.syncStatus == SyncStatus.local)
+        .toList();
+
+    if (unsyncedEvents.isEmpty) return;
+
+    // Push to Firestore
+    await _firestoreRepository.addNoteEvents(unsyncedEvents);
+
+    // Mark as synced locally
+    for (final event in unsyncedEvents) {
+      final syncedEvent = event.copyWith(syncStatus: SyncStatus.synced);
+      await _noteRepository.updateNoteEvent(syncedEvent);
+    }
+  }
+
+  /// Pulls remote events for a note and merges into local DB.
+  Future<void> syncDownEvents(String noteId) async {
+    // Get last synced timestamp from local events
+    final localEvents = await _noteRepository.getNoteEvents(noteId);
+    final lastLocalTimestamp = localEvents.isNotEmpty
+        ? localEvents.last.timestamp
+        : DateTime.fromMillisecondsSinceEpoch(0);
+
+    // Fetch newer events from Firestore
+    final remoteEvents = await _firestoreRepository.getNoteEventsSince(
+      noteId,
+      lastLocalTimestamp,
+    );
+
+    // Filter out events we already have (by ID)
+    final localIds = localEvents.map((e) => e.id).toSet();
+    final newEvents = remoteEvents.where((e) => !localIds.contains(e.id));
+
+    // Insert new events into local DB
+    for (final event in newEvents) {
+      await _noteRepository.addNoteEvent(event);
     }
   }
 

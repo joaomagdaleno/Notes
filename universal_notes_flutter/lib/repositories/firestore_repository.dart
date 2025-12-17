@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
 
 /// Repository for interacting with Firestore.
 class FirestoreRepository {
@@ -285,5 +286,72 @@ class FirestoreRepository {
     // assuming subcollection or separate collection.
     // Returning empty for now to satisfy BackupService contract if inferred.
     return [];
+  }
+
+  // =========================================================================
+  // Event Sourcing Sync Methods
+  // =========================================================================
+
+  /// Pushes a single [event] to Firestore.
+  Future<void> addNoteEvent(NoteEvent event) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not logged in');
+
+    await _notesCollection
+        .doc(event.noteId)
+        .collection('events')
+        .doc(event.id)
+        .set(event.toFirestore());
+  }
+
+  /// Pushes multiple events to Firestore in a batch.
+  Future<void> addNoteEvents(List<NoteEvent> events) async {
+    if (events.isEmpty) return;
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not logged in');
+
+    final batch = _firestore.batch();
+    for (final event in events) {
+      final docRef = _notesCollection
+          .doc(event.noteId)
+          .collection('events')
+          .doc(event.id);
+      batch.set(docRef, event.toFirestore());
+    }
+    await batch.commit();
+  }
+
+  /// Returns a stream of events for a note, ordered by timestamp.
+  Stream<List<NoteEvent>> getNoteEventsStream(String noteId) {
+    return _notesCollection
+        .doc(noteId)
+        .collection('events')
+        .orderBy('timestamp')
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            return NoteEvent.fromFirestore(doc.data(), doc.id);
+          }).toList();
+        });
+  }
+
+  /// Fetches all remote events for a note after [sinceTimestamp].
+  Future<List<NoteEvent>> getNoteEventsSince(
+    String noteId,
+    DateTime sinceTimestamp,
+  ) async {
+    final snapshot = await _notesCollection
+        .doc(noteId)
+        .collection('events')
+        .where(
+          'timestamp',
+          isGreaterThan: sinceTimestamp.millisecondsSinceEpoch,
+        )
+        .orderBy('timestamp')
+        .get();
+
+    return snapshot.docs.map((doc) {
+      return NoteEvent.fromFirestore(doc.data(), doc.id);
+    }).toList();
   }
 }

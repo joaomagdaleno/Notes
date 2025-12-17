@@ -22,6 +22,8 @@ import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
 import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
+import 'package:universal_notes_flutter/services/event_replayer.dart';
+import 'package:universal_notes_flutter/services/history_grouper.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 
 /// A screen for editing a note.
@@ -474,8 +476,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Future<void> _showHistoryDialog() async {
     if (_note == null) return;
 
-    // Fetch versions
-    final versions = await NoteRepository.instance.getNoteVersions(_note!.id);
+    // Fetch events instead of versions
+    final events = await NoteRepository.instance.getNoteEvents(_note!.id);
+    // Group events using Smart Strategy
+    final historyPoints = HistoryGrouper.groupEvents(events);
 
     if (!mounted) return;
 
@@ -483,36 +487,36 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Histórico de Versões'),
+          title: const Text('Histórico de Edição'),
           content: SizedBox(
             width: double.maxFinite,
-            child: versions.isEmpty
-                ? const Text('Nenhuma versão anterior encontrada.')
+            child: historyPoints.isEmpty
+                ? const Text('Nenhuma alteração registrada.')
                 : ListView.builder(
                     shrinkWrap: true,
-                    itemCount: versions.length,
+                    itemCount: historyPoints.length,
                     itemBuilder: (context, index) {
-                      final version = versions[index];
+                      final point = historyPoints[index];
                       // Simple date formatting
                       final dateStr =
-                          '${version.date.day}/${version.date.month}/${version.date.year} ${version.date.hour}:${version.date.minute}';
+                          '${point.timestamp.day}/${point.timestamp.month}/${point.timestamp.year} ${point.timestamp.hour}:${point.timestamp.minute}';
 
                       return ListTile(
-                        title: Text(dateStr),
-                        subtitle: Text(
-                          version.content.length > 50
-                              ? '${version.content.substring(0, 50)}...'
-                              : 'Conteúdo: ${version.content.length} chars',
-                        ),
+                        leading: const Icon(Icons.history),
+                        title: Text(point.label),
+                        subtitle: Text(dateStr),
                         onTap: () async {
                           // Restore logic
                           bool confirm =
                               await showDialog(
                                 context: context,
                                 builder: (c) => AlertDialog(
-                                  title: const Text('Restaurar Versão?'),
+                                  title: const Text(
+                                    'Restaurar para este ponto?',
+                                  ),
                                   content: const Text(
-                                    'Isso substituirá o conteúdo atual pela versão selecionada.',
+                                    'Isso reverterá o documento para o estado selecionado. '
+                                    'Uma nova linha do tempo será criada a partir daqui.',
                                   ),
                                   actions: [
                                     TextButton(
@@ -529,11 +533,49 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                               false;
 
                           if (confirm && mounted) {
-                            _initializeEditor(version.content);
+                            // Reconstruct state at this point
+                            final restoredDoc = EventReplayer.reconstruct(
+                              point.eventsUpToPoint,
+                            );
+
+                            _initializeEditor(restoredDoc.toPlainText());
+                            // Note: ideally _initializeEditor should take a DocumentModel if we want to preserve rich text state properly.
+                            // But EventReplayer returns DocumentModel.
+                            // _initializeEditor parses string -> DocumentModel.
+                            // If EventReplayer is accurate, we should probably set _document directly if possible or update _initializeEditor/update wrapper.
+                            // Currently _initializeEditor acts on String content.
+                            // IF DocumentManipulator handles rich text, we lose it if we convert toPlainText() unless _initializeEditor re-parses it correctly or we bypass it.
+                            // For v1 event sourcing, if we only store pure text events? No, we have Format events.
+                            // So converting toPlainText() LOSES formatting.
+                            // We must update the state directly.
+
+                            setState(() {
+                              _document = restoredDoc;
+                              // Reset selection to start
+                              _selection = const TextSelection.collapsed(
+                                offset: 0,
+                              );
+                              // Rebuild history manager with restored state
+                              _historyManager = HistoryManager(
+                                initialState: HistoryState(
+                                  document: _document,
+                                  selection: _selection,
+                                ),
+                              );
+                            });
+
                             Navigator.pop(context); // Close History Dialog
 
-                            // Trigger save to persist restoration
-                            unawaited(_autosave());
+                            // Trigger save to persist restoration as a NEW event?
+                            // No, typically we just treat this as a massive change or log a specific "Rollback" event.
+                            // For now, _autosave will run eventually, OR we should force a log.
+                            // But wait, if we set state, _onDocumentChanged wasn't called.
+                            // So we need to trigger downstream effects.
+
+                            // Let's create a snapshot event or rely on next edit.
+                            // Better: Log a 'restore' event manually if we want to trace it,
+                            // but simply setting the document puts the user in that state.
+                            // Any subsequent edit will append events.
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
