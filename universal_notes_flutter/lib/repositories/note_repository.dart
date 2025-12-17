@@ -231,7 +231,8 @@ class NoteRepository {
   /// Rebuilds the FTS index from existing notes.
   Future<void> _rebuildFtsIndex(Database db) async {
     await db.execute(
-      'INSERT INTO $_notesFtsTable(rowid, title, content) SELECT rowid, title, content FROM $_notesTable',
+      'INSERT INTO $_notesFtsTable(rowid, title, content) '
+      'SELECT rowid, title, content FROM $_notesTable',
     );
   }
 
@@ -628,8 +629,9 @@ class NoteRepository {
   Future<List<String>> getAllTagNames() async {
     final db = await database;
     // We fetch from _tagsTable, but maybe only those that are used?
-    // Since we lazy-create tags, _tagsTable might have orphans if we remove tags from notes.
-    // Ideally we join with _noteTagsTable to find used tags.
+    // Since we lazy-create tags, _tagsTable might have orphans if we remove
+    // tags from notes.
+    // ideal: join with _noteTagsTable to find used tags.
     // Or just return all known tags. Let's return all known tags to allow reuse.
     final result = await db.query(
       _tagsTable,
@@ -897,6 +899,7 @@ class NoteRepository {
 
 /// Represents a search result with the matched note and a snippet.
 class SearchResult {
+  /// Creates a [SearchResult].
   const SearchResult({
     required this.note,
     required this.snippet,

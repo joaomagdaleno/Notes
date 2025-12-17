@@ -71,16 +71,19 @@ class SyncService {
       Note? localNote;
       try {
         localNote = await _noteRepository.getNoteWithContent(remoteNote.id);
-      } catch (_) {
+      } on Exception catch (_) {
         // Local note not found
       }
 
       // If local doesn't exist, or remote is newer, update local
       // Using UTC check to be safe, assuming Note model handles Timezone or stores UTC
-      if (localNote == null ||
+      final remoteNewer =
+          localNote == null ||
           remoteNote.lastModified.toUtc().isAfter(
             localNote.lastModified.toUtc(),
-          )) {
+          );
+
+      if (remoteNewer) {
         var content = remoteNote.content;
 
         // Fetch full content if needed (heuristic check)

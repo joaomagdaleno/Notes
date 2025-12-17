@@ -42,7 +42,7 @@ class AuthService {
         try {
           final firestoreRepository = FirestoreRepository();
           await firestoreRepository.createUser(credential.user!);
-        } catch (e) {
+        } on Exception catch (e) {
           debugPrint('Error creating user profile: $e');
         }
       }

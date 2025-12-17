@@ -2,10 +2,19 @@ import 'dart:convert';
 import 'dart:io';
 
 enum NoteEventType {
+  /// Insert text.
   insert,
+
+  /// Delete text.
   delete,
+
+  /// Format text.
   format,
-  image_insert,
+
+  /// Insert image.
+  imageInsert,
+
+  /// Unknown event.
   unknown,
 }
 
@@ -60,12 +69,25 @@ class NoteEvent {
     );
   }
 
+  /// The unique ID of the event.
   final String id;
+
+  /// The ID of the note this event belongs to.
   final String noteId;
+
+  /// The type of event.
   final NoteEventType type;
+
+  /// The event payload.
   final Map<String, dynamic> payload;
+
+  /// The timestamp of the event.
   final DateTime timestamp;
+
+  /// The sync status of the event.
   final SyncStatus syncStatus;
+
+  /// The ID of the device that created the event.
   final String? deviceId;
 
   /// Generates a device-specific ID.
@@ -73,7 +95,7 @@ class NoteEvent {
     // Simple device ID based on hostname
     try {
       return Platform.localHostname;
-    } catch (_) {
+    } on Exception catch (_) {
       return 'unknown';
     }
   }

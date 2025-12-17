@@ -7,6 +7,7 @@ import 'package:universal_notes_flutter/models/stroke.dart';
 /// The result of a document manipulation, including the new document state
 /// and the event payload describing the change.
 class ManipulationResult {
+  /// Creates a [ManipulationResult].
   const ManipulationResult({
     required this.document,
     required this.eventPayload,
@@ -40,6 +41,8 @@ enum StyleAttribute {
 
 /// A class containing static methods to manipulate a [DocumentModel].
 class DocumentManipulator {
+  DocumentManipulator._();
+
   /// Sets a block-level attribute (e.g., alignment).
   static ManipulationResult setBlockAttribute(
     DocumentModel document,
@@ -182,7 +185,7 @@ class DocumentManipulator {
 
     return ManipulationResult(
       document: newDoc,
-      eventType: NoteEventType.image_insert,
+      eventType: NoteEventType.imageInsert,
       eventPayload: {
         'pos': position,
         'path': imagePath,
@@ -240,6 +243,7 @@ class DocumentManipulator {
       eventPayload: {
         'pos': selection.start,
         'len': selection.end - selection.start,
+        // ignore: deprecated_member_use
         'color': color.value,
       },
     );
@@ -267,6 +271,7 @@ class DocumentManipulator {
     );
   }
 
+  /// Applies an update function to the spans within a selection.
   static DocumentModel applyToSelection(
     DocumentModel document,
     TextSelection selection,
@@ -533,9 +538,10 @@ class DocumentManipulator {
       currentAttributes[key] = value;
     }
 
-    // We reuse setBlockAttributes logic but we need to pass the FULL modified map
-    // because setBlockAttributes MERGES.
-    // Actually, to support removal, we might need a method that REPLACES attributes or supports null to remove.
+    // We reuse setBlockAttributes logic but we need to pass the FULL modified
+    // map because setBlockAttributes MERGES.
+    // Actually, to support removal, we might need a method that REPLACES attributes
+    // or supports null to remove.
     // Our setBlockAttributes logic above merges.
     // Let's modify setBlockAttributes or handle it here manually.
     // We'll handle it manually here for precision.
@@ -588,7 +594,8 @@ class DocumentManipulator {
   }
 
   /// Toggles a list attribute (e.g., 'bullet' or 'ordered').
-  /// If the block is already the specified list type, it removes the list attribute.
+  /// If the block is already the specified list type, it removes the list
+  /// attribute.
   /// Otherwise, it sets the block to the specified list type.
   static ManipulationResult toggleList(
     DocumentModel document,
@@ -659,8 +666,8 @@ class DocumentManipulator {
       }
 
       // We use < because we want to match the block containing the cursor.
-      // If cursor is AT the end of block, it usually belongs to that block for formatting purposes
-      // UNLESS it's at the very start of next block.
+      // If cursor is AT the end of block, it usually belongs to that block for
+      // formatting purposes UNLESS it's at the very start of next block.
       // Logic: if position == accumulatedLength, it's at start of this block.
       // exception: position 0.
 
@@ -702,6 +709,7 @@ class DocumentManipulator {
     return _SpanPosition(spans.length - 1, spans.last.text.length);
   }
 
+  /// Adds a stroke to a drawing block.
   static ManipulationResult addStrokeToBlock(
     DocumentModel document,
     int blockIndex,
@@ -741,6 +749,7 @@ class DocumentManipulator {
     );
   }
 
+  /// Removes a stroke from a drawing block.
   static ManipulationResult removeStrokeFromBlock(
     DocumentModel document,
     int blockIndex,
@@ -764,8 +773,10 @@ class DocumentManipulator {
     }
 
     // Filter out the stroke. Using equality check.
-    // Since we don't have IDs, we remove the first matching stroke logic or by index if passed.
-    // Assuming passed 'stroke' is an instance from the list, simple reference removal might fail if reconstructed.
+    // Since we don't have IDs, we remove the first matching stroke logic or by
+    // index if passed.
+    // Assuming passed 'stroke' is an instance from the list, simple reference
+    // removal might fail if reconstructed.
     // But let's try value equality.
     final newStrokes = block.strokes
         .where((s) => !_areStrokesEqual(s, stroke))

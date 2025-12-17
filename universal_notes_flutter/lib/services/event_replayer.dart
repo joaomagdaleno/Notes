@@ -1,4 +1,4 @@
-import 'dart:ui';
+// import 'dart:ui'; // Unnecessary with material.dart
 
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
@@ -17,7 +17,8 @@ class EventReplayer {
   }) {
     var document = baseline ?? const DocumentModel(blocks: []);
 
-    // Sort events by timestamp just in case, though they should come sorted from DB.
+    // Sort events by timestamp just in case, though they should come
+    // sorted from DB.
     final sortedEvents = List<NoteEvent>.from(events)
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
@@ -80,7 +81,7 @@ class EventReplayer {
             ).document;
           }
 
-        case NoteEventType.image_insert:
+        case NoteEventType.imageInsert:
           return DocumentManipulator.insertImage(
             doc,
             event.payload['pos'] as int,
@@ -90,7 +91,7 @@ class EventReplayer {
         case NoteEventType.unknown:
           break;
       }
-    } catch (e) {
+    } on Exception catch (e) {
       // If an event fails to replay, return current doc to avoid crashing.
       debugPrint('Error replaying event ${event.id}: $e');
     }

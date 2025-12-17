@@ -139,6 +139,7 @@ class TextSpanModel {
 
 /// A base class for a block of content in a document.
 abstract class DocumentBlock {
+  /// The attributes associated with this block (e.g., indent, alignment).
   Map<String, dynamic> get attributes;
 }
 
@@ -296,13 +297,13 @@ class DocumentModel {
 
 /// A block representing a drawing.
 class DrawingBlock extends DocumentBlock {
-
   /// Creates a drawing block.
   DrawingBlock({
     required this.strokes,
     this.height = 200.0,
     this.attributes = const {},
   });
+
   /// The list of strokes in this drawing.
   final List<Stroke> strokes;
 

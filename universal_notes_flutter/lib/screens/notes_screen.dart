@@ -379,15 +379,16 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
     // Filter by search query
     final query = _searchController.text.toLowerCase();
+    var filteredNotes = notes;
     if (query.isNotEmpty) {
-      notes = notes.where((note) {
+      filteredNotes = notes.where((note) {
         return note.title.toLowerCase().contains(query) ||
             note.content.toLowerCase().contains(query);
       }).toList();
     }
 
     // Apply client-side sorting
-    notes.sort((a, b) {
+    filteredNotes.sort((a, b) {
       switch (_sortOrder) {
         case SortOrder.dateAsc:
           return a.lastModified.compareTo(b.lastModified);
@@ -400,7 +401,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       }
     });
 
-    if (notes.isEmpty) {
+    if (filteredNotes.isEmpty) {
       return const EmptyState(
         icon: Icons.note_add,
         message: 'No notes yet. Create one!',
@@ -411,9 +412,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       controller: _scrollController,
       padding: const EdgeInsets.all(8),
       gridDelegate: _getGridDelegate(_viewModeNotifier.value),
-      itemCount: notes.length,
+      itemCount: filteredNotes.length,
       itemBuilder: (context, index) {
-        final note = notes[index];
+        final note = filteredNotes[index];
         return NoteCard(
           note: note,
           onTap: () => unawaited(_openNoteEditor(note)),

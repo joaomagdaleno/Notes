@@ -276,7 +276,10 @@ class FirestoreRepository {
     await _foldersCollection.doc(folderId).delete();
   }
 
-  // Methods used by BackupService (mock implementation for now based on previous code)
+  // Methods used by BackupService (mock implementation for now based on
+  // previous code)
+
+  /// Retrieves all folders (for backup).
   Future<List<Map<String, dynamic>>> getAllFolders() async {
     final user = _auth.currentUser;
     if (user == null) return [];
@@ -305,21 +308,24 @@ class FirestoreRepository {
         return doc.data()!['fullContent'] as String? ?? '';
       }
       return '';
-    } catch (e) {
+    } on Exception catch (_) {
       return '';
     }
   }
 
+  /// Retrieves all notes (for backup).
   Future<List<Note>> getAllNotes() async {
     final user = _auth.currentUser;
     if (user == null) return [];
-    // This might be expensive, in real app consider pagination or not backing up everything always
+    // This might be expensive, in real app consider pagination or not backing
+    // up everything always
     final snapshot = await _notesCollection
         .where('ownerId', isEqualTo: user.uid)
         .get();
     return snapshot.docs.map(Note.fromFirestore).toList();
   }
 
+  /// Retrieves note versions (for backup).
   Future<List<dynamic>> getNoteVersions(String noteId) async {
     // Placeholder as NoteVersion collection logic wasn't fully inspected,
     // assuming subcollection or separate collection.
@@ -422,9 +428,10 @@ class FirestoreRepository {
     return _notesCollection
         .doc(noteId)
         .collection('cursors')
-        // actively edited in last minute? usually filtered client side or via query if we index lastActive
-        // For simplicity, we just listen to all and client filters by time if needed,
-        // or just rely on the collection not being too big.
+        // actively edited in last minute? usually filtered client side or via
+        // query if we index lastActive
+        // For simplicity, we just listen to all and client filters by time if
+        // needed, or just rely on the collection not being too big.
         .snapshots()
         .map((snapshot) {
           return snapshot.docs.map((doc) => doc.data()).toList();

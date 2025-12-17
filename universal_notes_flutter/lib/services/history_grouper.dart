@@ -107,81 +107,9 @@ class HistoryGrouper {
 
   static List<HistoryPoint> _processOldEvents(List<NoteEvent> oldEvents) {
     // Group by day key (YYYY-MM-DD)
-    final dailyGroups = <String, List<NoteEvent>>{};
-
-    // We need to carry over accumulative state, but HistoryPoint needs "Events Up To",
-    // so we must iterate linearly through ALL old events.
-
     final points = <HistoryPoint>[];
     if (oldEvents.isEmpty) return points;
 
-    final accumulated = <NoteEvent>[];
-
-    // Naive implementation:
-    // We walk through all events. We identify "Significant" events to be checkpoints.
-
-    // Actually, simple approach:
-    // 1. Divide all old events into Days.
-    // 2. For each day, pick up to 5 events equidistant in time, OR the last event of distinct sessions.
-
-    // Better: Just pick the last event of each day.
-    // Requirement says: "max 5 per day".
-    // Strategy: Identify sessions within the day, then take up to 5 sessions.
-
-    // Let's iterate linearly and build accumulated events list.
-    for (var i = 0; i < oldEvents.length; i++) {
-      accumulated.add(oldEvents[i]);
-      // Decision logic: is this a checkpoint?
-      // ... implementation complexity ...
-      // Simplification for v1: Just take the last event of the day as a checkpoint.
-      // If we want 5, we can take every Nth event if count > 5.
-    }
-
-    // To implement strictly "Max 5 per day derived from all history":
-    // 1. Group indices by day.
-    // 2. Select indices.
-    // 3. Construct HistoryPoints using sublist(0, index + 1).
-
-    for (var i = 0; i < oldEvents.length; i++) {
-      final event = oldEvents[i];
-      final dayKey =
-          '${event.timestamp.year}-${event.timestamp.month}-${event.timestamp.day}';
-      dailyGroups.putIfAbsent(dayKey, () => []).add(event);
-    }
-
-    // ignore: unused_local_variable
-    final runningCount = 0;
-    for (final dayKey in dailyGroups.keys) {
-      final eventsOfDay = dailyGroups[dayKey]!;
-      // Select up to 5 indices relative to the day list
-      final indicesToPick = <int>[];
-      if (eventsOfDay.length <= 5) {
-        indicesToPick.addAll(List.generate(eventsOfDay.length, (i) => i));
-      } else {
-        // Pick first, last, and 3 in between
-        final step = (eventsOfDay.length - 1) / 4;
-        for (var k = 0; k < 5; k++) {
-          indicesToPick.add((k * step).round());
-        }
-      }
-
-      // Remove duplicates and sort
-      final uniqueIndices = indicesToPick.toSet().toList()..sort();
-
-      // Note: This loop's logic was moved to _optimizedOldEventsProcessing
-      // ignore: unused_local_variable
-      for (final localIndex in uniqueIndices) {
-        // Placeholder - actual processing done in optimized method
-      }
-    }
-
-    return _optimizedOldEventsProcessing(oldEvents);
-  }
-
-  static List<HistoryPoint> _optimizedOldEventsProcessing(
-    List<NoteEvent> oldEvents,
-  ) {
-    final points = <HistoryPoint>[];
     final eventsByDay =
         <String, List<int>>{}; // dayKey -> list of INDICES in oldEvents
 

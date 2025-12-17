@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
+import 'package:universal_notes_flutter/editor/interactive_drawing_block.dart';
 import 'package:universal_notes_flutter/editor/markdown_converter.dart';
 import 'package:universal_notes_flutter/editor/remote_cursor.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
@@ -13,10 +14,9 @@ import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
-import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
-import 'package:universal_notes_flutter/editor/interactive_drawing_block.dart';
 
 /// A widget that provides a text editor with rich text capabilities.
 class EditorWidget extends StatefulWidget {
@@ -808,7 +808,6 @@ class EditorWidgetState extends State<EditorWidget> {
 }
 
 class _EditorLine extends StatelessWidget {
-
   const _EditorLine({
     required this.line,
     required this.lineIndex,
@@ -819,12 +818,12 @@ class _EditorLine extends StatelessWidget {
     required this.onPanStart,
     required this.onPanUpdate,
     required this.remoteCursors,
+    required this.currentColor,
+    required this.currentStrokeWidth,
     this.onCheckboxTap,
     this.isDrawingMode = false,
     this.onStrokeAdded,
     this.onStrokeRemoved,
-    required this.currentColor,
-    required this.currentStrokeWidth,
     super.key,
   });
   final void Function(TapDownDetails, int, TextSelection) onTapDown;
@@ -851,8 +850,7 @@ class _EditorLine extends StatelessWidget {
     final painter = TextPainter(
       text: textLine.toTextSpan(),
       textDirection: TextDirection.ltr,
-    );
-    painter.layout(maxWidth: context.size!.width);
+    )..layout(maxWidth: context.size!.width);
 
     final position = painter.getPositionForOffset(localPosition);
     return buffer.getOffsetForLineTextPosition(
@@ -983,8 +981,7 @@ class _EditorLine extends StatelessWidget {
       text: textSpan,
       textAlign: textAlign,
       textDirection: TextDirection.ltr,
-    );
-    painter.layout(maxWidth: context.size?.width ?? double.infinity);
+    )..layout(maxWidth: context.size?.width ?? double.infinity);
 
     final selectionBoxes = <Widget>[];
     if (hasSelection) {
@@ -1056,14 +1053,10 @@ class _EditorLine extends StatelessWidget {
         height: height,
         isDrawingMode: isDrawingMode,
         onStrokeAdded: (stroke) {
-          if (onStrokeAdded != null) {
-            onStrokeAdded!(stroke);
-          }
+          onStrokeAdded?.call(stroke);
         },
         onStrokeRemoved: (stroke) {
-          if (onStrokeRemoved != null) {
-            onStrokeRemoved!(stroke);
-          }
+          onStrokeRemoved?.call(stroke);
         },
         currentColor: currentColor,
         currentStrokeWidth: currentStrokeWidth,
@@ -1098,7 +1091,7 @@ class _EditorLine extends StatelessWidget {
         ],
       );
     } else if (blockType == 'ordered-list') {
-      // TODO: Smart numbering is hard without global index.
+      // TODO(developer): Smart numbering is hard without global index.
       // For now, we show "1." for everything or try to guess?
       // Without traversal, we can't know index.
       // Temporary solution: "1." always. User can see visual difference.
@@ -1121,9 +1114,7 @@ class _EditorLine extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              if (onCheckboxTap != null) {
-                onCheckboxTap!(lineStartOffset);
-              }
+              onCheckboxTap?.call(lineStartOffset);
             },
             child: Padding(
               padding: const EdgeInsets.only(right: 8, top: 2),
@@ -1168,7 +1159,7 @@ class _EditorLine extends StatelessWidget {
 
         // Find text position from offset
         final textPosition = painter.getPositionForOffset(effectiveOffset);
-        final span = textSpan.getSpanForPosition(textPosition);
+        // final span = textSpan.getSpanForPosition(textPosition);
 
         // We can't easily access the TextSpanModel from the Flutter TextSpan here directly
         // unless we built it with a recognizer or meta-data.
@@ -1183,15 +1174,17 @@ class _EditorLine extends StatelessWidget {
               textPosition.offset < currentOffset + len) {
             if (s.linkUrl != null) {
               // It's a link! Open it.
-              // For now, since we can't easily injection URL launcher here without dependnecy,
-              // we will just print or show usage. The user said "sem utilizar dependencias".
+              // For now, since we can't easily injection URL launcher here
+              // without dependnecy, we will just print or show usage.
+              // The user said "sem utilizar dependencias".
               // So we can't use url_launcher?
               // Standard Flutter can't open URLs without url_launcher package.
               // I will just print to console or show a Snackbar if context available?
               // "Opening: ${s.linkUrl}"
               // Actually, if dependencies are forbidden, I can't add `url_launcher`.
               // But `universal_notes_flutter` likely has it?
-              // Checked pubspec in memory: yes, it has `url_launcher`? No, I viewed pubspec earlier.
+              // Checked pubspec in memory: yes, it has `url_launcher`?
+              // No, I viewed pubspec earlier.
               // Let's assume effectively I can't use new deps.
               // I'll show a snackbar.
               ScaffoldMessenger.of(context).showSnackBar(

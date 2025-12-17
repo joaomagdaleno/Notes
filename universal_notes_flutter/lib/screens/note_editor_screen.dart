@@ -10,19 +10,19 @@ import 'package:universal_notes_flutter/editor/editor_toolbar.dart';
 import 'package:universal_notes_flutter/editor/editor_widget.dart';
 import 'package:universal_notes_flutter/editor/floating_toolbar.dart';
 import 'package:universal_notes_flutter/editor/history_manager.dart';
-import 'package:universal_notes_flutter/models/note_version.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:uuid/uuid.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
+import 'package:universal_notes_flutter/services/event_replayer.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
+import 'package:universal_notes_flutter/services/history_grouper.dart';
 import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
-import 'package:universal_notes_flutter/services/event_replayer.dart';
-import 'package:universal_notes_flutter/services/history_grouper.dart';
-import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:uuid/uuid.dart';
 
 /// A screen for editing a note.
 class NoteEditorScreen extends StatefulWidget {
@@ -51,11 +51,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     with WidgetsBindingObserver {
   Note? _note;
   late DocumentModel _document;
-  final bool _showCursor = false; // Blinking cursor
+  // final bool _showCursor = false; // Blinking cursor
   bool _isDrawingMode = false; // Handwriting mode
 
   // Undo/Redo Stacks
-  final List<DocumentModel> _undoStack = [];
+  // Undo/Redo Stacks
+  // final List<DocumentModel> _undoStack = [];
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
   final ScrollController _scrollController = ScrollController();
@@ -83,26 +84,26 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   // --- Collaboration State ---
   late bool _isCollaborative;
   final Map<String, Map<String, dynamic>> _remoteCursors = {};
-  StreamSubscription? _cursorSubscription;
-  StreamSubscription? _remoteEventsSubscription;
+  StreamSubscription<List<Map<String, dynamic>>>? _cursorSubscription;
+  StreamSubscription<List<NoteEvent>>? _remoteEventsSubscription;
 
   // --- Tag state ---
   List<String> _currentTags = [];
   final _tagController = TextEditingController();
 
-  static const List<Color> _predefinedColors = [
-    Colors.black,
-    Colors.red,
-    Colors.green,
-    Colors.blue,
-    Colors.orange,
-    Colors.purple,
-  ];
-  static const Map<String, double> _fontSizes = {
-    'Normal': 16.0,
-    'Título Médio': 24.0,
-    'Título Grande': 32.0,
-  };
+  //   static const List<Color> _predefinedColors = [
+  //     Colors.black,
+  //     Colors.red,
+  //     Colors.green,
+  //     Colors.blue,
+  //     Colors.orange,
+  //     Colors.purple,
+  //   ];
+  //   static const Map<String, double> _fontSizes = {
+  //     'Normal': 16.0,
+  //     'Título Médio': 24.0,
+  //     'Título Grande': 32.0,
+  //   };
 
   @override
   void initState() {
@@ -116,9 +117,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     if (_note != null) {
       _isCollaborative =
           _note!.memberIds.length > 1 || _note!.collaborators.isNotEmpty;
-      _fetchContent();
+      unawaited(_fetchContent());
       if (_isCollaborative) {
-        _setupCollaborativeListeners();
+        unawaited(_setupCollaborativeListeners());
       }
     } else {
       _isCollaborative = false;
@@ -130,7 +131,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Future<void> _fetchContent() async {
     if (_note != null && _note!.id.isNotEmpty) {
       // Check if note is shared
-      var isShared =
+      final isShared =
           _note!.memberIds.length > 1 || _note!.collaborators.isNotEmpty;
 
       if (isShared) {
@@ -180,10 +181,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         ),
       );
     }
-    _cursorSubscription?.cancel();
-    _remoteEventsSubscription?.cancel();
+    unawaited(_cursorSubscription?.cancel());
+    unawaited(_remoteEventsSubscription?.cancel());
     if (_isCollaborative && _note != null) {
-      _firestoreRepository.removeCursor(_note!.id);
+      unawaited(_firestoreRepository.removeCursor(_note!.id));
     }
     super.dispose();
   }
@@ -232,7 +233,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _selection = newSelection;
     });
     if (_isCollaborative) {
-      _broadcastCursorPosition(newSelection);
+      unawaited(_broadcastCursorPosition(newSelection));
     }
   }
 
@@ -262,7 +263,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         _findTerm.length,
       );
       tempDoc = deleteResult.document;
-      _handleNoteEvent(deleteResult.eventType, deleteResult.eventPayload);
+      unawaited(
+        _handleNoteEvent(deleteResult.eventType, deleteResult.eventPayload),
+      );
 
       final insertResult = DocumentManipulator.insertText(
         tempDoc,
@@ -270,7 +273,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         replaceTerm,
       );
       tempDoc = insertResult.document;
-      _handleNoteEvent(insertResult.eventType, insertResult.eventPayload);
+      unawaited(
+        _handleNoteEvent(insertResult.eventType, insertResult.eventPayload),
+      );
     }
     _onDocumentChanged(tempDoc);
   }
@@ -312,14 +317,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                   'base': cursorData['baseOffset'],
                   'extent': cursorData['extentOffset'],
                 },
+                // ignore: deprecated_member_use
                 'color': cursorData['colorValue'] ?? Colors.grey.value,
                 'name': cursorData['displayName'] ?? 'Guest',
               };
             }
           }
           setState(() {
-            _remoteCursors.clear();
-            _remoteCursors.addAll(newCursors);
+            _remoteCursors
+              ..clear()
+              ..addAll(newCursors);
           });
         });
 
@@ -359,13 +366,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       selection.baseOffset,
       selection.extentOffset,
       user.displayName ?? 'Anonymous',
+      // ignore: deprecated_member_use
       Colors.blue.value, // We could pick a random color per user session
     );
   }
 
   void _applyManipulation(ManipulationResult result) {
     final newDocument = result.document;
-    _handleNoteEvent(result.eventType, result.eventPayload);
+    unawaited(_handleNoteEvent(result.eventType, result.eventPayload));
     _onDocumentChanged(newDocument);
   }
 
@@ -438,7 +446,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     */
 
     // If Shared, push to Firestore (Real-Time / Sync)
-    final var isShared =
+    final isShared =
         noteToSave.memberIds.length > 1 || noteToSave.collaborators.isNotEmpty;
     if (isShared) {
       await _firestoreRepository.updateNote(noteToSave);
@@ -515,7 +523,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                         onTap: () async {
                           // Restore logic
                           var confirm =
-                              await showDialog(
+                              await showDialog<bool>(
                                 context: context,
                                 builder: (c) => AlertDialog(
                                   title: const Text(
@@ -576,7 +584,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                             // Trigger save to persist restoration as a NEW event?
                             // No, typically we just treat this as a massive change or log a specific "Rollback" event.
                             // For now, _autosave will run eventually, OR we should force a log.
-                            // But wait, if we set state, _onDocumentChanged wasn't called.
+                            // But wait, if we set state, _onDocumentChanged wasn't
+                            // called.
                             // So we need to trigger downstream effects.
 
                             // Let's create a snapshot event or rely on next edit.
@@ -660,7 +669,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _selection.end - _selection.start,
     );
     final docAfterDelete = deleteResult.document;
-    _handleNoteEvent(deleteResult.eventType, deleteResult.eventPayload);
+    unawaited(
+      _handleNoteEvent(deleteResult.eventType, deleteResult.eventPayload),
+    );
 
     final insertResult = DocumentManipulator.insertText(
       docAfterDelete,
@@ -668,7 +679,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       replaceTerm,
     );
     final newDoc = insertResult.document;
-    _handleNoteEvent(insertResult.eventType, insertResult.eventPayload);
+    unawaited(
+      _handleNoteEvent(insertResult.eventType, insertResult.eventPayload),
+    );
 
     _onDocumentChanged(newDoc);
   }
@@ -1321,7 +1334,7 @@ class _ShowFormatMenuAction extends Action<_ShowFormatMenuIntent> {
 
   @override
   void invoke(_ShowFormatMenuIntent intent) {
-    state._showFontSizePicker();
+    unawaited(state._showFontSizePicker());
   }
 }
 
