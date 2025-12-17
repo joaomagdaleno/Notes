@@ -443,22 +443,27 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         actions: [
           IconButton(
             icon: const Icon(Icons.view_module),
+            tooltip: 'Medium Grid',
             onPressed: () => _viewModeNotifier.value = 'grid_medium',
           ),
           IconButton(
             icon: const Icon(Icons.view_comfy),
+            tooltip: 'Large Grid',
             onPressed: () => _viewModeNotifier.value = 'grid_large',
           ),
           IconButton(
             icon: const Icon(Icons.view_list),
+            tooltip: 'List View',
             onPressed: () => _viewModeNotifier.value = 'list',
           ),
           IconButton(
             icon: const Icon(Icons.update),
+            tooltip: 'Check for Updates',
             onPressed: () => unawaited(_updateService.checkForUpdate()),
           ),
           IconButton(
             icon: const Icon(Icons.brightness_6),
+            tooltip: 'Toggle Theme',
             onPressed: () {
               unawaited(
                 Provider.of<ThemeService>(context, listen: false).toggleTheme(),
@@ -467,6 +472,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           ),
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
+            tooltip: 'Sort',
             onSelected: (SortOrder result) {
               setState(() {
                 _sortOrder = result;
@@ -583,51 +589,59 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         actions: fluent.Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            fluent.DropDownButton(
-              title: const Icon(fluent.FluentIcons.sort),
-              items: [
-                fluent.MenuFlyoutItem(
-                  text: const Text('Data (Mais Recentes)'),
-                  onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.dateDesc),
-                ),
-                fluent.MenuFlyoutItem(
-                  text: const Text('Data (Mais Antigas)'),
-                  onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.dateAsc),
-                ),
-                fluent.MenuFlyoutItem(
-                  text: const Text('Título (A-Z)'),
-                  onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.titleAsc),
-                ),
-                fluent.MenuFlyoutItem(
-                  text: const Text('Título (Z-A)'),
-                  onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.titleDesc),
-                ),
-              ],
+            fluent.Tooltip(
+              message: 'Sort',
+              child: fluent.DropDownButton(
+                title: const Icon(fluent.FluentIcons.sort),
+                items: [
+                  fluent.MenuFlyoutItem(
+                    text: const Text('Data (Mais Recentes)'),
+                    onPressed: () =>
+                        setState(() => _sortOrder = SortOrder.dateDesc),
+                  ),
+                  fluent.MenuFlyoutItem(
+                    text: const Text('Data (Mais Antigas)'),
+                    onPressed: () =>
+                        setState(() => _sortOrder = SortOrder.dateAsc),
+                  ),
+                  fluent.MenuFlyoutItem(
+                    text: const Text('Título (A-Z)'),
+                    onPressed: () =>
+                        setState(() => _sortOrder = SortOrder.titleAsc),
+                  ),
+                  fluent.MenuFlyoutItem(
+                    text: const Text('Título (Z-A)'),
+                    onPressed: () =>
+                        setState(() => _sortOrder = SortOrder.titleDesc),
+                  ),
+                ],
+              ),
             ),
             fluent.CommandBar(
               primaryItems: [
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.view_all),
+                  label: const Text('Medium Grid'),
                   onPressed: () => _viewModeNotifier.value = 'grid_medium',
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.grid_view_large),
+                  label: const Text('Large Grid'),
                   onPressed: () => _viewModeNotifier.value = 'grid_large',
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.list),
+                  label: const Text('List View'),
                   onPressed: () => _viewModeNotifier.value = 'list',
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.update_restore),
+                  label: const Text('Check for Updates'),
                   onPressed: () => unawaited(_updateService.checkForUpdate()),
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.brightness),
+                  label: const Text('Toggle Theme'),
                   onPressed: () => Provider.of<ThemeService>(
                     context,
                     listen: false,
