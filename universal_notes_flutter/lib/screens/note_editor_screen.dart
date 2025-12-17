@@ -878,6 +878,19 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       onSelectionRectChanged: _onSelectionRectChanged,
       scrollController: _scrollController,
       remoteCursors: _remoteCursors,
+      // Keyboard shortcut callbacks
+      onStyleToggle: _toggleStyle,
+      onUndo: _undo,
+      onRedo: _redo,
+      onSave: _saveNote,
+      onFind: () => setState(() => _isFindBarVisible = true),
+      onEscape: () {
+        if (_isFocusMode) {
+          _toggleFocusMode();
+        } else if (_isFindBarVisible) {
+          setState(() => _isFindBarVisible = false);
+        }
+      },
     );
 
     // Define the keyboard shortcuts

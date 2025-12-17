@@ -19,6 +19,44 @@ class FirestoreRepository {
   late final CollectionReference<Map<String, dynamic>> _usersCollection;
   late final CollectionReference<Map<String, dynamic>> _foldersCollection;
 
+  /// Returns the current authenticated user.
+  User? get currentUser => _auth.currentUser;
+
+  // --- Dictionary Methods ---
+
+  /// Adds learned words to the user's dictionary in Firestore.
+  Future<void> addDictionaryWords(
+    String userId,
+    List<Map<String, dynamic>> words,
+  ) async {
+    final batch = _firestore.batch();
+    final userDictRef = _usersCollection.doc(userId).collection('dictionary');
+
+    for (final wordMap in words) {
+      final word = wordMap['word'] as String;
+      final docRef = userDictRef.doc(word);
+
+      batch.set(docRef, {
+        'word': word,
+        // Use max to keep the highest frequency/lastUsed
+        'frequency': FieldValue.increment(wordMap['frequency'] as int),
+        'lastUsed': wordMap['lastUsed'],
+      }, SetOptions(merge: true));
+    }
+
+    await batch.commit();
+  }
+
+  /// Retrieves the user's dictionary from Firestore.
+  Future<List<Map<String, dynamic>>> getDictionaryWords(String userId) async {
+    final snapshot = await _usersCollection
+        .doc(userId)
+        .collection('dictionary')
+        .get();
+
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
   /// Returns a stream of notes filtered by [isFavorite], [isInTrash], and
   /// [tag].
   Stream<List<Note>> notesStream({

@@ -6,8 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:uuid/uuid.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
@@ -59,6 +60,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final _viewModeNotifier = ValueNotifier<String>('grid_medium');
   final ScrollController _scrollController = ScrollController();
 
+  // Full-text search state
+  List<SearchResult>? _searchResults;
+  bool _isSearching = false;
+
   @override
   void initState() {
     super.initState();
@@ -68,18 +73,44 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     windowManager.addListener(this);
     // _scrollController.addListener(_onScroll); // Disabled pagination listener
     _updateNotesStream(); // Initial fetch
-    _searchController.addListener(() {
-      setState(() {});
-    });
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     windowManager.removeListener(this);
     _scrollController.dispose();
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _viewModeNotifier.dispose();
     super.dispose();
+  }
+
+  /// Handles search input changes with debounce.
+  Timer? _searchDebounce;
+  void _onSearchChanged() {
+    _searchDebounce?.cancel();
+    final query = _searchController.text;
+
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults = null;
+        _isSearching = false;
+      });
+      return;
+    }
+
+    setState(() => _isSearching = true);
+
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () async {
+      final results = await NoteRepository.instance.searchNotes(query);
+      if (mounted) {
+        setState(() {
+          _searchResults = results;
+          _isSearching = false;
+        });
+      }
+    });
   }
 
   void _updateNotesStream() {
@@ -124,11 +155,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _createNewNote() async {
-    final newNote = await _firestoreRepository.addNote(
+    final note = Note(
+      id: const Uuid().v4(),
       title: 'Nova Nota',
-      content: '',
+      content: DocumentModel.empty()
+          .toJson()
+          .toString(), // Or empty string literal per NoteRepository
+      createdAt: DateTime.now(),
+      lastModified: DateTime.now(),
+      ownerId: 'user', // Default user
     );
-    unawaited(_openNoteEditor(newNote));
+    await NoteRepository.instance.insertNote(note);
+    _syncService.refreshLocalData();
+    unawaited(_openNoteEditor(note));
   }
 
   Future<void> _openNoteEditor(Note note) async {
@@ -139,7 +178,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         builder: (context) => NoteEditorScreen(
           note: note,
           onSave: (updatedNote) async {
-            await _firestoreRepository.updateNote(updatedNote);
+            await NoteRepository.instance.updateNote(updatedNote);
+            _syncService.refreshLocalData();
             return updatedNote;
           },
         ),
@@ -225,6 +265,115 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     }
   }
 
+  /// Builds the main content area - search results or normal notes list.
+  Widget _buildContent() {
+    // Show loading spinner while searching
+    if (_isSearching) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Show search results if we have a search query
+    if (_searchResults != null) {
+      if (_searchResults!.isEmpty) {
+        return const EmptyState(
+          icon: Icons.search_off,
+          message: 'Nenhum resultado encontrado.',
+        );
+      }
+      return _buildSearchResults(_searchResults!);
+    }
+
+    // Show normal notes stream
+    return StreamBuilder<List<Note>>(
+      stream: _notesStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const EmptyState(
+            icon: Icons.note_add,
+            message: 'No notes yet. Create one!',
+          );
+        }
+        return _buildNotesList(snapshot.data!);
+      },
+    );
+  }
+
+  /// Builds the search results list with highlighted snippets.
+  Widget _buildSearchResults(List<SearchResult> results) {
+    return ListView.builder(
+      itemCount: results.length,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      itemBuilder: (context, index) {
+        final result = results[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            title: Text(
+              result.note.title.isEmpty ? 'Sem título' : result.note.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: result.snippet.isNotEmpty
+                ? _buildHighlightedSnippet(result.snippet)
+                : Text(
+                    result.note.content.length > 100
+                        ? '${result.note.content.substring(0, 100)}...'
+                        : result.note.content,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+            onTap: () => unawaited(_openNoteEditor(result.note)),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Parses the FTS5 snippet with <b> tags into rich text.
+  Widget _buildHighlightedSnippet(String snippet) {
+    final parts = <TextSpan>[];
+    final regex = RegExp(r'<b>(.*?)</b>');
+    var lastEnd = 0;
+
+    for (final match in regex.allMatches(snippet)) {
+      // Add text before match
+      if (match.start > lastEnd) {
+        parts.add(TextSpan(text: snippet.substring(lastEnd, match.start)));
+      }
+      // Add highlighted match
+      parts.add(
+        TextSpan(
+          text: match.group(1),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            backgroundColor: Colors.yellow,
+          ),
+        ),
+      );
+      lastEnd = match.end;
+    }
+
+    // Add remaining text
+    if (lastEnd < snippet.length) {
+      parts.add(TextSpan(text: snippet.substring(lastEnd)));
+    }
+
+    return RichText(
+      text: TextSpan(
+        style: DefaultTextStyle.of(context).style,
+        children: parts,
+      ),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
   Widget _buildNotesList(List<Note> notes) {
     final isTrashView = _selection.type == SidebarItemType.trash;
 
@@ -265,52 +414,22 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       itemCount: notes.length,
       itemBuilder: (context, index) {
         final note = notes[index];
-        return Dismissible(
-          key: Key(note.id),
-          background: Container(
-            color: isTrashView ? Colors.blue : Colors.green,
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Icon(
-              isTrashView ? Icons.restore_from_trash : Icons.favorite,
-              color: Colors.white,
-            ),
-          ),
-          secondaryBackground: Container(
-            color: Colors.red,
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Icon(
-              isTrashView ? Icons.delete_forever : Icons.delete,
-              color: Colors.white,
-            ),
-          ),
-          onDismissed: (direction) {
-            if (isTrashView) {
-              if (direction == DismissDirection.startToEnd) {
-                unawaited(_restoreNote(note));
-              } else {
-                unawaited(_deletePermanently(note));
-              }
-            } else {
-              if (direction == DismissDirection.startToEnd) {
-                unawaited(_toggleFavorite(note));
-              } else {
-                unawaited(_moveToTrash(note));
-              }
-            }
+        return NoteCard(
+          note: note,
+          onTap: () => unawaited(_openNoteEditor(note)),
+          onSave: (note) async {
+            final noteRepository = NoteRepository.instance;
+            await noteRepository.updateNote(note);
+            await _syncService.refreshLocalData();
+            return note;
           },
-          child: NoteCard(
-            note: note,
-            onTap: () => unawaited(_openNoteEditor(note)),
-            onSave: (note) async {
-              final noteRepository = NoteRepository.instance;
-              await noteRepository.updateNote(note);
-              await _syncService.refreshLocalData();
-              return note;
-            },
-            onDelete: _deletePermanently,
-          ),
+          onDelete: _deletePermanently,
+          onFavorite: isTrashView
+              ? (n) => unawaited(_restoreNote(n))
+              : (n) => unawaited(_toggleFavorite(n)),
+          onTrash: isTrashView
+              ? (n) => unawaited(_deletePermanently(n))
+              : (n) => unawaited(_moveToTrash(n)),
         );
       },
     );
@@ -382,36 +501,26 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search titles & snippets...',
+                hintText: 'Buscar em todas as notas...',
                 prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                        },
+                      )
+                    : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
               ),
-              enabled: true,
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<Note>>(
-              stream: _notesStream,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const EmptyState(
-                    icon: Icons.note_add,
-                    message: 'No notes yet. Create one!',
-                  );
-                }
-                return _buildNotesList(snapshot.data!);
-              },
-            ),
+            child: _buildContent(),
           ),
         ],
       ),

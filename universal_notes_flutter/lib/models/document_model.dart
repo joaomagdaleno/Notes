@@ -129,6 +129,15 @@ class DocumentModel {
   /// Creates an empty document model.
   factory DocumentModel.empty() => const DocumentModel(blocks: []);
 
+  /// Creates a document model from a plain text string.
+  factory DocumentModel.fromPlainText(String text) {
+    return DocumentModel(
+      blocks: [
+        TextBlock(spans: [TextSpanModel(text: text)]),
+      ],
+    );
+  }
+
   /// Creates a document model from JSON.
   factory DocumentModel.fromJson(dynamic json) {
     if (json is List) {

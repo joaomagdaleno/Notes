@@ -176,6 +176,39 @@ class SyncService {
     }
   }
 
+  // =========================================================================
+  // Dictionary Sync Methods
+  // =========================================================================
+
+  /// Syncs learned words to Firestore (automatic background sync).
+  Future<void> syncDictionary() async {
+    final user = _firestoreRepository.currentUser;
+    if (user == null) return;
+
+    // Push unsynced words
+    await _syncUpDictionary(user.uid);
+
+    // Pull remote words
+    await _syncDownDictionary(user.uid);
+  }
+
+  Future<void> _syncUpDictionary(String userId) async {
+    final unsyncedWords = await _noteRepository.getUnsyncedWords();
+    if (unsyncedWords.isEmpty) return;
+
+    // Push to Firestore
+    await _firestoreRepository.addDictionaryWords(userId, unsyncedWords);
+
+    // Mark as synced
+    final words = unsyncedWords.map((w) => w['word'] as String).toList();
+    await _noteRepository.markWordsSynced(words);
+  }
+
+  Future<void> _syncDownDictionary(String userId) async {
+    final cloudWords = await _firestoreRepository.getDictionaryWords(userId);
+    await _noteRepository.importWords(cloudWords);
+  }
+
   void dispose() {
     _remoteSubscription?.cancel();
     _notesController.close();

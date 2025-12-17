@@ -13,6 +13,8 @@ class NoteCard extends StatefulWidget {
     required this.onSave,
     required this.onDelete,
     this.onTap,
+    this.onFavorite,
+    this.onTrash,
     super.key,
   });
 
@@ -27,6 +29,12 @@ class NoteCard extends StatefulWidget {
 
   /// The function to call when the card is tapped.
   final VoidCallback? onTap;
+
+  /// Callback when swiped right (favorite toggle).
+  final void Function(Note)? onFavorite;
+
+  /// Callback when swiped left (move to trash).
+  final void Function(Note)? onTrash;
 
   // ⚡ Bolt: Memoize DateFormat for performance.
   // Re-creating DateFormat on every build is inefficient.
@@ -68,7 +76,7 @@ class _NoteCardState extends State<NoteCard> {
   Widget build(BuildContext context) {
     final hasImage = widget.note.imageUrl?.isNotEmpty ?? false;
 
-    return Card(
+    final card = Card(
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -85,58 +93,118 @@ class _NoteCardState extends State<NoteCard> {
             _showContextMenu(context, offset);
           }
         },
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (hasImage)
-              Image.network(
-                widget.note.imageUrl!,
-                fit: BoxFit.cover,
-              ),
-            // Gradient overlay for text readability
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.8),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+        child: Semantics(
+          label: widget.note.title.isNotEmpty
+              ? 'Nota: ${widget.note.title}'
+              : 'Nota Sem Título',
+          hint:
+              'Modificado em ${NoteCard._dateFormat.format(widget.note.lastModified)}',
+          button: true,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (hasImage)
+                Image.network(
+                  widget.note.imageUrl!,
+                  fit: BoxFit.cover,
+                ),
+              // Gradient overlay for text readability
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withValues(alpha: 0.6),
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.8),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    widget.note.title.isNotEmpty
-                        ? widget.note.title
-                        : 'Sem Título',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // Favorite indicator
+                    if (widget.note.isFavorite)
+                      const Align(
+                        alignment: Alignment.topRight,
+                        child: Icon(Icons.star, color: Colors.amber, size: 20),
+                      ),
+                    const Spacer(),
+                    Text(
+                      widget.note.title.isNotEmpty
+                          ? widget.note.title
+                          : 'Sem Título',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    NoteCard._dateFormat.format(widget.note.lastModified),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      NoteCard._dateFormat.format(widget.note.lastModified),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+
+    // If no swipe callbacks, return plain card
+    if (widget.onFavorite == null && widget.onTrash == null) {
+      return card;
+    }
+
+    // Wrap with Dismissible for swipe gestures
+    return Dismissible(
+      key: Key(widget.note.id),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          // Swipe right → Toggle favorite
+          widget.onFavorite?.call(widget.note);
+          return false; // Don't dismiss, just toggle
+        } else if (direction == DismissDirection.endToStart) {
+          // Swipe left → Move to trash
+          widget.onTrash?.call(widget.note);
+          return false; // Don't dismiss, let callback handle it
+        }
+        return false;
+      },
+      background: Container(
+        decoration: BoxDecoration(
+          color: Colors.amber,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(left: 20),
+        child: Icon(
+          widget.note.isFavorite ? Icons.star_border : Icons.star,
+          color: Colors.white,
+          size: 32,
+        ),
+      ),
+      secondaryBackground: Container(
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete, color: Colors.white, size: 32),
+      ),
+      child: card,
     );
   }
 

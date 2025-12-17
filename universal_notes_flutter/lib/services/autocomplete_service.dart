@@ -36,11 +36,11 @@ class AutocompleteService {
       return suggestions.take(5).toList();
     }
 
-    // --- Priority 2: All Notes (Frequent Words) ---
-    final frequentWords = await NoteRepository.instance.getFrequentWords(
+    // --- Priority 2: User Dictionary (Learned Words) ---
+    final learnedWords = await NoteRepository.instance.getLearnedWords(
       wordInProgress,
     );
-    for (final word in frequentWords) {
+    for (final word in learnedWords) {
       if (word.toLowerCase() != wordInProgress) {
         suggestions.add(word);
         if (suggestions.length >= 5) return suggestions.take(5).toList();

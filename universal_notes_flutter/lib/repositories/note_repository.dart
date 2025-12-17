@@ -36,6 +36,8 @@ class NoteRepository {
   static const String _tagsTable = 'tags';
   static const String _noteTagsTable = 'note_tags';
   static const String _noteEventsTable = 'note_events';
+  static const String _notesFtsTable = 'notes_fts';
+  static const String _userDictionaryTable = 'user_dictionary';
 
   /// Returns the database instance, initializing it if necessary.
   Future<Database> get database async {
@@ -52,7 +54,7 @@ class NoteRepository {
     final path = join(dir.path, _dbName);
     return openDatabase(
       path,
-      version: 7,
+      version: 9,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -109,6 +111,9 @@ class NoteRepository {
         FOREIGN KEY (noteId) REFERENCES $_notesTable(id) ON DELETE CASCADE
       )
     ''');
+
+    // FTS5 Virtual Table for full-text search
+    await _createFtsTable(db);
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -170,6 +175,64 @@ class NoteRepository {
         )
       ''');
     }
+    if (oldVersion < 8) {
+      await _createFtsTable(db);
+      // Populate FTS with existing notes
+      await _rebuildFtsIndex(db);
+    }
+    if (oldVersion < 9) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS $_userDictionaryTable(
+          word TEXT PRIMARY KEY,
+          frequency INTEGER DEFAULT 1,
+          lastUsed INTEGER,
+          isSynced INTEGER DEFAULT 0
+        )
+      ''');
+    }
+  }
+
+  /// Creates the FTS5 virtual table for full-text search.
+  Future<void> _createFtsTable(Database db) async {
+    await db.execute('''
+      CREATE VIRTUAL TABLE IF NOT EXISTS $_notesFtsTable USING fts5(
+        title,
+        content,
+        content=$_notesTable,
+        content_rowid=rowid
+      )
+    ''');
+
+    // Triggers to keep FTS in sync with notes table
+    await db.execute('''
+      CREATE TRIGGER IF NOT EXISTS notes_ai AFTER INSERT ON $_notesTable BEGIN
+        INSERT INTO $_notesFtsTable(rowid, title, content)
+        VALUES (new.rowid, new.title, new.content);
+      END
+    ''');
+
+    await db.execute('''
+      CREATE TRIGGER IF NOT EXISTS notes_ad AFTER DELETE ON $_notesTable BEGIN
+        INSERT INTO $_notesFtsTable($_notesFtsTable, rowid, title, content)
+        VALUES ('delete', old.rowid, old.title, old.content);
+      END
+    ''');
+
+    await db.execute('''
+      CREATE TRIGGER IF NOT EXISTS notes_au AFTER UPDATE ON $_notesTable BEGIN
+        INSERT INTO $_notesFtsTable($_notesFtsTable, rowid, title, content)
+        VALUES ('delete', old.rowid, old.title, old.content);
+        INSERT INTO $_notesFtsTable(rowid, title, content)
+        VALUES (new.rowid, new.title, new.content);
+      END
+    ''');
+  }
+
+  /// Rebuilds the FTS index from existing notes.
+  Future<void> _rebuildFtsIndex(Database db) async {
+    await db.execute(
+      'INSERT INTO $_notesFtsTable(rowid, title, content) SELECT rowid, title, content FROM $_notesTable',
+    );
   }
 
   // --- Tag Methods ---
@@ -637,4 +700,165 @@ class NoteRepository {
       whereArgs: [event.id],
     );
   }
+
+  // --- Full-Text Search Methods ---
+
+  /// Searches notes using full-text search.
+  /// Returns a list of [SearchResult] ordered by relevance.
+  Future<List<SearchResult>> searchNotes(String query) async {
+    if (query.trim().isEmpty) return [];
+
+    final db = await database;
+
+    // Escape special FTS5 characters and add prefix matching
+    final sanitizedQuery = query
+        .replaceAll('"', '""')
+        .split(' ')
+        .where((w) => w.isNotEmpty)
+        .map((w) => '"$w"*') // Prefix match with quotes for safety
+        .join(' ');
+
+    if (sanitizedQuery.isEmpty) return [];
+
+    // Query FTS5 with ranking
+    final results = await db.rawQuery(
+      '''
+      SELECT 
+        n.id,
+        n.title,
+        n.content,
+        n.date,
+        n.isFavorite,
+        n.isLocked,
+        n.isInTrash,
+        n.isDeleted,
+        n.isDraft,
+        n.folderId,
+        snippet($_notesFtsTable, 1, '<b>', '</b>', '...', 32) as snippet,
+        bm25($_notesFtsTable) as rank
+      FROM $_notesFtsTable fts
+      JOIN $_notesTable n ON fts.rowid = n.rowid
+      WHERE $_notesFtsTable MATCH ?
+        AND n.isInTrash = 0
+        AND n.isDeleted = 0
+      ORDER BY rank
+      LIMIT 50
+    ''',
+      [sanitizedQuery],
+    );
+
+    return results.map((row) {
+      return SearchResult(
+        note: Note.fromMap(row),
+        snippet: row['snippet'] as String? ?? '',
+        rank: (row['rank'] as num?)?.toDouble() ?? 0.0,
+      );
+    }).toList();
+  }
+
+  // --- User Dictionary Methods ---
+
+  /// Learns a new word or increments its frequency.
+  Future<void> learnWord(String word) async {
+    if (word.length < 3) return; // Ignore short words
+
+    final db = await database;
+    final lowerWord = word.toLowerCase();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    await db.rawInsert(
+      '''
+      INSERT INTO $_userDictionaryTable (word, frequency, lastUsed, isSynced)
+      VALUES (?, 1, ?, 0)
+      ON CONFLICT(word) DO UPDATE SET
+        frequency = frequency + 1,
+        lastUsed = ?,
+        isSynced = 0
+    ''',
+      [lowerWord, now, now],
+    );
+  }
+
+  /// Gets learned words matching a prefix, sorted by frequency.
+  Future<List<String>> getLearnedWords(String prefix) async {
+    final db = await database;
+    final lowerPrefix = prefix.toLowerCase();
+
+    final results = await db.query(
+      _userDictionaryTable,
+      columns: ['word'],
+      where: 'word LIKE ?',
+      whereArgs: ['$lowerPrefix%'],
+      orderBy: 'frequency DESC',
+      limit: 10,
+    );
+
+    return results.map((r) => r['word'] as String).toList();
+  }
+
+  /// Gets all unsynced words for push to cloud.
+  Future<List<Map<String, dynamic>>> getUnsyncedWords() async {
+    final db = await database;
+    return db.query(
+      _userDictionaryTable,
+      where: 'isSynced = 0',
+    );
+  }
+
+  /// Marks words as synced after successful push.
+  Future<void> markWordsSynced(List<String> words) async {
+    if (words.isEmpty) return;
+
+    final db = await database;
+    final placeholders = List.filled(words.length, '?').join(',');
+    await db.rawUpdate('''
+      UPDATE $_userDictionaryTable 
+      SET isSynced = 1 
+      WHERE word IN ($placeholders)
+    ''', words);
+  }
+
+  /// Imports words from cloud sync (merges with local).
+  Future<void> importWords(List<Map<String, dynamic>> cloudWords) async {
+    final db = await database;
+    final batch = db.batch();
+
+    for (final word in cloudWords) {
+      batch.rawInsert(
+        '''
+        INSERT INTO $_userDictionaryTable (word, frequency, lastUsed, isSynced)
+        VALUES (?, ?, ?, 1)
+        ON CONFLICT(word) DO UPDATE SET
+          frequency = MAX(frequency, excluded.frequency),
+          lastUsed = MAX(lastUsed, excluded.lastUsed),
+          isSynced = 1
+      ''',
+        [
+          word['word'],
+          word['frequency'] ?? 1,
+          word['lastUsed'] ?? DateTime.now().millisecondsSinceEpoch,
+        ],
+      );
+    }
+
+    await batch.commit(noResult: true);
+  }
+}
+
+/// Represents a search result with the matched note and a snippet.
+class SearchResult {
+  const SearchResult({
+    required this.note,
+    required this.snippet,
+    required this.rank,
+  });
+
+  /// The matched note.
+  final Note note;
+
+  /// A snippet of the matched content with highlights.
+  final String snippet;
+
+  /// The relevance rank (lower is better in BM25).
+  final double rank;
 }

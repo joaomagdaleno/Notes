@@ -11,6 +11,7 @@ import 'package:universal_notes_flutter/editor/remote_cursor.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 
@@ -26,6 +27,12 @@ class EditorWidget extends StatefulWidget {
     this.scrollController,
     this.remoteCursors = const {},
     this.onEvent,
+    this.onStyleToggle,
+    this.onUndo,
+    this.onRedo,
+    this.onSave,
+    this.onFind,
+    this.onEscape,
     super.key,
   });
 
@@ -55,6 +62,26 @@ class EditorWidget extends StatefulWidget {
   /// Controls the scrolling of the editor.
   final ScrollController? scrollController;
 
+  // --- Keyboard Shortcut Callbacks ---
+
+  /// Callback when a style toggle shortcut is pressed (Ctrl+B/I/U).
+  final void Function(StyleAttribute attribute)? onStyleToggle;
+
+  /// Callback when undo shortcut is pressed (Ctrl+Z).
+  final VoidCallback? onUndo;
+
+  /// Callback when redo shortcut is pressed (Ctrl+Shift+Z or Ctrl+Y).
+  final VoidCallback? onRedo;
+
+  /// Callback when save shortcut is pressed (Ctrl+S).
+  final VoidCallback? onSave;
+
+  /// Callback when find shortcut is pressed (Ctrl+F).
+  final VoidCallback? onFind;
+
+  /// Callback when escape key is pressed.
+  final VoidCallback? onEscape;
+
   @override
   State<EditorWidget> createState() => EditorWidgetState();
 }
@@ -72,12 +99,32 @@ class EditorWidgetState extends State<EditorWidget> {
   int _selectedSuggestionIndex = 0;
   Timer? _autocompleteDebounce;
 
+  // Cursor state
+  bool _showCursor = true;
+  Timer? _cursorTimer;
+
   @override
   void initState() {
     super.initState();
     _selection = widget.selection ?? const TextSelection.collapsed(offset: 0);
     _buffer = VirtualTextBuffer(widget.document);
     _generateKeys();
+    _startCursorTimer();
+  }
+
+  void _startCursorTimer() {
+    _cursorTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (_focusNode.hasFocus) {
+        setState(() {
+          _showCursor = !_showCursor;
+        });
+      } else if (_showCursor) {
+        // always hide if not focused
+        setState(() {
+          _showCursor = false;
+        });
+      }
+    });
   }
 
   @override
@@ -112,6 +159,7 @@ class EditorWidgetState extends State<EditorWidget> {
   void dispose() {
     _focusNode.dispose();
     _autocompleteDebounce?.cancel();
+    _cursorTimer?.cancel();
     _hideAutocomplete();
     super.dispose();
   }
@@ -178,6 +226,11 @@ class EditorWidgetState extends State<EditorWidget> {
   void _handleKeyEvent(KeyEvent event) {
     if (event is! KeyDownEvent) return;
 
+    final isCtrlPressed =
+        HardwareKeyboard.instance.isControlPressed ||
+        HardwareKeyboard.instance.isMetaPressed; // Cmd on macOS
+    final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
+
     // --- Autocomplete Keyboard Interaction ---
     if (_autocompleteOverlay != null) {
       if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
@@ -205,6 +258,64 @@ class EditorWidgetState extends State<EditorWidget> {
         _hideAutocomplete();
         return;
       }
+    }
+
+    // --- Keyboard Shortcuts (Ctrl/Cmd + Key) ---
+    if (isCtrlPressed) {
+      // Formatting shortcuts
+      if (event.logicalKey == LogicalKeyboardKey.keyB) {
+        widget.onStyleToggle?.call(StyleAttribute.bold);
+        return;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyI) {
+        widget.onStyleToggle?.call(StyleAttribute.italic);
+        return;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyU) {
+        widget.onStyleToggle?.call(StyleAttribute.underline);
+        return;
+      }
+
+      // Undo/Redo shortcuts
+      if (event.logicalKey == LogicalKeyboardKey.keyZ) {
+        if (isShiftPressed) {
+          widget.onRedo?.call();
+        } else {
+          widget.onUndo?.call();
+        }
+        return;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyY) {
+        widget.onRedo?.call();
+        return;
+      }
+
+      // Save shortcut
+      if (event.logicalKey == LogicalKeyboardKey.keyS) {
+        widget.onSave?.call();
+        return;
+      }
+
+      // Find shortcut
+      if (event.logicalKey == LogicalKeyboardKey.keyF) {
+        widget.onFind?.call();
+        return;
+      }
+
+      // Select all
+      if (event.logicalKey == LogicalKeyboardKey.keyA) {
+        final plainText = widget.document.toPlainText();
+        _selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: plainText.length,
+        );
+        widget.onSelectionChanged?.call(_selection);
+        setState(() {});
+        return;
+      }
+    }
+
+    // Escape key - exit focus mode or close overlays
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      widget.onEscape?.call();
+      return;
     }
 
     DocumentModel docAfterEdit;
@@ -236,6 +347,26 @@ class EditorWidgetState extends State<EditorWidget> {
       }
     } else if (event.character != null && event.character!.isNotEmpty) {
       final character = event.character!;
+
+      // Passive Dictionary Learning
+      if (AutocompleteService.isWordBoundary(character) &&
+          _selection.isCollapsed) {
+        final plainText = widget.document.toPlainText();
+        var end = _selection.start;
+        var start = end;
+        // Backtrack to find word start
+        while (start > 0 &&
+            !AutocompleteService.isWordBoundary(plainText[start - 1])) {
+          start--;
+        }
+        if (end > start) {
+          final word = plainText.substring(start, end);
+          if (word.trim().isNotEmpty) {
+            unawaited(NoteRepository.instance.learnWord(word));
+          }
+        }
+      }
+
       if (_selection.isCollapsed) {
         final result = DocumentManipulator.insertText(
           widget.document,
@@ -451,6 +582,9 @@ class EditorWidgetState extends State<EditorWidget> {
     widget.onDocumentChanged(newDoc);
     _onSelectionChanged(newSelection);
     _hideAutocomplete();
+
+    // Learn the accepted word
+    unawaited(NoteRepository.instance.learnWord(suggestion));
   }
 
   @override
@@ -473,6 +607,7 @@ class EditorWidgetState extends State<EditorWidget> {
                 buffer: _buffer,
                 focusNode: _focusNode,
                 onSelectionChanged: _onSelectionChanged,
+                showCursor: _showCursor,
               );
             },
           ),
@@ -565,7 +700,7 @@ class EditorWidgetState extends State<EditorWidget> {
   }
 }
 
-class _EditorLine extends StatefulWidget {
+class _EditorLine extends StatelessWidget {
   const _EditorLine({
     required this.line,
     required this.selection,
@@ -573,6 +708,7 @@ class _EditorLine extends StatefulWidget {
     required this.buffer,
     required this.focusNode,
     required this.onSelectionChanged,
+    required this.showCursor,
     super.key,
   });
 
@@ -582,72 +718,43 @@ class _EditorLine extends StatefulWidget {
   final VirtualTextBuffer buffer;
   final FocusNode focusNode;
   final ValueChanged<TextSelection> onSelectionChanged;
+  final bool showCursor;
 
-  @override
-  State<_EditorLine> createState() => _EditorLineState();
-}
-
-class _EditorLineState extends State<_EditorLine> {
-  final TextPainter _painter = TextPainter(textDirection: TextDirection.ltr);
-  bool _showCursor = false;
-  Timer? _cursorTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    _cursorTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      if (widget.focusNode.hasFocus && widget.line is TextLine) {
-        final cursorPosition = widget.buffer.getLineTextPositionForOffset(
-          widget.selection.baseOffset,
-        );
-        if (cursorPosition.line == widget.lineIndex) {
-          setState(() => _showCursor = !_showCursor);
-        } else if (_showCursor) {
-          setState(() => _showCursor = false);
-        }
-      } else if (_showCursor) {
-        setState(() => _showCursor = false);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _cursorTimer?.cancel();
-    _painter.dispose();
-    super.dispose();
-  }
-
-  int _getOffsetForPosition(Offset localPosition) {
-    final line = widget.line;
+  int _getOffsetForPosition(BuildContext context, Offset localPosition) {
     if (line is! TextLine) return 0;
-    _painter.text = line.toTextSpan();
-    _painter.layout(maxWidth: context.size!.width);
-    final position = _painter.getPositionForOffset(localPosition);
-    return widget.buffer.getOffsetForLineTextPosition(
-      LineTextPosition(line: widget.lineIndex, character: position.offset),
+
+    final textLine = line as TextLine;
+    final painter = TextPainter(
+      text: textLine.toTextSpan(),
+      textDirection: TextDirection.ltr,
+    );
+    painter.layout(maxWidth: context.size!.width);
+
+    final position = painter.getPositionForOffset(localPosition);
+    return buffer.getOffsetForLineTextPosition(
+      LineTextPosition(line: lineIndex, character: position.offset),
     );
   }
 
-  void _handleTapDown(TapDownDetails details) {
-    if (widget.line is! TextLine) return;
-    widget.focusNode.requestFocus();
-    final offset = _getOffsetForPosition(details.localPosition);
-    widget.onSelectionChanged(TextSelection.collapsed(offset: offset));
+  void _handleTapDown(BuildContext context, TapDownDetails details) {
+    if (line is! TextLine) return;
+    focusNode.requestFocus();
+    final offset = _getOffsetForPosition(context, details.localPosition);
+    onSelectionChanged(TextSelection.collapsed(offset: offset));
   }
 
-  void _handlePanStart(DragStartDetails details) {
-    if (widget.line is! TextLine) return;
-    widget.focusNode.requestFocus();
-    final offset = _getOffsetForPosition(details.localPosition);
-    widget.onSelectionChanged(TextSelection.collapsed(offset: offset));
+  void _handlePanStart(BuildContext context, DragStartDetails details) {
+    if (line is! TextLine) return;
+    focusNode.requestFocus();
+    final offset = _getOffsetForPosition(context, details.localPosition);
+    onSelectionChanged(TextSelection.collapsed(offset: offset));
   }
 
-  void _handlePanUpdate(DragUpdateDetails details) {
-    if (widget.line is! TextLine) return;
-    final offset = _getOffsetForPosition(details.localPosition);
-    widget.onSelectionChanged(
-      widget.selection.copyWith(extentOffset: offset),
+  void _handlePanUpdate(BuildContext context, DragUpdateDetails details) {
+    if (line is! TextLine) return;
+    final offset = _getOffsetForPosition(context, details.localPosition);
+    onSelectionChanged(
+      selection.copyWith(extentOffset: offset),
     );
   }
 
@@ -669,37 +776,56 @@ class _EditorLineState extends State<_EditorLine> {
   }
 
   Widget _buildText(BuildContext context, TextLine line) {
-    _painter.text = line.toTextSpan();
-    _painter.layout(maxWidth: context.size?.width ?? double.infinity);
+    // 1. Calculate geometry helper values
+    final lineStartOffset = buffer.getOffsetForLineTextPosition(
+      LineTextPosition(line: lineIndex, character: 0),
+    );
+    final lineLength = line.toPlainText().length;
+    final lineEndOffset = lineStartOffset + lineLength;
 
-    final cursorPosition = widget.buffer.getLineTextPositionForOffset(
-      widget.selection.baseOffset,
+    // 2. Check if we need to render cursor or selection
+    final cursorPosition = buffer.getLineTextPositionForOffset(
+      selection.baseOffset,
     );
     final isCursorInThisLine =
-        widget.selection.isCollapsed && cursorPosition.line == widget.lineIndex;
+        selection.isCollapsed && cursorPosition.line == lineIndex;
 
-    final lineStartOffset = widget.buffer.getOffsetForLineTextPosition(
-      LineTextPosition(line: widget.lineIndex, character: 0),
-    );
-    final lineEndOffset = lineStartOffset + line.toPlainText().length;
+    // Strict intersection check
+    final hasSelection =
+        selection.isValid &&
+        !selection.isCollapsed &&
+        selection.start < lineEndOffset &&
+        selection.end > lineStartOffset;
 
-    final selectionStart = math.max(
-      lineStartOffset,
-      widget.selection.start,
+    // 3. Early return if no complex rendering needed (Optimization)
+    if (!hasSelection && (!isCursorInThisLine || !showCursor)) {
+      return GestureDetector(
+        onTapDown: (d) => _handleTapDown(context, d),
+        onPanStart: (d) => _handlePanStart(context, d),
+        onPanUpdate: (d) => _handlePanUpdate(context, d),
+        child: RichText(text: line.toTextSpan()),
+      );
+    }
+
+    // 4. Perform expensive layout only if needed
+    final painter = TextPainter(
+      text: line.toTextSpan(),
+      textDirection: TextDirection.ltr,
     );
-    final selectionEnd = math.min(
-      lineEndOffset,
-      widget.selection.end,
-    );
+    painter.layout(maxWidth: context.size?.width ?? double.infinity);
 
     final selectionBoxes = <Widget>[];
-    if (selectionStart < selectionEnd) {
+    if (hasSelection) {
+      final selectionStart = math.max(lineStartOffset, selection.start);
+      final selectionEnd = math.min(lineEndOffset, selection.end);
+
       final localSelection = TextSelection(
         baseOffset: selectionStart - lineStartOffset,
         extentOffset: selectionEnd - lineStartOffset,
       );
+
       selectionBoxes.addAll(
-        _painter
+        painter
             .getBoxesForSelection(localSelection)
             .map(
               (box) => Positioned(
@@ -714,21 +840,21 @@ class _EditorLineState extends State<_EditorLine> {
     }
 
     return GestureDetector(
-      onTapDown: _handleTapDown,
-      onPanStart: _handlePanStart,
-      onPanUpdate: _handlePanUpdate,
+      onTapDown: (d) => _handleTapDown(context, d),
+      onPanStart: (d) => _handlePanStart(context, d),
+      onPanUpdate: (d) => _handlePanUpdate(context, d),
       child: Stack(
         children: [
           RichText(text: line.toTextSpan()),
           ...selectionBoxes,
-          if (isCursorInThisLine && _showCursor)
+          if (isCursorInThisLine && showCursor)
             Positioned.fromRect(
               rect:
-                  _painter.getOffsetForCaret(
+                  painter.getOffsetForCaret(
                     TextPosition(offset: cursorPosition.character),
                     Rect.zero,
                   ) &
-                  Size(2, _painter.preferredLineHeight),
+                  Size(2, painter.preferredLineHeight),
               child: Container(color: Colors.blue),
             ),
         ],
@@ -738,11 +864,10 @@ class _EditorLineState extends State<_EditorLine> {
 
   @override
   Widget build(BuildContext context) {
-    final line = widget.line;
     if (line is ImageLine) {
-      return _buildImage(context, line);
+      return _buildImage(context, line as ImageLine);
     } else if (line is TextLine) {
-      return _buildText(context, line);
+      return _buildText(context, line as TextLine);
     }
     return const SizedBox.shrink();
   }

@@ -881,7 +881,6 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       });
 
       final widget = NotesScreen(
-        firestoreRepository: createDefaultMockRepository(),
         updateService: MockUpdateService(),
       );
 
