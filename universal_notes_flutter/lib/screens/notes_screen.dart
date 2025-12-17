@@ -414,29 +414,36 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           );
         }
 
-        return GridView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(8),
-          gridDelegate: _getGridDelegate(_viewModeNotifier.value),
-          itemCount: displayNotes.length,
-          itemBuilder: (context, index) {
-            final note = displayNotes[index];
-            return NoteCard(
-              note: note,
-              onTap: () => unawaited(_openNoteEditor(note)),
-              onSave: (note) async {
-                final noteRepository = NoteRepository.instance;
-                await noteRepository.updateNote(note);
-                await _syncService.refreshLocalData();
-                return note;
+        // ⚡ Bolt: By nesting this ValueListenableBuilder, only the GridView
+        // rebuilds when the view mode changes, not the entire screen.
+        return ValueListenableBuilder<String>(
+          valueListenable: _viewModeNotifier,
+          builder: (context, viewMode, child) {
+            return GridView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(8),
+              gridDelegate: _getGridDelegate(viewMode),
+              itemCount: displayNotes.length,
+              itemBuilder: (context, index) {
+                final note = displayNotes[index];
+                return NoteCard(
+                  note: note,
+                  onTap: () => unawaited(_openNoteEditor(note)),
+                  onSave: (note) async {
+                    final noteRepository = NoteRepository.instance;
+                    await noteRepository.updateNote(note);
+                    await _syncService.refreshLocalData();
+                    return note;
+                  },
+                  onDelete: _deletePermanently,
+                  onFavorite: isTrashView
+                      ? (n) => unawaited(_restoreNote(n))
+                      : (n) => unawaited(_toggleFavorite(n)),
+                  onTrash: isTrashView
+                      ? (n) => unawaited(_deletePermanently(n))
+                      : (n) => unawaited(_moveToTrash(n)),
+                );
               },
-              onDelete: _deletePermanently,
-              onFavorite: isTrashView
-                  ? (n) => unawaited(_restoreNote(n))
-                  : (n) => unawaited(_toggleFavorite(n)),
-              onTrash: isTrashView
-                  ? (n) => unawaited(_deletePermanently(n))
-                  : (n) => unawaited(_moveToTrash(n)),
             );
           },
         );
@@ -719,18 +726,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    // ValueListenableBuilder is used to rebuild the grid when view mode changes
-    return ValueListenableBuilder<String>(
-      valueListenable: _viewModeNotifier,
-      builder: (context, viewMode, child) {
-        if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
-          return _buildMaterialUI();
-        } else if (Platform.isWindows) {
-          return _buildFluentUI();
-        } else {
-          return _buildMaterialUI();
-        }
-      },
-    );
+    // ⚡ Bolt: The top-level ValueListenableBuilder was removed.
+    // Rebuilds are now handled granularly within the build methods,
+    // preventing the entire screen from rebuilding unnecessarily.
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+      return _buildMaterialUI();
+    } else if (Platform.isWindows) {
+      return _buildFluentUI();
+    } else {
+      return _buildMaterialUI();
+    }
   }
 }
