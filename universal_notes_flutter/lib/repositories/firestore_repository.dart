@@ -200,6 +200,12 @@ class FirestoreRepository {
     String email,
     String permission,
   ) async {
+    // 🛡️ Sentinel: Prevent a user from sharing a note with themselves.
+    final currentUser = _auth.currentUser;
+    if (currentUser != null && currentUser.email == email) {
+      return false; // Cannot share with oneself
+    }
+
     final querySnapshot = await _usersCollection
         .where('email', isEqualTo: email)
         .limit(1)
