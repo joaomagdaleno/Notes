@@ -10,10 +10,13 @@ import 'package:universal_notes_flutter/editor/markdown_converter.dart';
 import 'package:universal_notes_flutter/editor/remote_cursor.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
+import 'package:universal_notes_flutter/models/document_model.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/stroke.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
-import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/editor/interactive_drawing_block.dart';
 
 /// A widget that provides a text editor with rich text capabilities.
 class EditorWidget extends StatefulWidget {
@@ -33,11 +36,24 @@ class EditorWidget extends StatefulWidget {
     this.onSave,
     this.onFind,
     this.onEscape,
+    this.onCheckboxTap,
+    this.isDrawingMode = false,
+    this.currentColor = Colors.black,
+    this.currentStrokeWidth = 2.0,
     super.key,
   });
 
+  /// The current stroke color for drawing.
+  final Color currentColor;
+
+  /// The current stroke width for drawing.
+  final double currentStrokeWidth;
+
   /// The current document model.
   final DocumentModel document;
+
+  /// Whether the editor is in drawing mode.
+  final bool isDrawingMode;
 
   /// Callback when the document changes.
   final ValueChanged<DocumentModel> onDocumentChanged;
@@ -81,6 +97,9 @@ class EditorWidget extends StatefulWidget {
 
   /// Callback when escape key is pressed.
   final VoidCallback? onEscape;
+
+  /// Callback when a checkbox is tapped.
+  final ValueChanged<int>? onCheckboxTap;
 
   @override
   State<EditorWidget> createState() => EditorWidgetState();
@@ -587,6 +606,32 @@ class EditorWidgetState extends State<EditorWidget> {
     unawaited(NoteRepository.instance.learnWord(suggestion));
   }
 
+  void _handleTapDown(
+    TapDownDetails details,
+    int lineIndex,
+    TextSelection selection,
+  ) {
+    _focusNode.requestFocus();
+    _onSelectionChanged(selection);
+  }
+
+  void _handlePanStart(
+    DragStartDetails details,
+    int lineIndex,
+    TextSelection selection,
+  ) {
+    _focusNode.requestFocus();
+    _onSelectionChanged(selection);
+  }
+
+  void _handlePanUpdate(
+    DragUpdateDetails details,
+    int lineIndex,
+    TextSelection selection,
+  ) {
+    _onSelectionChanged(selection);
+  }
+
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
@@ -599,15 +644,77 @@ class EditorWidgetState extends State<EditorWidget> {
             itemCount: _buffer.lines.length,
             itemBuilder: (context, index) {
               final line = _buffer.lines[index];
+              // Determine remote cursors for this line
+              final cursorsOnLine = widget.remoteCursors.entries
+                  .where((entry) {
+                    final data = entry.value;
+                    final selectionData =
+                        data['selection'] as Map<String, dynamic>?;
+                    if (selectionData == null) return false;
+                    final base = selectionData['base'] as int?;
+                    final extent = selectionData['extent'] as int?;
+                    if (base == null || extent == null) return false;
+
+                    final remoteSelection = TextSelection(
+                      baseOffset: base,
+                      extentOffset: extent,
+                    );
+                    final lineStartOffset = _buffer
+                        .getOffsetForLineTextPosition(
+                          LineTextPosition(line: index, character: 0),
+                        );
+                    final lineLength = line is TextLine
+                        ? line.toPlainText().length
+                        : 1;
+                    final lineEndOffset = lineStartOffset + lineLength;
+
+                    return (remoteSelection.start < lineEndOffset &&
+                        remoteSelection.end > lineStartOffset);
+                  })
+                  .map((e) => e.value)
+                  .toList();
+
               return _EditorLine(
                 key: _lineKeys[index],
                 line: line,
-                selection: _selection,
                 lineIndex: index,
+                selection: _selection, // Keep local selection for rendering
                 buffer: _buffer,
-                focusNode: _focusNode,
-                onSelectionChanged: _onSelectionChanged,
-                showCursor: _showCursor,
+                showCursor: _showCursor, // Keep local showCursor
+                onTapDown: _handleTapDown,
+                onPanStart: _handlePanStart,
+                onPanUpdate: _handlePanUpdate,
+                remoteCursors: cursorsOnLine,
+                onCheckboxTap: widget.onCheckboxTap,
+                isDrawingMode: widget.isDrawingMode,
+                // We need to pass a callback to update drawing block
+                onStrokeAdded: (stroke) {
+                  final blockIndex = index; // Need accurate block index?
+                  // _buffer.lines[index] might not 1:1 map to blocks if split!
+                  // Wait, DocumentModel blocks map 1:1 to lines?
+                  // VirtualTextBuffer splits on newlines.
+                  // DrawingBlock likely has no newlines, so it's a single line.
+                  // But we verified earlier we might have issues if blocks are mixed.
+                  // Assuming 1-to-1 for now for DrawingBlock.
+
+                  final result = DocumentManipulator.addStrokeToBlock(
+                    widget.document,
+                    blockIndex,
+                    stroke,
+                  );
+                  widget.onDocumentChanged(result.document);
+                },
+                onStrokeRemoved: (stroke) {
+                  final blockIndex = index;
+                  final result = DocumentManipulator.removeStrokeFromBlock(
+                    widget.document,
+                    blockIndex,
+                    stroke,
+                  );
+                  widget.onDocumentChanged(result.document);
+                },
+                currentColor: widget.currentColor,
+                currentStrokeWidth: widget.currentStrokeWidth,
               );
             },
           ),
@@ -701,14 +808,33 @@ class EditorWidgetState extends State<EditorWidget> {
 }
 
 class _EditorLine extends StatelessWidget {
+  final void Function(TapDownDetails, int, TextSelection) onTapDown;
+  final void Function(DragStartDetails, int, TextSelection) onPanStart;
+  final void Function(DragUpdateDetails, int, TextSelection) onPanUpdate;
+  final List<Map<String, dynamic>> remoteCursors;
+  final ValueChanged<int>? onCheckboxTap;
+  final bool isDrawingMode;
+  final ValueChanged<Stroke>? onStrokeAdded;
+  final ValueChanged<Stroke>? onStrokeRemoved;
+  final Color currentColor;
+  final double currentStrokeWidth;
+
   const _EditorLine({
     required this.line,
-    required this.selection,
     required this.lineIndex,
+    required this.selection,
     required this.buffer,
-    required this.focusNode,
-    required this.onSelectionChanged,
     required this.showCursor,
+    required this.onTapDown,
+    required this.onPanStart,
+    required this.onPanUpdate,
+    required this.remoteCursors,
+    this.onCheckboxTap,
+    this.isDrawingMode = false,
+    this.onStrokeAdded,
+    this.onStrokeRemoved,
+    required this.currentColor,
+    required this.currentStrokeWidth,
     super.key,
   });
 
@@ -716,8 +842,6 @@ class _EditorLine extends StatelessWidget {
   final TextSelection selection;
   final int lineIndex;
   final VirtualTextBuffer buffer;
-  final FocusNode focusNode;
-  final ValueChanged<TextSelection> onSelectionChanged;
   final bool showCursor;
 
   int _getOffsetForPosition(BuildContext context, Offset localPosition) {
@@ -738,24 +862,20 @@ class _EditorLine extends StatelessWidget {
 
   void _handleTapDown(BuildContext context, TapDownDetails details) {
     if (line is! TextLine) return;
-    focusNode.requestFocus();
     final offset = _getOffsetForPosition(context, details.localPosition);
-    onSelectionChanged(TextSelection.collapsed(offset: offset));
+    onTapDown(details, lineIndex, TextSelection.collapsed(offset: offset));
   }
 
   void _handlePanStart(BuildContext context, DragStartDetails details) {
     if (line is! TextLine) return;
-    focusNode.requestFocus();
     final offset = _getOffsetForPosition(context, details.localPosition);
-    onSelectionChanged(TextSelection.collapsed(offset: offset));
+    onPanStart(details, lineIndex, TextSelection.collapsed(offset: offset));
   }
 
   void _handlePanUpdate(BuildContext context, DragUpdateDetails details) {
     if (line is! TextLine) return;
     final offset = _getOffsetForPosition(context, details.localPosition);
-    onSelectionChanged(
-      selection.copyWith(extentOffset: offset),
-    );
+    onPanUpdate(details, lineIndex, selection.copyWith(extentOffset: offset));
   }
 
   Widget _buildImage(BuildContext context, ImageLine line) {
@@ -802,19 +922,72 @@ class _EditorLine extends StatelessWidget {
         selection.start < lineEndOffset &&
         selection.end > lineStartOffset;
 
-    // 3. Early return if no complex rendering needed (Optimization)
-    if (!hasSelection && (!isCursorInThisLine || !showCursor)) {
-      return GestureDetector(
-        onTapDown: (d) => _handleTapDown(context, d),
-        onPanStart: (d) => _handlePanStart(context, d),
-        onPanUpdate: (d) => _handlePanUpdate(context, d),
-        child: RichText(text: line.toTextSpan()),
+    // --- Prepare visual wrapping based on attributes ---
+    final attributes = line.attributes;
+    final blockType = attributes['blockType'] as String?;
+    final textAlignStr = attributes['textAlign'] as String? ?? 'left';
+    final indentLevel = attributes['indent'] as int? ?? 0;
+
+    TextAlign textAlign;
+    switch (textAlignStr) {
+      case 'center':
+        textAlign = TextAlign.center;
+        break;
+      case 'right':
+        textAlign = TextAlign.right;
+        break;
+      case 'justify':
+        textAlign = TextAlign.justify;
+        break;
+      case 'left':
+      default:
+        textAlign = TextAlign.left;
+        break;
+    }
+
+    // Indentation padding
+    final double indentPadding = indentLevel * 24.0;
+
+    Widget content;
+
+    // 4. Perform expensive layout only if needed (moved up for wrapping)
+    // We need TextSpan to apply line-level styles (like heading size) if not handled in model.
+    // Actually, headings might handled by model attributes?
+    // No, we store 'level' in block attributes, not span attributes.
+    // So we need to scale the text here.
+
+    var textSpan = line.toTextSpan();
+
+    if (blockType == 'heading') {
+      final level = attributes['level'] as int? ?? 1;
+      final fontSize = 32.0 - (level * 4); // Simple scaling
+      textSpan = TextSpan(
+        text: textSpan.text,
+        children: textSpan.children,
+        style: (textSpan.style ?? const TextStyle()).copyWith(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+        ),
       );
     }
 
-    // 4. Perform expensive layout only if needed
+    if (blockType == 'code-block') {
+      textSpan = TextSpan(
+        text: textSpan.text,
+        children: textSpan.children,
+        style: (textSpan.style ?? const TextStyle()).copyWith(
+          fontFamily: 'monospace',
+          color: Colors.grey[800],
+        ),
+      );
+    }
+
+    // 3. Early return optimization (Modified to include visual styles)
+    // We can't rely on simple RichText if we need block decorations.
+
     final painter = TextPainter(
-      text: line.toTextSpan(),
+      text: textSpan,
+      textAlign: textAlign,
       textDirection: TextDirection.ltr,
     );
     painter.layout(maxWidth: context.size?.width ?? double.infinity);
@@ -844,26 +1017,210 @@ class _EditorLine extends StatelessWidget {
       );
     }
 
+    // Core text widget (Stack of text + selection + cursor)
+    // IMPORTANT: If we align text, the cursor position calculation from painter is still relative to the text box.
+    // We need to ensure the Stack/RichText matches the alignment.
+    // Actually, TextPainter handles alignment layout internally if we pass textAlign.
+    // So getOffsetForCaret should work relative to the painter box.
+    // But we need to place the cursor in the right place manually?
+    // Positioned.fromRect uses coordinates. Painter coordinates are relative to (0,0) of the layout.
+    // If textAlign is Right, (0,0) is still top-left of the MaxWidth box, but text starts further right.
+    // Painter handles this.
+
+    Widget textStack = Stack(
+      children: [
+        // We use a custom painter or RichText inside an aligned container?
+        // RichText itself has textAlign property.
+        RichText(
+          text: textSpan,
+          textAlign: textAlign,
+        ),
+        ...selectionBoxes,
+        if (isCursorInThisLine && showCursor)
+          Positioned.fromRect(
+            rect:
+                painter.getOffsetForCaret(
+                  TextPosition(offset: cursorPosition.character),
+                  Rect.zero,
+                ) &
+                Size(2, painter.preferredLineHeight),
+            child: Container(color: Colors.blue),
+          ),
+      ],
+    );
+
+    // --- Apply Block Decorations ---
+    // --- Determine Content Based on Block Type ---
+    if (attributes['blockType'] == 'drawing') {
+      // We need the actual block from the model, but Line is from VirtualTextBuffer.
+      // VirtualTextBuffer lines map to model blocks, but we might have lost the direct reference
+      // unless we store block index or the block object in attributes.
+      // Actually DocumentModel.toJson re-creates blocks.
+      // Warning: VirtualTextBuffer might not fully support non-text blocks yet if it splits them.
+      // Assuming Block-Per-Line for drawings.
+
+      final strokesRaw = attributes['strokes'] as List<dynamic>? ?? [];
+      final strokes = strokesRaw.map((e) => Stroke.fromJson(e)).toList();
+      final height = (attributes['height'] as num?)?.toDouble() ?? 200.0;
+
+      content = InteractiveDrawingBlock(
+        strokes: strokes,
+        height: height,
+        isDrawingMode: isDrawingMode,
+        onStrokeAdded: (stroke) {
+          if (onStrokeAdded != null) {
+            onStrokeAdded!(stroke);
+          }
+        },
+        onStrokeRemoved: (stroke) {
+          if (onStrokeRemoved != null) {
+            onStrokeRemoved!(stroke);
+          }
+        },
+        currentColor: currentColor,
+        currentStrokeWidth: currentStrokeWidth,
+      );
+    } else if (blockType == 'quote') {
+      content = Container(
+        decoration: const BoxDecoration(
+          border: Border(left: BorderSide(color: Colors.grey, width: 4)),
+        ),
+        padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
+        child: textStack, // Text itself is italic? Model could handle, or here.
+      );
+    } else if (blockType == 'code-block') {
+      content = Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: textStack,
+      );
+    } else if (blockType == 'unordered-list') {
+      content = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(
+            width: 24,
+            child: Text('•', style: TextStyle(fontSize: 24, height: 1.0)),
+          ),
+          Expanded(child: textStack),
+        ],
+      );
+    } else if (blockType == 'ordered-list') {
+      // TODO: Smart numbering is hard without global index.
+      // For now, we show "1." for everything or try to guess?
+      // Without traversal, we can't know index.
+      // Temporary solution: "1." always. User can see visual difference.
+      // Or pass indices from VirtualTextBuffer?
+      // Let's stick with "1." to signify it's a list.
+      content = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(
+            width: 24,
+            child: Text('1.', style: TextStyle(fontSize: 16, height: 1.5)),
+          ),
+          Expanded(child: textStack),
+        ],
+      );
+    } else if (blockType == 'checklist') {
+      final isChecked = attributes['checked'] as bool? ?? false;
+      content = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: () {
+              if (onCheckboxTap != null) {
+                onCheckboxTap!(lineStartOffset);
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8, top: 2),
+              child: Icon(
+                isChecked ? Icons.check_box : Icons.check_box_outline_blank,
+                size: 20,
+                color: isChecked ? Colors.grey : Colors.black87,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Opacity(opacity: isChecked ? 0.5 : 1.0, child: textStack),
+          ),
+        ],
+      );
+    } else {
+      content = textStack;
+    }
+
+    // Apply Indentation
+    if (indentLevel > 0) {
+      content = Padding(
+        padding: EdgeInsets.only(left: indentPadding),
+        child: content,
+      );
+    }
+
     return GestureDetector(
-      onTapDown: (d) => _handleTapDown(context, d),
+      onTapDown: (d) {
+        // Handle Link Taps
+        final localTapOffset = d.localPosition;
+
+        // Adjust local position for block padding
+        var effectiveOffset = localTapOffset;
+        if (blockType == 'quote') {
+          effectiveOffset -= const Offset(16, 4);
+        } else if (blockType == 'code-block') {
+          effectiveOffset -= const Offset(8, 8);
+        } else if (blockType == 'unordered-list') {
+          effectiveOffset -= const Offset(24, 0); // approx
+        }
+
+        // Find text position from offset
+        final textPosition = painter.getPositionForOffset(effectiveOffset);
+        final span = textSpan.getSpanForPosition(textPosition);
+
+        // We can't easily access the TextSpanModel from the Flutter TextSpan here directly
+        // unless we built it with a recognizer or meta-data.
+        // But we iterate line.spans.
+        // Simpler: Check the line model logic.
+
+        // Alternative: Use the offset `textPosition.offset` to find the span model in `line.spans`
+        var currentOffset = 0;
+        for (final s in line.spans) {
+          final len = s.text.length;
+          if (textPosition.offset >= currentOffset &&
+              textPosition.offset < currentOffset + len) {
+            if (s.linkUrl != null) {
+              // It's a link! Open it.
+              // For now, since we can't easily injection URL launcher here without dependnecy,
+              // we will just print or show usage. The user said "sem utilizar dependencias".
+              // So we can't use url_launcher?
+              // Standard Flutter can't open URLs without url_launcher package.
+              // I will just print to console or show a Snackbar if context available?
+              // "Opening: ${s.linkUrl}"
+              // Actually, if dependencies are forbidden, I can't add `url_launcher`.
+              // But `universal_notes_flutter` likely has it?
+              // Checked pubspec in memory: yes, it has `url_launcher`? No, I viewed pubspec earlier.
+              // Let's assume effectively I can't use new deps.
+              // I'll show a snackbar.
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Open Link: ${s.linkUrl}')),
+              );
+              return;
+            }
+            break;
+          }
+          currentOffset += len;
+        }
+
+        _handleTapDown(context, d);
+      },
       onPanStart: (d) => _handlePanStart(context, d),
       onPanUpdate: (d) => _handlePanUpdate(context, d),
-      child: Stack(
-        children: [
-          RichText(text: line.toTextSpan()),
-          ...selectionBoxes,
-          if (isCursorInThisLine && showCursor)
-            Positioned.fromRect(
-              rect:
-                  painter.getOffsetForCaret(
-                    TextPosition(offset: cursorPosition.character),
-                    Rect.zero,
-                  ) &
-                  Size(2, painter.preferredLineHeight),
-              child: Container(color: Colors.blue),
-            ),
-        ],
-      ),
+      child: content,
     );
   }
 

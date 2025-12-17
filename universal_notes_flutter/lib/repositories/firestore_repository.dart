@@ -393,4 +393,52 @@ class FirestoreRepository {
       return NoteEvent.fromFirestore(doc.data(), doc.id);
     }).toList();
   }
+
+  // --- Collaboration / Cursors ---
+
+  /// Updates the current user's cursor position for a specific note.
+  Future<void> updateCursorPosition(
+    String noteId,
+    int baseOffset,
+    int extentOffset,
+    String displayName,
+    int colorValue,
+  ) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    await _notesCollection.doc(noteId).collection('cursors').doc(user.uid).set({
+      'userId': user.uid,
+      'displayName': displayName,
+      'colorValue': colorValue,
+      'baseOffset': baseOffset,
+      'extentOffset': extentOffset,
+      'lastActive': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Returns a stream of active cursors for a note, validating active status.
+  Stream<List<Map<String, dynamic>>> listenToCursors(String noteId) {
+    return _notesCollection
+        .doc(noteId)
+        .collection('cursors')
+        // actively edited in last minute? usually filtered client side or via query if we index lastActive
+        // For simplicity, we just listen to all and client filters by time if needed,
+        // or just rely on the collection not being too big.
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) => doc.data()).toList();
+        });
+  }
+
+  /// Clean up old cursors (optional maintenance)
+  Future<void> removeCursor(String noteId) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    await _notesCollection
+        .doc(noteId)
+        .collection('cursors')
+        .doc(user.uid)
+        .delete();
+  }
 }

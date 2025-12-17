@@ -18,6 +18,11 @@ class EditorToolbar extends StatelessWidget {
     required this.canRedo,
     required this.wordCountNotifier,
     required this.charCountNotifier,
+    required this.onAlignment,
+    required this.onIndent,
+    required this.onList,
+    required this.isDrawingMode,
+    required this.onToggleDrawingMode,
     super.key,
   });
 
@@ -33,48 +38,75 @@ class EditorToolbar extends StatelessWidget {
   /// Callback for when the strikethrough button is pressed.
   final VoidCallback onStrikethrough;
 
-  /// Callback to open the color selection UI.
-  final VoidCallback onColor;
+  /// Callback for alignment changes.
+  final ValueChanged<String> onAlignment;
 
-  /// Callback to open the font size selection UI.
-  final VoidCallback onFontSize;
+  /// Callback for indentation changes (+1 or -1).
+  final ValueChanged<int> onIndent;
 
-  /// Callback to open the snippets management screen.
-  final VoidCallback onSnippets;
+  /// Callback for list toggles (ordered, unordered, checklist).
+  final ValueChanged<String> onList;
 
-  /// Callback to insert an image.
+  /// Callback for when the image button is pressed.
   final VoidCallback onImage;
 
-  /// Callback for when the undo button is pressed.
+  /// Callback for undo.
   final VoidCallback onUndo;
 
-  /// Callback for when the redo button is pressed.
+  /// Callback for redo.
   final VoidCallback onRedo;
 
-  /// Whether the undo action is available.
+  /// Whether undo is available.
   final bool canUndo;
 
-  /// Whether the redo action is available.
+  /// Whether redo is available.
   final bool canRedo;
 
-  /// The word count of the document.
+  /// Notifier for word count.
   final ValueNotifier<int> wordCountNotifier;
 
-  /// The character count of the document.
+  /// Notifier for character count.
   final ValueNotifier<int> charCountNotifier;
+
+  /// Whether we are currently in Drawing Mode.
+  final bool isDrawingMode;
+
+  /// Callback to toggle drawing mode.
+  final VoidCallback onToggleDrawingMode;
+
+  /// Callback for when the text color button is pressed.
+  final VoidCallback onColor;
+
+  /// Callback for when the font size button is pressed.
+  final VoidCallback onFontSize;
+
+  /// Callback for when the snippets button is pressed.
+  final VoidCallback onSnippets;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       color: Colors.grey[200],
-      child: Row(
+      height: 56, // Fixed height for scrollable row
+      child: ListView(
+        scrollDirection: Axis.horizontal,
         children: [
+          // Mode Switcher
+          IconButton(
+            icon: Icon(isDrawingMode ? Icons.keyboard : Icons.edit),
+            onPressed: onToggleDrawingMode,
+            tooltip: isDrawingMode ? 'Back to Text' : 'Drawing Mode',
+            // Highlight if drawing mode
+            color: isDrawingMode ? Colors.blue : null,
+          ),
+          const VerticalDivider(),
           Semantics(
             label: 'Undo',
             child: IconButton(
               icon: const Icon(Icons.undo),
               onPressed: canUndo ? onUndo : null,
+              tooltip: 'Undo',
             ),
           ),
           Semantics(
@@ -82,80 +114,124 @@ class EditorToolbar extends StatelessWidget {
             child: IconButton(
               icon: const Icon(Icons.redo),
               onPressed: canRedo ? onRedo : null,
+              tooltip: 'Redo',
             ),
           ),
           const VerticalDivider(),
-          Semantics(
-            label: 'Bold',
-            child: IconButton(
+          if (!isDrawingMode) ...[
+            // Font Styling
+            IconButton(
               icon: const Icon(Icons.format_bold),
               onPressed: onBold,
+              tooltip: 'Bold',
             ),
-          ),
-          Semantics(
-            label: 'Italic',
-            child: IconButton(
+            IconButton(
               icon: const Icon(Icons.format_italic),
               onPressed: onItalic,
+              tooltip: 'Italic',
             ),
-          ),
-          Semantics(
-            label: 'Underline',
-            child: IconButton(
+            IconButton(
               icon: const Icon(Icons.format_underline),
               onPressed: onUnderline,
+              tooltip: 'Underline',
             ),
-          ),
-          Semantics(
-            label: 'Strikethrough',
-            child: IconButton(
+            IconButton(
               icon: const Icon(Icons.format_strikethrough),
               onPressed: onStrikethrough,
+              tooltip: 'Strikethrough',
             ),
-          ),
-          const VerticalDivider(),
-          Semantics(
-            label: 'Text color',
-            child: IconButton(
+            IconButton(
               icon: const Icon(Icons.format_color_text),
               onPressed: onColor,
+              tooltip: 'Text Color',
             ),
-          ),
-          Semantics(
-            label: 'Font size',
-            child: IconButton(
+            // Alignment
+            IconButton(
+              icon: const Icon(Icons.format_align_left),
+              onPressed: () => onAlignment('left'),
+              tooltip: 'Align Left',
+            ),
+            IconButton(
+              icon: const Icon(Icons.format_align_center),
+              onPressed: () => onAlignment('center'),
+              tooltip: 'Align Center',
+            ),
+            IconButton(
+              icon: const Icon(Icons.format_align_right),
+              onPressed: () => onAlignment('right'),
+              tooltip: 'Align Right',
+            ),
+            // Lists
+            IconButton(
+              icon: const Icon(Icons.format_list_bulleted),
+              onPressed: () => onList('unordered'),
+              tooltip: 'Bullet List',
+            ),
+            IconButton(
+              icon: const Icon(Icons.format_list_numbered),
+              onPressed: () => onList('ordered'),
+              tooltip: 'Numbered List',
+            ),
+            IconButton(
+              icon: const Icon(Icons.checklist),
+              onPressed: () => onList('checklist'),
+              tooltip: 'Checklist',
+            ),
+            // Indent
+            IconButton(
+              icon: const Icon(Icons.format_indent_decrease),
+              onPressed: () => onIndent(-1),
+              tooltip: 'Decrease Indent',
+            ),
+            IconButton(
+              icon: const Icon(Icons.format_indent_increase),
+              onPressed: () => onIndent(1),
+              tooltip: 'Increase Indent',
+            ),
+          ] else ...[
+            // Drawing Tools Placeholder (Can expand later with Color/Size pickers)
+            Center(
+              child: Text(
+                ' Drawing Mode ',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue[800],
+                ),
+              ),
+            ),
+          ],
+          if (!isDrawingMode) ...[
+            const VerticalDivider(),
+            IconButton(
               icon: const Icon(Icons.format_size),
               onPressed: onFontSize,
+              tooltip: 'Font Size',
             ),
-          ),
-          Semantics(
-            label: 'Snippets',
-            child: IconButton(
-              icon: const Icon(Icons.shortcut),
+            IconButton(
+              icon: const Icon(Icons.shortcut), // Snippets icon replacement?
               onPressed: onSnippets,
+              tooltip: 'Snippets',
             ),
-          ),
-          Semantics(
-            label: 'Insert image',
-            child: IconButton(
+            IconButton(
               icon: const Icon(Icons.image),
               onPressed: onImage,
+              tooltip: 'Insert Image',
+            ),
+          ],
+          const VerticalDivider(),
+          // Stats
+          Center(
+            child: ValueListenableBuilder<int>(
+              valueListenable: wordCountNotifier,
+              builder: (context, count, child) => Text('$count words'),
             ),
           ),
-          const Spacer(),
-          ValueListenableBuilder<int>(
-            valueListenable: wordCountNotifier,
-            builder: (context, wordCount, child) {
-              return ValueListenableBuilder<int>(
-                valueListenable: charCountNotifier,
-                builder: (context, charCount, child) {
-                  return Text(
-                    '$wordCount words / $charCount characters',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  );
-                },
-              );
-            },
+          const SizedBox(width: 8),
+          Center(
+            child: ValueListenableBuilder<int>(
+              valueListenable: charCountNotifier,
+              builder: (context, count, child) => Text('$count chars'),
+            ),
           ),
         ],
       ),

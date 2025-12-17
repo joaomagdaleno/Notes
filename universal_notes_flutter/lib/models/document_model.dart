@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:universal_notes_flutter/models/stroke.dart';
 
 /// Represents a single continuous piece of text with a specific style.
 class TextSpanModel {
@@ -9,8 +10,12 @@ class TextSpanModel {
     this.isItalic = false,
     this.isUnderline = false,
     this.isStrikethrough = false,
+    this.isCode = false,
     this.fontSize,
     this.color,
+    this.backgroundColor,
+    this.fontFamily,
+    this.linkUrl,
   });
 
   /// Creates a [TextSpanModel] from a JSON map.
@@ -21,8 +26,14 @@ class TextSpanModel {
       isItalic: json['isItalic'] as bool? ?? false,
       isUnderline: json['isUnderline'] as bool? ?? false,
       isStrikethrough: json['isStrikethrough'] as bool? ?? false,
+      isCode: json['isCode'] as bool? ?? false,
       fontSize: json['fontSize'] as double?,
       color: json['color'] != null ? Color(json['color'] as int) : null,
+      backgroundColor: json['backgroundColor'] != null
+          ? Color(json['backgroundColor'] as int)
+          : null,
+      fontFamily: json['fontFamily'] as String?,
+      linkUrl: json['linkUrl'] as String?,
     );
   }
 
@@ -41,11 +52,23 @@ class TextSpanModel {
   /// Whether the text has a strikethrough.
   final bool isStrikethrough;
 
+  /// Whether the text is inline code.
+  final bool isCode;
+
   /// The font size for the text. If null, uses the default.
   final double? fontSize;
 
   /// The color of the text. If null, uses the default.
   final Color? color;
+
+  /// The background color of the text.
+  final Color? backgroundColor;
+
+  /// The font family (e.g., 'monospace').
+  final String? fontFamily;
+
+  /// The URL if this span is a link.
+  final String? linkUrl;
 
   /// Converts this model to a Flutter [TextSpan] for rendering.
   TextSpan toTextSpan() {
@@ -60,7 +83,9 @@ class TextSpanModel {
         fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
         decoration: TextDecoration.combine(decorations),
         fontSize: fontSize,
-        color: color,
+        color: linkUrl != null ? Colors.blue : color,
+        backgroundColor: backgroundColor,
+        fontFamily: isCode ? 'monospace' : fontFamily,
       ),
     );
   }
@@ -72,8 +97,12 @@ class TextSpanModel {
     bool? isItalic,
     bool? isUnderline,
     bool? isStrikethrough,
+    bool? isCode,
     double? fontSize,
     Color? color,
+    Color? backgroundColor,
+    String? fontFamily,
+    String? linkUrl,
   }) {
     return TextSpanModel(
       text: text ?? this.text,
@@ -81,8 +110,12 @@ class TextSpanModel {
       isItalic: isItalic ?? this.isItalic,
       isUnderline: isUnderline ?? this.isUnderline,
       isStrikethrough: isStrikethrough ?? this.isStrikethrough,
+      isCode: isCode ?? this.isCode,
       fontSize: fontSize ?? this.fontSize,
       color: color ?? this.color,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      fontFamily: fontFamily ?? this.fontFamily,
+      linkUrl: linkUrl ?? this.linkUrl,
     );
   }
 
@@ -94,31 +127,48 @@ class TextSpanModel {
       'isItalic': isItalic,
       'isUnderline': isUnderline,
       'isStrikethrough': isStrikethrough,
+      'isCode': isCode,
       'fontSize': fontSize,
       'color': color?.toARGB32(),
+      'backgroundColor': backgroundColor?.toARGB32(),
+      'fontFamily': fontFamily,
+      'linkUrl': linkUrl,
     };
   }
 }
 
 /// A base class for a block of content in a document.
-abstract class DocumentBlock {}
+abstract class DocumentBlock {
+  Map<String, dynamic> get attributes;
+}
 
 /// A block of text content, composed of multiple styled spans.
 class TextBlock extends DocumentBlock {
   /// Creates a text block.
-  TextBlock({required this.spans});
+  TextBlock({required this.spans, this.attributes = const {}});
 
   /// The list of styled text spans.
   final List<TextSpanModel> spans;
+
+  @override
+  final Map<String, dynamic> attributes;
+
+  /// Converts the text block to plain text.
+  String toPlainText() {
+    return spans.map((s) => s.text).join('');
+  }
 }
 
 /// A block representing an image.
 class ImageBlock extends DocumentBlock {
   /// Creates an image block.
-  ImageBlock({required this.imagePath});
+  ImageBlock({required this.imagePath, this.attributes = const {}});
 
   /// The local file path to the image.
   final String imagePath;
+
+  @override
+  final Map<String, dynamic> attributes;
 }
 
 /// Represents the entire document as a list of content blocks.
@@ -150,8 +200,23 @@ class DocumentModel {
       final blocks = blocksJson.map((b) {
         final bMap = b as Map<String, dynamic>;
         final type = bMap['type'];
+        final attributes = bMap['attributes'] as Map<String, dynamic>? ?? {};
+
         if (type == 'image') {
-          return ImageBlock(imagePath: bMap['imagePath'] as String);
+          return ImageBlock(
+            imagePath: bMap['imagePath'] as String,
+            attributes: attributes,
+          );
+        } else if (type == 'drawing') {
+          return DrawingBlock(
+            strokes:
+                (bMap['strokes'] as List<dynamic>?)
+                    ?.map((s) => Stroke.fromJson(s as Map<String, dynamic>))
+                    .toList() ??
+                [],
+            height: (bMap['height'] as num?)?.toDouble() ?? 200.0,
+            attributes: attributes,
+          );
         } else {
           final spans =
               (bMap['spans'] as List<dynamic>?)
@@ -160,7 +225,7 @@ class DocumentModel {
                   )
                   .toList() ??
               [];
-          return TextBlock(spans: spans);
+          return TextBlock(spans: spans, attributes: attributes);
         }
       }).toList();
       return DocumentModel(blocks: blocks);
@@ -190,6 +255,10 @@ class DocumentModel {
         for (final span in block.spans) {
           buffer.write(span.text);
         }
+        // Implicit newline between blocks, or handled by lines?
+        // Usually plain text representation assumes blocks are paragraphs.
+        // We might want to add a newline if it's not the last block?
+        // For now keeping matching behavior with existing logic (dense).
       }
     }
     return buffer.toString();
@@ -200,15 +269,46 @@ class DocumentModel {
     return {
       'blocks': blocks.map((b) {
         if (b is ImageBlock) {
-          return {'type': 'image', 'imagePath': b.imagePath};
+          return {
+            'type': 'image',
+            'imagePath': b.imagePath,
+            'attributes': b.attributes,
+          };
+        } else if (b is DrawingBlock) {
+          return {
+            'type': 'drawing',
+            'strokes': b.strokes.map((s) => s.toJson()).toList(),
+            'height': b.height,
+            'attributes': b.attributes,
+          };
         } else if (b is TextBlock) {
           return {
             'type': 'text',
             'spans': b.spans.map((s) => s.toJson()).toList(),
+            'attributes': b.attributes,
           };
         }
         return <String, dynamic>{};
       }).toList(),
     };
   }
+}
+
+/// A block representing a drawing.
+class DrawingBlock extends DocumentBlock {
+  /// The list of strokes in this drawing.
+  final List<Stroke> strokes;
+
+  /// The height of the drawing canvas area.
+  final double height;
+
+  /// Creates a drawing block.
+  DrawingBlock({
+    required this.strokes,
+    this.height = 200.0,
+    this.attributes = const {},
+  });
+
+  @override
+  final Map<String, dynamic> attributes;
 }

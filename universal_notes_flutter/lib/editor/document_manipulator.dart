@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
+import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/stroke.dart';
 
 /// The result of a document manipulation, including the new document state
 /// and the event payload describing the change.
@@ -115,7 +117,7 @@ class DocumentManipulator {
     TextSelection selection,
     StyleAttribute attribute,
   ) {
-    final newDoc = _applyToSelection(
+    final newDoc = applyToSelection(
       document,
       selection,
       (span) => span.copyWith(
@@ -148,7 +150,7 @@ class DocumentManipulator {
     TextSelection selection,
     Color color,
   ) {
-    final newDoc = _applyToSelection(
+    final newDoc = applyToSelection(
       document,
       selection,
       (span) => span.copyWith(color: color),
@@ -170,7 +172,7 @@ class DocumentManipulator {
     TextSelection selection,
     double fontSize,
   ) {
-    final newDoc = _applyToSelection(
+    final newDoc = applyToSelection(
       document,
       selection,
       (span) => span.copyWith(fontSize: fontSize),
@@ -186,7 +188,7 @@ class DocumentManipulator {
     );
   }
 
-  static DocumentModel _applyToSelection(
+  static DocumentModel applyToSelection(
     DocumentModel document,
     TextSelection selection,
     TextSpanModel Function(TextSpanModel) updateFunc,
@@ -248,7 +250,10 @@ class DocumentManipulator {
         }
         currentPos += span.text.length;
       }
-      newBlocks.add(TextBlock(spans: _mergeSpans(newSpans)));
+      // Preserve attributes
+      newBlocks.add(
+        TextBlock(spans: _mergeSpans(newSpans), attributes: block.attributes),
+      );
       currentPos = blockEnd; // Ensure currentPos is correct for next block
     }
 
@@ -282,7 +287,10 @@ class DocumentManipulator {
         '$text'
         '${targetSpan.text.substring(spanPos.localOffset)}';
     spans[spanPos.spanIndex] = targetSpan.copyWith(text: newText);
-    blocks[pos.blockIndex] = TextBlock(spans: spans);
+    blocks[pos.blockIndex] = TextBlock(
+      spans: spans,
+      attributes: targetBlock.attributes,
+    );
 
     return ManipulationResult(
       document: DocumentModel(blocks: blocks),
@@ -350,7 +358,12 @@ class DocumentManipulator {
           spanStart = spanEnd;
         }
         if (newSpans.isNotEmpty) {
-          newBlocks.add(TextBlock(spans: _mergeSpans(newSpans)));
+          newBlocks.add(
+            TextBlock(
+              spans: _mergeSpans(newSpans),
+              attributes: block.attributes,
+            ),
+          );
         }
       }
       // If the block is an ImageBlock and is within the deletion range,
@@ -368,6 +381,161 @@ class DocumentManipulator {
     );
   }
 
+  /// Sets attributes for the block at the given [position].
+  static ManipulationResult setBlockAttributes(
+    DocumentModel document,
+    int position,
+    Map<String, dynamic> attributes,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final block = blocks[pos.blockIndex];
+    if (block is TextBlock) {
+      // Merge attributes
+      final newAttributes = Map<String, dynamic>.from(block.attributes)
+        ..addAll(attributes);
+      blocks[pos.blockIndex] = TextBlock(
+        spans: block.spans,
+        attributes: newAttributes,
+      );
+    } else if (block is ImageBlock) {
+      final newAttributes = Map<String, dynamic>.from(block.attributes)
+        ..addAll(attributes);
+      blocks[pos.blockIndex] = ImageBlock(
+        imagePath: block.imagePath,
+        attributes: newAttributes,
+      );
+    }
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format, // Treat as format event
+      eventPayload: {
+        'blockIndex': pos.blockIndex,
+        'attrs': attributes,
+      },
+    );
+  }
+
+  /// Toggles a block attribute (e.g. alignment).
+  /// If [value] is null, removes the attribute.
+  static ManipulationResult toggleBlockAttribute(
+    DocumentModel document,
+    int position,
+    String key,
+    dynamic value,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final block = blocks[pos.blockIndex];
+    final currentAttributes = Map<String, dynamic>.from(block.attributes);
+
+    if (value == null || currentAttributes[key] == value) {
+      currentAttributes.remove(key);
+    } else {
+      currentAttributes[key] = value;
+    }
+
+    // We reuse setBlockAttributes logic but we need to pass the FULL modified map
+    // because setBlockAttributes MERGES.
+    // Actually, to support removal, we might need a method that REPLACES attributes or supports null to remove.
+    // Our setBlockAttributes logic above merges.
+    // Let's modify setBlockAttributes or handle it here manually.
+    // We'll handle it manually here for precision.
+
+    if (block is TextBlock) {
+      blocks[pos.blockIndex] = TextBlock(
+        spans: block.spans,
+        attributes: currentAttributes,
+      );
+    } else if (block is ImageBlock) {
+      blocks[pos.blockIndex] = ImageBlock(
+        imagePath: block.imagePath,
+        attributes: currentAttributes,
+      );
+    }
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': pos.blockIndex,
+        'attrs': currentAttributes,
+      },
+    );
+  }
+
+  /// Changes the indentation level of the block.
+  /// [change] can be +1 or -1.
+  static ManipulationResult indentBlock(
+    DocumentModel document,
+    int position,
+    int change,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final block = blocks[pos.blockIndex];
+    final currentLevel = (block.attributes['indent'] as int?) ?? 0;
+    final newLevel = (currentLevel + change).clamp(0, 8); // Max indentation 8
+
+    return toggleBlockAttribute(document, position, 'indent', newLevel);
+  }
+
+  /// Toggles a list attribute (e.g., 'bullet' or 'ordered').
+  /// If the block is already the specified list type, it removes the list attribute.
+  /// Otherwise, it sets the block to the specified list type.
+  static ManipulationResult toggleList(
+    DocumentModel document,
+    int position,
+    String listType, // e.g., 'bullet', 'ordered'
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final block = blocks[pos.blockIndex];
+    final currentListType = block.attributes['list'];
+
+    // If already this list type, remove it. Otherwise, set it.
+    final newValue = currentListType == listType ? null : listType;
+
+    return toggleBlockAttribute(document, position, 'list', newValue);
+  }
+
   static List<TextSpanModel> _mergeSpans(List<TextSpanModel> spans) {
     if (spans.isEmpty) return [];
     final mergedSpans = <TextSpanModel>[];
@@ -378,8 +546,11 @@ class DocumentManipulator {
           mergedSpans.last.isItalic == span.isItalic &&
           mergedSpans.last.isUnderline == span.isUnderline &&
           mergedSpans.last.isStrikethrough == span.isStrikethrough &&
+          mergedSpans.last.isCode == span.isCode &&
           mergedSpans.last.color == span.color &&
-          mergedSpans.last.fontSize == span.fontSize) {
+          mergedSpans.last.backgroundColor == span.backgroundColor &&
+          mergedSpans.last.fontSize == span.fontSize &&
+          mergedSpans.last.linkUrl == span.linkUrl) {
         final last = mergedSpans.removeLast();
         mergedSpans.add(last.copyWith(text: last.text + span.text));
       } else {
@@ -401,16 +572,38 @@ class DocumentManipulator {
         blockLength = block.spans
             .map((s) => s.text.length)
             .fold(0, (a, b) => a + b);
+        // Treat trailing newline?
+        // Our buffer logic handles block separation implicitly or explicitly.
+        // DocumentModel usually has tight blocks.
       } else {
         blockLength = 1; // Placeholder for image
       }
 
-      if (globalPosition <= accumulatedLength + blockLength) {
+      // We use < because we want to match the block containing the cursor.
+      // If cursor is AT the end of block, it usually belongs to that block for formatting purposes
+      // UNLESS it's at the very start of next block.
+      // Logic: if position == accumulatedLength, it's at start of this block.
+      // exception: position 0.
+
+      if (globalPosition >= accumulatedLength &&
+          globalPosition < accumulatedLength + blockLength) {
         return _BlockPosition(i, globalPosition - accumulatedLength);
       }
+
+      // Edge case: Cursor at exact end of document or block?
+      // If we are appending, we might be at the end.
+      if (blockLength > 0 &&
+          globalPosition == accumulatedLength + blockLength) {
+        return _BlockPosition(i, blockLength);
+      }
+
       accumulatedLength += blockLength;
     }
-    return const _BlockPosition(-1, 0); // Not found
+    // If empty document
+    if (blocks.isEmpty && globalPosition == 0)
+      return const _BlockPosition(-1, 0);
+
+    return const _BlockPosition(-1, 0);
   }
 
   static _SpanPosition _findSpanPosition(
@@ -427,6 +620,104 @@ class DocumentManipulator {
       accumulatedLength += span.text.length;
     }
     return _SpanPosition(spans.length - 1, spans.last.text.length);
+  }
+
+  static ManipulationResult addStrokeToBlock(
+    DocumentModel document,
+    int blockIndex,
+    Stroke stroke,
+  ) {
+    if (blockIndex < 0 || blockIndex >= document.blocks.length) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final block = document.blocks[blockIndex];
+    if (block is! DrawingBlock) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final newStrokes = List<Stroke>.from(block.strokes)..add(stroke);
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    blocks[blockIndex] = DrawingBlock(
+      strokes: newStrokes,
+      height: block.height,
+      attributes: block.attributes,
+    );
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format, // Treat stroke add as format/update
+      eventPayload: {
+        'blockIndex': blockIndex,
+      },
+    );
+  }
+
+  static ManipulationResult removeStrokeFromBlock(
+    DocumentModel document,
+    int blockIndex,
+    Stroke stroke,
+  ) {
+    if (blockIndex < 0 || blockIndex >= document.blocks.length) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final block = document.blocks[blockIndex];
+    if (block is! DrawingBlock) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    // Filter out the stroke. Using equality check.
+    // Since we don't have IDs, we remove the first matching stroke logic or by index if passed.
+    // Assuming passed 'stroke' is an instance from the list, simple reference removal might fail if reconstructed.
+    // But let's try value equality.
+    final newStrokes = block.strokes
+        .where((s) => !_areStrokesEqual(s, stroke))
+        .toList();
+
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    blocks[blockIndex] = DrawingBlock(
+      strokes: newStrokes,
+      height: block.height,
+      attributes: block.attributes,
+    );
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': blockIndex,
+        'removedStroke': stroke.toJson(),
+      },
+    );
+  }
+
+  static bool _areStrokesEqual(Stroke a, Stroke b) {
+    if (a.color != b.color) return false;
+    if (a.width != b.width) return false;
+    if (a.points.length != b.points.length) return false;
+    for (int i = 0; i < a.points.length; i++) {
+      final pA = a.points[i];
+      final pB = b.points[i];
+      if (pA.x != pB.x || pA.y != pB.y) return false;
+    }
+    return true;
   }
 }
 

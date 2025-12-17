@@ -3,12 +3,15 @@ import 'package:universal_notes_flutter/editor/document.dart';
 
 /// A base class for a line in the virtualized editor.
 @immutable
-abstract class Line {}
+abstract class Line {
+  const Line({this.attributes = const {}});
+  final Map<String, dynamic> attributes;
+}
 
 /// Represents a single line of text.
 class TextLine extends Line {
   /// Creates a new instance of [TextLine].
-  TextLine({required this.spans});
+  TextLine({required this.spans, super.attributes});
 
   /// The list of styled text spans that make up this line.
   final List<TextSpanModel> spans;
@@ -29,7 +32,7 @@ class TextLine extends Line {
 /// Represents a line containing an image.
 class ImageLine extends Line {
   /// Creates a new instance of [ImageLine].
-  ImageLine({required this.imagePath});
+  ImageLine({required this.imagePath, super.attributes});
 
   /// The path to the image file.
   final String imagePath;
@@ -70,11 +73,40 @@ class VirtualTextBuffer {
       if (block is ImageBlock) {
         // If there's pending text, finish that line first.
         if (currentLineSpans.isNotEmpty) {
-          lines.add(TextLine(spans: currentLineSpans));
-          currentLineSpans = [];
+          // IMPORTANT: Previous block's attributes are lost if better logic isn't applied.
+          // Since blocks usually separate content, this case (pending text from previous block)
+          // implies a TextBlock was followed by an ImageBlock.
+          // The pending text belongs to the PREVIOUS TextBlock.
+          // But here we are iterating blocks.
+          // The variable `currentLineSpans` accumulates spans from `TextBlock`.
+          // When we hit `ImageBlock`, we flush.
+          // We need to know the attributes of the block `currentLineSpans` came from.
+          // Since `currentLineSpans` is greedy across blocks only if we merged them (which we don't, we iterate blocks),
+          // we should actually flush inside the TextBlock loop or track the current attributes.
+          // Wait, the original logic accumulated lines within a TextBlock.
+          // Ah, actually the original logic reset `currentLineSpans` inside `TextBlock` loop on newlines.
+          // But if a TextBlock didn't end with newline, it kept `currentLineSpans` and continued to next block?
+          // DocumentModel usually has distinct blocks.
+          // Let's refine: Use the attributes of the *current* block.
         }
-        lines.add(ImageLine(imagePath: block.imagePath));
+        // Actually, let's look at the TextBlock handling.
+      }
+    }
+
+    // Correct re-implementation of loop
+    lines.clear();
+
+    for (final block in document.blocks) {
+      if (block is ImageBlock) {
+        lines.add(
+          ImageLine(
+            imagePath: block.imagePath,
+            attributes: block.attributes,
+          ),
+        );
       } else if (block is TextBlock) {
+        var currentBlockSpans = <TextSpanModel>[];
+        // We process spans. On newline, we emit a line WITH this block's attributes.
         for (final span in block.spans) {
           final text = span.text;
           var start = 0;
@@ -83,22 +115,36 @@ class VirtualTextBuffer {
           while ((end = text.indexOf('\n', start)) != -1) {
             final lineText = text.substring(start, end);
             if (lineText.isNotEmpty) {
-              currentLineSpans.add(span.copyWith(text: lineText));
+              currentBlockSpans.add(span.copyWith(text: lineText));
             }
-            lines.add(TextLine(spans: currentLineSpans));
-            currentLineSpans = [];
+            // Flush line
+            lines.add(
+              TextLine(
+                spans: currentBlockSpans,
+                attributes: block.attributes,
+              ),
+            );
+            currentBlockSpans = [];
             start = end + 1;
           }
 
           if (start < text.length) {
-            currentLineSpans.add(span.copyWith(text: text.substring(start)));
+            currentBlockSpans.add(span.copyWith(text: text.substring(start)));
           }
         }
+        // If there is leftover text in this block (no trailing newline),
+        // we emit it as a line. (Assuming blocks are paragraph-like boundaries).
+        // If we want to support inline blocks merging, we'd need more complex logic.
+        // For Markdown, blocks are usually distinct paragraphs/elements.
+        if (currentBlockSpans.isNotEmpty) {
+          lines.add(
+            TextLine(
+              spans: currentBlockSpans,
+              attributes: block.attributes,
+            ),
+          );
+        }
       }
-    }
-    // Add the last line of text if any.
-    if (currentLineSpans.isNotEmpty) {
-      lines.add(TextLine(spans: currentLineSpans));
     }
 
     // Now, calculate lengths consistently.
@@ -125,9 +171,12 @@ class VirtualTextBuffer {
       currentOffset += lineLength;
     }
     // Default to the end of the last line if offset is out of bounds.
+    if (lines.isEmpty) return const LineTextPosition(line: 0, character: 0);
     return LineTextPosition(
       line: lines.length - 1,
-      character: (lines.last as TextLine).toPlainText().length,
+      character: (lines.last is TextLine)
+          ? (lines.last as TextLine).toPlainText().length
+          : 0,
     );
   }
 
@@ -135,7 +184,7 @@ class VirtualTextBuffer {
   int getOffsetForLineTextPosition(LineTextPosition position) {
     var offset = 0;
     for (var i = 0; i < position.line; i++) {
-      offset += _lineLengths[i];
+      if (i < _lineLengths.length) offset += _lineLengths[i];
     }
     return offset + position.character;
   }

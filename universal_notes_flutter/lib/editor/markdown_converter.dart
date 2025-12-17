@@ -23,18 +23,18 @@ class MarkdownConversionResult {
 
 /// A class to handle real-time Markdown-like conversions.
 class MarkdownConverter {
-  // Patterns that apply to text anywhere, like *bold*.
-  // The regex now looks for a closing symbol followed by a space or end of
-  // line.
-  static final Map<RegExp, StyleAttribute> _inlinePatterns = {
-    RegExp(r'\*([^\*]+)\*(?=\s|$)'): StyleAttribute.bold,
-    RegExp(r'_([^_]+)_(?=\s|$)'): StyleAttribute.italic,
-    RegExp(r'-([^-]+)-(?=\s|$)'): StyleAttribute.strikethrough,
+  // Patterns for inline styles
+  static final Map<RegExp, TextSpanModel Function(TextSpanModel)>
+  _inlineModifiers = {
+    RegExp(r'\*([^\*]+)\*(?=\s|$)'): (s) => s.copyWith(isBold: !s.isBold),
+    RegExp(r'_([^_]+)_(?=\s|$)'): (s) => s.copyWith(isItalic: !s.isItalic),
+    RegExp(r'~([^~]+)~(?=\s|$)'): (s) =>
+        s.copyWith(isStrikethrough: !s.isStrikethrough),
+    RegExp(r'`([^`]+)`(?=\s|$)'): (s) =>
+        s.copyWith(isCode: true, fontFamily: 'monospace'),
   };
 
   /// Checks the text around the cursor for Markdown patterns and applies them.
-  /// Returns a [MarkdownConversionResult] if a conversion happened, otherwise
-  /// null.
   static MarkdownConversionResult? checkAndApply(
     DocumentModel document,
     TextSelection selection,
@@ -50,9 +50,113 @@ class MarkdownConverter {
     }
     final lineText = plainText.substring(lineStart, selection.baseOffset);
 
-    // --- Check for inline patterns (bold, italic, etc.) ---
-    for (final entry in _inlinePatterns.entries) {
-      // We check the whole line for a pattern that has just been completed.
+    // --- Block Patterns (triggered by space) ---
+    if (lineText.endsWith(' ')) {
+      final pattern = lineText.trim();
+
+      // Headings (#, ##, ###)
+      if (RegExp(r'^#{1,6}$').hasMatch(pattern)) {
+        return _applyBlockAttribute(
+          document,
+          lineStart,
+          selection,
+          pattern
+              .length, // length of '# ' is pattern.length + 1 for space? No, pattern is trimmed.
+          // logic below handles deletion
+          {'blockType': 'heading', 'level': pattern.length},
+        );
+      }
+
+      // Blockquote (>)
+      if (pattern == '>') {
+        return _applyBlockAttribute(
+          document,
+          lineStart,
+          selection,
+          2, // "> "
+          {'blockType': 'quote'},
+        );
+      }
+
+      // Unordered List (-)
+      if (pattern == '-') {
+        return _applyBlockAttribute(
+          document,
+          lineStart,
+          selection,
+          2,
+          {'blockType': 'unordered-list'},
+          replacementText: '',
+        );
+      }
+
+      // Code Block (```)
+      if (pattern == '```') {
+        return _applyBlockAttribute(
+          document,
+          lineStart,
+          selection,
+          4, // "``` "
+          {'blockType': 'code-block'},
+        );
+      }
+    }
+
+    // --- Inline Patterns ---
+    // Check for Links [text](url) -> Triggered by closing paren )
+    if (selection.baseOffset > 0 &&
+        plainText[selection.baseOffset - 1] == ')') {
+      final linkRegex = RegExp(r'\[([^\]]+)\]\(([^\)]+)\)$');
+      final match = linkRegex.firstMatch(lineText);
+      if (match != null) {
+        final text = match.group(1)!;
+        final url = match.group(2)!;
+        final matchStart = lineStart + match.start;
+        final fullMatch = match.group(0)!;
+
+        // Delete full match
+        final deleteResult = DocumentManipulator.deleteText(
+          document,
+          matchStart,
+          fullMatch.length,
+        );
+        var newDoc = deleteResult.document;
+
+        // Insert just the text
+        final insertResult = DocumentManipulator.insertText(
+          newDoc,
+          matchStart,
+          text,
+        );
+        newDoc = insertResult.document;
+
+        // Apply Link Style
+        final newSelection = TextSelection(
+          baseOffset: matchStart,
+          extentOffset: matchStart + text.length,
+        );
+
+        // We need a helper to apply custom span updates (linkUrl)
+        newDoc = DocumentManipulator.applyToSelection(
+          newDoc,
+          newSelection,
+          (s) =>
+              s.copyWith(linkUrl: url, color: Colors.blue, isUnderline: true),
+        );
+
+        final finalSelection = TextSelection.collapsed(
+          offset: newSelection.end,
+        );
+        return MarkdownConversionResult(
+          document: newDoc,
+          selection: finalSelection,
+          results: [deleteResult, insertResult], // Simplified list
+        );
+      }
+    }
+
+    // Standard Inline Styles
+    for (final entry in _inlineModifiers.entries) {
       final match = entry.key.firstMatch(lineText);
       if (match != null) {
         final content = match.group(1)!;
@@ -76,77 +180,16 @@ class MarkdownConverter {
           baseOffset: matchStart,
           extentOffset: matchStart + content.length,
         );
-        final formatResult = DocumentManipulator.toggleStyle(
+
+        // Apply specific modifier
+        newDoc = DocumentManipulator.applyToSelection(
           newDoc,
           newSelection,
           entry.value,
         );
-        newDoc = formatResult.document;
 
         final finalSelection = TextSelection.collapsed(
           offset: newSelection.end,
-        );
-        return MarkdownConversionResult(
-          document: newDoc,
-          selection: finalSelection,
-          results: [deleteResult, insertResult, formatResult],
-        );
-      }
-    }
-
-    // --- Check for block patterns (headings and lists) ---
-    // These should only trigger if the user types the space.
-    if (lineText.endsWith(' ')) {
-      final pattern = lineText.trim();
-      if (pattern == '#') {
-        final lineEnd = plainText.indexOf('\n', lineStart);
-        final finalLineEnd = lineEnd == -1 ? plainText.length : lineEnd;
-
-        // Delete the "# " part
-        // Delete the "# " part
-        final deleteResult = DocumentManipulator.deleteText(
-          document,
-          lineStart,
-          2,
-        );
-        var newDoc = deleteResult.document;
-        // Apply the font size to the rest of the line
-        // The text moved to lineStart, so baseOffset is lineStart.
-        // The length decreased by 2, so extentOffset is original extent - 2.
-        final formatResult = DocumentManipulator.applyFontSize(
-          newDoc,
-          TextSelection(baseOffset: lineStart, extentOffset: finalLineEnd - 2),
-          32,
-        );
-        newDoc = formatResult.document;
-
-        final finalSelection = TextSelection.collapsed(
-          offset: selection.baseOffset - 2,
-        );
-        return MarkdownConversionResult(
-          document: newDoc,
-          selection: finalSelection,
-          results: [deleteResult, formatResult],
-        );
-      }
-
-      if (pattern == '-') {
-        const listText = '• ';
-        final deleteResult = DocumentManipulator.deleteText(
-          document,
-          lineStart,
-          2,
-        );
-        var newDoc = deleteResult.document;
-        final insertResult = DocumentManipulator.insertText(
-          newDoc,
-          lineStart,
-          listText,
-        );
-        newDoc = insertResult.document;
-
-        final finalSelection = TextSelection.collapsed(
-          offset: lineStart + listText.length,
         );
         return MarkdownConversionResult(
           document: newDoc,
@@ -157,5 +200,47 @@ class MarkdownConverter {
     }
 
     return null;
+  }
+
+  static MarkdownConversionResult _applyBlockAttribute(
+    DocumentModel document,
+    int lineStart,
+    TextSelection selection,
+    int lengthToDelete,
+    Map<String, dynamic> attributes, {
+    String replacementText = '',
+  }) {
+    final deleteResult = DocumentManipulator.deleteText(
+      document,
+      lineStart,
+      lengthToDelete,
+    );
+    var newDoc = deleteResult.document;
+
+    if (replacementText.isNotEmpty) {
+      final insertResult = DocumentManipulator.insertText(
+        newDoc,
+        lineStart,
+        replacementText,
+      );
+      newDoc = insertResult.document;
+    }
+
+    final attrResult = DocumentManipulator.setBlockAttributes(
+      newDoc,
+      lineStart,
+      attributes,
+    );
+    newDoc = attrResult.document;
+
+    final finalSelection = TextSelection.collapsed(
+      offset: lineStart + replacementText.length,
+    );
+
+    return MarkdownConversionResult(
+      document: newDoc,
+      selection: finalSelection,
+      results: [deleteResult, attrResult],
+    );
   }
 }
