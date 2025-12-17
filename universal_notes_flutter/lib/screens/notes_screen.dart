@@ -5,18 +5,18 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
+import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:uuid/uuid.dart';
-import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/widgets/empty_state.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/quick_note_editor.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
+import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// The main screen displaying the list of notes.

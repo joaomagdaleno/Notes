@@ -522,7 +522,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                         subtitle: Text(dateStr),
                         onTap: () async {
                           // Restore logic
-                          var confirm =
+                          final confirm =
                               await showDialog<bool>(
                                 context: context,
                                 builder: (c) => AlertDialog(
