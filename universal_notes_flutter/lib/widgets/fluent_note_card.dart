@@ -43,6 +43,37 @@ class FluentNoteCard extends StatefulWidget {
 
 class _FluentNoteCardState extends State<FluentNoteCard> {
   final _flyoutController = fluent.FlyoutController();
+  String _plainTextContent = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // ⚡ Bolt: Caching the plain text content of a note.
+    // Parsing JSON and converting to plain text on every build is expensive.
+    // This computes it once when the widget is created or when the note
+    // content changes, making the build method much more efficient.
+    _plainTextContent = _computePlainText(widget.note.content);
+  }
+
+  @override
+  void didUpdateWidget(covariant FluentNoteCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.note.content != oldWidget.note.content) {
+      setState(() {
+        _plainTextContent = _computePlainText(widget.note.content);
+      });
+    }
+  }
+
+  String _computePlainText(String jsonContent) {
+    if (jsonContent.isEmpty) return '';
+    try {
+      return DocumentAdapter.fromJson(jsonContent).toPlainText();
+    } catch (e) {
+      // Handle potential malformed JSON gracefully.
+      return 'Error parsing content';
+    }
+  }
 
   @override
   void dispose() {
@@ -126,9 +157,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
                     const SizedBox(height: 8),
                     Expanded(
                       child: Text(
-                        DocumentAdapter.fromJson(
-                          widget.note.content,
-                        ).toPlainText(),
+                        _plainTextContent,
                         style: fluent.FluentTheme.of(context).typography.body,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 5,
