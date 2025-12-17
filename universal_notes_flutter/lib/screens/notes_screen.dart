@@ -51,7 +51,7 @@ enum SortOrder {
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
-  SortOrder _sortOrder = SortOrder.dateDesc;
+  final _sortOrderNotifier = ValueNotifier<SortOrder>(SortOrder.dateDesc);
   final SyncService _syncService = SyncService.instance;
   late final UpdateService _updateService;
   late Stream<List<Note>> _notesStream;
@@ -83,6 +83,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _viewModeNotifier.dispose();
+    _sortOrderNotifier.dispose();
     super.dispose();
   }
 
@@ -377,59 +378,67 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   Widget _buildNotesList(List<Note> notes) {
     final isTrashView = _selection.type == SidebarItemType.trash;
 
-    // Filter by search query
-    final query = _searchController.text.toLowerCase();
-    if (query.isNotEmpty) {
-      notes = notes.where((note) {
-        return note.title.toLowerCase().contains(query) ||
-            note.content.toLowerCase().contains(query);
-      }).toList();
-    }
+    // ⚡ Bolt: Using ValueListenableBuilder to rebuild only the list when
+    // sorting changes, preventing the whole screen from rebuilding.
+    return ValueListenableBuilder<SortOrder>(
+      valueListenable: _sortOrderNotifier,
+      builder: (context, sortOrder, child) {
+        // Filter by search query
+        final query = _searchController.text.toLowerCase();
+        var displayNotes = notes;
+        if (query.isNotEmpty) {
+          displayNotes = notes.where((note) {
+            return note.title.toLowerCase().contains(query) ||
+                note.content.toLowerCase().contains(query);
+          }).toList();
+        }
 
-    // Apply client-side sorting
-    notes.sort((a, b) {
-      switch (_sortOrder) {
-        case SortOrder.dateAsc:
-          return a.lastModified.compareTo(b.lastModified);
-        case SortOrder.titleAsc:
-          return a.title.toLowerCase().compareTo(b.title.toLowerCase());
-        case SortOrder.titleDesc:
-          return b.title.toLowerCase().compareTo(a.title.toLowerCase());
-        case SortOrder.dateDesc:
-          return b.lastModified.compareTo(a.lastModified);
-      }
-    });
+        // Apply client-side sorting
+        displayNotes.sort((a, b) {
+          switch (sortOrder) {
+            case SortOrder.dateAsc:
+              return a.lastModified.compareTo(b.lastModified);
+            case SortOrder.titleAsc:
+              return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+            case SortOrder.titleDesc:
+              return b.title.toLowerCase().compareTo(a.title.toLowerCase());
+            case SortOrder.dateDesc:
+              return b.lastModified.compareTo(a.lastModified);
+          }
+        });
 
-    if (notes.isEmpty) {
-      return const EmptyState(
-        icon: Icons.note_add,
-        message: 'No notes yet. Create one!',
-      );
-    }
+        if (displayNotes.isEmpty) {
+          return const EmptyState(
+            icon: Icons.note_add,
+            message: 'No notes yet. Create one!',
+          );
+        }
 
-    return GridView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(8),
-      gridDelegate: _getGridDelegate(_viewModeNotifier.value),
-      itemCount: notes.length,
-      itemBuilder: (context, index) {
-        final note = notes[index];
-        return NoteCard(
-          note: note,
-          onTap: () => unawaited(_openNoteEditor(note)),
-          onSave: (note) async {
-            final noteRepository = NoteRepository.instance;
-            await noteRepository.updateNote(note);
-            await _syncService.refreshLocalData();
-            return note;
+        return GridView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(8),
+          gridDelegate: _getGridDelegate(_viewModeNotifier.value),
+          itemCount: displayNotes.length,
+          itemBuilder: (context, index) {
+            final note = displayNotes[index];
+            return NoteCard(
+              note: note,
+              onTap: () => unawaited(_openNoteEditor(note)),
+              onSave: (note) async {
+                final noteRepository = NoteRepository.instance;
+                await noteRepository.updateNote(note);
+                await _syncService.refreshLocalData();
+                return note;
+              },
+              onDelete: _deletePermanently,
+              onFavorite: isTrashView
+                  ? (n) => unawaited(_restoreNote(n))
+                  : (n) => unawaited(_toggleFavorite(n)),
+              onTrash: isTrashView
+                  ? (n) => unawaited(_deletePermanently(n))
+                  : (n) => unawaited(_moveToTrash(n)),
+            );
           },
-          onDelete: _deletePermanently,
-          onFavorite: isTrashView
-              ? (n) => unawaited(_restoreNote(n))
-              : (n) => unawaited(_toggleFavorite(n)),
-          onTrash: isTrashView
-              ? (n) => unawaited(_deletePermanently(n))
-              : (n) => unawaited(_moveToTrash(n)),
         );
       },
     );
@@ -468,9 +477,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
             onSelected: (SortOrder result) {
-              setState(() {
-                _sortOrder = result;
-              });
+              // ⚡ Bolt: Update notifier directly, no setState needed.
+              _sortOrderNotifier.value = result;
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<SortOrder>>[
               const PopupMenuItem<SortOrder>(
@@ -589,22 +597,21 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Recentes)'),
                   onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.dateDesc),
+                      _sortOrderNotifier.value = SortOrder.dateDesc,
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Antigas)'),
-                  onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.dateAsc),
+                  onPressed: () => _sortOrderNotifier.value = SortOrder.dateAsc,
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (A-Z)'),
                   onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.titleAsc),
+                      _sortOrderNotifier.value = SortOrder.titleAsc,
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (Z-A)'),
                   onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.titleDesc),
+                      _sortOrderNotifier.value = SortOrder.titleDesc,
                 ),
               ],
             ),
