@@ -982,9 +982,7 @@ class _EditorLine extends StatelessWidget {
       );
     }
 
-    // 3. Early return optimization (Modified to include visual styles)
-    // We can't rely on simple RichText if we need block decorations.
-
+    // 3. Early return optimization
     final painter = TextPainter(
       text: textSpan,
       textAlign: textAlign,
@@ -1018,35 +1016,27 @@ class _EditorLine extends StatelessWidget {
     }
 
     // Core text widget (Stack of text + selection + cursor)
-    // IMPORTANT: If we align text, the cursor position calculation from painter is still relative to the text box.
-    // We need to ensure the Stack/RichText matches the alignment.
-    // Actually, TextPainter handles alignment layout internally if we pass textAlign.
-    // So getOffsetForCaret should work relative to the painter box.
-    // But we need to place the cursor in the right place manually?
-    // Positioned.fromRect uses coordinates. Painter coordinates are relative to (0,0) of the layout.
-    // If textAlign is Right, (0,0) is still top-left of the MaxWidth box, but text starts further right.
-    // Painter handles this.
-
-    Widget textStack = Stack(
-      children: [
-        // We use a custom painter or RichText inside an aligned container?
-        // RichText itself has textAlign property.
-        RichText(
-          text: textSpan,
-          textAlign: textAlign,
-        ),
-        ...selectionBoxes,
-        if (isCursorInThisLine && showCursor)
-          Positioned.fromRect(
-            rect:
-                painter.getOffsetForCaret(
-                  TextPosition(offset: cursorPosition.character),
-                  Rect.zero,
-                ) &
-                Size(2, painter.preferredLineHeight),
-            child: Container(color: Colors.blue),
+    Widget textStack = Padding(
+      padding: EdgeInsets.only(left: indentPadding),
+      child: Stack(
+        children: [
+          RichText(
+            text: textSpan,
+            textAlign: textAlign,
           ),
-      ],
+          ...selectionBoxes,
+          if (isCursorInThisLine && showCursor)
+            Positioned.fromRect(
+              rect:
+                  painter.getOffsetForCaret(
+                    TextPosition(offset: cursorPosition.character),
+                    Rect.zero,
+                  ) &
+                  Size(2, painter.preferredLineHeight),
+              child: Container(color: Colors.blue),
+            ),
+        ],
+      ),
     );
 
     // --- Apply Block Decorations ---
@@ -1060,7 +1050,9 @@ class _EditorLine extends StatelessWidget {
       // Assuming Block-Per-Line for drawings.
 
       final strokesRaw = attributes['strokes'] as List<dynamic>? ?? [];
-      final strokes = strokesRaw.map((e) => Stroke.fromJson(e)).toList();
+      final strokes = strokesRaw
+          .map((e) => Stroke.fromJson(e as Map<String, dynamic>))
+          .toList();
       final height = (attributes['height'] as num?)?.toDouble() ?? 200.0;
 
       content = InteractiveDrawingBlock(

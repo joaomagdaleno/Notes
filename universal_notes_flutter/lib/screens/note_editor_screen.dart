@@ -379,100 +379,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     _applyManipulation(result);
   }
 
-  void _toggleBlockAttribute(String key, dynamic value) {
-    if (_note == null) return;
-    final result = DocumentManipulator.toggleBlockAttribute(
-      _document,
-      _selection.baseOffset,
-      key,
-      value,
-    );
-    _applyManipulation(result);
-  }
-
-  void _indentBlock(int change) {
-    if (_note == null) return;
-    final result = DocumentManipulator.indentBlock(
-      _document,
-      _selection.baseOffset,
-      change,
-    );
-    _applyManipulation(result);
-  }
-
-  void _applyColor(Color color) {
-    final result = DocumentManipulator.applyColor(
-      _document,
-      _selection,
-      color,
-    );
-    final newDocument = result.document;
-    _handleNoteEvent(result.eventType, result.eventPayload);
-    _onDocumentChanged(newDocument);
-  }
-
-  void _applyFontSize(double fontSize) {
-    final result = DocumentManipulator.applyFontSize(
-      _document,
-      _selection,
-      fontSize,
-    );
-    final newDocument = result.document;
-    _handleNoteEvent(result.eventType, result.eventPayload);
-    _onDocumentChanged(newDocument);
-  }
-
-  void _showColorPicker() {
-    unawaited(
-      showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Select a color'),
-          content: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _predefinedColors
-                .map(
-                  (color) => GestureDetector(
-                    onTap: () {
-                      _applyColor(color);
-                      Navigator.of(context).pop();
-                    },
-                    child: CircleAvatar(backgroundColor: color, radius: 20),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showFontSizePicker() {
-    unawaited(
-      showModalBottomSheet<void>(
-        context: context,
-        builder: (context) => ListView(
-          shrinkWrap: true,
-          children: _fontSizes.entries
-              .map(
-                (entry) => ListTile(
-                  title: Text(
-                    entry.key,
-                    style: TextStyle(fontSize: entry.value),
-                  ),
-                  onTap: () {
-                    _applyFontSize(entry.value);
-                    Navigator.of(context).pop();
-                  },
-                ),
-              )
-              .toList(),
-        ),
-      ),
-    );
-  }
-
   void _undo() {
     if (!_historyManager.canUndo) return;
     setState(() {
@@ -1200,6 +1106,148 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  int _getBlockIndexForOffset(int offset) {
+    var currentOffset = 0;
+    for (int i = 0; i < _document.blocks.length; i++) {
+      final block = _document.blocks[i];
+      int len;
+      if (block is TextBlock) {
+        len = block.toPlainText().length + 1;
+      } else {
+        len = 2; // Default non-text block length
+      }
+      if (offset >= currentOffset && offset < currentOffset + len) {
+        return i;
+      }
+      currentOffset += len;
+    }
+    return _document.blocks.isNotEmpty ? _document.blocks.length - 1 : 0;
+  }
+
+  void _toggleBlockAttribute(String key, dynamic value) {
+    if (_selection.isCollapsed) {
+      final lineIndex = _getBlockIndexForOffset(_selection.baseOffset);
+      if (lineIndex < 0) return;
+
+      final result = DocumentManipulator.setBlockAttribute(
+        _document,
+        lineIndex,
+        key,
+        value,
+      );
+      _applyManipulation(result);
+    }
+  }
+
+  void _indentBlock(int delta) {
+    if (_selection.isCollapsed) {
+      final lineIndex = _getBlockIndexForOffset(_selection.baseOffset);
+      if (lineIndex < 0) return;
+
+      final result = DocumentManipulator.changeBlockIndent(
+        _document,
+        lineIndex,
+        delta,
+      );
+      _applyManipulation(result);
+    }
+  }
+
+  Future<void> _showColorPicker() async {
+    final colors = [
+      Colors.black,
+      Colors.grey,
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lightGreen,
+      Colors.lime,
+      Colors.yellow,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
+      Colors.brown,
+    ];
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Color'),
+        content: SingleChildScrollView(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: colors.map((color) {
+              return GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                  final result = DocumentManipulator.applyColor(
+                    _document,
+                    _selection,
+                    color,
+                  );
+                  _applyManipulation(result);
+                },
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showFontSizePicker() async {
+    final sizes = [12.0, 14.0, 16.0, 18.0, 20.0, 24.0, 28.0, 32.0, 36.0, 48.0];
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Font Size'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: sizes.length,
+            itemBuilder: (context, index) {
+              final size = sizes[index];
+              return ListTile(
+                title: Text(
+                  'Size ${size.toInt()}',
+                  style: TextStyle(fontSize: size),
+                ),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  final result = DocumentManipulator.applyFontSize(
+                    _document,
+                    _selection,
+                    size,
+                  );
+                  _applyManipulation(result);
+                },
+              );
+            },
           ),
         ),
       ),

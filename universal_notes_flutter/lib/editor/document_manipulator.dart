@@ -40,6 +40,84 @@ enum StyleAttribute {
 
 /// A class containing static methods to manipulate a [DocumentModel].
 class DocumentManipulator {
+  /// Sets a block-level attribute (e.g., alignment).
+  static ManipulationResult setBlockAttribute(
+    DocumentModel document,
+    int blockIndex,
+    String key,
+    dynamic value,
+  ) {
+    if (blockIndex < 0 || blockIndex >= document.blocks.length) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final block = document.blocks[blockIndex];
+    final currentAttributes = Map<String, dynamic>.from(block.attributes);
+
+    if (value == null) {
+      currentAttributes.remove(key);
+    } else {
+      currentAttributes[key] = value;
+    }
+
+    DocumentBlock newBlock;
+    if (block is TextBlock) {
+      newBlock = TextBlock(spans: block.spans, attributes: currentAttributes);
+    } else if (block is DrawingBlock) {
+      newBlock = DrawingBlock(
+        strokes: block.strokes,
+        height: block.height,
+        attributes: currentAttributes,
+      );
+    } else if (block is ImageBlock) {
+      newBlock = ImageBlock(
+        imagePath: block.imagePath,
+        attributes: currentAttributes,
+      );
+    } else {
+      // Fallback or generic block copy if we had a copyWith method
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final newBlocks = List<DocumentBlock>.from(document.blocks);
+    newBlocks[blockIndex] = newBlock;
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: newBlocks),
+      eventPayload: {'blockIndex': blockIndex, 'key': key, 'value': value},
+      eventType: NoteEventType.format,
+    );
+  }
+
+  /// Changes the indentation level of a block.
+  static ManipulationResult changeBlockIndent(
+    DocumentModel document,
+    int blockIndex,
+    int delta,
+  ) {
+    if (blockIndex < 0 || blockIndex >= document.blocks.length) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final block = document.blocks[blockIndex];
+    final currentIndent = (block.attributes['indent'] as int?) ?? 0;
+    final newIndent = (currentIndent + delta).clamp(0, 10); // Max indent 10
+
+    return setBlockAttribute(document, blockIndex, 'indent', newIndent);
+  }
+
   /// Inserts an image block at the specified position.
   static ManipulationResult insertImage(
     DocumentModel document,
