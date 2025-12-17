@@ -6,9 +6,13 @@ import 'package:universal_notes_flutter/editor/markdown_converter.dart';
 void main() {
   group('MarkdownConverter', () {
     test('converts *bold* pattern', () {
-      const doc = DocumentModel(
-        spans: [
-          TextSpanModel(text: 'Hello *World* '),
+      final doc = DocumentModel(
+        blocks: [
+          TextBlock(
+            spans: [
+              const TextSpanModel(text: 'Hello *World* '),
+            ],
+          ),
         ],
       );
       const selection = TextSelection.collapsed(offset: 13);
@@ -16,20 +20,26 @@ void main() {
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
-      expect(result!.document.spans.length, 3);
-      expect(result.document.spans[0].text, 'Hello ');
-      expect(result.document.spans[0].isBold, isFalse);
-      expect(result.document.spans[1].text, 'World');
-      expect(result.document.spans[1].isBold, isTrue);
-      expect(result.document.spans[2].text, ' ');
-      expect(result.document.spans[2].isBold, isFalse);
+      expect(result!.document.blocks.length, greaterThan(0));
+      final spans = (result.document.blocks.first as TextBlock).spans;
+      expect(spans.length, 3);
+      expect(spans[0].text, 'Hello ');
+      expect(spans[0].isBold, isFalse);
+      expect(spans[1].text, 'World');
+      expect(spans[1].isBold, isTrue);
+      expect(spans[2].text, ' ');
+      expect(spans[2].isBold, isFalse);
       expect(result.selection.baseOffset, 11);
     });
 
     test('converts _italic_ pattern', () {
-      const doc = DocumentModel(
-        spans: [
-          TextSpanModel(text: 'Hello _World_ '),
+      final doc = DocumentModel(
+        blocks: [
+          TextBlock(
+            spans: [
+              const TextSpanModel(text: 'Hello _World_ '),
+            ],
+          ),
         ],
       );
       const selection = TextSelection.collapsed(offset: 13);
@@ -37,13 +47,20 @@ void main() {
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
-      expect(result!.document.spans[1].isItalic, isTrue);
+      expect(
+        (result!.document.blocks.first as TextBlock).spans[1].isItalic,
+        isTrue,
+      );
     });
 
     test('converts -strikethrough- pattern', () {
-      const doc = DocumentModel(
-        spans: [
-          TextSpanModel(text: 'Hello -World- '),
+      final doc = DocumentModel(
+        blocks: [
+          TextBlock(
+            spans: [
+              const TextSpanModel(text: 'Hello -World- '),
+            ],
+          ),
         ],
       );
       const selection = TextSelection.collapsed(offset: 13);
@@ -51,13 +68,20 @@ void main() {
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
-      expect(result!.document.spans[1].isStrikethrough, isTrue);
+      expect(
+        (result!.document.blocks.first as TextBlock).spans[1].isStrikethrough,
+        isTrue,
+      );
     });
 
     test('converts # heading pattern', () {
-      const doc = DocumentModel(
-        spans: [
-          TextSpanModel(text: '# My Title'),
+      final doc = DocumentModel(
+        blocks: [
+          TextBlock(
+            spans: [
+              const TextSpanModel(text: '# My Title'),
+            ],
+          ),
         ],
       );
       const selection = TextSelection.collapsed(offset: 2); // After "# "
@@ -65,15 +89,20 @@ void main() {
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
-      expect(result!.document.spans.length, 1);
-      expect(result.document.spans[0].text, 'My Title');
-      expect(result.document.spans[0].fontSize, 32.0);
+      final spans = (result!.document.blocks.first as TextBlock).spans;
+      expect(spans.length, 1);
+      expect(spans[0].text, 'My Title');
+      expect(spans[0].fontSize, 32.0);
     });
 
     test('converts - list pattern', () {
-      const doc = DocumentModel(
-        spans: [
-          TextSpanModel(text: '- '),
+      final doc = DocumentModel(
+        blocks: [
+          TextBlock(
+            spans: [
+              const TextSpanModel(text: '- '),
+            ],
+          ),
         ],
       );
       const selection = TextSelection.collapsed(offset: 2);
@@ -85,9 +114,13 @@ void main() {
     });
 
     test('does not convert incomplete patterns', () {
-      const doc = DocumentModel(
-        spans: [
-          TextSpanModel(text: 'Hello *World'),
+      final doc = DocumentModel(
+        blocks: [
+          TextBlock(
+            spans: [
+              const TextSpanModel(text: 'Hello *World'),
+            ],
+          ),
         ],
       );
       const selection = TextSelection.collapsed(offset: 12);

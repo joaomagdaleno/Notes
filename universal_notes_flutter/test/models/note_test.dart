@@ -8,7 +8,9 @@ void main() {
         id: '1',
         title: 'Test Note',
         content: 'This is a test note.',
-        date: DateTime.now(),
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
       );
       expect(note, isNotNull);
     });
@@ -18,7 +20,9 @@ void main() {
         'id': '1',
         'title': 'Test Note',
         'content': 'This is a test note.',
-        'date': DateTime.now().millisecondsSinceEpoch,
+        'createdAt': DateTime.now().millisecondsSinceEpoch,
+        'lastModified': DateTime.now().millisecondsSinceEpoch,
+        'ownerId': 'user1',
         'isFavorite': 1,
         'isLocked': 0,
         'isInTrash': 1,
@@ -31,7 +35,9 @@ void main() {
         id: '1',
         title: 'Test Note',
         content: 'This is a test note.',
-        date: DateTime.now(),
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
       );
       expect(note.toMap(), isNotNull);
     });
@@ -41,7 +47,9 @@ void main() {
         id: '1',
         title: 'Test Note',
         content: 'This is a test note.',
-        date: DateTime.now(),
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
       );
       final copiedNote = note.copyWith(title: 'Copied Note');
       expect(copiedNote.title, 'Copied Note');

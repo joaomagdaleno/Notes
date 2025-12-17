@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class EmptyState extends StatelessWidget {
   /// Creates a new instance of [EmptyState].
   const EmptyState({
-    required this.message, super.key,
+    required this.message,
+    super.key,
     this.icon = Icons.inbox,
   });
 
@@ -23,7 +24,9 @@ class EmptyState extends StatelessWidget {
           Icon(
             icon,
             size: 64,
-            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.6),
+            color: Theme.of(
+              context,
+            ).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
           ),
           const SizedBox(height: 16),
           Text(

@@ -7,7 +7,9 @@ class DocumentAdapter {
   static DocumentModel fromJson(String jsonString) {
     if (jsonString.isEmpty) {
       return DocumentModel(
-        blocks: [TextBlock(spans: const [TextSpanModel(text: '')])],
+        blocks: [
+          TextBlock(spans: const [TextSpanModel(text: '')]),
+        ],
       );
     }
     try {
@@ -28,7 +30,9 @@ class DocumentAdapter {
     } on Exception catch (_) {
       // Fallback for old plain text content or malformed JSON
       return DocumentModel(
-        blocks: [TextBlock(spans: [TextSpanModel(text: jsonString)])],
+        blocks: [
+          TextBlock(spans: [TextSpanModel(text: jsonString)]),
+        ],
       );
     }
   }
@@ -47,31 +51,5 @@ class DocumentAdapter {
       return <String, dynamic>{};
     }).toList();
     return json.encode(jsonList);
-  }
-}
-
-extension on TextSpanModel {
-  Map<String, dynamic> toJson() {
-    return {
-      'text': text,
-      'isBold': isBold,
-      'isItalic': isItalic,
-      'isUnderline': isUnderline,
-      'isStrikethrough': isStrikethrough,
-      'fontSize': fontSize,
-      'color': color?.value,
-    };
-  }
-
-  factory TextSpanModel.fromJson(Map<String, dynamic> json) {
-    return TextSpanModel(
-      text: json['text'] as String,
-      isBold: json['isBold'] as bool? ?? false,
-      isItalic: json['isItalic'] as bool? ?? false,
-      isUnderline: json['isUnderline'] as bool? ?? false,
-      isStrikethrough: json['isStrikethrough'] as bool? ?? false,
-      fontSize: json['fontSize'] as double?,
-      color: json['color'] != null ? Color(json['color'] as int) : null,
-    );
   }
 }

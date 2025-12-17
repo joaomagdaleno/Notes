@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
@@ -58,11 +59,11 @@ class FluentContextMenuHelper {
         leading: const Icon(FluentIcons.save_as),
         text: const Text('Export to TXT'),
         onPressed: () async {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Exporting to TXT...')),
+          material.ScaffoldMessenger.of(context).showSnackBar(
+            const material.SnackBar(content: Text('Exporting to TXT...')),
           );
-          final noteWithContent =
-              await NoteRepository.instance.getNoteWithContent(note.id);
+          final noteWithContent = await NoteRepository.instance
+              .getNoteWithContent(note.id);
           await exportService.exportToTxt(noteWithContent);
         },
       ),
@@ -70,11 +71,11 @@ class FluentContextMenuHelper {
         leading: const Icon(FluentIcons.pdf),
         text: const Text('Export to PDF'),
         onPressed: () async {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Exporting to PDF...')),
+          material.ScaffoldMessenger.of(context).showSnackBar(
+            const material.SnackBar(content: Text('Exporting to PDF...')),
           );
-          final noteWithContent =
-              await NoteRepository.instance.getNoteWithContent(note.id);
+          final noteWithContent = await NoteRepository.instance
+              .getNoteWithContent(note.id);
           await exportService.exportToPdf(noteWithContent);
         },
       ),

@@ -101,34 +101,6 @@ class _SidebarState extends State<Sidebar> {
     }
   }
 
-  Future<String?> _showInputDialog({
-    required String title,
-    String? existingValue,
-  }) {
-    final controller = TextEditingController(text: existingValue);
-    return showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'Name'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(controller.text),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -180,7 +152,8 @@ class _SidebarState extends State<Sidebar> {
                 return ListTile(
                   leading: const Icon(Icons.folder_outlined),
                   title: Text(folder.name),
-                  selected: _selection.type == SidebarItemType.folder &&
+                  selected:
+                      _selection.type == SidebarItemType.folder &&
                       _selection.folder?.id == folder.id,
                   onTap: () {
                     final newSelection = SidebarSelection(
@@ -211,11 +184,14 @@ class _SidebarState extends State<Sidebar> {
                     return ListTile(
                       leading: const Icon(Icons.label_outline),
                       title: Text(tag),
-                      selected: _selection.type == SidebarItemType.tag &&
+                      selected:
+                          _selection.type == SidebarItemType.tag &&
                           _selection.tag == tag,
                       onTap: () {
-                        final newSelection =
-                            SidebarSelection(SidebarItem.tag, tag: tag);
+                        final newSelection = SidebarSelection(
+                          SidebarItemType.tag,
+                          tag: tag,
+                        );
                         setState(() => _selection = newSelection);
                         widget.onSelectionChanged(newSelection);
                       },

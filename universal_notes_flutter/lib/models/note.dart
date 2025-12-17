@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:universal_notes_flutter/models/package.flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 
 /// A class representing a single note, adapted for Firestore.
 @immutable
@@ -18,6 +18,7 @@ class Note {
     this.isFavorite = false,
     this.isInTrash = false,
     this.imageUrl,
+    this.folderId,
   });
 
   /// Creates a [Note] from a Firestore document snapshot.
@@ -30,12 +31,35 @@ class Note {
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       lastModified: (data['lastModified'] as Timestamp).toDate(),
       ownerId: data['ownerId'] as String,
-      collaborators: Map<String, String>.from(data['collaborators'] ?? {}),
-      tags: List<String>.from(data['tags'] ?? []),
-      memberIds: List<String>.from(data['memberIds'] ?? []),
+      collaborators: Map<String, String>.from(
+        (data['collaborators'] as Map<dynamic, dynamic>?) ?? {},
+      ),
+      tags: List<String>.from((data['tags'] as List<dynamic>?) ?? []),
+      memberIds: List<String>.from((data['memberIds'] as List<dynamic>?) ?? []),
       isFavorite: data['isFavorite'] as bool? ?? false,
       isInTrash: data['isInTrash'] as bool? ?? false,
       imageUrl: data['imageUrl'] as String?,
+    );
+  }
+
+  /// Creates a [Note] from a map (e.g. from local database).
+  factory Note.fromMap(Map<String, dynamic> map) {
+    return Note(
+      id:
+          map['id'] as String? ??
+          '', // ID might not be in map if not from DB query with ID
+      title: map['title'] as String? ?? 'Untitled',
+      content: map['content'] as String? ?? '',
+      createdAt: map['date'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int)
+          : DateTime.now(),
+      lastModified: map['date'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int)
+          : DateTime.now(), // Map 'date' to lastModified/createdAt for now
+      ownerId: map['ownerId'] as String? ?? 'local',
+      isFavorite: (map['isFavorite'] as int?) == 1,
+      isInTrash: (map['isInTrash'] as int?) == 1,
+      folderId: map['folderId'] as String?,
     );
   }
 
@@ -75,6 +99,12 @@ class Note {
   /// The URL of an attached image.
   final String? imageUrl;
 
+  /// The folder ID if any
+  final String? folderId;
+
+  /// Returns the date to display (usually lastModified).
+  DateTime get date => lastModified;
+
   /// Creates a copy of this note but with the given fields replaced.
   Note copyWith({
     String? id,
@@ -89,6 +119,7 @@ class Note {
     bool? isFavorite,
     bool? isInTrash,
     String? imageUrl,
+    String? folderId,
   }) {
     return Note(
       id: id ?? this.id,
@@ -120,6 +151,19 @@ class Note {
       'isFavorite': isFavorite,
       'isInTrash': isInTrash,
       'imageUrl': imageUrl,
+    };
+  }
+
+  /// Converts this note to a map for local database.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'content': content,
+      'date': lastModified.millisecondsSinceEpoch,
+      'isFavorite': isFavorite ? 1 : 0,
+      'isInTrash': isInTrash ? 1 : 0,
+      'folderId': folderId,
     };
   }
 }

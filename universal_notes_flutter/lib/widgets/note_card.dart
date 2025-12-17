@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:universal_notes_flutter/editor/document_adapter.dart';
+// import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
@@ -38,31 +38,31 @@ class NoteCard extends StatefulWidget {
 }
 
 class _NoteCardState extends State<NoteCard> {
-  String _plainTextContent = '';
+  // String _plainTextContent = '';
 
   @override
   void initState() {
     super.initState();
-    _plainTextContent = _computePlainText(widget.note.content);
+    // _plainTextContent = _computePlainText(widget.note.content);
   }
 
   @override
   void didUpdateWidget(NoteCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.note.content != oldWidget.note.content) {
-      _plainTextContent = _computePlainText(widget.note.content);
+      // _plainTextContent = _computePlainText(widget.note.content);
     }
   }
 
   // ⚡ Bolt: Caching the plain text content of a note.
   // Parsing JSON on every build is expensive. This computes it once
   // when the widget is created or when the note content changes.
-  String _computePlainText(String jsonContent) {
-    if (jsonContent.isEmpty) {
-      return '';
-    }
-    return DocumentAdapter.fromJson(jsonContent).toPlainText();
-  }
+  // String _computePlainText(String jsonContent) {
+  //   if (jsonContent.isEmpty) {
+  //     return '';
+  //   }
+  //   return DocumentAdapter.fromJson(jsonContent).toPlainText();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -98,9 +98,9 @@ class _NoteCardState extends State<NoteCard> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.black.withOpacity(0.6),
+                    Colors.black.withValues(alpha: 0.6),
                     Colors.transparent,
-                    Colors.black.withOpacity(0.8),
+                    Colors.black.withValues(alpha: 0.8),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -118,19 +118,18 @@ class _NoteCardState extends State<NoteCard> {
                         ? widget.note.title
                         : 'Sem Título',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     NoteCard._dateFormat.format(widget.note.lastModified),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.white70),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.white70),
                   ),
                 ],
               ),

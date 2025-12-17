@@ -22,10 +22,14 @@ class NotesScreen extends StatefulWidget {
   const NotesScreen({
     super.key,
     this.updateService,
+    this.firestoreRepository,
   });
 
   /// The service for checking app updates.
   final UpdateService? updateService;
+
+  /// The repository for managing notes in Firestore.
+  final FirestoreRepository? firestoreRepository;
 
   @override
   State<NotesScreen> createState() => _NotesScreenState();
@@ -59,7 +63,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   @override
   void initState() {
     super.initState();
-    _firestoreRepository = FirestoreRepository();
+    _firestoreRepository = widget.firestoreRepository ?? FirestoreRepository();
     _updateService = widget.updateService ?? UpdateService();
     windowManager.addListener(this);
     _updateNotesStream();
@@ -87,7 +91,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       case SidebarItemType.trash:
         isInTrash = true;
       case SidebarItemType.folder:
-        // TODO: Implement folder filtering with Firestore
+        // TODO(developer): Implement folder filtering with Firestore
         isInTrash = false; // Default to non-trashed for now
       case SidebarItemType.tag:
         _notesStream = _firestoreRepository.notesStream(
@@ -111,8 +115,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _createNewNote() async {
-    final newNote =
-        await _firestoreRepository.addNote(title: 'Nova Nota', content: '');
+    final newNote = await _firestoreRepository.addNote(
+      title: 'Nova Nota',
+      content: '',
+    );
     unawaited(_openNoteEditor(newNote));
   }
 
@@ -162,8 +168,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _toggleFavorite(Note note) async {
-    await _firestoreRepository
-        .updateNote(note.copyWith(isFavorite: !note.isFavorite));
+    await _firestoreRepository.updateNote(
+      note.copyWith(isFavorite: !note.isFavorite),
+    );
   }
 
   Future<void> _moveToTrash(Note note) async {
@@ -189,7 +196,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       case SidebarItemType.folder:
         return _selection.folder?.name ?? 'Folder';
       case SidebarItemType.tag:
-        return 'Tag: ${_selection.tag?.name ?? ''}';
+        return 'Tag: ${_selection.tag ?? ''}';
     }
   }
 
@@ -435,19 +442,23 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               items: [
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Recentes)'),
-                  onPressed: () => setState(() => _sortOrder = SortOrder.dateDesc),
+                  onPressed: () =>
+                      setState(() => _sortOrder = SortOrder.dateDesc),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Antigas)'),
-                  onPressed: () => setState(() => _sortOrder = SortOrder.dateAsc),
+                  onPressed: () =>
+                      setState(() => _sortOrder = SortOrder.dateAsc),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (A-Z)'),
-                  onPressed: () => setState(() => _sortOrder = SortOrder.titleAsc),
+                  onPressed: () =>
+                      setState(() => _sortOrder = SortOrder.titleAsc),
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (Z-A)'),
-                  onPressed: () => setState(() => _sortOrder = SortOrder.titleDesc),
+                  onPressed: () =>
+                      setState(() => _sortOrder = SortOrder.titleDesc),
                 ),
               ],
             ),
@@ -499,22 +510,23 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           ),
         ),
         content: StreamBuilder<List<Note>>(
-            stream: _notesStream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: fluent.ProgressRing());
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const EmptyState(
-                  icon: fluent.FluentIcons.note_forward,
-                  message: 'No notes here. Try creating one!',
-                );
-              }
-              return _buildNotesList(snapshot.data!);
-            }),
+          stream: _notesStream,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: fluent.ProgressRing());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const EmptyState(
+                icon: fluent.FluentIcons.note_forward,
+                message: 'No notes here. Try creating one!',
+              );
+            }
+            return _buildNotesList(snapshot.data!);
+          },
+        ),
         bottomBar: isTrashView
             ? null
             : Padding(

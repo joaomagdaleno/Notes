@@ -5,9 +5,13 @@ import 'package:universal_notes_flutter/editor/history_manager.dart';
 
 void main() {
   group('HistoryManager', () {
-    const initialDoc = DocumentModel(spans: [TextSpanModel(text: 'Initial')]);
+    final initialDoc = DocumentModel(
+      blocks: [
+        TextBlock(spans: [const TextSpanModel(text: 'Initial')]),
+      ],
+    );
     const initialSelection = TextSelection.collapsed(offset: 0);
-    const initialState = HistoryState(
+    final initialState = HistoryState(
       document: initialDoc,
       selection: initialSelection,
     );
@@ -25,9 +29,13 @@ void main() {
     });
 
     test('record adds a new state and clears redo stack', () {
-      const newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
+      final newDoc = DocumentModel(
+        blocks: [
+          TextBlock(spans: [const TextSpanModel(text: 'New')]),
+        ],
+      );
       const newSelection = TextSelection.collapsed(offset: 1);
-      const newState = HistoryState(document: newDoc, selection: newSelection);
+      final newState = HistoryState(document: newDoc, selection: newSelection);
 
       historyManager.record(newState);
 
@@ -37,9 +45,13 @@ void main() {
     });
 
     test('undo restores the previous state', () {
-      const newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
+      final newDoc = DocumentModel(
+        blocks: [
+          TextBlock(spans: [const TextSpanModel(text: 'New')]),
+        ],
+      );
       const newSelection = TextSelection.collapsed(offset: 1);
-      const newState = HistoryState(document: newDoc, selection: newSelection);
+      final newState = HistoryState(document: newDoc, selection: newSelection);
       historyManager.record(newState);
 
       final undoneState = historyManager.undo();
@@ -50,9 +62,13 @@ void main() {
     });
 
     test('redo restores the undone state', () {
-      const newDoc = DocumentModel(spans: [TextSpanModel(text: 'New')]);
+      final newDoc = DocumentModel(
+        blocks: [
+          TextBlock(spans: [const TextSpanModel(text: 'New')]),
+        ],
+      );
       const newSelection = TextSelection.collapsed(offset: 1);
-      const newState = HistoryState(document: newDoc, selection: newSelection);
+      final newState = HistoryState(document: newDoc, selection: newSelection);
       historyManager
         ..record(newState)
         ..undo();

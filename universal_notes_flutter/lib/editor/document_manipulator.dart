@@ -88,8 +88,7 @@ class DocumentManipulator {
       document,
       selection,
       (span) => span.copyWith(
-        isBold:
-            attribute == StyleAttribute.bold ? !span.isBold : span.isBold,
+        isBold: attribute == StyleAttribute.bold ? !span.isBold : span.isBold,
         isItalic: attribute == StyleAttribute.italic
             ? !span.isItalic
             : span.isItalic,
@@ -146,8 +145,9 @@ class DocumentManipulator {
         continue;
       }
 
-      final blockLength =
-          block.spans.map((s) => s.text.length).fold(0, (a, b) => a + b);
+      final blockLength = block.spans
+          .map((s) => s.text.length)
+          .fold(0, (a, b) => a + b);
       final blockEnd = currentPos + blockLength;
 
       if (blockEnd <= selection.start || currentPos >= selection.end) {
@@ -173,7 +173,9 @@ class DocumentManipulator {
               : '';
           final selectedText = span.text.substring(
             selection.start > currentPos ? selection.start - currentPos : 0,
-            selection.end < spanEnd ? selection.end - currentPos : span.text.length,
+            selection.end < spanEnd
+                ? selection.end - currentPos
+                : span.text.length,
           );
 
           if (beforeText.isNotEmpty) {
@@ -214,7 +216,9 @@ class DocumentManipulator {
     final spanPos = _findSpanPosition(spans, pos.localOffset);
     final targetSpan = spans[spanPos.spanIndex];
     final newText =
-        '${targetSpan.text.substring(0, spanPos.localOffset)}$text${targetSpan.text.substring(spanPos.localOffset)}';
+        '${targetSpan.text.substring(0, spanPos.localOffset)}'
+        '$text'
+        '${targetSpan.text.substring(spanPos.localOffset)}';
     spans[spanPos.spanIndex] = targetSpan.copyWith(text: newText);
     blocks[pos.blockIndex] = TextBlock(spans: spans);
     return DocumentModel(blocks: blocks);
@@ -235,8 +239,9 @@ class DocumentManipulator {
     for (final block in document.blocks) {
       int blockLength;
       if (block is TextBlock) {
-        blockLength =
-            block.spans.map((s) => s.text.length).fold(0, (a, b) => a + b);
+        blockLength = block.spans
+            .map((s) => s.text.length)
+            .fold(0, (a, b) => a + b);
       } else {
         blockLength = 1;
       }
@@ -254,8 +259,9 @@ class DocumentManipulator {
             final beforeText = start > spanStart
                 ? span.text.substring(0, start - spanStart)
                 : '';
-            final afterText =
-                end < spanEnd ? span.text.substring(end - spanStart) : '';
+            final afterText = end < spanEnd
+                ? span.text.substring(end - spanStart)
+                : '';
             if (beforeText.isNotEmpty) {
               newSpans.add(span.copyWith(text: beforeText));
             }
@@ -308,8 +314,9 @@ class DocumentManipulator {
       final block = blocks[i];
       var blockLength = 0;
       if (block is TextBlock) {
-        blockLength =
-            block.spans.map((s) => s.text.length).fold(0, (a, b) => a + b);
+        blockLength = block.spans
+            .map((s) => s.text.length)
+            .fold(0, (a, b) => a + b);
       } else {
         blockLength = 1; // Placeholder for image
       }

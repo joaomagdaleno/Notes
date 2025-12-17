@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 
-class _RemoteCursor extends StatelessWidget {
-  const _RemoteCursor({
+/// A widget that displays a remote cursor with a user's name.
+class RemoteCursor extends StatelessWidget {
+  /// Creates a remote cursor.
+  const RemoteCursor({
     required this.color,
     required this.name,
+    super.key,
   });
 
+  /// The color of the cursor.
   final Color color;
+
+  /// The name of the user associated with the cursor.
   final String name;
 
   @override

@@ -10,14 +10,14 @@ void main() {
       id: '1',
       title: 'Test Note',
       content: r'[{"insert":"This is a test note.\n"}]',
-      date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     );
 
     final noteWithInvalidContent = Note(
       id: '2',
       title: 'Test Note 2',
       content: 'invalid json',
-      date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     );
 
     testWidgets('displays title and content preview for valid content',

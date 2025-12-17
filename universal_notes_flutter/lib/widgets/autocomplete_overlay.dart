@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 /// A floating overlay that displays autocomplete suggestions.
@@ -13,10 +14,13 @@ class AutocompleteOverlay extends StatefulWidget {
 
   /// The list of suggestion strings to display.
   final List<String> suggestions;
+
   /// The position on the screen where the overlay should be anchored.
   final Offset position;
+
   /// Callback for when a suggestion is tapped.
   final ValueChanged<String> onSuggestionSelected;
+
   /// The index of the currently selected suggestion.
   final int selectedIndex;
 
@@ -40,7 +44,7 @@ class _AutocompleteOverlayState extends State<AutocompleteOverlay>
       parent: _animationController,
       curve: Curves.easeIn,
     );
-    _animationController.forward();
+    unawaited(_animationController.forward());
   }
 
   @override

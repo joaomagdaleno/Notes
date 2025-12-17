@@ -22,15 +22,14 @@ class ExportService {
   /// Exports the given [note] to a PDF file, preserving rich text formatting.
   Future<void> exportToPdf(Note note) async {
     final document = DocumentAdapter.fromJson(note.content);
-    final pdf = pw.Document();
-
-    pdf.addPage(
-      pw.MultiPage(
-        build: (pw.Context context) {
-          return _buildPdfWidgets(document);
-        },
-      ),
-    );
+    final pdf = pw.Document()
+      ..addPage(
+        pw.MultiPage(
+          build: (pw.Context context) {
+            return _buildPdfWidgets(document);
+          },
+        ),
+      );
 
     await Printing.sharePdf(
       bytes: await pdf.save(),
@@ -53,14 +52,16 @@ class ExportService {
           return pw.TextSpan(
             text: span.text,
             style: pw.TextStyle(
-              fontWeight:
-                  span.isBold ? pw.FontWeight.bold : pw.FontWeight.normal,
-              fontStyle:
-                  span.isItalic ? pw.FontStyle.italic : pw.FontStyle.normal,
+              fontWeight: span.isBold
+                  ? pw.FontWeight.bold
+                  : pw.FontWeight.normal,
+              fontStyle: span.isItalic
+                  ? pw.FontStyle.italic
+                  : pw.FontStyle.normal,
               decoration: pw.TextDecoration.combine(decorations),
               fontSize: span.fontSize,
               color: span.color != null
-                  ? PdfColor.fromInt(span.color!.value)
+                  ? PdfColor.fromInt(span.color!.toARGB32())
                   : null,
             ),
           );

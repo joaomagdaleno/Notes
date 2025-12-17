@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
@@ -52,6 +53,7 @@ class EditorWidget extends StatefulWidget {
   State<EditorWidget> createState() => EditorWidgetState();
 }
 
+/// State for [EditorWidget].
 class EditorWidgetState extends State<EditorWidget> {
   final FocusNode _focusNode = FocusNode();
   late TextSelection _selection;
@@ -137,8 +139,7 @@ class EditorWidgetState extends State<EditorWidget> {
       final painter = TextPainter(
         text: line.toTextSpan(),
         textDirection: TextDirection.ltr,
-      );
-      painter.layout(maxWidth: lineBox.size.width);
+      )..layout(maxWidth: lineBox.size.width);
 
       final lineStartOffset = _buffer.getOffsetForLineTextPosition(
         LineTextPosition(line: i, character: 0),
@@ -159,8 +160,8 @@ class EditorWidgetState extends State<EditorWidget> {
         final globalRect = Rect.fromLTWH(
           lineBox.localToGlobal(Offset(box.left, box.top)).dx,
           lineBox.localToGlobal(Offset(box.left, box.top)).dy,
-          box.width,
-          box.height,
+          box.right - box.left,
+          box.bottom - box.top,
         );
         totalRect = totalRect?.expandToInclude(globalRect) ?? globalRect;
       }
@@ -184,7 +185,7 @@ class EditorWidgetState extends State<EditorWidget> {
         setState(() {
           _selectedSuggestionIndex =
               (_selectedSuggestionIndex - 1 + _suggestions.length) %
-                  _suggestions.length;
+              _suggestions.length;
         });
         _showAutocomplete();
         return;
@@ -287,14 +288,18 @@ class EditorWidgetState extends State<EditorWidget> {
 
   /// Scrolls the editor to center the current line of the selection.
   void centerLine() {
-    final line = _buffer.getLineTextPositionForOffset(_selection.baseOffset).line;
+    final line = _buffer
+        .getLineTextPositionForOffset(_selection.baseOffset)
+        .line;
     final lineKey = _lineKeys[line];
     if (lineKey != null && lineKey.currentContext != null) {
-      Scrollable.ensureVisible(
-        lineKey.currentContext!,
-        alignment: 0.5, // Center of the viewport
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+      unawaited(
+        Scrollable.ensureVisible(
+          lineKey.currentContext!,
+          alignment: 0.5, // Center of the viewport
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        ),
       );
     }
   }
@@ -324,8 +329,9 @@ class EditorWidgetState extends State<EditorWidget> {
   }
 
   Offset _getCursorScreenPosition() {
-    final cursorPosition =
-        _buffer.getLineTextPositionForOffset(_selection.baseOffset);
+    final cursorPosition = _buffer.getLineTextPositionForOffset(
+      _selection.baseOffset,
+    );
     final lineKey = _lineKeys[cursorPosition.line];
     if (lineKey == null || lineKey.currentContext == null) {
       return Offset.zero;
@@ -338,8 +344,7 @@ class EditorWidgetState extends State<EditorWidget> {
     final painter = TextPainter(
       text: line.toTextSpan(),
       textDirection: TextDirection.ltr,
-    );
-    painter.layout(maxWidth: lineBox.size.width);
+    )..layout(maxWidth: lineBox.size.width);
 
     final localOffset = painter.getOffsetForCaret(
       TextPosition(offset: cursorPosition.character),
@@ -374,9 +379,14 @@ class EditorWidgetState extends State<EditorWidget> {
     // Announce for screen readers
     if (_suggestions.isNotEmpty) {
       final suggestion = _suggestions[_selectedSuggestionIndex];
-      SemanticsService.announce(
-        'Showing suggestions. Current: $suggestion',
-        TextDirection.ltr,
+      unawaited(
+        // Explanation: SemanticsService.announce is deprecated but the
+        // replacement is not straightforward for this use case.
+        // ignore: deprecated_member_use
+        SemanticsService.announce(
+          'Showing suggestions. Current: $suggestion',
+          TextDirection.ltr,
+        ),
       );
     }
   }
@@ -454,27 +464,34 @@ class EditorWidgetState extends State<EditorWidget> {
       final extent = selectionData['extent'] as int?;
       if (base == null || extent == null) continue;
 
-      final remoteSelection =
-          TextSelection(baseOffset: base, extentOffset: extent);
-      final color = Color(data['color'] as int? ?? Colors.grey.value);
+      final remoteSelection = TextSelection(
+        baseOffset: base,
+        extentOffset: extent,
+      );
+      final color = Color(data['color'] as int? ?? Colors.grey.toARGB32());
       final name = data['name'] as String? ?? 'Guest';
 
-      final startPos = _buffer.getLineTextPositionForOffset(remoteSelection.start);
+      final startPos = _buffer.getLineTextPositionForOffset(
+        remoteSelection.start,
+      );
       final endPos = _buffer.getLineTextPositionForOffset(remoteSelection.end);
 
       for (var i = startPos.line; i <= endPos.line; i++) {
         final lineKey = _lineKeys[i];
         if (lineKey == null || lineKey.currentContext == null) continue;
-        final lineBox = lineKey.currentContext!.findRenderObject()! as RenderBox;
+        final lineBox =
+            lineKey.currentContext!.findRenderObject()! as RenderBox;
         final line = _buffer.lines[i];
         if (line is! TextLine) continue;
 
-        final painter =
-            TextPainter(text: line.toTextSpan(), textDirection: TextDirection.ltr);
-        painter.layout(maxWidth: lineBox.size.width);
+        final painter = TextPainter(
+          text: line.toTextSpan(),
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: lineBox.size.width);
 
-        final lineStartOffset =
-            _buffer.getOffsetForLineTextPosition(LineTextPosition(line: i, character: 0));
+        final lineStartOffset = _buffer.getOffsetForLineTextPosition(
+          LineTextPosition(line: i, character: 0),
+        );
 
         final localSelection = TextSelection(
           baseOffset: math.max(0, remoteSelection.start - lineStartOffset),
@@ -487,13 +504,15 @@ class EditorWidgetState extends State<EditorWidget> {
         if (localSelection.isCollapsed) {
           final isStart = i == startPos.line;
           if (isStart) {
-            final cursorOffset = painter
-                .getOffsetForCaret(TextPosition(offset: localSelection.baseOffset), Rect.zero);
+            final cursorOffset = painter.getOffsetForCaret(
+              TextPosition(offset: localSelection.baseOffset),
+              Rect.zero,
+            );
             cursorWidgets.add(
               Positioned(
                 left: lineBox.localToGlobal(Offset.zero).dx + cursorOffset.dx,
                 top: lineBox.localToGlobal(Offset.zero).dy + cursorOffset.dy,
-                child: _RemoteCursor(color: color, name: name),
+                child: RemoteCursor(color: color, name: name),
               ),
             );
           }
@@ -504,9 +523,9 @@ class EditorWidgetState extends State<EditorWidget> {
               Positioned(
                 left: lineBox.localToGlobal(Offset.zero).dx + box.left,
                 top: lineBox.localToGlobal(Offset.zero).dy + box.top,
-                width: box.width,
-                height: box.height,
-                child: Container(color: color.withOpacity(0.3)),
+                width: box.right - box.left,
+                height: box.bottom - box.top,
+                child: Container(color: color.withValues(alpha: 0.3)),
               ),
             );
           }
@@ -549,8 +568,9 @@ class _EditorLineState extends State<_EditorLine> {
     super.initState();
     _cursorTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       if (widget.focusNode.hasFocus && widget.line is TextLine) {
-        final cursorPosition = widget.buffer
-            .getLineTextPositionForOffset(widget.selection.baseOffset);
+        final cursorPosition = widget.buffer.getLineTextPositionForOffset(
+          widget.selection.baseOffset,
+        );
         if (cursorPosition.line == widget.lineIndex) {
           setState(() => _showCursor = !_showCursor);
         } else if (_showCursor) {
@@ -608,8 +628,7 @@ class _EditorLineState extends State<_EditorLine> {
         unawaited(
           showDialog<void>(
             context: context,
-            builder: (_) =>
-                Dialog(child: Image.file(File(line.imagePath))),
+            builder: (_) => Dialog(child: Image.file(File(line.imagePath))),
           ),
         );
       },
@@ -624,8 +643,9 @@ class _EditorLineState extends State<_EditorLine> {
     _painter.text = line.toTextSpan();
     _painter.layout(maxWidth: context.size?.width ?? double.infinity);
 
-    final cursorPosition =
-        widget.buffer.getLineTextPositionForOffset(widget.selection.baseOffset);
+    final cursorPosition = widget.buffer.getLineTextPositionForOffset(
+      widget.selection.baseOffset,
+    );
     final isCursorInThisLine =
         widget.selection.isCollapsed && cursorPosition.line == widget.lineIndex;
 
@@ -650,13 +670,15 @@ class _EditorLineState extends State<_EditorLine> {
         extentOffset: selectionEnd - lineStartOffset,
       );
       selectionBoxes.addAll(
-        _painter.getBoxesForSelection(localSelection).map(
+        _painter
+            .getBoxesForSelection(localSelection)
+            .map(
               (box) => Positioned(
                 left: box.left,
                 top: box.top,
-                width: box.width,
-                height: box.height,
-                child: Container(color: Colors.blue.withOpacity(0.3)),
+                width: box.right - box.left,
+                height: box.bottom - box.top,
+                child: Container(color: Colors.blue.withValues(alpha: 0.3)),
               ),
             ),
       );
@@ -672,7 +694,8 @@ class _EditorLineState extends State<_EditorLine> {
           ...selectionBoxes,
           if (isCursorInThisLine && _showCursor)
             Positioned.fromRect(
-              rect: _painter.getOffsetForCaret(
+              rect:
+                  _painter.getOffsetForCaret(
                     TextPosition(offset: cursorPosition.character),
                     Rect.zero,
                   ) &

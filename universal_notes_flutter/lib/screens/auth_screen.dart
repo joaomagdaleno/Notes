@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
 
+/// The authentication screen.
 class AuthScreen extends StatefulWidget {
+  /// Creates an auth screen.
   const AuthScreen({super.key});
 
   @override

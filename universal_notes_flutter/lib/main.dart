@@ -64,7 +64,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// A wrapper that handles authentication state and navigation.
 class AuthWrapper extends StatelessWidget {
+  /// Creates an [AuthWrapper].
   const AuthWrapper({super.key});
 
   @override

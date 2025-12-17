@@ -9,12 +9,12 @@ import 'package:universal_notes_flutter/services/update_service.dart';
 import 'mocks/mocks.mocks.dart';
 
 void main() {
-  late MockNoteRepository mockNoteRepository;
+  late MockFirestoreRepository mockNoteRepository;
   late MockUpdateService mockUpdateService;
   late MockNavigatorObserver mockNavigatorObserver;
 
   setUp(() {
-    mockNoteRepository = MockNoteRepository();
+    mockNoteRepository = MockFirestoreRepository();
     mockUpdateService = MockUpdateService();
     mockNavigatorObserver = MockNavigatorObserver();
 
@@ -24,21 +24,25 @@ void main() {
     ).thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
 
     // Stub para getAllNotes
-    when(mockNoteRepository.getAllNotes()).thenAnswer(
-      (_) async => [
+    when(mockNoteRepository.notesStream()).thenAnswer(
+      (_) => Stream.value([
         Note(
           id: '1',
           title: 'Nota 1',
           content: 'Conteúdo da nota 1',
-          date: DateTime.now(),
+          createdAt: DateTime.now(),
+          lastModified: DateTime.now(),
+          ownerId: 'user1',
         ),
         Note(
           id: '2',
           title: 'Nota 2',
           content: 'Conteúdo da nota 2',
-          date: DateTime.now(),
+          createdAt: DateTime.now(),
+          lastModified: DateTime.now(),
+          ownerId: 'user1',
         ),
-      ],
+      ]),
     );
   });
 
@@ -54,7 +58,7 @@ void main() {
         },
         navigatorObservers: [mockNavigatorObserver],
         home: NotesScreen(
-          noteRepository: mockNoteRepository,
+          firestoreRepository: mockNoteRepository,
           updateService: mockUpdateService,
         ),
       ),
@@ -71,16 +75,22 @@ void main() {
           id: '1',
           title: 'Nota 1',
           content: 'Conteúdo 1',
-          date: DateTime.now(),
+          createdAt: DateTime.now(),
+          lastModified: DateTime.now(),
+          ownerId: 'user1',
         ),
         Note(
           id: '2',
           title: 'Nota 2',
           content: 'Conteúdo 2',
-          date: DateTime.now(),
+          createdAt: DateTime.now(),
+          lastModified: DateTime.now(),
+          ownerId: 'user1',
         ),
       ];
-      when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => notes);
+      when(
+        mockNoteRepository.notesStream(),
+      ).thenAnswer((_) => Stream.value(notes));
 
       await pumpWidget(tester);
       await tester.pumpAndSettle();
@@ -94,7 +104,9 @@ void main() {
     testWidgets(
       'Deve alternar entre os modos de visualização (lista -> grid)',
       (WidgetTester tester) async {
-        when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
+        when(
+          mockNoteRepository.notesStream(),
+        ).thenAnswer((_) => Stream.value(<Note>[]));
 
         await pumpWidget(tester);
         await tester.pumpAndSettle();
@@ -119,7 +131,9 @@ void main() {
     testWidgets('Deve navegar para a tela de nova nota ao pressionar o FAB', (
       WidgetTester tester,
     ) async {
-      when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => []);
+      when(
+        mockNoteRepository.notesStream(),
+      ).thenAnswer((_) => Stream.value(<Note>[]));
 
       await pumpWidget(tester);
       await tester.pumpAndSettle();
@@ -137,9 +151,13 @@ void main() {
           id: '1',
           title: 'Nota Editável',
           content: 'Conteúdo',
-          date: DateTime.now(),
+          createdAt: DateTime.now(),
+          lastModified: DateTime.now(),
+          ownerId: 'user1',
         );
-        when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => [note]);
+        when(
+          mockNoteRepository.notesStream(),
+        ).thenAnswer((_) => Stream.value([note]));
 
         await pumpWidget(tester);
         await tester.pumpAndSettle();
@@ -158,9 +176,13 @@ void main() {
         id: '1',
         title: 'Nota para Lixeira',
         content: 'Conteúdo',
-        date: DateTime.now(),
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
       );
-      when(mockNoteRepository.getAllNotes()).thenAnswer((_) async => [note]);
+      when(
+        mockNoteRepository.notesStream(),
+      ).thenAnswer((_) => Stream.value([note]));
       when(mockNoteRepository.updateNote(any)).thenAnswer((_) async {});
 
       await pumpWidget(tester);
@@ -186,7 +208,7 @@ void main() {
     //   'Deve exibir uma mensagem de erro se o carregamento de notas falhar',
     //   (WidgetTester tester) async {
     //     when(
-    //       mockNoteRepository.getAllNotes(),
+    //       mockNoteRepository.notesStream(),
     //     ).thenThrow(Exception('Falha ao carregar'));
     //
     //     await pumpWidget(tester);

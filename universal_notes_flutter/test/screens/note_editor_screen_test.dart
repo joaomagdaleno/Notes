@@ -8,7 +8,7 @@ void main() {
     id: '1',
     title: 'Test',
     content: 'Test content',
-    date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
   );
 
   testWidgets('NoteEditorScreen builds without crashing',

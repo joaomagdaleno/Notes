@@ -80,8 +80,9 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
   }
 
   Future<void> _showPreview(BuildContext context) async {
-    final noteWithContent =
-        await NoteRepository.instance.getNoteWithContent(widget.note.id);
+    final noteWithContent = await NoteRepository.instance.getNoteWithContent(
+      widget.note.id,
+    );
     final tags = await NoteRepository.instance.getTagsForNote(widget.note.id);
     if (context.mounted) {
       unawaited(
@@ -116,15 +117,18 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
                   children: [
                     Text(
                       widget.note.title,
-                      style: fluent.FluentTheme.of(context).typography.bodyLarge,
+                      style: fluent.FluentTheme.of(
+                        context,
+                      ).typography.bodyLarge,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 8),
                     Expanded(
                       child: Text(
-                        DocumentAdapter.fromJson(widget.note.content)
-                            .toPlainText(),
+                        DocumentAdapter.fromJson(
+                          widget.note.content,
+                        ).toPlainText(),
                         style: fluent.FluentTheme.of(context).typography.body,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 5,

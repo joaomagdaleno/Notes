@@ -9,6 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/main.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/paper_config.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
+
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/about_screen.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';

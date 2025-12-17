@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 
 /// Represents a tag that can be associated with multiple notes.
 class Tag {
+  /// Creates a new instance of [Tag].
+  const Tag({
+    required this.id,
+    required this.name,
+    this.color,
+  });
 
   /// Creates a [Tag] from a map (e.g., from a database query).
   factory Tag.fromMap(Map<String, dynamic> map) {
@@ -11,12 +17,8 @@ class Tag {
       color: map['color'] != null ? Color(map['color'] as int) : null,
     );
   }
+
   /// Creates a new instance of [Tag].
-  const Tag({
-    required this.id,
-    required this.name,
-    this.color,
-  });
 
   /// The unique identifier for the tag.
   final String id;
@@ -32,7 +34,7 @@ class Tag {
     return {
       'id': id,
       'name': name,
-      'color': color?.value,
+      'color': color?.toARGB32(),
     };
   }
 }

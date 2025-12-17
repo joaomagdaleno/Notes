@@ -7,32 +7,42 @@ void main() {
   group('ContextMenuHelper', () {
     testWidgets('buildDefaultContextMenu', (WidgetTester tester) async {
       late Note savedNote;
-      final note =
-          Note(id: '1', title: 'Test', content: '', date: DateTime.now());
+      final note = Note(
+        id: '1',
+        title: 'Test',
+        content: '',
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
+      );
 
-      await tester.pumpWidget(MaterialApp(
-        home: Material(
-          child: Builder(builder: (context) {
-            final items = ContextMenuHelper.buildDefaultContextMenu(
-              context,
-              note,
-              (n) => savedNote = n,
-            );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(
+            child: Builder(
+              builder: (context) {
+                final items = ContextMenuHelper.buildDefaultContextMenu(
+                  context,
+                  note,
+                  (n) => savedNote = n,
+                );
 
-            // Test "Favoritar"
-            final favoriteItem = items[0] as PopupMenuItem;
-            favoriteItem.onTap!();
-            expect(savedNote.isFavorite, isTrue);
+                // Test "Favoritar"
+                final favoriteItem = items[0] as PopupMenuItem;
+                favoriteItem.onTap!();
+                expect(savedNote.isFavorite, isTrue);
 
-            // Test "Mover para a lixeira"
-            final trashItem = items[1] as PopupMenuItem;
-            trashItem.onTap!();
-            expect(savedNote.isInTrash, isTrue);
+                // Test "Mover para a lixeira"
+                final trashItem = items[1] as PopupMenuItem;
+                trashItem.onTap!();
+                expect(savedNote.isInTrash, isTrue);
 
-            return Container();
-          }),
+                return Container();
+              },
+            ),
+          ),
         ),
-      ));
+      );
     });
 
     testWidgets('buildTrashContextMenu', (WidgetTester tester) async {
@@ -43,33 +53,39 @@ void main() {
         title: 'Test',
         content: '',
         isInTrash: true,
-        date: DateTime.now(),
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
       );
 
-      await tester.pumpWidget(MaterialApp(
-        home: Material(
-          child: Builder(builder: (context) {
-            final items = ContextMenuHelper.buildTrashContextMenu(
-              context,
-              note,
-              (n) => savedNote = n,
-              (n) => deletedNote = n,
-            );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(
+            child: Builder(
+              builder: (context) {
+                final items = ContextMenuHelper.buildTrashContextMenu(
+                  context,
+                  note,
+                  (n) => savedNote = n,
+                  (n) => deletedNote = n,
+                );
 
-            // Test "Restaurar"
-            final restoreItem = items[0] as PopupMenuItem;
-            restoreItem.onTap!();
-            expect(savedNote.isInTrash, isFalse);
+                // Test "Restaurar"
+                final restoreItem = items[0] as PopupMenuItem;
+                restoreItem.onTap!();
+                expect(savedNote.isInTrash, isFalse);
 
-            // Test "Excluir permanentemente"
-            final deleteItem = items[1] as PopupMenuItem;
-            deleteItem.onTap!();
-            expect(deletedNote, equals(note));
+                // Test "Excluir permanentemente"
+                final deleteItem = items[1] as PopupMenuItem;
+                deleteItem.onTap!();
+                expect(deletedNote, equals(note));
 
-            return Container();
-          }),
+                return Container();
+              },
+            ),
+          ),
         ),
-      ));
+      );
     });
   });
 }

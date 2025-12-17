@@ -58,7 +58,7 @@ class EditorToolbar extends StatelessWidget {
   final bool canRedo;
 
   /// The word count of the document.
-  final int wordCount;
+  final ValueNotifier<int> wordCountNotifier;
 
   /// The character count of the document.
   final ValueNotifier<int> charCountNotifier;

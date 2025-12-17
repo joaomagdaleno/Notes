@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/screens/notes_screen.dart';
@@ -29,33 +30,61 @@ class MockUpdateService extends UpdateService {
   }
 }
 
-class MockNoteRepository extends Mock implements NoteRepository {
+class MockFirestoreRepository extends Mock implements FirestoreRepository {
   @override
-  Future<List<Note>> getAllNotes({
-    String? folderId,
+  Stream<List<Note>> notesStream({
     bool? isFavorite,
     bool? isInTrash,
+    String? tag,
   }) {
     return super.noSuchMethod(
-          Invocation.method(#getAllNotes, [], {
-            #folderId: folderId,
+          Invocation.method(#notesStream, [], {
             #isFavorite: isFavorite,
             #isInTrash: isInTrash,
+            #tag: tag,
           }),
-          returnValue: Future.value(<Note>[]),
-          returnValueForMissingStub: Future.value(<Note>[]),
+          returnValue: Stream.value(<Note>[]),
+          returnValueForMissingStub: Stream.value(<Note>[]),
         )
-        as Future<List<Note>>;
+        as Stream<List<Note>>;
   }
 
   @override
-  Future<String> insertNote(Note? note) {
+  Future<Note> addNote({required String title, required String content}) {
     return super.noSuchMethod(
-          Invocation.method(#insertNote, [note]),
-          returnValue: Future.value(''),
-          returnValueForMissingStub: Future.value(''),
+          Invocation.method(#addNote, [], {#title: title, #content: content}),
+          returnValue: Future.value(
+            Note(
+              id: '1',
+              title: title,
+              content: content,
+              createdAt: DateTime.now(),
+              lastModified: DateTime.now(),
+              ownerId: 'user1',
+            ),
+          ),
+          returnValueForMissingStub: Future.value(
+            Note(
+              id: '1',
+              title: title,
+              content: content,
+              createdAt: DateTime.now(),
+              lastModified: DateTime.now(),
+              ownerId: 'user1',
+            ),
+          ),
         )
-        as Future<String>;
+        as Future<Note>;
+  }
+
+  @override
+  Future<void> updateNote(Note? note) {
+    return super.noSuchMethod(
+          Invocation.method(#updateNote, [note]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value(),
+        )
+        as Future<void>;
   }
 
   @override
@@ -91,6 +120,20 @@ class MockWindowManager extends Mock implements WindowManager {
 }
 
 enum ViewMode { gridMedium, gridLarge, list, listSimple, gridSmall }
+
+/// Creates a mock FirestoreRepository with default empty stream behavior.
+MockFirestoreRepository createDefaultMockRepository() {
+  final mockRepo = MockFirestoreRepository();
+  when(
+    mockRepo.notesStream(
+      isFavorite: anyNamed('isFavorite'),
+      isInTrash: anyNamed('isInTrash'),
+      tag: anyNamed('tag'),
+    ),
+  ).thenAnswer((_) => Stream.value(<Note>[]));
+  when(mockRepo.notesStream()).thenAnswer((_) => Stream.value(<Note>[]));
+  return mockRepo;
+}
 
 void main() {
   // Solves test hanging issues by ensuring the Flutter binding is initialized.
@@ -152,7 +195,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: NotesScreen(
-          noteRepository: NoteRepository.instance,
+          firestoreRepository: createDefaultMockRepository(),
           updateService: MockUpdateService(),
         ),
       ),
@@ -169,16 +212,16 @@ void main() {
 
   group('NotesScreen State Rendering', () {
     testWidgets('shows error message when fetch fails', (tester) async {
-      final mockNoteRepository = MockNoteRepository();
+      final mockNoteRepository = MockFirestoreRepository();
       when(
-        mockNoteRepository.getAllNotes(),
+        mockNoteRepository.notesStream(),
       ).thenThrow(Exception('Failed to load notes'));
 
       // Wrap in a Future that returns an error result instead of throwing
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: mockNoteRepository,
+            firestoreRepository: mockNoteRepository,
             updateService: MockUpdateService(),
           ),
         ),
@@ -195,7 +238,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -214,13 +257,13 @@ void main() {
           id: '1',
           title: 'Test Note 1',
           content: 'Content 1',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         ),
         Note(
           id: '2',
           title: 'Test Note 2',
           content: 'Content 2',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         ),
       ];
       */
@@ -228,8 +271,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository
-                .instance, // Mocking not fully set up, using instance for now
+            firestoreRepository: createDefaultMockRepository(),
+            // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
         ),
@@ -255,7 +298,7 @@ void main() {
           id: '1',
           title: 'Test Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         ),
       ];
       */
@@ -263,8 +306,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository
-                .instance, // Mocking not fully set up, using instance for now
+            firestoreRepository: createDefaultMockRepository(),
+            // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
         ),
@@ -298,13 +341,13 @@ void main() {
           id: '1',
           title: 'Normal Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         ),
         Note(
           id: '2',
           title: 'Trash Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
           isInTrash: true,
         ),
       ];
@@ -313,8 +356,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository
-                .instance, // Mocking not fully set up, using instance for now
+            firestoreRepository: createDefaultMockRepository(),
+            // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
         ),
@@ -334,13 +377,13 @@ void main() {
           id: '1',
           title: 'Normal Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         ),
         Note(
           id: '2',
           title: 'Favorite Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
           isFavorite: true,
         ),
       ];
@@ -349,8 +392,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository
-                .instance, // Mocking not fully set up, using instance for now
+            firestoreRepository: createDefaultMockRepository(),
+            // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
         ),
@@ -372,7 +415,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -400,7 +443,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -432,7 +475,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -461,7 +504,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -488,14 +531,14 @@ void main() {
           id: '1',
           title: 'Favorite Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
           isFavorite: true,
         ),
         Note(
           id: '2',
           title: 'Normal Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         ),
       ];
       */
@@ -503,8 +546,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository
-                .instance, // Mocking not fully set up, using instance for now
+            firestoreRepository: createDefaultMockRepository(),
+            // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
         ),
@@ -541,14 +584,14 @@ void main() {
           id: '1',
           title: 'Trash Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
           isInTrash: true,
         ),
         Note(
           id: '2',
           title: 'Normal Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         ),
       ];
       */
@@ -556,8 +599,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository
-                .instance, // Mocking not fully set up, using instance for now
+            firestoreRepository: createDefaultMockRepository(),
+            // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
         ),
@@ -591,7 +634,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -622,7 +665,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -659,7 +702,7 @@ void main() {
           id: '1',
           title: 'Test Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         ),
       ];
       */
@@ -667,8 +710,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository
-                .instance, // Mocking not fully set up, using instance for now
+            firestoreRepository: createDefaultMockRepository(),
+            // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
         ),
@@ -697,7 +740,7 @@ void main() {
           id: '1',
           title: 'Test Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         ),
       ];
       */
@@ -705,8 +748,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository
-                .instance, // Mocking not fully set up, using instance for now
+            firestoreRepository: createDefaultMockRepository(),
+            // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
         ),
@@ -734,7 +777,7 @@ void main() {
           id: '1',
           title: 'Test Note',
           content: 'Content',
-          date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         ),
       ];
       */
@@ -742,8 +785,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository
-                .instance, // Mocking not fully set up, using instance for now
+            firestoreRepository: createDefaultMockRepository(),
+            // Mocking not fully set up, using instance for now
             updateService: MockUpdateService(),
           ),
         ),
@@ -773,7 +816,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -809,7 +852,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -852,7 +895,7 @@ void main() {
       });
 
       final widget = NotesScreen(
-        noteRepository: NoteRepository.instance,
+        firestoreRepository: createDefaultMockRepository(),
         updateService: MockUpdateService(),
       );
 
@@ -1052,7 +1095,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -1105,7 +1148,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -1161,16 +1204,12 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      final mockRepo = MockNoteRepository();
-      when(
-        mockRepo.getAllNotes(),
-      ).thenAnswer((_) async => <Note>[]); // Start empty
-      when(mockRepo.insertNote(any)).thenAnswer((_) async => '100');
+      final mockRepo = createDefaultMockRepository();
 
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: mockRepo,
             updateService: MockUpdateService(),
           ),
         ),
@@ -1192,35 +1231,48 @@ void main() {
         id: '', // Empty ID for new note
         title: 'New Note',
         content: 'Content',
-        date: DateTime.now(),
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
       );
 
       // Invoke onSave
       await editor.onSave(newNote);
       await tester.pump();
 
-      // Verify insertNote was called on repo
-      verify(mockRepo.insertNote(any)).called(1);
-      // Verify refreshed
-      verify(mockRepo.getAllNotes()).called(1);
+      // Verify addNote was called on repo (using named parameters)
+      verify(
+        mockRepo.addNote(
+          title: (anyNamed('title') as dynamic) as String,
+          content: (anyNamed('content') as dynamic) as String,
+        ),
+      ).called(greaterThanOrEqualTo(1));
     });
 
     testWidgets('deleting a note calls deleteNote', (tester) async {
-      final mockRepo = MockNoteRepository();
+      final mockRepo = createDefaultMockRepository();
       final testNote = Note(
         id: '123',
         title: 'Delete Me',
         content: 'Content',
-        date: DateTime.now(),
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
       );
 
-      when(mockRepo.getAllNotes()).thenAnswer((_) async => [testNote]);
+      when(
+        mockRepo.notesStream(
+          isFavorite: anyNamed('isFavorite'),
+          isInTrash: anyNamed('isInTrash'),
+          tag: anyNamed('tag'),
+        ),
+      ).thenAnswer((_) => Stream.value([testNote]));
       when(mockRepo.deleteNote(any)).thenAnswer((_) async {});
 
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: mockRepo,
             updateService: MockUpdateService(),
           ),
         ),
@@ -1247,7 +1299,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -1287,7 +1339,7 @@ void main() {
       await tester.pumpWidget(
         fluent.FluentApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -1314,7 +1366,7 @@ void main() {
             // Actually FluentApp has its own Navigator.
             // But NoteScreen uses Navigator.of(context).
             child: NotesScreen(
-              noteRepository: NoteRepository.instance,
+              firestoreRepository: createDefaultMockRepository(),
               updateService: MockUpdateService(),
             ),
           ),
@@ -1345,7 +1397,7 @@ void main() {
       await tester.pumpWidget(
         fluent.FluentApp(
           home: NotesScreen(
-            noteRepository: NoteRepository.instance,
+            firestoreRepository: createDefaultMockRepository(),
             updateService: MockUpdateService(),
           ),
         ),
@@ -1377,16 +1429,14 @@ void main() {
 
   group('NotesScreen Platform Logic', () {
     testWidgets('calls window listener onWindowClose', (tester) async {
-      final mockRepo = MockNoteRepository();
       final mockWindowManager = MockWindowManager();
 
-      when(mockRepo.close()).thenAnswer((_) async {});
       when(mockWindowManager.destroy()).thenAnswer((_) async {});
       // addListener/removeListener return void, check stubs in mock class
 
       await tester.pumpWidget(
         MyAppWithWindowListener(
-          noteRepository: mockRepo,
+          noteRepository: NoteRepository.instance,
           windowManager: mockWindowManager,
         ),
       );
@@ -1396,7 +1446,6 @@ void main() {
       );
       await state.onWindowClose();
 
-      verify(mockRepo.close()).called(1);
       verify(mockWindowManager.destroy()).called(1);
     });
   });

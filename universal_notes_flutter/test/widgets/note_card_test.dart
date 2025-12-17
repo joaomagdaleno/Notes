@@ -10,7 +10,7 @@ void main() {
       id: '1',
       title: 'Test Note',
       content: r'[{"insert":"This is a test note.\n"}]',
-      date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     );
 
     await tester.pumpWidget(
@@ -40,7 +40,7 @@ void main() {
       id: '1',
       title: 'Test Note',
       content: '',
-      date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     );
 
     await tester.pumpWidget(
@@ -74,7 +74,7 @@ void main() {
         id: '1',
         title: 'Test Note',
         content: r'[{"insert":"Content\n"}]',
-        date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       );
 
       await tester.pumpWidget(
@@ -113,7 +113,7 @@ void main() {
       id: '1',
       title: 'Test Note',
       content: r'[{"insert":"Content\n"}]',
-      date: DateTime.now(),
+createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     );
 
     await tester.pumpWidget(

@@ -1,10 +1,11 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+// import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 
-class MockNoteRepository extends Mock implements NoteRepository {}
+class MockFirestoreRepository extends Mock implements NoteRepository {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +24,7 @@ void main() {
   group('AutocompleteService', () {
     test('returns suggestions from all sources in order', () async {
       // Arrange
-      final mockRepo = MockNoteRepository();
+      final mockRepo = MockFirestoreRepository();
       NoteRepository.instance = mockRepo; // Simple DI for test
       when(mockRepo.getFrequentWords('wor')).thenAnswer((_) async => ['work']);
 

@@ -56,7 +56,10 @@ class FirebaseService {
   /// `cursorData` deve conter informações como a posição do cursor,
   /// o nome do usuário e a cor do cursor.
   Future<void> updateUserPresence(
-      String noteId, String userId, Map<String, dynamic> cursorData) async {
+    String noteId,
+    String userId,
+    Map<String, dynamic> cursorData,
+  ) async {
     _presenceData[userId] = cursorData;
     // Emite o estado atualizado da presença para todos os ouvintes.
     _presenceController.add(_presenceData);
@@ -72,7 +75,7 @@ class FirebaseService {
 
   /// Libera os recursos do serviço.
   void dispose() {
-    _documentController.close();
-    _presenceController.close();
+    unawaited(_documentController.close());
+    unawaited(_presenceController.close());
   }
 }

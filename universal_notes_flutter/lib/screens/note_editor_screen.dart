@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
@@ -15,14 +14,11 @@ import 'package:universal_notes_flutter/editor/floating_toolbar.dart';
 import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
 import 'package:universal_notes_flutter/services/storage_service.dart';
-import 'package:universal_notes_flutter/services/tag_suggestion_service.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
-import 'package:uuid/uuid.dart';
 
 /// A screen for editing a note.
 class NoteEditorScreen extends StatefulWidget {
@@ -63,9 +59,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   bool get _isToolbarVisible =>
       _selectionRectNotifier.value != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
+  Rect? get _selectionRect => _selectionRectNotifier.value;
   final _wordCountNotifier = ValueNotifier<int>(0);
   final _charCountNotifier = ValueNotifier<int>(0);
-  final _isFindBarVisibleNotifier = ValueNotifier<bool>(false);
+  bool _isFindBarVisible = false;
   String _findTerm = '';
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
@@ -127,7 +124,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     // Ensure system UI is restored when the screen is disposed
     if (_isFocusMode) {
       unawaited(
-        SystemChrome.setEnabledSystemUimode(
+        SystemChrome.setEnabledSystemUIMode(
           SystemUiMode.manual,
           overlays: SystemUiOverlay.values,
         ),
@@ -139,8 +136,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   void _updateCounts(DocumentModel document) {
     final text = document.toPlainText().trim();
     _charCountNotifier.value = text.length;
-    _wordCountNotifier.value =
-        text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
+    _wordCountNotifier.value = text.isEmpty
+        ? 0
+        : text.split(RegExp(r'\s+')).length;
   }
 
   void _onDocumentChanged(DocumentModel newDocument) {
@@ -374,11 +372,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   Future<void> _attachImage() async {
-    final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile == null) return;
 
-    final imageUrl =
-        await _storageService.uploadImage(File(pickedFile.path));
+    final imageUrl = await _storageService.uploadImage(File(pickedFile.path));
     if (imageUrl != null) {
       setState(() {
         _note = _note?.copyWith(imageUrl: imageUrl);
@@ -542,97 +541,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       ),
     );
   }
-}
 
-// --- Keyboard Shortcut Actions and Intents ---
-
-class UndoIntent extends Intent {
-  const UndoIntent();
-}
-
-class RedoIntent extends Intent {
-  const RedoIntent();
-}
-
-class CenterLineIntent extends Intent {
-  const CenterLineIntent();
-}
-
-class ShowFormatMenuIntent extends Intent {
-  const ShowFormatMenuIntent();
-}
-
-class UndoAction extends Action<UndoIntent> {
-  UndoAction(this.state);
-
-  final _NoteEditorScreenState state;
-
-  @override
-  void invoke(UndoIntent intent) {
-    state._undo();
-  }
-}
-
-class RedoAction extends Action<RedoIntent> {
-  RedoAction(this.state);
-
-  final _NoteEditorScreenState state;
-
-  @override
-  void invoke(RedoIntent intent) {
-    state._redo();
-  }
-}
-
-class CenterLineAction extends Action<CenterLineIntent> {
-  CenterLineAction(this.state);
-
-  final _NoteEditorScreenState state;
-
-  @override
-  void invoke(CenterLineIntent intent) {
-    state._editorKey.currentState?.centerLine();
-  }
-}
-
-class ShowFormatMenuAction extends Action<ShowFormatMenuIntent> {
-  ShowFormatMenuAction(this.state);
-
-  final _NoteEditorScreenState state;
-
-  @override
-  void invoke(ShowFormatMenuIntent intent) {
-    state._showFontSizePicker();
-  }
-}
-
-class _CollaboratorAvatars extends StatelessWidget {
-  const _CollaboratorAvatars({required this.remoteCursors});
-
-  final Map<String, Map<String, dynamic>> remoteCursors;
-
-  @override
-  Widget build(BuildContext context) {
-    final collaborators = remoteCursors.values.toList();
-    return Row(
-      children: [
-        for (int i = 0; i < collaborators.length; i++)
-          Align(
-            widthFactor: 0.7,
-            child: CircleAvatar(
-              backgroundColor: Color(collaborators[i]['color'] as int),
-              child: Text(
-                (collaborators[i]['name'] as String).substring(0, 2),
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-extension on _NoteEditorScreenState {
   void _showShareDialog() {
     final emailController = TextEditingController();
     var permission = 'viewer'; // Default permission
@@ -653,8 +562,9 @@ extension on _NoteEditorScreenState {
                       const Text('Add new collaborator:'),
                       TextField(
                         controller: emailController,
-                        decoration:
-                            const InputDecoration(labelText: 'User Email'),
+                        decoration: const InputDecoration(
+                          labelText: 'User Email',
+                        ),
                       ),
                       DropdownButton<String>(
                         value: permission,
@@ -667,11 +577,12 @@ extension on _NoteEditorScreenState {
                         },
                         items: <String>['viewer', 'editor']
                             .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            })
+                            .toList(),
                       ),
                       const Divider(),
                       const Text('Current collaborators:'),
@@ -687,7 +598,9 @@ extension on _NoteEditorScreenState {
                               onPressed: () async {
                                 await _firestoreRepository
                                     .unshareNoteWithCollaborator(
-                                        _note!.id, entry.key);
+                                      _note!.id,
+                                      entry.key,
+                                    );
                                 // Refresh note from parent
                               },
                             ),
@@ -705,24 +618,24 @@ extension on _NoteEditorScreenState {
               ),
               TextButton(
                 onPressed: () async {
-                  final success =
-                      await _firestoreRepository.shareNoteWithEmail(
+                  final messenger = ScaffoldMessenger.of(context);
+                  final navigator = Navigator.of(context);
+                  final success = await _firestoreRepository.shareNoteWithEmail(
                     _note!.id,
                     emailController.text,
                     permission,
                   );
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          success
-                              ? 'Note shared successfully!'
-                              : 'User not found.',
-                        ),
+                  if (!context.mounted) return;
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        success
+                            ? 'Note shared successfully!'
+                            : 'User not found.',
                       ),
-                    );
-                    Navigator.of(context).pop();
-                  }
+                    ),
+                  );
+                  navigator.pop();
                 },
                 child: const Text('Share'),
               ),
@@ -750,41 +663,39 @@ extension on _NoteEditorScreenState {
     // Define the keyboard shortcuts
     final shortcuts = {
       LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ):
-          const UndoIntent(),
+          const _UndoIntent(),
       LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ):
-          const UndoIntent(),
+          const _UndoIntent(),
       LogicalKeySet(
         LogicalKeyboardKey.control,
         LogicalKeyboardKey.shift,
         LogicalKeyboardKey.keyZ,
-      ):
-          const RedoIntent(),
+      ): const _RedoIntent(),
       LogicalKeySet(
         LogicalKeyboardKey.meta,
         LogicalKeyboardKey.shift,
         LogicalKeyboardKey.keyZ,
-      ):
-          const RedoIntent(),
+      ): const _RedoIntent(),
       LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY):
-          const RedoIntent(),
+          const _RedoIntent(),
       LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyY):
-          const RedoIntent(),
+          const _RedoIntent(),
       LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyE):
-          const CenterLineIntent(),
+          const _CenterLineIntent(),
       LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyE):
-          const CenterLineIntent(),
+          const _CenterLineIntent(),
       LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyP):
-          const ShowFormatMenuIntent(),
+          const _ShowFormatMenuIntent(),
       LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyP):
-          const ShowFormatMenuIntent(),
+          const _ShowFormatMenuIntent(),
     };
 
     // Define the actions
-    final actions = {
-      UndoIntent: UndoAction(this),
-      RedoIntent: RedoAction(this),
-      CenterLineIntent: CenterLineAction(this),
-      ShowFormatMenuIntent: ShowFormatMenuAction(this),
+    final actions = <Type, Action<Intent>>{
+      _UndoIntent: _UndoAction(this),
+      _RedoIntent: _RedoAction(this),
+      _CenterLineIntent: _CenterLineAction(this),
+      _ShowFormatMenuIntent: _ShowFormatMenuAction(this),
     };
     return PopScope(
       canPop: false,
@@ -801,8 +712,7 @@ extension on _NoteEditorScreenState {
             appBar: _isFocusMode
                 ? null
                 : AppBar(
-                    title:
-                        Text(widget.note == null ? 'New Note' : 'Edit Note'),
+                    title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
                     actions: [
                       if (_isCollaborative)
                         _CollaboratorAvatars(remoteCursors: _remoteCursors),
@@ -847,15 +757,15 @@ extension on _NoteEditorScreenState {
                         },
                         itemBuilder: (BuildContext context) =>
                             <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'txt',
-                            child: Text('Exportar para TXT'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'pdf',
-                            child: Text('Exportar para PDF'),
-                          ),
-                        ],
+                              const PopupMenuItem<String>(
+                                value: 'txt',
+                                child: Text('Exportar para TXT'),
+                              ),
+                              const PopupMenuItem<String>(
+                                value: 'pdf',
+                                child: Text('Exportar para PDF'),
+                              ),
+                            ],
                       ),
                     ],
                   ),
@@ -876,11 +786,11 @@ extension on _NoteEditorScreenState {
                         duration: const Duration(milliseconds: 300),
                         transitionBuilder:
                             (Widget child, Animation<double> animation) {
-                          return SizeTransition(
-                            sizeFactor: animation,
-                            child: child,
-                          );
-                        },
+                              return SizeTransition(
+                                sizeFactor: animation,
+                                child: child,
+                              );
+                            },
                         child: _isFindBarVisible && !_isFocusMode
                             ? FindReplaceBar(
                                 key: const ValueKey('findBar'),
@@ -923,8 +833,8 @@ extension on _NoteEditorScreenState {
                           onRedo: _redo,
                           canUndo: _historyManager.canUndo,
                           canRedo: _historyManager.canRedo,
-                          wordCount: _wordCount,
-                          charCount: _charCount,
+                          wordCountNotifier: _wordCountNotifier,
+                          charCountNotifier: _charCountNotifier,
                         ),
                     ],
                   ),
@@ -943,6 +853,102 @@ extension on _NoteEditorScreenState {
           ),
         ),
       ),
+    );
+  }
+}
+
+// --- Keyboard Shortcut Actions and Intents ---
+
+/// Intent to undo the last action.
+class _UndoIntent extends Intent {
+  const _UndoIntent();
+}
+
+/// Intent to redo the last undone action.
+class _RedoIntent extends Intent {
+  const _RedoIntent();
+}
+
+/// Intent to center the current line.
+class _CenterLineIntent extends Intent {
+  const _CenterLineIntent();
+}
+
+/// Intent to show the format menu.
+class _ShowFormatMenuIntent extends Intent {
+  const _ShowFormatMenuIntent();
+}
+
+/// Action to handle undo.
+class _UndoAction extends Action<_UndoIntent> {
+  _UndoAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(_UndoIntent intent) {
+    state._undo();
+  }
+}
+
+/// Action to handle redo.
+class _RedoAction extends Action<_RedoIntent> {
+  _RedoAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(_RedoIntent intent) {
+    state._redo();
+  }
+}
+
+/// Action to handle centering the line.
+class _CenterLineAction extends Action<_CenterLineIntent> {
+  _CenterLineAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(_CenterLineIntent intent) {
+    state._editorKey.currentState?.centerLine();
+  }
+}
+
+/// Action to handle showing the format menu.
+class _ShowFormatMenuAction extends Action<_ShowFormatMenuIntent> {
+  _ShowFormatMenuAction(this.state);
+
+  final _NoteEditorScreenState state;
+
+  @override
+  void invoke(_ShowFormatMenuIntent intent) {
+    state._showFontSizePicker();
+  }
+}
+
+class _CollaboratorAvatars extends StatelessWidget {
+  const _CollaboratorAvatars({required this.remoteCursors});
+
+  final Map<String, Map<String, dynamic>> remoteCursors;
+
+  @override
+  Widget build(BuildContext context) {
+    final collaborators = remoteCursors.values.toList();
+    return Row(
+      children: [
+        for (int i = 0; i < collaborators.length; i++)
+          Align(
+            widthFactor: 0.7,
+            child: CircleAvatar(
+              backgroundColor: Color(collaborators[i]['color'] as int),
+              child: Text(
+                (collaborators[i]['name'] as String).substring(0, 2),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

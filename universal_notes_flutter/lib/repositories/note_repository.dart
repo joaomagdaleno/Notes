@@ -149,29 +149,42 @@ class NoteRepository {
   }
 
   // --- Tag Methods ---
+  /// Creates a new [tag].
   Future<Tag> createTag(Tag tag) async {
     final db = await database;
-    await db.insert(_tagsTable, tag.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert(
+      _tagsTable,
+      tag.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
     return tag;
   }
 
+  /// Retrieves all tags.
   Future<List<Tag>> getAllTags() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(_tagsTable);
     return List.generate(maps.length, (i) => Tag.fromMap(maps[i]));
   }
 
+  /// Updates an existing [tag].
   Future<void> updateTag(Tag tag) async {
     final db = await database;
-    await db.update(_tagsTable, tag.toMap(), where: 'id = ?', whereArgs: [tag.id]);
+    await db.update(
+      _tagsTable,
+      tag.toMap(),
+      where: 'id = ?',
+      whereArgs: [tag.id],
+    );
   }
 
+  /// Deletes a tag by [id].
   Future<void> deleteTag(String id) async {
     final db = await database;
     await db.delete(_tagsTable, where: 'id = ?', whereArgs: [id]);
   }
 
+  /// Associates a tag with a note.
   Future<void> addTagToNote(String noteId, String tagId) async {
     final db = await database;
     await db.insert(
@@ -181,6 +194,7 @@ class NoteRepository {
     );
   }
 
+  /// Removes a tag from a note.
   Future<void> removeTagFromNote(String noteId, String tagId) async {
     final db = await database;
     await db.delete(
@@ -190,13 +204,17 @@ class NoteRepository {
     );
   }
 
+  /// Gets all tags for a specific note.
   Future<List<Tag>> getTagsForNote(String noteId) async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      '''
       SELECT T.* FROM $_tagsTable T
       INNER JOIN $_noteTagsTable NT ON T.id = NT.tag_id
       WHERE NT.note_id = ?
-    ''', [noteId]);
+    ''',
+      [noteId],
+    );
     return List.generate(maps.length, (i) => Tag.fromMap(maps[i]));
   }
 
@@ -265,8 +283,9 @@ class NoteRepository {
             final text = span['text'] as String;
             final words = text.split(RegExp(r'\s+'));
             for (final word in words) {
-              final cleanWord =
-                  word.replaceAll(RegExp('[^a-zA-Z]'), '').toLowerCase();
+              final cleanWord = word
+                  .replaceAll(RegExp('[^a-zA-Z]'), '')
+                  .toLowerCase();
               if (cleanWord.isNotEmpty) {
                 _wordFrequencyCache![cleanWord] =
                     (_wordFrequencyCache![cleanWord] ?? 0) + 1;
@@ -382,7 +401,8 @@ class NoteRepository {
 
     if (tagId != null) {
       query +=
-          ' INNER JOIN $_noteTagsTable NT ON N.id = NT.note_id AND NT.tag_id = ?';
+          ' INNER JOIN $_noteTagsTable NT ON N.id = NT.note_id '
+          'AND NT.tag_id = ?';
       whereArgs.add(tagId);
     }
 
@@ -410,9 +430,9 @@ class NoteRepository {
 
     query += ' ORDER BY N.date DESC';
 
-    final columnsToFetch = Note.fromMap(
-      const {},
-    ).toMap().keys.where((key) => key != 'content').toList();
+    // final columnsToFetch = Note.fromMap(
+    //   const {},
+    // ).toMap().keys.where((key) => key != 'content').toList();
 
     final maps = await db.rawQuery(query, whereArgs);
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
@@ -512,15 +532,17 @@ class NoteRepository {
   Stream<Note> getCollaborativeNoteStream(String noteId) {
     return firebaseService.documentStream.map((docData) {
       final contentJson = docData['content'] as Map<String, dynamic>;
-      final content = DocumentModel.fromJson(contentJson);
+      final contentStr = json.encode(contentJson);
       // Create a temporary Note object with the synced content.
       // Other note properties (title, etc.) would also be synced in a full
       // implementation.
       return Note(
         id: noteId,
         title: 'Collaborative Note', // Placeholder title
-        content: content,
-        date: DateTime.now(),
+        content: contentStr,
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'collaborator',
       );
     });
   }
@@ -537,7 +559,10 @@ class NoteRepository {
 
   /// Updates the presence and cursor position of the current user.
   Future<void> updateUserPresence(
-      String noteId, String userId, Map<String, dynamic> cursorData) {
+    String noteId,
+    String userId,
+    Map<String, dynamic> cursorData,
+  ) {
     return firebaseService.updateUserPresence(noteId, userId, cursorData);
   }
 

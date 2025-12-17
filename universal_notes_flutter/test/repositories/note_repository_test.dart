@@ -33,7 +33,9 @@ void main() {
         id: '1',
         title: 'Test Note',
         content: 'This is a test note.',
-        date: DateTime.now(),
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
       );
     });
 
@@ -64,13 +66,14 @@ void main() {
     });
 
     test(
-        'searchAllNotes returns empty list when search term is too long',
-        () async {
-      await noteRepository.insertNote(note);
-      final longSearchTerm = 'a' * 257;
-      final notes = await noteRepository.searchAllNotes(longSearchTerm);
-      expect(notes.length, 0);
-    });
+      'searchAllNotes returns empty list when search term is too long',
+      () async {
+        await noteRepository.insertNote(note);
+        final longSearchTerm = 'a' * 257;
+        final notes = await noteRepository.searchAllNotes(longSearchTerm);
+        expect(notes.length, 0);
+      },
+    );
 
     test('uses default branch when dbPath is null', () async {
       // Ensure we enter the else-branch
