@@ -79,7 +79,6 @@ class EventReplayer {
               fontSize,
             ).document;
           }
-          break;
 
         case NoteEventType.image_insert:
           return DocumentManipulator.insertImage(

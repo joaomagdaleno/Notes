@@ -1,9 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:universal_notes_flutter/models/folder.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/models/folder.dart';
 
 /// The type of item selected in the sidebar.
 enum SidebarItemType {

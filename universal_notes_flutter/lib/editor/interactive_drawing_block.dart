@@ -102,7 +102,7 @@ class _InteractiveDrawingBlockState extends State<InteractiveDrawingBlock> {
     if (widget.onStrokeRemoved == null) return;
 
     // Simple hit detection threshold
-    const double eraseThreshold = 20.0;
+    const eraseThreshold = 20;
 
     for (final stroke in widget.strokes) {
       for (final point in stroke.points) {

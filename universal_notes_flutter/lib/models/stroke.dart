@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 
 /// Represents a single point in a stroke.
 class Point {
-  final double x;
-  final double y;
-  final double pressure;
 
   const Point(this.x, this.y, [this.pressure = 1.0]);
 
@@ -15,6 +12,9 @@ class Point {
       (json['p'] as num?)?.toDouble() ?? 1.0,
     );
   }
+  final double x;
+  final double y;
+  final double pressure;
 
   Map<String, dynamic> toJson() {
     return {
@@ -27,9 +27,6 @@ class Point {
 
 /// Represents a continuous stroke drawn by the user.
 class Stroke {
-  final List<Point> points;
-  final Color color;
-  final double width;
 
   const Stroke({
     required this.points,
@@ -46,6 +43,9 @@ class Stroke {
       width: (json['width'] as num).toDouble(),
     );
   }
+  final List<Point> points;
+  final Color color;
+  final double width;
 
   Map<String, dynamic> toJson() {
     return {

@@ -181,7 +181,9 @@ void main() {
         when(
           mockNoteRepository.notesStream(),
         ).thenAnswer((_) => Stream.value([note]));
-        when(mockNoteRepository.updateNote(any)).thenAnswer((_) async {});
+        when(mockNoteRepository.updateNote(any)).thenAnswer((_) async {
+          return null;
+        });
 
         await pumpWidget(tester);
         await tester.pumpAndSettle();

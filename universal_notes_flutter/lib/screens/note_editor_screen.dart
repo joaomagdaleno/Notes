@@ -51,7 +51,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     with WidgetsBindingObserver {
   Note? _note;
   late DocumentModel _document;
-  bool _showCursor = false; // Blinking cursor
+  final bool _showCursor = false; // Blinking cursor
   bool _isDrawingMode = false; // Handwriting mode
 
   // Undo/Redo Stacks
@@ -130,7 +130,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Future<void> _fetchContent() async {
     if (_note != null && _note!.id.isNotEmpty) {
       // Check if note is shared
-      bool isShared =
+      var isShared =
           _note!.memberIds.length > 1 || _note!.collaborators.isNotEmpty;
 
       if (isShared) {
@@ -438,7 +438,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     */
 
     // If Shared, push to Firestore (Real-Time / Sync)
-    bool isShared =
+    final var isShared =
         noteToSave.memberIds.length > 1 || noteToSave.collaborators.isNotEmpty;
     if (isShared) {
       await _firestoreRepository.updateNote(noteToSave);
@@ -514,7 +514,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                         subtitle: Text(dateStr),
                         onTap: () async {
                           // Restore logic
-                          bool confirm =
+                          var confirm =
                               await showDialog(
                                 context: context,
                                 builder: (c) => AlertDialog(
@@ -852,8 +852,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     );
   }
 
-  bool _canUndo = false;
-  bool _canRedo = false;
+  final bool _canUndo = false;
+  final bool _canRedo = false;
 
   Future<void> _attachImage() async {
     final pickedFile = await _imagePicker.pickImage(
@@ -1089,7 +1089,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                           charCountNotifier: _charCountNotifier,
                           onAlignment: (align) =>
                               _toggleBlockAttribute('align', align),
-                          onIndent: (indent) => _indentBlock(indent),
+                          onIndent: _indentBlock,
                           onList: (type) => _toggleBlockAttribute('list', type),
                         ),
                     ],
@@ -1114,7 +1114,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   int _getBlockIndexForOffset(int offset) {
     var currentOffset = 0;
-    for (int i = 0; i < _document.blocks.length; i++) {
+    for (var i = 0; i < _document.blocks.length; i++) {
       final block = _document.blocks[i];
       int len;
       if (block is TextBlock) {

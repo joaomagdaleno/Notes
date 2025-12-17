@@ -338,7 +338,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   /// Parses the FTS5 snippet with <b> tags into rich text.
   Widget _buildHighlightedSnippet(String snippet) {
     final parts = <TextSpan>[];
-    final regex = RegExp(r'<b>(.*?)</b>');
+    final regex = RegExp('<b>(.*?)</b>');
     var lastEnd = 0;
 
     for (final match in regex.allMatches(snippet)) {
@@ -506,9 +506,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                        },
+                        onPressed: _searchController.clear,
                       )
                     : null,
                 border: OutlineInputBorder(

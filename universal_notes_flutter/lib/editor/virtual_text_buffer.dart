@@ -11,7 +11,7 @@ abstract class Line {
 /// Represents a single line of text.
 class TextLine extends Line {
   /// Creates a new instance of [TextLine].
-  TextLine({required this.spans, super.attributes});
+  const TextLine({required this.spans, super.attributes});
 
   /// The list of styled text spans that make up this line.
   final List<TextSpanModel> spans;
@@ -32,7 +32,7 @@ class TextLine extends Line {
 /// Represents a line containing an image.
 class ImageLine extends Line {
   /// Creates a new instance of [ImageLine].
-  ImageLine({required this.imagePath, super.attributes});
+  const ImageLine({required this.imagePath, super.attributes});
 
   /// The path to the image file.
   final String imagePath;
@@ -67,7 +67,7 @@ class VirtualTextBuffer {
 
   void _buildLines() {
     lines.clear();
-    var currentLineSpans = <TextSpanModel>[];
+    final currentLineSpans = <TextSpanModel>[];
 
     for (final block in document.blocks) {
       if (block is ImageBlock) {

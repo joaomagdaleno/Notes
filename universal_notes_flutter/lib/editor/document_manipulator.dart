@@ -169,8 +169,9 @@ class DocumentManipulator {
 
         blocks.removeAt(pos.blockIndex);
         final newBlocks = <DocumentBlock>[];
-        if (beforeSpans.isNotEmpty)
+        if (beforeSpans.isNotEmpty) {
           newBlocks.add(TextBlock(spans: beforeSpans));
+        }
         newBlocks.add(ImageBlock(imagePath: imagePath));
         if (afterSpans.isNotEmpty) newBlocks.add(TextBlock(spans: afterSpans));
 
@@ -678,8 +679,9 @@ class DocumentManipulator {
       accumulatedLength += blockLength;
     }
     // If empty document
-    if (blocks.isEmpty && globalPosition == 0)
+    if (blocks.isEmpty && globalPosition == 0) {
       return const _BlockPosition(-1, 0);
+    }
 
     return const _BlockPosition(-1, 0);
   }
@@ -790,7 +792,7 @@ class DocumentManipulator {
     if (a.color != b.color) return false;
     if (a.width != b.width) return false;
     if (a.points.length != b.points.length) return false;
-    for (int i = 0; i < a.points.length; i++) {
+    for (var i = 0; i < a.points.length; i++) {
       final pA = a.points[i];
       final pB = b.points[i];
       if (pA.x != pB.x || pA.y != pB.y) return false;

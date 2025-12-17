@@ -86,7 +86,6 @@ class MarkdownConverter {
           selection,
           2,
           {'blockType': 'unordered-list'},
-          replacementText: '',
         );
       }
 

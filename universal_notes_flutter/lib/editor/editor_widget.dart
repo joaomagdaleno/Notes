@@ -325,7 +325,7 @@ class EditorWidgetState extends State<EditorWidget> {
           baseOffset: 0,
           extentOffset: plainText.length,
         );
-        widget.onSelectionChanged?.call(_selection);
+        widget.onSelectionChanged.call(_selection);
         setState(() {});
         return;
       }
@@ -371,7 +371,7 @@ class EditorWidgetState extends State<EditorWidget> {
       if (AutocompleteService.isWordBoundary(character) &&
           _selection.isCollapsed) {
         final plainText = widget.document.toPlainText();
-        var end = _selection.start;
+        final end = _selection.start;
         var start = end;
         // Backtrack to find word start
         while (start > 0 &&
@@ -668,8 +668,8 @@ class EditorWidgetState extends State<EditorWidget> {
                         : 1;
                     final lineEndOffset = lineStartOffset + lineLength;
 
-                    return (remoteSelection.start < lineEndOffset &&
-                        remoteSelection.end > lineStartOffset);
+                    return remoteSelection.start < lineEndOffset &&
+                        remoteSelection.end > lineStartOffset;
                   })
                   .map((e) => e.value)
                   .toList();
@@ -808,16 +808,6 @@ class EditorWidgetState extends State<EditorWidget> {
 }
 
 class _EditorLine extends StatelessWidget {
-  final void Function(TapDownDetails, int, TextSelection) onTapDown;
-  final void Function(DragStartDetails, int, TextSelection) onPanStart;
-  final void Function(DragUpdateDetails, int, TextSelection) onPanUpdate;
-  final List<Map<String, dynamic>> remoteCursors;
-  final ValueChanged<int>? onCheckboxTap;
-  final bool isDrawingMode;
-  final ValueChanged<Stroke>? onStrokeAdded;
-  final ValueChanged<Stroke>? onStrokeRemoved;
-  final Color currentColor;
-  final double currentStrokeWidth;
 
   const _EditorLine({
     required this.line,
@@ -837,6 +827,16 @@ class _EditorLine extends StatelessWidget {
     required this.currentStrokeWidth,
     super.key,
   });
+  final void Function(TapDownDetails, int, TextSelection) onTapDown;
+  final void Function(DragStartDetails, int, TextSelection) onPanStart;
+  final void Function(DragUpdateDetails, int, TextSelection) onPanUpdate;
+  final List<Map<String, dynamic>> remoteCursors;
+  final ValueChanged<int>? onCheckboxTap;
+  final bool isDrawingMode;
+  final ValueChanged<Stroke>? onStrokeAdded;
+  final ValueChanged<Stroke>? onStrokeRemoved;
+  final Color currentColor;
+  final double currentStrokeWidth;
 
   final Line line;
   final TextSelection selection;
@@ -932,21 +932,17 @@ class _EditorLine extends StatelessWidget {
     switch (textAlignStr) {
       case 'center':
         textAlign = TextAlign.center;
-        break;
       case 'right':
         textAlign = TextAlign.right;
-        break;
       case 'justify':
         textAlign = TextAlign.justify;
-        break;
       case 'left':
       default:
         textAlign = TextAlign.left;
-        break;
     }
 
     // Indentation padding
-    final double indentPadding = indentLevel * 24.0;
+    final indentPadding = indentLevel * 24.0;
 
     Widget content;
 
@@ -1016,7 +1012,7 @@ class _EditorLine extends StatelessWidget {
     }
 
     // Core text widget (Stack of text + selection + cursor)
-    Widget textStack = Padding(
+    final Widget textStack = Padding(
       padding: EdgeInsets.only(left: indentPadding),
       child: Stack(
         children: [
@@ -1096,7 +1092,7 @@ class _EditorLine extends StatelessWidget {
         children: [
           const SizedBox(
             width: 24,
-            child: Text('•', style: TextStyle(fontSize: 24, height: 1.0)),
+            child: Text('•', style: TextStyle(fontSize: 24, height: 1)),
           ),
           Expanded(child: textStack),
         ],

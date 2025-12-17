@@ -70,7 +70,7 @@ class HistoryGrouper {
     var currentSessionStart = recentEvents.first.timestamp;
     var lastEventTime = recentEvents.first.timestamp;
 
-    for (int i = 0; i < recentEvents.length; i++) {
+    for (var i = 0; i < recentEvents.length; i++) {
       final event = recentEvents[i];
       final timeDiff = event.timestamp.difference(lastEventTime).inMinutes;
 
@@ -129,7 +129,7 @@ class HistoryGrouper {
     // Strategy: Identify sessions within the day, then take up to 5 sessions.
 
     // Let's iterate linearly and build accumulated events list.
-    for (int i = 0; i < oldEvents.length; i++) {
+    for (var i = 0; i < oldEvents.length; i++) {
       accumulated.add(oldEvents[i]);
       // Decision logic: is this a checkpoint?
       // ... implementation complexity ...
@@ -150,7 +150,7 @@ class HistoryGrouper {
     }
 
     // ignore: unused_local_variable
-    var runningCount = 0;
+    final runningCount = 0;
     for (final dayKey in dailyGroups.keys) {
       final eventsOfDay = dailyGroups[dayKey]!;
       // Select up to 5 indices relative to the day list
@@ -185,7 +185,7 @@ class HistoryGrouper {
     final eventsByDay =
         <String, List<int>>{}; // dayKey -> list of INDICES in oldEvents
 
-    for (int i = 0; i < oldEvents.length; i++) {
+    for (var i = 0; i < oldEvents.length; i++) {
       final event = oldEvents[i];
       final dayKey =
           '${event.timestamp.year}-${event.timestamp.month}-${event.timestamp.day}';
@@ -206,7 +206,7 @@ class HistoryGrouper {
         selectedIndices.add(indices.first);
         // Pick 3 more
         final step = (indices.length - 1) / 4;
-        for (int k = 1; k < 4; k++) {
+        for (var k = 1; k < 4; k++) {
           selectedIndices.add(indices[(k * step).round()]);
         }
       }

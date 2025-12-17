@@ -155,7 +155,7 @@ class TextBlock extends DocumentBlock {
 
   /// Converts the text block to plain text.
   String toPlainText() {
-    return spans.map((s) => s.text).join('');
+    return spans.map((s) => s.text).join();
   }
 }
 
@@ -296,11 +296,6 @@ class DocumentModel {
 
 /// A block representing a drawing.
 class DrawingBlock extends DocumentBlock {
-  /// The list of strokes in this drawing.
-  final List<Stroke> strokes;
-
-  /// The height of the drawing canvas area.
-  final double height;
 
   /// Creates a drawing block.
   DrawingBlock({
@@ -308,6 +303,11 @@ class DrawingBlock extends DocumentBlock {
     this.height = 200.0,
     this.attributes = const {},
   });
+  /// The list of strokes in this drawing.
+  final List<Stroke> strokes;
+
+  /// The height of the drawing canvas area.
+  final double height;
 
   @override
   final Map<String, dynamic> attributes;

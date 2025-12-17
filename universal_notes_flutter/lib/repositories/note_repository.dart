@@ -636,7 +636,7 @@ class NoteRepository {
       columns: ['name'],
       orderBy: 'name',
     );
-    return result.map((row) => row['name'] as String).toList();
+    return result.map((row) => row['name']! as String).toList();
   }
 
   /// Moves a note to the trash (soft delete).
@@ -843,7 +843,7 @@ class NoteRepository {
       limit: 10,
     );
 
-    return results.map((r) => r['word'] as String).toList();
+    return results.map((r) => r['word']! as String).toList();
   }
 
   /// Gets all unsynced words for push to cloud.

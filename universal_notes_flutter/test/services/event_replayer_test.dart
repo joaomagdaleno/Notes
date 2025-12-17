@@ -17,7 +17,7 @@ void main() {
           noteId: 'note1',
           type: NoteEventType.insert,
           payload: {'pos': 0, 'text': 'Hello'},
-          timestamp: DateTime(2024, 1, 1, 10, 0),
+          timestamp: DateTime(2024, 1, 1, 10),
         ),
         NoteEvent(
           id: '2',
@@ -39,7 +39,7 @@ void main() {
           noteId: 'note1',
           type: NoteEventType.insert,
           payload: {'pos': 0, 'text': 'Hello World'},
-          timestamp: DateTime(2024, 1, 1, 10, 0),
+          timestamp: DateTime(2024, 1, 1, 10),
         ),
         NoteEvent(
           id: '2',
@@ -68,7 +68,7 @@ void main() {
           noteId: 'note1',
           type: NoteEventType.insert,
           payload: {'pos': 0, 'text': 'Hello'},
-          timestamp: DateTime(2024, 1, 1, 10, 0),
+          timestamp: DateTime(2024, 1, 1, 10),
         ),
       ];
 
@@ -84,7 +84,7 @@ void main() {
           noteId: 'note1',
           type: NoteEventType.insert,
           payload: {'pos': 9, 'text': 'Content'},
-          timestamp: DateTime(2024, 1, 1, 10, 0),
+          timestamp: DateTime(2024, 1, 1, 10),
         ),
       ];
 
