@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -43,7 +44,7 @@ class _CommandPaletteState extends State<CommandPalette> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -77,9 +78,11 @@ class _CommandPaletteState extends State<CommandPalette> {
                           Icons.auto_graph,
                           () {
                             Navigator.of(context).pop();
-                            Navigator.of(context).push(
-                              fluent.FluentPageRoute<void>(
-                                builder: (context) => const GraphView(),
+                            unawaited(
+                              Navigator.of(context).push(
+                                fluent.FluentPageRoute<void>(
+                                  builder: (context) => const GraphView(),
+                                ),
                               ),
                             );
                           },
@@ -96,18 +99,21 @@ class _CommandPaletteState extends State<CommandPalette> {
                             ),
                             onTap: () {
                               Navigator.of(context).pop();
-                              Navigator.of(context).push(
-                                fluent.FluentPageRoute<void>(
-                                  builder: (context) => NoteEditorScreen(
-                                    note: result.note,
-                                    onSave: (updatedNote) async {
-                                      await NoteRepository.instance.updateNote(
-                                        updatedNote,
-                                      );
-                                      await SyncService.instance
-                                          .refreshLocalData();
-                                      return updatedNote;
-                                    },
+                              unawaited(
+                                Navigator.of(context).push(
+                                  fluent.FluentPageRoute<void>(
+                                    builder: (context) => NoteEditorScreen(
+                                      note: result.note,
+                                      onSave: (updatedNote) async {
+                                        await NoteRepository.instance
+                                            .updateNote(
+                                              updatedNote,
+                                            );
+                                        await SyncService.instance
+                                            .refreshLocalData();
+                                        return updatedNote;
+                                      },
+                                    ),
                                   ),
                                 ),
                               );

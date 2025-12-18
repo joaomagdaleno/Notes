@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -100,7 +101,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    _checkBiometrics();
+    unawaited(_checkBiometrics());
   }
 
   Future<void> _checkBiometrics() async {

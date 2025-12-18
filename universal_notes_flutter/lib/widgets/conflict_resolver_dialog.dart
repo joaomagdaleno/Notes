@@ -4,7 +4,6 @@ import 'package:universal_notes_flutter/models/sync_status.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
 class ConflictResolverDialog extends StatelessWidget {
-
   const ConflictResolverDialog({required this.conflict, super.key});
   final SyncConflict conflict;
 
@@ -73,6 +72,7 @@ class ConflictResolverDialog extends StatelessWidget {
 
   Future<void> _resolve(BuildContext context, {required bool useRemote}) async {
     final noteRepo = NoteRepository.instance;
+    final navigator = Navigator.of(context);
     if (useRemote) {
       // Overwrite local with remote
       await noteRepo.updateNoteContent(
@@ -84,7 +84,7 @@ class ConflictResolverDialog extends StatelessWidget {
         conflict.localNote.copyWith(syncStatus: SyncStatus.modified),
       );
     }
-    Navigator.pop(context);
+    navigator.pop();
   }
 }
 

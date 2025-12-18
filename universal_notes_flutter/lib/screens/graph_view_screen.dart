@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -16,7 +17,7 @@ class _GraphViewState extends State<GraphView> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    unawaited(_loadData());
   }
 
   Future<void> _loadData() async {
@@ -44,7 +45,6 @@ class _GraphViewState extends State<GraphView> {
 }
 
 class GraphPainter extends CustomPainter {
-
   GraphPainter({required this.notes});
   final List<Note> notes;
 
