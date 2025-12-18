@@ -62,6 +62,7 @@ class NoteCard extends StatefulWidget {
 
 class _NoteCardState extends State<NoteCard> {
   // String _plainTextContent = '';
+  bool _isHovering = false;
 
   @override
   void initState() {
@@ -91,11 +92,14 @@ class _NoteCardState extends State<NoteCard> {
   Widget build(BuildContext context) {
     final hasImage = widget.note.imageUrl?.isNotEmpty ?? false;
 
-    final card = Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+    final card = MouseRegion(
+      onEnter: (_) => setState(() => _isHovering = true),
+      onExit: (_) => setState(() => _isHovering = false),
+      child: Card(
+        elevation: _isHovering ? 8 : 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       clipBehavior: Clip.antiAlias, // Important for the image background
       child: InkWell(
         onTap: widget.onTap,
