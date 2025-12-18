@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
 import 'package:universal_notes_flutter/editor/interactive_drawing_block.dart';
@@ -19,7 +20,6 @@ import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_math_fork/flutter_math.dart';
 
 /// A widget that provides a text editor with rich text capabilities.
 class EditorWidget extends StatefulWidget {
@@ -1244,7 +1244,7 @@ class _EditorLine extends StatelessWidget {
       const iconSize = 20.0;
       const spacing = 12.0;
 
-      Widget inner = textStack;
+      var inner = textStack;
       if (line.isFirst) {
         inner = Row(
           crossAxisAlignment: CrossAxisAlignment.start,

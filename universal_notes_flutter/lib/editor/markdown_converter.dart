@@ -387,10 +387,11 @@ class MarkdownConverter {
       if (text[prevLineEnd] == '\n') prevLineEnd--; // Should be \n
 
       var prevLineStart = text.lastIndexOf('\n', prevLineEnd);
-      if (prevLineStart == -1)
+      if (prevLineStart == -1) {
         prevLineStart = 0;
-      else
+      } else {
         prevLineStart++; // Skip the newline
+      }
 
       if (prevLineStart >= currentLineStart) return null; // Logic check
 
@@ -431,7 +432,7 @@ class MarkdownConverter {
 
         final rows = [headerCells];
 
-        final lengthToDelete = (effectiveEnd - prevLineStart);
+        final lengthToDelete = effectiveEnd - prevLineStart;
 
         final deleteResult = DocumentManipulator.deleteText(
           document,

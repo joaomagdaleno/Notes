@@ -271,6 +271,11 @@ class DocumentModel {
             tex: bMap['tex'] as String? ?? '',
             attributes: attributes,
           );
+        } else if (type == 'transclusion') {
+          return TransclusionBlock(
+            noteTitle: bMap['noteTitle'] as String? ?? '',
+            attributes: attributes,
+          );
         } else {
           final spans =
               (bMap['spans'] as List<dynamic>?)
@@ -374,6 +379,12 @@ class DocumentModel {
             'tex': b.tex,
             'attributes': b.attributes,
           };
+        } else if (b is TransclusionBlock) {
+          return {
+            'type': 'transclusion',
+            'noteTitle': b.noteTitle,
+            'attributes': b.attributes,
+          };
         } else if (b is TextBlock) {
           return {
             'type': 'text',
@@ -441,6 +452,19 @@ class TableCellModel {
     this.attributes = const {},
   });
 
+  /// Creates from JSON.
+  factory TableCellModel.fromJson(Map<String, dynamic> json) {
+    return TableCellModel(
+      content:
+          (json['content'] as List?)
+              ?.map((e) => TextSpanModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      isHeader: json['isHeader'] as bool? ?? false,
+      attributes: json['attributes'] as Map<String, dynamic>? ?? {},
+    );
+  }
+
   /// The content of the cell.
   final List<TextSpanModel> content;
 
@@ -456,19 +480,6 @@ class TableCellModel {
     'isHeader': isHeader,
     'attributes': attributes,
   };
-
-  /// Creates from JSON.
-  factory TableCellModel.fromJson(Map<String, dynamic> json) {
-    return TableCellModel(
-      content:
-          (json['content'] as List?)
-              ?.map((e) => TextSpanModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      isHeader: json['isHeader'] as bool? ?? false,
-      attributes: json['attributes'] as Map<String, dynamic>? ?? {},
-    );
-  }
 }
 
 /// A block representing a table.

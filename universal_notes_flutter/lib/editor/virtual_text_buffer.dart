@@ -86,6 +86,18 @@ class MathLine extends Line {
   final String tex;
 }
 
+/// Represents a line containing a transclusion.
+class TransclusionLine extends Line {
+  /// Creates a new instance of [TransclusionLine].
+  const TransclusionLine({
+    required this.noteTitle,
+    super.attributes,
+  });
+
+  /// The title of the note.
+  final String noteTitle;
+}
+
 /// Represents a position within the virtualized text buffer as a line and
 /// character index.
 class LineTextPosition {
@@ -263,6 +275,13 @@ class VirtualTextBuffer {
             attributes: block.attributes,
           ),
         );
+      } else if (block is TransclusionBlock) {
+        lines.add(
+          TransclusionLine(
+            noteTitle: block.noteTitle,
+            attributes: block.attributes,
+          ),
+        );
       }
     }
 
@@ -277,6 +296,8 @@ class VirtualTextBuffer {
         _lineLengths.add(1); // Table is 1 unit length
       } else if (line is MathLine) {
         _lineLengths.add(1); // Math is 1 unit length
+      } else if (line is TransclusionLine) {
+        _lineLengths.add(1); // Transclusion is 1 unit length
       } else {
         _lineLengths.add(1); // Treat images as a single character offset.
       }

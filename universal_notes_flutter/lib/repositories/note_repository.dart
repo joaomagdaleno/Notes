@@ -597,6 +597,21 @@ class NoteRepository {
     throw Exception('Note not found');
   }
 
+  /// Retrieves a note by its title.
+  Future<Note?> getNoteByTitle(String title) async {
+    final db = await database;
+    final maps = await db.query(
+      _notesTable,
+      where: 'title = ? AND isInTrash = 0',
+      whereArgs: [title],
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return Note.fromMap(maps.first);
+    }
+    return null;
+  }
+
   /// Updates the content of a note.
   Future<void> updateNoteContent(Note note) async {
     final db = await database;
