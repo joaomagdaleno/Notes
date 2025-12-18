@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/sync_status.dart';
+import 'package:universal_notes_flutter/models/sync_conflict.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
@@ -19,6 +20,7 @@ class SyncService {
   final _notesController = StreamController<List<Note>>.broadcast();
   final _foldersController = StreamController<List<Folder>>.broadcast();
   final _tagsController = StreamController<List<String>>.broadcast();
+  final _conflictController = StreamController<SyncConflict>.broadcast();
 
   /// A broadcast stream of all notes.
   Stream<List<Note>> get notesStream => _notesController.stream;
@@ -28,6 +30,9 @@ class SyncService {
 
   /// A broadcast stream of all tags.
   Stream<List<String>> get tagsStream => _tagsController.stream;
+
+  /// A broadcast stream of synchronization conflicts.
+  Stream<SyncConflict> get conflictsStream => _conflictController.stream;
 
   /// Initial fetch from local DB to populate streams
   Future<void> init() async {
@@ -93,6 +98,17 @@ class SyncService {
           );
 
       if (remoteNewer) {
+        // CONFLICT DETECTION
+        if (localNote != null &&
+            localNote.syncStatus != SyncStatus.synced &&
+            localNote.content != remoteNote.content) {
+          // Both modified since last sync
+          _conflictController.add(
+            SyncConflict(localNote: localNote, remoteNote: remoteNote),
+          );
+          continue; // Skip automatic update for now, wait for resolution
+        }
+
         var content = remoteNote.content;
 
         // Fetch full content if needed (heuristic check)
@@ -105,13 +121,21 @@ class SyncService {
           }
         }
 
-        final noteToSave = remoteNote.copyWith(content: content);
+        final noteToSave = remoteNote.copyWith(
+          content: content,
+          syncStatus: SyncStatus.synced,
+        );
 
         if (localNote == null) {
           await _noteRepository.insertNote(noteToSave);
         } else {
-          await _noteRepository.updateNote(noteToSave);
+          // Bypass regular updateNote to avoid setting modified status again
+          await _noteRepository.updateNoteContent(noteToSave);
         }
+      } else if (localNote.syncStatus != SyncStatus.synced) {
+        // Even if local is newer or same, if it was marked as synced but is now same as remote
+        // We could verify here. For now, assume if remote is NOT newer, but local is the same,
+        // we can marked it as synced IF we just uploaded it.
       }
     }
     // After processing remote updates, refresh the UI streams
@@ -120,10 +144,8 @@ class SyncService {
 
   /// Syncs local changes to Firestore (SQLite -> Firestore)
   Future<void> syncUp() async {
-    // Basic strategy: Try to push all local notes.
-    // Optimization needed: Only push dirty.
-    // For now, we iterate and try to update/create.
-    final localNotes = await _noteRepository.getAllNotes();
+    // Dirty Sync strategy: Only push local notes that are modified or local.
+    final localNotes = await _noteRepository.getUnsyncedNotes();
     for (final note in localNotes) {
       await syncUpNote(note);
     }
@@ -133,15 +155,23 @@ class SyncService {
   Future<void> syncUpNote(Note note) async {
     // This uses the split content logic we implemented in
     // FirestoreRepository.
-    if (note.id.isEmpty) {
+    if (note.syncStatus == SyncStatus.local) {
       // Create
-      await _firestoreRepository.addNote(
+      final newNote = await _firestoreRepository.addNote(
         title: note.title,
         content: note.content,
+      );
+      // Update local note with Firestore ID and synced status
+      await _noteRepository.deleteNotePermanently(note.id); // Remove temp ID
+      await _noteRepository.insertNote(
+        newNote.copyWith(syncStatus: SyncStatus.synced),
       );
     } else {
       // Update
       await _firestoreRepository.updateNote(note);
+      await _noteRepository.updateNoteContent(
+        note.copyWith(syncStatus: SyncStatus.synced),
+      );
     }
   }
 
@@ -232,5 +262,6 @@ class SyncService {
     unawaited(_remoteSubscription?.cancel());
     unawaited(_notesController.close());
     unawaited(_foldersController.close());
+    unawaited(_conflictController.close());
   }
 }

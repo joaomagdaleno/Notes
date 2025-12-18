@@ -37,7 +37,8 @@ class MockFirestoreRepository extends Mock implements FirestoreRepository {
     bool? isInTrash,
     String? tag,
     String? folderId,
-    int? limit,
+    int limit = 20,
+    dynamic lastDocument,
   }) {
     return super.noSuchMethod(
           Invocation.method(#notesStream, [], {
@@ -46,6 +47,7 @@ class MockFirestoreRepository extends Mock implements FirestoreRepository {
             #tag: tag,
             #folderId: folderId,
             #limit: limit,
+            #lastDocument: lastDocument,
           }),
           returnValue: Stream.value(<Note>[]),
           returnValueForMissingStub: Stream.value(<Note>[]),
@@ -134,7 +136,8 @@ MockFirestoreRepository createDefaultMockRepository() {
       isInTrash: anyNamed('isInTrash'),
       tag: anyNamed('tag'),
       folderId: anyNamed('folderId'),
-      limit: anyNamed('limit'),
+      limit: anyNamed('limit') ?? 20,
+      lastDocument: anyNamed('lastDocument'),
     ),
   ).thenAnswer((_) => Stream.value(<Note>[]));
   when(mockRepo.notesStream()).thenAnswer((_) => Stream.value(<Note>[]));

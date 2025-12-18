@@ -71,7 +71,7 @@ class _SidebarState extends State<Sidebar> {
   // Folder logic
   late final Stream<List<Folder>> _foldersStream;
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
-  final BackupService _backupService = BackupService();
+  final BackupService _backupService = BackupService.instance;
   final SyncService _syncService = SyncService.instance;
   final NoteRepository _noteRepository = NoteRepository.instance;
   late final Stream<List<String>> _tagsStream;
@@ -126,11 +126,37 @@ class _SidebarState extends State<Sidebar> {
   }
 
   Future<void> _performBackup() async {
+    final controller = TextEditingController();
+    final password = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Encrypt Backup'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Enter Backup Password'),
+          obscureText: true,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Export'),
+          ),
+        ],
+      ),
+    );
+
+    if (password == null || password.isEmpty) return;
+
     try {
-      final path = await _backupService.exportDatabaseToJson();
+      final path = await _backupService.exportBackup(password);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Backup saved to: $path')),
+        SnackBar(content: Text('Encrypted backup saved to: $path')),
       );
     } on Exception catch (e) {
       if (!mounted) return;

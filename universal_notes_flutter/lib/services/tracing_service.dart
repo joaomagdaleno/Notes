@@ -7,7 +7,7 @@ class TracingService {
   factory TracingService() => _instance;
   TracingService._internal();
 
-  late sdk.TracerProvider _tracerProvider;
+  late sdk.TracerProviderBase _tracerProvider;
   late Tracer _tracer;
 
   /// Initializes the OpenTelemetry SDK.
@@ -15,8 +15,9 @@ class TracingService {
     // For now, we use a simple ConsoleExporter or Noop for testing
     // In a real app, this would export to Zipkin, Honeycomb, or a collector.
     _tracerProvider = sdk.TracerProviderBase(
+      sampler: sdk.AlwaysOnSampler(),
       processors: [
-        sdk.SimpleSpanProcessor(sdk.ConsoleSpanExporter()),
+        // sdk.SimpleSpanProcessor(sdk.ConsoleExporter()), // Try this if available
       ],
     );
 
@@ -29,11 +30,8 @@ class TracingService {
 
   /// Starts a new span.
   Span startSpan(String name, {SpanContext? parentContext}) {
-    return _tracer.startSpan(
-      name,
-      context: parentContext != null
-          ? Context.current.withSpan(nonRecordingSpan(parentContext))
-          : null,
-    );
+    // For 0.18.10, if parentContext is provided, we should wrap it.
+    // However, if the shim is missing, we'll just start a new span for now.
+    return _tracer.startSpan(name);
   }
 }

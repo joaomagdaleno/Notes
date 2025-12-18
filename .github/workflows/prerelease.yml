@@ -59,3 +59,11 @@ jobs:
           git remote set-url origin https://x-access-token:${{ env.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git tag -f ${{ github.ref_name }}-latest
           git push -f origin ${{ github.ref_name }}-latest
+
+      - name: Deploy to Beta (Canary)
+        if: github.ref == 'refs/heads/beta'
+        run: |
+          echo "Simulating deployment to 'canary-testers' group in Firebase App Distribution"
+          # uses: w9jds/firebase-action@master
+          # with:
+          #   args: appdistribution:distribute build/app/outputs/flutter-apk/app-beta.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups canary-testers

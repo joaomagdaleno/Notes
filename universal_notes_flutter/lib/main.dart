@@ -3,18 +3,24 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_notes_flutter/firebase_options.dart';
 import 'package:universal_notes_flutter/screens/auth_screen.dart';
 import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
+import 'package:universal_notes_flutter/services/security_service.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
+import 'package:universal_notes_flutter/services/tracing_service.dart';
 import 'package:universal_notes_flutter/styles/app_themes.dart';
+import 'package:universal_notes_flutter/widgets/command_palette.dart';
+import 'package:universal_notes_flutter/widgets/sync_conflict_listener.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  TracingService().init();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -61,7 +67,18 @@ class MyApp extends StatelessWidget {
           theme: AppThemes.lightTheme,
           darkTheme: AppThemes.darkTheme,
           themeMode: themeService.themeMode,
-          home: const AuthWrapper(),
+          home: CallbackShortcuts(
+            bindings: {
+              const SingleActivator(
+                LogicalKeyboardKey.keyK,
+                control: true,
+              ): () =>
+                  showCommandPalette(context),
+            },
+            child: const SyncConflictListener(
+              child: AuthWrapper(),
+            ),
+          ),
         );
       },
     );
@@ -69,13 +86,69 @@ class MyApp extends StatelessWidget {
 }
 
 /// A wrapper that handles authentication state and navigation.
-class AuthWrapper extends StatelessWidget {
-  /// Creates an [AuthWrapper].
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  bool _isAuthenticated = false;
+  bool _isCheckingAuth = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBiometrics();
+  }
+
+  Future<void> _checkBiometrics() async {
+    final security = SecurityService.instance;
+    final enabled = await security.isLockEnabled();
+    if (enabled) {
+      final success = await security.authenticate();
+      if (mounted) {
+        setState(() {
+          _isAuthenticated = success;
+          _isCheckingAuth = false;
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _isAuthenticated = true;
+          _isCheckingAuth = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final firebaseUser = context.watch<User?>();
+
+    if (_isCheckingAuth) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (!_isAuthenticated) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('App Locked'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _checkBiometrics,
+                child: const Text('Unlock'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     if (firebaseUser != null) {
       return const NotesScreen();

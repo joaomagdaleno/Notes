@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:universal_notes_flutter/models/sync_status.dart';
 
 /// The type of event that occurred on a note.
 enum NoteEventType {
@@ -17,18 +18,6 @@ enum NoteEventType {
 
   /// Unknown event.
   unknown,
-}
-
-/// Sync status for event-based synchronization.
-enum SyncStatus {
-  /// Event is only stored locally.
-  local,
-
-  /// Event has been synced to Firestore.
-  synced,
-
-  /// Event has a conflict with remote.
-  conflict,
 }
 
 /// Represents a single change event to a note.
