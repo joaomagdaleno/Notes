@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print, Benchmark tests use print to output metrics.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:universal_notes_flutter/main.dart' as app;
@@ -13,9 +14,8 @@ void main() {
       await tester.pumpAndSettle();
 
       stopwatch.stop();
-      print(
-        'PERFORMANCE_METRIC:startup_time_ms:${stopwatch.elapsedMilliseconds}',
-      );
+      final ms = stopwatch.elapsedMilliseconds;
+      print('PERFORMANCE_METRIC:startup_time_ms:$ms');
     });
 
     testWidgets('note creation and saving latency', (tester) async {
@@ -23,17 +23,14 @@ void main() {
       app.main();
       await tester.pumpAndSettle();
 
-      final stopwatch = Stopwatch();
-
-      // We simulate a save by finding a button if it exists or calling a repo method
+      // Simulate a save by finding a button if it exists or calling a repo
       // For this benchmark, we'll log the time taken for a full note cycle
-      stopwatch.start();
-      // Integration action here
-      stopwatch.stop();
+      final stopwatch = Stopwatch()
+        ..start()
+        ..stop();
 
-      print(
-        'PERFORMANCE_METRIC:note_save_latency_ms:${stopwatch.elapsedMilliseconds}',
-      );
+      final ms = stopwatch.elapsedMilliseconds;
+      print('PERFORMANCE_METRIC:note_save_latency_ms:$ms');
     });
   });
 }

@@ -82,7 +82,9 @@ class _RecoveryDialogState extends State<RecoveryDialog> {
   String get _formattedTime {
     final minutes = _secondsRemaining ~/ 60;
     final seconds = _secondsRemaining % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    final minuteStr = minutes.toString().padLeft(2, '0');
+    final secondStr = seconds.toString().padLeft(2, '0');
+    return '$minuteStr:$secondStr';
   }
 
   Future<void> _sendCode() async {

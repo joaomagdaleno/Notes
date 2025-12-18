@@ -21,7 +21,8 @@ class ConflictResolverDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'A change was made on another device. How would you like to resolve it?',
+              'A change was made on another device. '
+              'How would you like to resolve it?',
             ),
             const SizedBox(height: 16),
             const Text(

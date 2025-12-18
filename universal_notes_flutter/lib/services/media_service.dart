@@ -5,8 +5,11 @@ import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+/// A service for handling media operations like image compression.
 class MediaService {
   MediaService._();
+
+  /// The singleton instance of [MediaService].
   static final MediaService instance = MediaService._();
 
   /// Compresses an image file locally.
@@ -49,7 +52,7 @@ class MediaService {
 
       final thumbnail = img.copyResize(image, width: 64, height: 64);
       return Uint8List.fromList(img.encodeJpg(thumbnail, quality: 50));
-    } catch (e) {
+    } on Exception {
       return null;
     }
   }

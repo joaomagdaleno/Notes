@@ -303,9 +303,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     if (_note == null) return;
 
     // Listen to remote cursors
-    _cursorSubscription = _firestoreRepository.listenToCursors(_note!.id).listen((
-      cursors,
-    ) {
+    final cursorStream = _firestoreRepository.listenToCursors(_note!.id);
+    _cursorSubscription = cursorStream.listen((cursors) {
       if (!mounted) return;
       final newCursors = <String, Map<String, dynamic>>{};
       for (final cursorData in cursors) {
@@ -563,8 +562,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                               point.eventsUpToPoint,
                             );
 
-                            // _initializeEditor parses string -> DocumentModel. If
-                            // EventReplayer is accurate, we should probably
+                            // _initializeEditor parses string -> DocumentModel.
+                            // If EventReplayer is accurate, we should probably
                             // set _document directly if possible or update
                             // _initializeEditor/update wrapper. Currently
                             // _initializeEditor acts on String content. IF
@@ -595,7 +594,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                               Navigator.pop(context); // Close History Dialog
                             }
 
-                            // Trigger save to persist restoration as a NEW event?
+                            // Trigger save to persist restoration as NEW event?
                             // No, typically we just treat this as a massive
                             // change or log a specific "Rollback" event. For
                             // now, _autosave will run eventually, OR we should

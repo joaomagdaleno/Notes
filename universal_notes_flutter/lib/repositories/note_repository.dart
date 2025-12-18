@@ -783,6 +783,7 @@ class NoteRepository {
 
   // --- Full-Text Search Methods ---
 
+  /// Performs a full-text search across notes.
   Future<List<SearchResult>> searchNotes(String query) async {
     if (query.trim().isEmpty) return [];
 

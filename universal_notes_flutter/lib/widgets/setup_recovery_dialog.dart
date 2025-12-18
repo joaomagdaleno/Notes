@@ -106,7 +106,8 @@ class _SetupRecoveryDialogState extends State<SetupRecoveryDialog> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Configure a recuperação para não perder acesso às suas notas caso esqueça a senha.',
+                      'Configure a recuperação para não perder acesso '
+                      'às suas notas caso esqueça a senha.',
                       style: TextStyle(color: Colors.blue[800]),
                     ),
                   ),
@@ -122,7 +123,8 @@ class _SetupRecoveryDialogState extends State<SetupRecoveryDialog> {
             const _StepItem(
               number: '1',
               text:
-                  'Uma chave de recuperação será criada e armazenada de forma segura',
+                  'Uma chave de recuperação será criada e '
+                  'armazenada de forma segura',
             ),
             const _StepItem(
               number: '2',
@@ -131,7 +133,8 @@ class _SetupRecoveryDialogState extends State<SetupRecoveryDialog> {
             const _StepItem(
               number: '3',
               text:
-                  'Um código de verificação será enviado para confirmar sua identidade',
+                  'Um código de verificação será enviado para '
+                  'confirmar sua identidade',
             ),
             const SizedBox(height: 20),
             if (!canSetup) ...[
@@ -150,7 +153,8 @@ class _SetupRecoveryDialogState extends State<SetupRecoveryDialog> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Você precisa verificar seu email ($email) para configurar a recuperação.',
+                        'Você precisa verificar seu email ($email) '
+                        'para configurar a recuperação.',
                         style: TextStyle(color: Colors.orange[800]),
                       ),
                     ),
@@ -191,7 +195,8 @@ class _SetupRecoveryDialogState extends State<SetupRecoveryDialog> {
                 });
               },
               title: const Text(
-                'Entendo que sem a recuperação configurada, não poderei acessar minhas notas se esquecer a senha',
+                'Entendo que sem a recuperação configurada, não poderei '
+                'acessar minhas notas se esquecer a senha',
               ),
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: EdgeInsets.zero,

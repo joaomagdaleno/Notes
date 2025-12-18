@@ -826,7 +826,8 @@ class DocumentManipulator {
 
   /// Toggles a link URL on the given selection.
   ///
-  /// If [url] is provided, applies the link. If null, removes any existing link.
+  /// If [url] is provided, applies the link.
+  /// If null, removes any existing link.
   static ManipulationResult toggleLink(
     DocumentModel document,
     TextSelection selection,

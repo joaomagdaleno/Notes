@@ -134,9 +134,10 @@ class SyncService {
           await _noteRepository.updateNoteContent(noteToSave);
         }
       } else if (localNote.syncStatus != SyncStatus.synced) {
-        // Even if local is newer or same, if it was marked as synced but is now same as remote
-        // We could verify here. For now, assume if remote is NOT newer, but local is the same,
-        // we can marked it as synced IF we just uploaded it.
+        // Even if local is newer or same, if it was marked as synced
+        // but is now same as remote we could verify here. For now,
+        // assume if remote is NOT newer, but local is the same,
+        // we can mark it as synced IF we just uploaded it.
       }
     }
     // After processing remote updates, refresh the UI streams

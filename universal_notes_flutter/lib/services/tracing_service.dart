@@ -3,6 +3,7 @@ import 'package:opentelemetry/sdk.dart' as sdk;
 
 /// A service to manage OpenTelemetry tracing.
 class TracingService {
+  /// Returns the singleton instance of [TracingService].
   factory TracingService() => _instance;
   TracingService._internal();
   static final TracingService _instance = TracingService._internal();

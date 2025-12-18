@@ -39,8 +39,9 @@ void main() {
     });
 
     test('handles server 500 errors gracefully', () async {
-      chaosClient.injectFailures = true;
-      chaosClient.failureRate = 1.0; // Force failure
+      chaosClient
+        ..injectFailures = true
+        ..failureRate = 1.0; // Force failure
 
       final result = await updateService.checkForUpdate();
 

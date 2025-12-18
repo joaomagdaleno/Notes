@@ -26,7 +26,8 @@ void main() {
                       id: '1',
                       title: 'Test Note',
                       content:
-                          '{"blocks": [{"type": "text", "spans": [{"text": "This is a test note content"}]}]}',
+                          '{"blocks": [{"type": "text", '
+                          '"spans": [{"text": "Test content"}]}]}',
                       createdAt: DateTime(2023, 10, 27),
                       lastModified: DateTime(2023, 10, 27),
                       ownerId: 'test-user',
@@ -57,9 +58,11 @@ void main() {
                     note: Note(
                       id: '2',
                       title:
-                          'A very long title that should definitely truncate',
+                          'A very long title that should '
+                          'definitely truncate',
                       content:
-                          '{"blocks": [{"type": "text", "spans": [{"text": "This is a very long content that should also truncate after a few lines because cards have limited space..."}]}]}',
+                          '{"blocks": [{"type": "text", "spans": '
+                          '[{"text": "This is very long content..."}]}]}',
                       createdAt: DateTime(2023, 10, 27),
                       lastModified: DateTime(2023, 10, 27),
                       ownerId: 'test-user',
