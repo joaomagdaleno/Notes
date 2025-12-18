@@ -47,6 +47,20 @@ class NoteCard extends StatefulWidget {
 
 class _NoteCardState extends State<NoteCard> {
   // String _plainTextContent = '';
+  // ⚡ Bolt: Hoisting the gradient decoration for performance.
+  // This avoids re-creating the BoxDecoration on every build, which is
+  // a common performance anti-pattern in Flutter.
+  static final _gradientDecoration = BoxDecoration(
+    gradient: LinearGradient(
+      colors: [
+        Colors.black.withAlpha(153), // 0.6 alpha
+        Colors.transparent,
+        Colors.black.withAlpha(204), // 0.8 alpha
+      ],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+  );
 
   @override
   void initState() {
@@ -111,17 +125,7 @@ class _NoteCardState extends State<NoteCard> {
                 ),
               // Gradient overlay for text readability
               Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withValues(alpha: 0.6),
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
+                decoration: _gradientDecoration,
               ),
               Padding(
                 padding: const EdgeInsets.all(12),
