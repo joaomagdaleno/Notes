@@ -12,30 +12,35 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
 
   Future<void> _signIn() async {
-    setState(() => _isLoading = true);
-    await _authService.signInWithEmailAndPassword(
-      _emailController.text,
-      _passwordController.text,
-    );
-    if (mounted) {
-      setState(() => _isLoading = false);
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() => _isLoading = true);
+      await _authService.signInWithEmailAndPassword(
+        _emailController.text,
+        _passwordController.text,
+      );
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   Future<void> _signUp() async {
-    setState(() => _isLoading = true);
-    await _authService.createUserWithEmailAndPassword(
-      _emailController.text,
-      _passwordController.text,
-    );
-    if (mounted) {
-      setState(() => _isLoading = false);
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() => _isLoading = true);
+      await _authService.createUserWithEmailAndPassword(
+        _emailController.text,
+        _passwordController.text,
+      );
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -46,38 +51,59 @@ class _AuthScreenState extends State<AuthScreen> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-              ),
-              const SizedBox(height: 20),
-              if (_isLoading)
-                const CircularProgressIndicator()
-              else
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _signIn,
-                      child: const Text('Sign In'),
-                    ),
-                    ElevatedButton(
-                      onPressed: _signUp,
-                      child: const Text('Sign Up'),
-                    ),
-                  ],
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
                 ),
-            ],
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+                if (_isLoading)
+                  const CircularProgressIndicator()
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _signIn,
+                        child: const Text('Sign In'),
+                      ),
+                      ElevatedButton(
+                        onPressed: _signUp,
+                        child: const Text('Sign Up'),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ),
       ),

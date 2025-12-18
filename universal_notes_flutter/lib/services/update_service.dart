@@ -62,9 +62,16 @@ class UpdateService {
       if (response.statusCode == 200) {
         // 🛡️ Sentinel: Safely decode JSON to prevent crashes from invalid
         // data.
-        final dynamic decodedJson = jsonDecode(
-          response.body,
-        );
+        final dynamic decodedJson;
+        try {
+          decodedJson = jsonDecode(response.body);
+        } on FormatException {
+          return UpdateCheckResult(
+            UpdateCheckStatus.error,
+            errorMessage: 'Resposta de atualização inválida do servidor.',
+          );
+        }
+
         if (decodedJson is! Map<String, dynamic>) {
           return UpdateCheckResult(
             UpdateCheckStatus.error,
@@ -80,9 +87,8 @@ class UpdateService {
           if (tagName is! String) {
             return UpdateCheckResult(UpdateCheckStatus.noUpdate);
           }
-          latestVersionStr = tagName.startsWith('v')
-              ? tagName.substring(1)
-              : tagName;
+          latestVersionStr =
+              tagName.startsWith('v') ? tagName.substring(1) : tagName;
         } else {
           // 🛡️ Sentinel: Safely access body to prevent crashes.
           final body = json['body'];
@@ -103,18 +109,16 @@ class UpdateService {
 
             // 🛡️ Sentinel: Safely find and access release asset to prevent
             // crashes.
-            final releaseAsset =
-                assets.firstWhere(
-                      (dynamic asset) {
-                        if (asset is! Map<String, dynamic>) return false;
-                        final name = asset['name'];
-                        return name is String && name.endsWith(fileExtension);
-                      },
-                      orElse: () => null,
-                    )
-                    as Map<String, dynamic>?;
+            final releaseAsset = assets.firstWhere(
+              (dynamic asset) {
+                if (asset is! Map<String, dynamic>) return false;
+                final name = asset['name'];
+                return name is String && name.endsWith(fileExtension);
+              },
+              orElse: () => null,
+            );
 
-            if (releaseAsset != null) {
+            if (releaseAsset is Map<String, dynamic>) {
               final downloadUrl = releaseAsset['browser_download_url'];
               if (downloadUrl is String) {
                 return UpdateCheckResult(
@@ -138,8 +142,7 @@ class UpdateService {
     } on Exception {
       return UpdateCheckResult(
         UpdateCheckStatus.error,
-        errorMessage:
-            'Não foi possível verificar as atualizações. '
+        errorMessage: 'Não foi possível verificar as atualizações. '
             'Verifique sua conexão com a internet.',
       );
     }
