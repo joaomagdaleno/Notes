@@ -3,9 +3,9 @@ import 'package:opentelemetry/sdk.dart' as sdk;
 
 /// A service to manage OpenTelemetry tracing.
 class TracingService {
-  static final TracingService _instance = TracingService._internal();
   factory TracingService() => _instance;
   TracingService._internal();
+  static final TracingService _instance = TracingService._internal();
 
   late sdk.TracerProviderBase _tracerProvider;
   late Tracer _tracer;
@@ -15,7 +15,7 @@ class TracingService {
     // For now, we use a simple ConsoleExporter or Noop for testing
     // In a real app, this would export to Zipkin, Honeycomb, or a collector.
     _tracerProvider = sdk.TracerProviderBase(
-      sampler: sdk.AlwaysOnSampler(),
+      sampler: const sdk.AlwaysOnSampler(),
       processors: [
         // sdk.SimpleSpanProcessor(sdk.ConsoleExporter()), // Try this if available
       ],

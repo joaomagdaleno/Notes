@@ -5,15 +5,15 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 
 class MediaService {
-  static final MediaService instance = MediaService._();
   MediaService._();
+  static final MediaService instance = MediaService._();
 
   /// Compresses an image file locally.
   /// Returns a new File pointing to the compressed image.
   Future<File> compressImage(File file) async {
     // 1. Read the image
     final bytes = await file.readAsBytes();
-    img.Image? image = img.decodeImage(bytes);
+    var image = img.decodeImage(bytes);
 
     if (image == null) return file; // Could not decode
 

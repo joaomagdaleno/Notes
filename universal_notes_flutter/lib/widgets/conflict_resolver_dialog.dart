@@ -4,9 +4,9 @@ import 'package:universal_notes_flutter/models/sync_status.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
 class ConflictResolverDialog extends StatelessWidget {
-  final SyncConflict conflict;
 
   const ConflictResolverDialog({required this.conflict, super.key});
+  final SyncConflict conflict;
 
   @override
   Widget build(BuildContext context) {

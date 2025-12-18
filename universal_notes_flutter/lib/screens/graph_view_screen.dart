@@ -44,9 +44,9 @@ class _GraphViewState extends State<GraphView> {
 }
 
 class GraphPainter extends CustomPainter {
-  final List<Note> notes;
 
   GraphPainter({required this.notes});
+  final List<Note> notes;
 
   @override
   void paint(Canvas canvas, Size size) {

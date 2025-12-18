@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,8 +10,8 @@ import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/snippet.dart';
-import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/models/sync_status.dart';
+import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/services/firebase_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -451,6 +452,16 @@ class NoteRepository {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     return folder;
+  }
+
+  /// Inserts a folder with a specific ID (used for backup restore).
+  Future<void> insertFolder(Folder folder) async {
+    final db = await database;
+    await db.insert(
+      _foldersTable,
+      folder.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   /// Retrieves all folders.

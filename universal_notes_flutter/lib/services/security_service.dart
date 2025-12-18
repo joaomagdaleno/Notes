@@ -2,15 +2,15 @@ import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SecurityService {
-  static final SecurityService instance = SecurityService._();
   SecurityService._();
+  static final SecurityService instance = SecurityService._();
 
   final LocalAuthentication _auth = LocalAuthentication();
   static const String _lockEnabledKey = 'biometric_lock_enabled';
 
   Future<bool> isBiometricAvailable() async {
-    final bool canAuthenticateWithBiometrics = await _auth.canCheckBiometrics;
-    final bool canAuthenticate =
+    final canAuthenticateWithBiometrics = await _auth.canCheckBiometrics;
+    final canAuthenticate =
         canAuthenticateWithBiometrics || await _auth.isDeviceSupported();
     return canAuthenticate;
   }
@@ -21,7 +21,6 @@ class SecurityService {
         localizedReason: 'Please authenticate to access your notes',
         options: const AuthenticationOptions(
           stickyAuth: true,
-          biometricOnly: false,
         ),
       );
     } catch (e) {

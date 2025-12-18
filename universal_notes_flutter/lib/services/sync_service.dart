@@ -1,8 +1,9 @@
 import 'dart:async';
+
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/models/sync_status.dart';
 import 'package:universal_notes_flutter/models/sync_conflict.dart';
+import 'package:universal_notes_flutter/models/sync_status.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +18,7 @@ import 'package:universal_notes_flutter/models/stroke.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// A widget that provides a text editor with rich text capabilities.
 class EditorWidget extends StatefulWidget {
@@ -37,6 +39,9 @@ class EditorWidget extends StatefulWidget {
     this.onFind,
     this.onEscape,
     this.onCheckboxTap,
+    this.onToggleList,
+    this.onInsertLink,
+    this.onToggleLock,
     this.isDrawingMode = false,
     this.currentColor = Colors.black,
     this.currentStrokeWidth = 2.0,
@@ -100,6 +105,15 @@ class EditorWidget extends StatefulWidget {
 
   /// Callback when a checkbox is tapped.
   final ValueChanged<int>? onCheckboxTap;
+
+  /// Callback when a list toggle shortcut is pressed (Ctrl+L, Ctrl+Shift+L).
+  final void Function(String listType)? onToggleList;
+
+  /// Callback when insert link shortcut is pressed (Ctrl+K).
+  final VoidCallback? onInsertLink;
+
+  /// Callback when toggle lock shortcut is pressed (Ctrl+E).
+  final VoidCallback? onToggleLock;
 
   @override
   State<EditorWidget> createState() => EditorWidgetState();
@@ -327,6 +341,30 @@ class EditorWidgetState extends State<EditorWidget> {
         );
         widget.onSelectionChanged.call(_selection);
         setState(() {});
+        return;
+      }
+
+      // List shortcuts
+      if (event.logicalKey == LogicalKeyboardKey.keyL) {
+        if (isShiftPressed) {
+          // Ctrl+Shift+L: Toggle ordered list
+          widget.onToggleList?.call('ordered');
+        } else {
+          // Ctrl+L: Toggle bullet list
+          widget.onToggleList?.call('bullet');
+        }
+        return;
+      }
+
+      // Insert link shortcut (Ctrl+K)
+      if (event.logicalKey == LogicalKeyboardKey.keyK) {
+        widget.onInsertLink?.call();
+        return;
+      }
+
+      // Toggle lock shortcut (Ctrl+E)
+      if (event.logicalKey == LogicalKeyboardKey.keyE) {
+        widget.onToggleLock?.call();
         return;
       }
     }
@@ -1184,23 +1222,10 @@ class _EditorLine extends StatelessWidget {
               textPosition.offset < currentOffset + len) {
             if (s.linkUrl != null) {
               // It's a link! Open it.
-              // For now, since we can't easily injection URL launcher here
-              // without dependnecy, we will just print or show usage.
-              // The user said "sem utilizar dependencias".
-              // So we can't use url_launcher?
-              // Standard Flutter can't open URLs without url_launcher package.
-              // I will just print to console or show a Snackbar if context
-              // available? "Opening: ${s.linkUrl}"
-              // Actually, if dependencies are forbidden, I can't add
-              // `url_launcher`.
-              // But `universal_notes_flutter` likely has it?
-              // Checked pubspec in memory: yes, it has `url_launcher`?
-              // No, I viewed pubspec earlier.
-              // Let's assume effectively I can't use new deps.
-              // I'll show a snackbar.
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Open Link: ${s.linkUrl}')),
-              );
+              final url = Uri.tryParse(s.linkUrl!);
+              if (url != null) {
+                unawaited(launchUrl(url, mode: LaunchMode.externalApplication));
+              }
               return;
             }
             break;

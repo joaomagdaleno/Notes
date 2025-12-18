@@ -448,6 +448,14 @@ class DocumentManipulator {
               attributes: block.attributes,
             ),
           );
+        } else {
+          // Keep the block even if empty, to preserve structure/cursor potential
+          newBlocks.add(
+            TextBlock(
+              spans: [const TextSpanModel(text: '')],
+              attributes: block.attributes,
+            ),
+          );
         }
       }
       // If the block is an ImageBlock and is within the deletion range,
@@ -683,6 +691,11 @@ class DocumentManipulator {
         return _BlockPosition(i, blockLength);
       }
 
+      // Match empty blocks if we are at their position
+      if (blockLength == 0 && globalPosition == accumulatedLength) {
+        return _BlockPosition(i, 0);
+      }
+
       accumulatedLength += blockLength;
     }
     // If empty document
@@ -809,6 +822,33 @@ class DocumentManipulator {
       if (pA.x != pB.x || pA.y != pB.y) return false;
     }
     return true;
+  }
+
+  /// Toggles a link URL on the given selection.
+  ///
+  /// If [url] is provided, applies the link. If null, removes any existing link.
+  static ManipulationResult toggleLink(
+    DocumentModel document,
+    TextSelection selection,
+    String? url,
+  ) {
+    final newDoc = applyToSelection(
+      document,
+      selection,
+      (span) => span.copyWith(
+        linkUrl: url,
+        isUnderline: url != null || span.isUnderline,
+      ),
+    );
+    return ManipulationResult(
+      document: newDoc,
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'pos': selection.start,
+        'len': selection.end - selection.start,
+        'linkUrl': url,
+      },
+    );
   }
 }
 

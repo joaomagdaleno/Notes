@@ -60,8 +60,7 @@ class MarkdownConverter {
           document,
           lineStart,
           selection,
-          pattern.length, // '# ' length is pattern.length + 1 for space?
-          // pattern is trimmed.
+          pattern.length + 1, // length of '# ' is pattern.length + 1 for space
           // logic below handles deletion
           {'blockType': 'heading', 'level': pattern.length},
         );
@@ -86,6 +85,39 @@ class MarkdownConverter {
           selection,
           2,
           {'blockType': 'unordered-list'},
+        );
+      }
+
+      // Ordered List (1., 2., 3., etc.)
+      if (RegExp(r'^\d+\.$').hasMatch(pattern)) {
+        return _applyBlockAttribute(
+          document,
+          lineStart,
+          selection,
+          pattern.length + 1, // "1. " including space
+          {'blockType': 'ordered-list'},
+        );
+      }
+
+      // Unchecked Checklist (- [ ])
+      if (lineText.trimLeft().startsWith('- [ ] ')) {
+        return _applyBlockAttribute(
+          document,
+          lineStart,
+          selection,
+          6, // "- [ ] "
+          {'blockType': 'checklist', 'checked': false},
+        );
+      }
+
+      // Checked Checklist (- [x])
+      if (lineText.trimLeft().startsWith('- [x] ')) {
+        return _applyBlockAttribute(
+          document,
+          lineStart,
+          selection,
+          6, // "- [x] "
+          {'blockType': 'checklist', 'checked': true},
         );
       }
 

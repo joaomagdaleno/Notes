@@ -52,7 +52,7 @@ class _CommandPaletteState extends State<CommandPalette> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: TextField(
               controller: _searchController,
               autofocus: true,
