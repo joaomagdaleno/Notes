@@ -632,7 +632,8 @@ class NoteRepository {
     // Since we lazy-create tags, _tagsTable might have orphans if we remove
     // tags from notes.
     // ideal: join with _noteTagsTable to find used tags.
-    // Or just return all known tags. Let's return all known tags to allow reuse.
+    // Or just return all known tags. Let's return all known tags to allow
+    // reuse.
     final result = await db.query(
       _tagsTable,
       columns: ['name'],

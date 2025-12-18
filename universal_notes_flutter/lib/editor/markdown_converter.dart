@@ -60,8 +60,8 @@ class MarkdownConverter {
           document,
           lineStart,
           selection,
-          pattern
-              .length, // length of '# ' is pattern.length + 1 for space? No, pattern is trimmed.
+          pattern.length, // '# ' length is pattern.length + 1 for space?
+          // pattern is trimmed.
           // logic below handles deletion
           {'blockType': 'heading', 'level': pattern.length},
         );

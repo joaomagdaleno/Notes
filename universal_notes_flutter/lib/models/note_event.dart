@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+/// The type of event that occurred on a note.
 enum NoteEventType {
   /// Insert text.
   insert,
@@ -30,7 +31,9 @@ enum SyncStatus {
   conflict,
 }
 
+/// Represents a single change event to a note.
 class NoteEvent {
+  /// Creates a new [NoteEvent].
   const NoteEvent({
     required this.id,
     required this.noteId,

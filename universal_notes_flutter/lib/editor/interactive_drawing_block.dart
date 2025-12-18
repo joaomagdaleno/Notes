@@ -5,6 +5,7 @@ import 'package:universal_notes_flutter/models/stroke.dart';
 
 /// A block that allows interactive drawing with stylus or touch support.
 class InteractiveDrawingBlock extends StatefulWidget {
+  /// Creates an [InteractiveDrawingBlock].
   const InteractiveDrawingBlock({
     required this.strokes,
     required this.height,
@@ -16,12 +17,25 @@ class InteractiveDrawingBlock extends StatefulWidget {
     super.key,
   });
 
+  /// The list of strokes already present in the block.
   final List<Stroke> strokes;
+
+  /// The height of the drawing area.
   final double height;
+
+  /// Whether drawing mode is active.
   final bool isDrawingMode;
+
+  /// Callback when a new stroke is completed.
   final ValueChanged<Stroke> onStrokeAdded;
+
+  /// Callback when a stroke should be removed (e.g., via eraser).
   final ValueChanged<Stroke>? onStrokeRemoved;
+
+  /// The color to use for new strokes.
   final Color currentColor;
+
+  /// The width to use for new strokes.
   final double currentStrokeWidth;
 
   @override

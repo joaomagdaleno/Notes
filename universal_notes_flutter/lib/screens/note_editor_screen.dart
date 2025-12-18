@@ -303,57 +303,59 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     if (_note == null) return;
 
     // Listen to remote cursors
-    _cursorSubscription = _firestoreRepository
-        .listenToCursors(_note!.id)
-        .listen((cursors) {
-          if (!mounted) return;
-          final newCursors = <String, Map<String, dynamic>>{};
-          for (final cursorData in cursors) {
-            final userId = cursorData['userId'] as String;
-            if (userId != _firestoreRepository.currentUser?.uid) {
-              // Transform data format for EditorWidget
-              newCursors[userId] = {
-                'selection': {
-                  'base': cursorData['baseOffset'],
-                  'extent': cursorData['extentOffset'],
-                },
-                // ignore: deprecated_member_use
-                'color': cursorData['colorValue'] ?? Colors.grey.value,
-                'name': cursorData['displayName'] ?? 'Guest',
-              };
-            }
-          }
-          setState(() {
-            _remoteCursors
-              ..clear()
-              ..addAll(newCursors);
-          });
-        });
+    _cursorSubscription = _firestoreRepository.listenToCursors(_note!.id).listen((
+      cursors,
+    ) {
+      if (!mounted) return;
+      final newCursors = <String, Map<String, dynamic>>{};
+      for (final cursorData in cursors) {
+        final userId = cursorData['userId'] as String;
+        if (userId != _firestoreRepository.currentUser?.uid) {
+          // Transform data format for EditorWidget
+          newCursors[userId] = {
+            'selection': {
+              'base': cursorData['baseOffset'],
+              'extent': cursorData['extentOffset'],
+            },
+            // ignore: deprecated_member_use, documented for clarity: using hex value for storage
+            'color': cursorData['colorValue'] ?? Colors.grey.value,
+            'name': cursorData['displayName'] ?? 'Guest',
+          };
+        }
+      }
+      setState(() {
+        _remoteCursors
+          ..clear()
+          ..addAll(newCursors);
+      });
+    });
 
     // Listen to remote events (Document Sync)
     // We only care about events AFTER we loaded the document?
-    // Actually, if we loaded the document content, it might be stale if we didn't use a real-time listener for content.
-    // The current architecture seems to load 'fullContent' once.
-    // Ideally we should replay events that happened since 'lastModified'?
-    // For simplicity in this step, we listen to the stream of events.
-    // WARNING: This receives ALL events. We need to filter by those we haven't applied or are remote.
-    // A robust system would track 'lastAppliedEventId'.
-    _remoteEventsSubscription = _firestoreRepository.getNoteEventsStream(_note!.id).listen((
-      events,
-    ) {
-      // Filter out local events (we generated them) or already applied?
-      // For this MVP, we might re-apply everything or just the new ones.
-      // Optimally: user EventReplayer to build state?
-      // But we have local unsaved changes in _document.
-      // Re-applying all events from scratch would overwite local changes if they are not pushed yet.
-      // This is complex.
-      // Let's assume for this "Activate" task that we simply show cursors for now, and maybe
-      // rely on manual specific event handling if feasible.
-      // The prompt said "Ative a funcionalidade", referring probably to what was DISABLED.
-      // The 'cursor' part was explicitly disabled. The sync part was less clear.
-      // Let's implement cursor sync fully.
-      // For document sync, we can try to replay new events.
-    });
+    // Actually, if we loaded the document content, it might be stale if we
+    // didn't use a real-time listener for content. The current architecture
+    // seems to load 'fullContent' once. Ideally we should replay events that
+    // happened since 'lastModified'? For simplicity in this step, we listen
+    // to the stream of events.
+    // WARNING: This receives ALL events. We need to filter by those we
+    // haven't applied or are remote. A robust system would track
+    // 'lastAppliedEventId'.
+    _remoteEventsSubscription = _firestoreRepository
+        .getNoteEventsStream(_note!.id)
+        .listen((events) {
+          // Filter out local events (we generated them) or already applied?
+          // For this MVP, we might re-apply everything or just the new ones.
+          // Optimally: user EventReplayer to build state?
+          // But we have local unsaved changes in _document.
+          // Re-applying all events from scratch would overwite local changes if
+          // they are not pushed yet. This is complex. Let's assume for this
+          // "Activate" task that we simply show cursors for now, and maybe
+          // rely on manual specific event handling if feasible.
+          // The prompt said "Activate", referring probably to what was DISABLED.
+          // The 'cursor' part was explicitly disabled. The sync part was less clear.
+          // Let's implement cursor sync fully. For document sync, we can try to
+          // replay new events.
+        });
   }
 
   Future<void> _broadcastCursorPosition(TextSelection selection) async {
@@ -366,7 +368,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       selection.baseOffset,
       selection.extentOffset,
       user.displayName ?? 'Anonymous',
-      // ignore: deprecated_member_use
+      // ignore: deprecated_member_use, documented for clarity: using hex value
       Colors.blue.value, // We could pick a random color per user session
     );
   }
@@ -430,11 +432,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
     // Create a Version Snapshot locally (if not empty)
     // We do this after saving the note itself.
-    // Ideally we'd compare content with last version to avoid duplicates,
-    // but for now, we'll create a version on every "Autosave" that is triggered.
-    // To avoid spamming versions on every character (handled by debounce),
-    // we might want to limit frequency (e.g. 1 per hour) in the future.
-    // For now, let's keep it simple: Create version.
+    // Ideally we'd compare content with last version to avoid duplicates, but
+    // for now, we'll create a version on every "Autosave" that is triggered.
+    // To avoid spamming versions on every character (handled by debounce), we
+    // might want to limit frequency (e.g. 1 per hour) in the future. For now,
+    // let's keep it simple: Create version.
     /* 
        Wait, creating a version on every autosave (debounce 1s) is too much. 
        Let's ONLY create version on:
@@ -442,7 +444,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
        2. Or if X minutes passed since last version?
        
        For this Step, let's enable it on Manual Save primarily.
-       So, I will NOT put it here in _autosave unless I add a flag 'createVersion'.
+       So, I will NOT put it here in _autosave unless I add a flag
+       'createVersion'.
     */
 
     // If Shared, push to Firestore (Real-Time / Sync)
@@ -479,9 +482,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         content: jsonContent,
         date: DateTime.now(),
       );
-      // We need access to repository directly.
-      // Ideally we'd use a service or the repository instance if we kept it.
-      // We removed _noteRepository field earlier. Let's add it back or use singleton.
+      // We need access to repository directly. Ideally we'd use a service or
+      // the repository instance if we kept it. We removed _noteRepository
+      // field earlier. Let's add it back or use singleton.
       await NoteRepository.instance.createNoteVersion(version);
     }
 
@@ -530,8 +533,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                                     'Restaurar para este ponto?',
                                   ),
                                   content: const Text(
-                                    'Isso reverterá o documento para o estado selecionado. '
-                                    'Uma nova linha do tempo será criada a partir daqui.',
+                                    'Isso reverterá o documento para o estado '
+                                    'selecionado. Uma nova linha do tempo será '
+                                    'criada a partir daqui.',
                                   ),
                                   actions: [
                                     TextButton(
@@ -553,16 +557,18 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                               point.eventsUpToPoint,
                             );
 
-                            _initializeEditor(restoredDoc.toPlainText());
-                            // Note: ideally _initializeEditor should take a DocumentModel if we want to preserve rich text state properly.
-                            // But EventReplayer returns DocumentModel.
-                            // _initializeEditor parses string -> DocumentModel.
-                            // If EventReplayer is accurate, we should probably set _document directly if possible or update _initializeEditor/update wrapper.
-                            // Currently _initializeEditor acts on String content.
-                            // IF DocumentManipulator handles rich text, we lose it if we convert toPlainText() unless _initializeEditor re-parses it correctly or we bypass it.
-                            // For v1 event sourcing, if we only store pure text events? No, we have Format events.
-                            // So converting toPlainText() LOSES formatting.
-                            // We must update the state directly.
+                            // _initializeEditor parses string -> DocumentModel. If
+                            // EventReplayer is accurate, we should probably
+                            // set _document directly if possible or update
+                            // _initializeEditor/update wrapper. Currently
+                            // _initializeEditor acts on String content. IF
+                            // DocumentManipulator handles rich text, we lose
+                            // it if we convert toPlainText() unless
+                            // _initializeEditor re-parses it correctly or we
+                            // bypass it. For v1 event sourcing, if we only
+                            // store pure text events? No, we have Format
+                            // events. So converting toPlainText() LOSES
+                            // formatting. We must update the state directly.
 
                             setState(() {
                               _document = restoredDoc;
@@ -579,25 +585,33 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                               );
                             });
 
-                            Navigator.pop(context); // Close History Dialog
+                            if (context.mounted) {
+                              Navigator.pop(context); // Close History Dialog
+                            }
 
                             // Trigger save to persist restoration as a NEW event?
-                            // No, typically we just treat this as a massive change or log a specific "Rollback" event.
-                            // For now, _autosave will run eventually, OR we should force a log.
-                            // But wait, if we set state, _onDocumentChanged wasn't
-                            // called.
-                            // So we need to trigger downstream effects.
+                            // No, typically we just treat this as a massive
+                            // change or log a specific "Rollback" event. For
+                            // now, _autosave will run eventually, OR we should
+                            // force a log. But wait, if we set state,
+                            // _onDocumentChanged wasn't called. So we need to
+                            // trigger downstream effects.
 
-                            // Let's create a snapshot event or rely on next edit.
-                            // Better: Log a 'restore' event manually if we want to trace it,
-                            // but simply setting the document puts the user in that state.
-                            // Any subsequent edit will append events.
+                            // Let's create a snapshot event or rely on next
+                            // edit. Better: Log a 'restore' event manually if
+                            // we want to trace it, but simply setting the
+                            // document puts the user in that state. Any
+                            // subsequent edit will append events.
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Versão restaurada com sucesso.'),
-                              ),
-                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Versão restaurada com sucesso.',
+                                  ),
+                                ),
+                              );
+                            }
                           }
                         },
                       );

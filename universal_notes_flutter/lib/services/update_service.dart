@@ -57,7 +57,9 @@ class UpdateService {
       // indefinitely.
       final response = await _client
           .get(url)
-          .timeout(const Duration(seconds: 30));
+          .timeout(
+            const Duration(seconds: 30),
+          );
 
       if (response.statusCode == 200) {
         // 🛡️ Sentinel: Safely decode JSON to prevent crashes from invalid
@@ -87,8 +89,9 @@ class UpdateService {
           if (tagName is! String) {
             return UpdateCheckResult(UpdateCheckStatus.noUpdate);
           }
-          latestVersionStr =
-              tagName.startsWith('v') ? tagName.substring(1) : tagName;
+          latestVersionStr = tagName.startsWith('v')
+              ? tagName.substring(1)
+              : tagName;
         } else {
           // 🛡️ Sentinel: Safely access body to prevent crashes.
           final body = json['body'];
@@ -142,7 +145,8 @@ class UpdateService {
     } on Exception {
       return UpdateCheckResult(
         UpdateCheckStatus.error,
-        errorMessage: 'Não foi possível verificar as atualizações. '
+        errorMessage:
+            'Não foi possível verificar as atualizações. '
             'Verifique sua conexão com a internet.',
       );
     }

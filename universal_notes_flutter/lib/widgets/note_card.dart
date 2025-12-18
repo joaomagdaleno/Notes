@@ -100,73 +100,79 @@ class _NoteCardState extends State<NoteCard> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-      clipBehavior: Clip.antiAlias, // Important for the image background
-      child: InkWell(
-        onTap: widget.onTap,
-        onLongPress: () {
-          final renderBox = context.findRenderObject() as RenderBox?;
-          if (renderBox != null) {
-            final offset = renderBox.localToGlobal(
-              renderBox.size.center(Offset.zero),
-            );
-            _showContextMenu(context, offset);
-          }
-        },
-        child: Semantics(
-          label: widget.note.title.isNotEmpty
-              ? 'Nota: ${widget.note.title}'
-              : 'Nota Sem Título',
-          hint:
-              'Modificado em '
-              '${NoteCard._dateFormat.format(widget.note.lastModified)}',
-          button: true,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (hasImage)
-                Image.network(
-                  widget.note.imageUrl!,
-                  fit: BoxFit.cover,
+        clipBehavior: Clip.antiAlias, // Important for the image background
+        child: InkWell(
+          onTap: widget.onTap,
+          onLongPress: () {
+            final renderBox = context.findRenderObject() as RenderBox?;
+            if (renderBox != null) {
+              final offset = renderBox.localToGlobal(
+                renderBox.size.center(Offset.zero),
+              );
+              _showContextMenu(context, offset);
+            }
+          },
+          child: Semantics(
+            label: widget.note.title.isNotEmpty
+                ? 'Nota: ${widget.note.title}'
+                : 'Nota Sem Título',
+            hint:
+                'Modificado em '
+                '${NoteCard._dateFormat.format(widget.note.lastModified)}',
+            button: true,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (hasImage)
+                  Image.network(
+                    widget.note.imageUrl!,
+                    fit: BoxFit.cover,
+                  ),
+                // Gradient overlay for text readability
+                const DecoratedBox(
+                  decoration: NoteCard._gradientDecoration,
                 ),
-              // Gradient overlay for text readability
-              const DecoratedBox(
-                decoration: _gradientDecoration,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    // Favorite indicator
-                    if (widget.note.isFavorite)
-                      const Align(
-                        alignment: Alignment.topRight,
-                        child: Icon(Icons.star, color: Colors.amber, size: 20),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // Favorite indicator
+                      if (widget.note.isFavorite)
+                        const Align(
+                          alignment: Alignment.topRight,
+                          child: Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                            size: 20,
+                          ),
+                        ),
+                      const Spacer(),
+                      Text(
+                        widget.note.title.isNotEmpty
+                            ? widget.note.title
+                            : 'Sem Título',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    const Spacer(),
-                    Text(
-                      widget.note.title.isNotEmpty
-                          ? widget.note.title
-                          : 'Sem Título',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      const SizedBox(height: 4),
+                      Text(
+                        NoteCard._dateFormat.format(widget.note.lastModified),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: Colors.white70),
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      NoteCard._dateFormat.format(widget.note.lastModified),
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

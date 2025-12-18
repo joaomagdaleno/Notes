@@ -80,8 +80,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   void dispose() {
     windowManager.removeListener(this);
     _scrollController.dispose();
-    _searchController.removeListener(_onSearchChanged);
-    _searchController.dispose();
+    _searchController
+      ..removeListener(_onSearchChanged)
+      ..dispose();
     _viewModeNotifier.dispose();
     _sortOrderNotifier.dispose();
     super.dispose();
@@ -105,7 +106,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
     _searchDebounce = Timer(const Duration(milliseconds: 300), () async {
       final results = await NoteRepository.instance.searchNotes(query);
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           _searchResults = results;
           _isSearching = false;
@@ -139,11 +140,13 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     }
 
     // Trigger refresh of local data into the stream
-    _syncService.refreshLocalData(
-      folderId: folderId,
-      tagId: tagId,
-      isFavorite: isFavorite,
-      isInTrash: isInTrash,
+    unawaited(
+      _syncService.refreshLocalData(
+        folderId: folderId,
+        tagId: tagId,
+        isFavorite: isFavorite,
+        isInTrash: isInTrash,
+      ),
     );
   }
 
@@ -152,7 +155,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       _selection = selection;
       _updateNotesStream();
     });
-    Navigator.of(context).pop();
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _createNewNote() async {
@@ -161,14 +166,16 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       title: 'Nova Nota',
       content: DocumentModel.empty()
           .toJson()
-          .toString(), // Or empty string literal per NoteRepository
+          .toString(), // Or empty string literal
       createdAt: DateTime.now(),
       lastModified: DateTime.now(),
       ownerId: 'user', // Default user
     );
     await NoteRepository.instance.insertNote(note);
-    _syncService.refreshLocalData();
-    unawaited(_openNoteEditor(note));
+    await _syncService.refreshLocalData();
+    if (context.mounted) {
+      unawaited(_openNoteEditor(note));
+    }
   }
 
   Future<void> _openNoteEditor(Note note) async {
@@ -180,7 +187,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           note: note,
           onSave: (updatedNote) async {
             await NoteRepository.instance.updateNote(updatedNote);
-            _syncService.refreshLocalData();
+            await _syncService.refreshLocalData();
             return updatedNote;
           },
         ),
@@ -476,9 +483,14 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           IconButton(
             icon: const Icon(Icons.brightness_6),
             onPressed: () {
-              unawaited(
-                Provider.of<ThemeService>(context, listen: false).toggleTheme(),
-              );
+              if (context.mounted) {
+                unawaited(
+                  Provider.of<ThemeService>(
+                    context,
+                    listen: false,
+                  ).toggleTheme(),
+                );
+              }
             },
           ),
           PopupMenuButton<SortOrder>(
@@ -640,10 +652,16 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.brightness),
-                  onPressed: () => Provider.of<ThemeService>(
-                    context,
-                    listen: false,
-                  ).toggleTheme(),
+                  onPressed: () {
+                    if (context.mounted) {
+                      unawaited(
+                        Provider.of<ThemeService>(
+                          context,
+                          listen: false,
+                        ).toggleTheme(),
+                      );
+                    }
+                  },
                 ),
               ],
             ),

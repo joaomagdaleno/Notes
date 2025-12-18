@@ -694,8 +694,8 @@ class EditorWidgetState extends State<EditorWidget> {
                   // Wait, DocumentModel blocks map 1:1 to lines?
                   // VirtualTextBuffer splits on newlines.
                   // DrawingBlock likely has no newlines, so it's a single line.
-                  // But we verified earlier we might have issues if blocks are mixed.
-                  // Assuming 1-to-1 for now for DrawingBlock.
+                  // But we verified earlier we might have issues if blocks are
+                  // mixed. Assuming 1-to-1 for now for DrawingBlock.
 
                   final result = DocumentManipulator.addStrokeToBlock(
                     widget.document,
@@ -945,8 +945,8 @@ class _EditorLine extends StatelessWidget {
     Widget content;
 
     // 4. Perform expensive layout only if needed (moved up for wrapping)
-    // We need TextSpan to apply line-level styles (like heading size) if not handled in model.
-    // Actually, headings might handled by model attributes?
+    // We need TextSpan to apply line-level styles (like heading size) if not
+    // handled in model. Actually, headings might handled by model attributes?
     // No, we store 'level' in block attributes, not span attributes.
     // So we need to scale the text here.
 
@@ -1035,12 +1035,13 @@ class _EditorLine extends StatelessWidget {
     // --- Apply Block Decorations ---
     // --- Determine Content Based on Block Type ---
     if (attributes['blockType'] == 'drawing') {
-      // We need the actual block from the model, but Line is from VirtualTextBuffer.
-      // VirtualTextBuffer lines map to model blocks, but we might have lost the direct reference
-      // unless we store block index or the block object in attributes.
+      // We need the actual block from the model, but Line is from
+      // VirtualTextBuffer. VirtualTextBuffer lines map to model blocks, but
+      // we might have lost the direct reference unless we store block index
+      // or the block object in attributes.
       // Actually DocumentModel.toJson re-creates blocks.
-      // Warning: VirtualTextBuffer might not fully support non-text blocks yet if it splits them.
-      // Assuming Block-Per-Line for drawings.
+      // Warning: VirtualTextBuffer might not fully support non-text blocks
+      // yet if it splits them. Assuming Block-Per-Line for drawings.
 
       final strokesRaw = attributes['strokes'] as List<dynamic>? ?? [];
       final strokes = strokesRaw
@@ -1161,12 +1162,12 @@ class _EditorLine extends StatelessWidget {
         final textPosition = painter.getPositionForOffset(effectiveOffset);
         // final span = textSpan.getSpanForPosition(textPosition);
 
-        // We can't easily access the TextSpanModel from the Flutter TextSpan here directly
-        // unless we built it with a recognizer or meta-data.
-        // But we iterate line.spans.
-        // Simpler: Check the line model logic.
+        // We can't easily access the TextSpanModel from the Flutter TextSpan
+        // here directly unless we built it with a recognizer or meta-data.
+        // But we iterate line.spans. Simpler: Check the line model logic.
 
-        // Alternative: Use the offset `textPosition.offset` to find the span model in `line.spans`
+        // Alternative: Use the offset `textPosition.offset` to find the span
+        // model in `line.spans`
         var currentOffset = 0;
         for (final s in line.spans) {
           final len = s.text.length;
@@ -1179,9 +1180,10 @@ class _EditorLine extends StatelessWidget {
               // The user said "sem utilizar dependencias".
               // So we can't use url_launcher?
               // Standard Flutter can't open URLs without url_launcher package.
-              // I will just print to console or show a Snackbar if context available?
-              // "Opening: ${s.linkUrl}"
-              // Actually, if dependencies are forbidden, I can't add `url_launcher`.
+              // I will just print to console or show a Snackbar if context
+              // available? "Opening: ${s.linkUrl}"
+              // Actually, if dependencies are forbidden, I can't add
+              // `url_launcher`.
               // But `universal_notes_flutter` likely has it?
               // Checked pubspec in memory: yes, it has `url_launcher`?
               // No, I viewed pubspec earlier.

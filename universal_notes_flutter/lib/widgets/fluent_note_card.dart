@@ -69,7 +69,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
     if (jsonContent.isEmpty) return '';
     try {
       return DocumentAdapter.fromJson(jsonContent).toPlainText();
-    } catch (e) {
+    } on Exception catch (_) {
       // Handle potential malformed JSON gracefully.
       return 'Error parsing content';
     }
@@ -115,15 +115,14 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
       widget.note.id,
     );
     final tags = await NoteRepository.instance.getTagsForNote(widget.note.id);
-    if (context.mounted) {
-      unawaited(
-        showDialog<void>(
-          context: context,
-          builder: (context) =>
-              NotePreviewDialog(note: noteWithContent, tags: tags),
-        ),
-      );
-    }
+    if (!context.mounted) return;
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (context) =>
+            NotePreviewDialog(note: noteWithContent, tags: tags),
+      ),
+    );
   }
 
   @override

@@ -2,13 +2,15 @@ import 'package:universal_notes_flutter/models/note_event.dart';
 
 /// Represents a point in history that the user can revert to.
 class HistoryPoint {
+  /// Creates a [HistoryPoint].
   const HistoryPoint({
     required this.timestamp,
     required this.eventsUpToPoint,
     required this.label,
   });
 
-  /// The timestamp of this history point (usually the time of the last event in the group).
+  /// The timestamp of this history point (usually the time of the last event
+  /// in the group).
   final DateTime timestamp;
 
   /// The list of events that leads to this point from the beginning.
@@ -20,6 +22,7 @@ class HistoryPoint {
   final String label;
 }
 
+/// A utility class for grouping note events into history points.
 class HistoryGrouper {
   /// Groups raw [events] into meaningful [HistoryPoint]s.
   ///
@@ -49,10 +52,9 @@ class HistoryGrouper {
     }
 
     // Process old events (Daily compression)
-    points.addAll(_processOldEvents(oldEvents));
-
-    // Process recent events (Session grouping)
-    points.addAll(_processRecentEvents(recentEvents, oldEvents));
+    points
+      ..addAll(_processOldEvents(oldEvents))
+      ..addAll(_processRecentEvents(recentEvents, oldEvents));
 
     // Sort points descending (newest first) for UI
     return points.reversed.toList();
@@ -66,7 +68,7 @@ class HistoryGrouper {
     if (recentEvents.isEmpty) return points;
 
     final allEventsRun = [...priorEvents];
-    // ignore: unused_local_variable
+    // ignore: unused_local_variable, documented for clarity: placeholder for future logic
     var currentSessionStart = recentEvents.first.timestamp;
     var lastEventTime = recentEvents.first.timestamp;
 
@@ -116,7 +118,8 @@ class HistoryGrouper {
     for (var i = 0; i < oldEvents.length; i++) {
       final event = oldEvents[i];
       final dayKey =
-          '${event.timestamp.year}-${event.timestamp.month}-${event.timestamp.day}';
+          '${event.timestamp.year}-${event.timestamp.month}'
+          '-${event.timestamp.day}';
       eventsByDay.putIfAbsent(dayKey, () => []).add(i);
     }
 
@@ -128,10 +131,9 @@ class HistoryGrouper {
       if (indices.length <= 5) {
         selectedIndices.addAll(indices);
       } else {
-        // Always include Last (end of day state)
-        selectedIndices.add(indices.last);
-        // Always include First (start of day changes)
-        selectedIndices.add(indices.first);
+        selectedIndices
+          ..add(indices.last)
+          ..add(indices.first);
         // Pick 3 more
         final step = (indices.length - 1) / 4;
         for (var k = 1; k < 4; k++) {

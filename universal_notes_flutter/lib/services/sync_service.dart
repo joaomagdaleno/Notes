@@ -5,8 +5,11 @@ import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
+/// A service that handles synchronization between local and remote storage.
 class SyncService {
   SyncService._();
+
+  /// The singleton instance of [SyncService].
   static final SyncService instance = SyncService._();
 
   final NoteRepository _noteRepository = NoteRepository.instance;
@@ -17,8 +20,13 @@ class SyncService {
   final _foldersController = StreamController<List<Folder>>.broadcast();
   final _tagsController = StreamController<List<String>>.broadcast();
 
+  /// A broadcast stream of all notes.
   Stream<List<Note>> get notesStream => _notesController.stream;
+
+  /// A broadcast stream of all folders.
   Stream<List<Folder>> get foldersStream => _foldersController.stream;
+
+  /// A broadcast stream of all tags.
   Stream<List<String>> get tagsStream => _tagsController.stream;
 
   /// Initial fetch from local DB to populate streams
@@ -76,7 +84,8 @@ class SyncService {
       }
 
       // If local doesn't exist, or remote is newer, update local
-      // Using UTC check to be safe, assuming Note model handles Timezone or stores UTC
+      // Using UTC check to be safe, assuming Note model handles Timezone or
+      // stores UTC.
       final remoteNewer =
           localNote == null ||
           remoteNote.lastModified.toUtc().isAfter(
@@ -122,7 +131,8 @@ class SyncService {
 
   /// Uploads a local note to Firestore
   Future<void> syncUpNote(Note note) async {
-    // This uses the split content logic we implemented in FirestoreRepository
+    // This uses the split content logic we implemented in
+    // FirestoreRepository.
     if (note.id.isEmpty) {
       // Create
       await _firestoreRepository.addNote(
@@ -217,9 +227,10 @@ class SyncService {
     await _noteRepository.importWords(cloudWords);
   }
 
+  /// Disposes of the controllers and subscriptions.
   void dispose() {
-    _remoteSubscription?.cancel();
-    _notesController.close();
-    _foldersController.close();
+    unawaited(_remoteSubscription?.cancel());
+    unawaited(_notesController.close());
+    unawaited(_foldersController.close());
   }
 }

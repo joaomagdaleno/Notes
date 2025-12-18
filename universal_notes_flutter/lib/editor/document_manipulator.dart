@@ -243,7 +243,7 @@ class DocumentManipulator {
       eventPayload: {
         'pos': selection.start,
         'len': selection.end - selection.start,
-        // ignore: deprecated_member_use
+        // ignore: deprecated_member_use, documented for clarity: using hex value for storage
         'color': color.value,
       },
     );
@@ -540,8 +540,8 @@ class DocumentManipulator {
 
     // We reuse setBlockAttributes logic but we need to pass the FULL modified
     // map because setBlockAttributes MERGES.
-    // Actually, to support removal, we might need a method that REPLACES attributes
-    // or supports null to remove.
+    // Actually, to support removal, we might need a method that REPLACES
+    // attributes or supports null to remove.
     // Our setBlockAttributes logic above merges.
     // Let's modify setBlockAttributes or handle it here manually.
     // We'll handle it manually here for precision.
