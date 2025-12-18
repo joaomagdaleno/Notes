@@ -41,6 +41,21 @@ class NoteCard extends StatefulWidget {
   // This avoids repeated object creation.
   static final _dateFormat = DateFormat('d MMM. yyyy');
 
+  // ⚡ Bolt: Memoize BoxDecoration for performance.
+  // Re-creating this decoration on every build is inefficient.
+  // This avoids repeated object creation for the gradient overlay.
+  static const _gradientDecoration = BoxDecoration(
+    gradient: LinearGradient(
+      colors: [
+        Color(0x99000000), // Colors.black.withAlpha(153)
+        Colors.transparent,
+        Color(0xCC000000), // Colors.black.withAlpha(204)
+      ],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+  );
+
   @override
   State<NoteCard> createState() => _NoteCardState();
 }
@@ -110,18 +125,8 @@ class _NoteCardState extends State<NoteCard> {
                   fit: BoxFit.cover,
                 ),
               // Gradient overlay for text readability
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withValues(alpha: 0.6),
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
+              const DecoratedBox(
+                decoration: _gradientDecoration,
               ),
               Padding(
                 padding: const EdgeInsets.all(12),
