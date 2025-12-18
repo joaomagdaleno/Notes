@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/services/tracing_service.dart';
 
 /// Repository for interacting with Firestore.
 class FirestoreRepository {
@@ -102,36 +103,43 @@ class FirestoreRepository {
 
   /// Adds a new note with [title] and [content].
   Future<Note> addNote({required String title, required String content}) async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      throw Exception('User not logged in');
+    final span = TracingService().startSpan('FirestoreRepository.addNote');
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('User not logged in');
+      }
+      final now = DateTime.now();
+
+      // Create snippet (first 100 chars)
+      final snippet = content.length > 100
+          ? content.substring(0, 100)
+          : content;
+
+      final docRef = await _notesCollection.add({
+        'title': title,
+        'content': snippet, // Store only snippet in main doc
+        'createdAt': Timestamp.fromDate(now),
+        'lastModified': Timestamp.fromDate(now),
+        'ownerId': user.uid,
+        'collaborators': <String, dynamic>{},
+        'tags': <String>[],
+        'memberIds': [user.uid], // Owner is always a member
+        'isFavorite': false,
+        'isInTrash': false,
+      });
+
+      // Store full content in subcollection
+      await docRef.collection('content').doc('main').set({
+        'fullContent': content,
+      });
+
+      final snapshot = await docRef.get();
+      // Start with snippet, Editor will fetch full content
+      return Note.fromFirestore(snapshot);
+    } finally {
+      span.end();
     }
-    final now = DateTime.now();
-
-    // Create snippet (first 100 chars)
-    final snippet = content.length > 100 ? content.substring(0, 100) : content;
-
-    final docRef = await _notesCollection.add({
-      'title': title,
-      'content': snippet, // Store only snippet in main doc
-      'createdAt': Timestamp.fromDate(now),
-      'lastModified': Timestamp.fromDate(now),
-      'ownerId': user.uid,
-      'collaborators': <String, dynamic>{},
-      'tags': <String>[],
-      'memberIds': [user.uid], // Owner is always a member
-      'isFavorite': false,
-      'isInTrash': false,
-    });
-
-    // Store full content in subcollection
-    await docRef.collection('content').doc('main').set({
-      'fullContent': content,
-    });
-
-    final snapshot = await docRef.get();
-    // Start with snippet, Editor will fetch full content
-    return Note.fromFirestore(snapshot);
   }
 
   /// Updates an existing [note].

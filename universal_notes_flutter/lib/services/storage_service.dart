@@ -1,5 +1,7 @@
 import 'dart:io';
+
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 /// Service for interacting with Firebase Storage.
@@ -15,8 +17,8 @@ class StorageService {
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
       return downloadUrl;
-    } on Exception catch (_) {
-      // TODO(developer): Log error to a logging service
+    } on Exception catch (e) {
+      debugPrint('Error uploading image to Firebase Storage: $e');
       return null;
     }
   }

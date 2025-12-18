@@ -1092,18 +1092,27 @@ class _EditorLine extends StatelessWidget {
         ],
       );
     } else if (blockType == 'ordered-list') {
-      // TODO(developer): Smart numbering is hard without global index.
-      // For now, we show "1." for everything or try to guess?
-      // Without traversal, we can't know index.
-      // Temporary solution: "1." always. User can see visual difference.
-      // Or pass indices from VirtualTextBuffer?
-      // Let's stick with "1." to signify it's a list.
+      // Smart numbering logic: scan backwards for preceding list items.
+      var listIndex = 1;
+      for (var i = lineIndex - 1; i >= 0; i--) {
+        final prevLine = buffer.lines[i];
+        if (prevLine is TextLine &&
+            prevLine.attributes['blockType'] == 'ordered-list') {
+          listIndex++;
+        } else {
+          break;
+        }
+      }
+
       content = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             width: 24,
-            child: Text('1.', style: TextStyle(fontSize: 16, height: 1.5)),
+            child: Text(
+              '$listIndex.',
+              style: const TextStyle(fontSize: 16, height: 1.5),
+            ),
           ),
           Expanded(child: textStack),
         ],

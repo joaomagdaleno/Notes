@@ -351,8 +351,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           // they are not pushed yet. This is complex. Let's assume for this
           // "Activate" task that we simply show cursors for now, and maybe
           // rely on manual specific event handling if feasible.
-          // The prompt said "Activate", referring probably to what was DISABLED.
-          // The 'cursor' part was explicitly disabled. The sync part was less clear.
+          // The 'cursor' part was explicitly disabled. The sync part was less
+          // clear.
+          // Let's implement cursor sync fully. For document sync, we can try to
+          // replay new events.
+          // The prompt said "Activate", referring probably to what was
+          // DISABLED.
+          // The 'cursor' part was explicitly disabled. The sync part was less
+          // clear.
           // Let's implement cursor sync fully. For document sync, we can try to
           // replay new events.
         });
