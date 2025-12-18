@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
+/// A screen that displays a graph view of notes.
 class GraphView extends StatefulWidget {
+  /// Creates a new [GraphView].
   const GraphView({super.key});
 
   @override
@@ -44,8 +46,12 @@ class _GraphViewState extends State<GraphView> {
   }
 }
 
+/// A custom painter for drawing note graphs.
 class GraphPainter extends CustomPainter {
+  /// Creates a new [GraphPainter] with the given notes.
   GraphPainter({required this.notes});
+
+  /// The list of notes to display.
   final List<Note> notes;
 
   @override
@@ -63,7 +69,7 @@ class GraphPainter extends CustomPainter {
     for (var i = 0; i < notes.length; i++) {
       // Real layout would use force-directed or similar
       final actualOffset = Offset(
-        center.dx + radius * (i % 2 == 0 ? 1 : -1) * (i / notes.length),
+        center.dx + radius * (i.isEven ? 1 : -1) * (i / notes.length),
         center.dy + radius * (i % 3 == 0 ? 1 : -1) * (i / notes.length),
       );
 

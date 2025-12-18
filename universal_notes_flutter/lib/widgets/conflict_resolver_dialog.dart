@@ -3,8 +3,12 @@ import 'package:universal_notes_flutter/models/sync_conflict.dart';
 import 'package:universal_notes_flutter/models/sync_status.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
+/// A dialog that allows users to resolve sync conflicts.
 class ConflictResolverDialog extends StatelessWidget {
+  /// Creates a new [ConflictResolverDialog].
   const ConflictResolverDialog({required this.conflict, super.key});
+
+  /// The conflict to resolve.
   final SyncConflict conflict;
 
   @override
@@ -88,6 +92,7 @@ class ConflictResolverDialog extends StatelessWidget {
   }
 }
 
+/// Shows a dialog for resolving a sync conflict.
 Future<void> showConflictResolver(
   BuildContext context,
   SyncConflict conflict,

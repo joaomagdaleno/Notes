@@ -1,12 +1,15 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/graph_view_screen.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 
+/// A command palette widget for quick navigation and search.
 class CommandPalette extends StatefulWidget {
+  /// Creates a new [CommandPalette].
   const CommandPalette({super.key});
 
   @override
@@ -143,6 +146,7 @@ class _CommandPaletteState extends State<CommandPalette> {
   }
 }
 
+/// Shows the command palette dialog.
 Future<void> showCommandPalette(BuildContext context) async {
   await showDialog<void>(
     context: context,
