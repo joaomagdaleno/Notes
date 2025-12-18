@@ -42,8 +42,11 @@ class AuthService {
         try {
           final firestoreRepository = FirestoreRepository();
           await firestoreRepository.createUser(credential.user!);
-        } on Exception catch (e) {
-          debugPrint('Error creating user profile: $e');
+        } on Exception {
+          // Re-throwing the exception to allow the UI to handle the error,
+          // for example, by showing a message to the user and preventing
+          // them from proceeding in an inconsistent state.
+          rethrow;
         }
       }
       return credential;
