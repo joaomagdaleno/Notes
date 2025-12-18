@@ -5,13 +5,15 @@ import 'package:universal_notes_flutter/editor/document.dart';
 @immutable
 abstract class Line {
   const Line({this.attributes = const {}});
+
+  /// The attributes associated with this line (from the block).
   final Map<String, dynamic> attributes;
 }
 
 /// Represents a single line of text.
 class TextLine extends Line {
   /// Creates a new instance of [TextLine].
-  TextLine({required this.spans, super.attributes});
+  const TextLine({required this.spans, super.attributes});
 
   /// The list of styled text spans that make up this line.
   final List<TextSpanModel> spans;
@@ -32,7 +34,7 @@ class TextLine extends Line {
 /// Represents a line containing an image.
 class ImageLine extends Line {
   /// Creates a new instance of [ImageLine].
-  ImageLine({required this.imagePath, super.attributes});
+  const ImageLine({required this.imagePath, super.attributes});
 
   /// The path to the image file.
   final String imagePath;
@@ -67,22 +69,23 @@ class VirtualTextBuffer {
 
   void _buildLines() {
     lines.clear();
-    var currentLineSpans = <TextSpanModel>[];
+    final currentLineSpans = <TextSpanModel>[];
 
     for (final block in document.blocks) {
       if (block is ImageBlock) {
         // If there's pending text, finish that line first.
         if (currentLineSpans.isNotEmpty) {
           // IMPORTANT: Previous block's attributes are lost if better logic isn't applied.
-          // Since blocks usually separate content, this case (pending text from previous block)
-          // implies a TextBlock was followed by an ImageBlock.
+          // Since blocks usually separate content, this case (pending text from
+          // previous block) implies a TextBlock was followed by an ImageBlock.
           // The pending text belongs to the PREVIOUS TextBlock.
           // But here we are iterating blocks.
           // The variable `currentLineSpans` accumulates spans from `TextBlock`.
           // When we hit `ImageBlock`, we flush.
           // We need to know the attributes of the block `currentLineSpans` came from.
-          // Since `currentLineSpans` is greedy across blocks only if we merged them (which we don't, we iterate blocks),
-          // we should actually flush inside the TextBlock loop or track the current attributes.
+          // Since `currentLineSpans` is greedy across blocks only if we merged
+          // them (which we don't, we iterate blocks), we should actually flush
+          // inside the TextBlock loop or track the current attributes.
           // Wait, the original logic accumulated lines within a TextBlock.
           // Ah, actually the original logic reset `currentLineSpans` inside `TextBlock` loop on newlines.
           // But if a TextBlock didn't end with newline, it kept `currentLineSpans` and continued to next block?

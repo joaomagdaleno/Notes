@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/editor/drawing_painter.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 
+/// A block that allows interactive drawing with stylus or touch support.
 class InteractiveDrawingBlock extends StatefulWidget {
   const InteractiveDrawingBlock({
     required this.strokes,
@@ -102,7 +103,7 @@ class _InteractiveDrawingBlockState extends State<InteractiveDrawingBlock> {
     if (widget.onStrokeRemoved == null) return;
 
     // Simple hit detection threshold
-    const double eraseThreshold = 20.0;
+    const eraseThreshold = 20;
 
     for (final stroke in widget.strokes) {
       for (final point in stroke.points) {

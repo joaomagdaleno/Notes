@@ -6,10 +6,10 @@ import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
 class SyncService {
-  static final SyncService instance = SyncService._();
   SyncService._();
+  static final SyncService instance = SyncService._();
 
-  final _noteRepository = NoteRepository.instance;
+  final NoteRepository _noteRepository = NoteRepository.instance;
   final _firestoreRepository = FirestoreRepository();
 
   // StreamControllers to broadcast local data changes
@@ -67,21 +67,24 @@ class SyncService {
 
   /// Syncs remote changes to local database (Firestore -> SQLite)
   Future<void> _syncDown(List<Note> remoteNotes) async {
-    for (var remoteNote in remoteNotes) {
+    for (final remoteNote in remoteNotes) {
       Note? localNote;
       try {
         localNote = await _noteRepository.getNoteWithContent(remoteNote.id);
-      } catch (_) {
+      } on Exception catch (_) {
         // Local note not found
       }
 
       // If local doesn't exist, or remote is newer, update local
       // Using UTC check to be safe, assuming Note model handles Timezone or stores UTC
-      if (localNote == null ||
+      final remoteNewer =
+          localNote == null ||
           remoteNote.lastModified.toUtc().isAfter(
             localNote.lastModified.toUtc(),
-          )) {
-        String content = remoteNote.content;
+          );
+
+      if (remoteNewer) {
+        var content = remoteNote.content;
 
         // Fetch full content if needed (heuristic check)
         if (content.length < 100) {

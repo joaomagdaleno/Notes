@@ -113,7 +113,8 @@ class _NoteCardState extends State<NoteCard> {
               ? 'Nota: ${widget.note.title}'
               : 'Nota Sem Título',
           hint:
-              'Modificado em ${NoteCard._dateFormat.format(widget.note.lastModified)}',
+              'Modificado em '
+              '${NoteCard._dateFormat.format(widget.note.lastModified)}',
           button: true,
           child: Stack(
             fit: StackFit.expand,

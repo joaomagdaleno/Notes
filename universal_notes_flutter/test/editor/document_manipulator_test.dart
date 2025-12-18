@@ -199,6 +199,7 @@ void main() {
       final newDoc = result.document;
 
       expect(result.eventType, NoteEventType.format);
+      // ignore: deprecated_member_use
       expect(result.eventPayload['color'], Colors.red.value);
 
       expect((newDoc.blocks.first as TextBlock).spans.length, 2);

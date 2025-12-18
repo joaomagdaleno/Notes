@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 
+/// A painter that renders a list of strokes on the canvas.
 class DrawingPainter extends CustomPainter {
-  final List<Stroke> strokes;
-
   DrawingPainter(this.strokes);
+  final List<Stroke> strokes;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -28,7 +28,7 @@ class DrawingPainter extends CustomPainter {
       }
 
       // Check if we need variable pressure (any point has pressure != 1.0)
-      bool hasVariablePressure = stroke.points.any((p) => p.pressure != 1.0);
+      final hasVariablePressure = stroke.points.any((p) => p.pressure != 1.0);
 
       if (!hasVariablePressure) {
         // Fast path: Use efficient Path with quadratic beziers
@@ -39,10 +39,10 @@ class DrawingPainter extends CustomPainter {
           ..strokeJoin = StrokeJoin.round
           ..style = PaintingStyle.stroke;
 
-        final path = Path();
-        path.moveTo(stroke.points.first.x, stroke.points.first.y);
+        final path = Path()
+          ..moveTo(stroke.points.first.x, stroke.points.first.y);
 
-        for (int i = 0; i < stroke.points.length - 1; i++) {
+        for (var i = 0; i < stroke.points.length - 1; i++) {
           final p0 = stroke.points[i];
           final p1 = stroke.points[i + 1];
           // Midpoint
@@ -56,9 +56,10 @@ class DrawingPainter extends CustomPainter {
         canvas.drawPath(path, paint);
       } else {
         // Variable width path (slower but supports pressure)
-        // We draw small segments. For better quality, we should calculate an outline,
-        // but simple segments with Round Cap is a good start.
-        for (int i = 0; i < stroke.points.length - 1; i++) {
+        // Variable width path (slower but supports pressure)
+        // We draw small segments. For better quality, we should calculate an
+        // outline, but simple segments with Round Cap is a good start.
+        for (var i = 0; i < stroke.points.length - 1; i++) {
           final p0 = stroke.points[i];
           final p1 = stroke.points[i + 1];
 
