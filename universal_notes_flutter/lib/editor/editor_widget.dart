@@ -19,6 +19,7 @@ import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 
 /// A widget that provides a text editor with rich text capabilities.
 class EditorWidget extends StatefulWidget {
@@ -41,10 +42,12 @@ class EditorWidget extends StatefulWidget {
     this.onCheckboxTap,
     this.onToggleList,
     this.onInsertLink,
+    this.onLinkTap,
     this.onToggleLock,
     this.isDrawingMode = false,
     this.currentColor = Colors.black,
     this.currentStrokeWidth = 2.0,
+    this.softWrap = true,
     super.key,
   });
 
@@ -59,6 +62,9 @@ class EditorWidget extends StatefulWidget {
 
   /// Whether the editor is in drawing mode.
   final bool isDrawingMode;
+
+  /// Whether lines should wrap when they exceed the width.
+  final bool softWrap;
 
   /// Callback when the document changes.
   final ValueChanged<DocumentModel> onDocumentChanged;
@@ -111,6 +117,9 @@ class EditorWidget extends StatefulWidget {
 
   /// Callback when insert link shortcut is pressed (Ctrl+K).
   final VoidCallback? onInsertLink;
+
+  /// Callback when a link is tapped.
+  final ValueChanged<String>? onLinkTap;
 
   /// Callback when toggle lock shortcut is pressed (Ctrl+E).
   final VoidCallback? onToggleLock;
@@ -712,6 +721,12 @@ class EditorWidgetState extends State<EditorWidget> {
                   .map((e) => e.value)
                   .toList();
 
+              // Calculate if this is the current line for highlighting
+              final cursorLine = _buffer
+                  .getLineTextPositionForOffset(_selection.baseOffset)
+                  .line;
+              final isCurrentLine = cursorLine == index;
+
               return _EditorLine(
                 key: _lineKeys[index],
                 line: line,
@@ -719,6 +734,7 @@ class EditorWidgetState extends State<EditorWidget> {
                 selection: _selection, // Keep local selection for rendering
                 buffer: _buffer,
                 showCursor: _showCursor, // Keep local showCursor
+                isCurrentLine: isCurrentLine,
                 onTapDown: _handleTapDown,
                 onPanStart: _handlePanStart,
                 onPanUpdate: _handlePanUpdate,
@@ -753,6 +769,8 @@ class EditorWidgetState extends State<EditorWidget> {
                 },
                 currentColor: widget.currentColor,
                 currentStrokeWidth: widget.currentStrokeWidth,
+                softWrap: widget.softWrap,
+                onLinkTap: widget.onLinkTap,
               );
             },
           ),
@@ -858,28 +876,34 @@ class _EditorLine extends StatelessWidget {
     required this.remoteCursors,
     required this.currentColor,
     required this.currentStrokeWidth,
+    this.isCurrentLine = false,
     this.onCheckboxTap,
     this.isDrawingMode = false,
     this.onStrokeAdded,
     this.onStrokeRemoved,
+    this.softWrap = true,
+    this.onLinkTap,
     super.key,
   });
+
+  final Line line;
+  final int lineIndex;
+  final TextSelection selection;
+  final VirtualTextBuffer buffer;
+  final bool showCursor;
   final void Function(TapDownDetails, int, TextSelection) onTapDown;
   final void Function(DragStartDetails, int, TextSelection) onPanStart;
   final void Function(DragUpdateDetails, int, TextSelection) onPanUpdate;
   final List<Map<String, dynamic>> remoteCursors;
+  final Color currentColor;
+  final double currentStrokeWidth;
+  final bool isCurrentLine;
   final ValueChanged<int>? onCheckboxTap;
   final bool isDrawingMode;
   final ValueChanged<Stroke>? onStrokeAdded;
   final ValueChanged<Stroke>? onStrokeRemoved;
-  final Color currentColor;
-  final double currentStrokeWidth;
-
-  final Line line;
-  final TextSelection selection;
-  final int lineIndex;
-  final VirtualTextBuffer buffer;
-  final bool showCursor;
+  final bool softWrap;
+  final ValueChanged<String>? onLinkTap;
 
   int _getOffsetForPosition(BuildContext context, Offset localPosition) {
     if (line is! TextLine) return 0;
@@ -988,7 +1012,12 @@ class _EditorLine extends StatelessWidget {
     // No, we store 'level' in block attributes, not span attributes.
     // So we need to scale the text here.
 
-    var textSpan = line.toTextSpan();
+    var textSpan = TextSpan(
+      style: DefaultTextStyle.of(context).style,
+      children: line.spans
+          .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
+          .toList(),
+    );
 
     if (blockType == 'heading') {
       final level = attributes['level'] as int? ?? 1;
@@ -1015,11 +1044,16 @@ class _EditorLine extends StatelessWidget {
     }
 
     // 3. Early return optimization
-    final painter = TextPainter(
-      text: textSpan,
-      textAlign: textAlign,
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: context.size?.width ?? double.infinity);
+    final painter =
+        TextPainter(
+          text: textSpan,
+          textAlign: textAlign,
+          textDirection: TextDirection.ltr,
+        )..layout(
+          maxWidth: softWrap
+              ? (context.size?.width ?? double.infinity)
+              : double.infinity,
+        );
 
     final selectionBoxes = <Widget>[];
     if (hasSelection) {
@@ -1054,6 +1088,8 @@ class _EditorLine extends StatelessWidget {
           RichText(
             text: textSpan,
             textAlign: textAlign,
+            softWrap: softWrap,
+            overflow: softWrap ? TextOverflow.clip : TextOverflow.visible,
           ),
           ...selectionBoxes,
           if (isCursorInThisLine && showCursor)
@@ -1178,6 +1214,119 @@ class _EditorLine extends StatelessWidget {
           ),
         ],
       );
+    } else if (line is CalloutLine) {
+      final type = line.type;
+
+      Color color;
+      IconData icon;
+
+      switch (type) {
+        case CalloutType.note:
+          color = Colors.blue;
+          icon = Icons.info;
+        case CalloutType.tip:
+          color = Colors.green;
+          icon = Icons.lightbulb;
+        case CalloutType.warning:
+          color = Colors.orange;
+          icon = Icons.warning;
+        case CalloutType.danger:
+          color = Colors.red;
+          icon = Icons.error;
+        case CalloutType.info:
+          color = Colors.lightBlue;
+          icon = Icons.info_outline;
+        case CalloutType.success:
+          color = Colors.greenAccent;
+          icon = Icons.check_circle;
+      }
+
+      const iconSize = 20.0;
+      const spacing = 12.0;
+
+      Widget inner = textStack;
+      if (line.isFirst) {
+        inner = Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: iconSize),
+            const SizedBox(width: spacing),
+            Expanded(child: textStack),
+          ],
+        );
+      } else {
+        inner = Padding(
+          padding: const EdgeInsets.only(left: iconSize + spacing),
+          child: textStack,
+        );
+      }
+
+      content = Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          border: Border(
+            left: BorderSide(color: color, width: 4),
+            top: line.isFirst
+                ? BorderSide(color: color.withValues(alpha: 0.1))
+                : BorderSide.none,
+            bottom: line.isLast
+                ? BorderSide(color: color.withValues(alpha: 0.1))
+                : BorderSide.none,
+            right: BorderSide(color: color.withValues(alpha: 0.1)),
+          ),
+          borderRadius: BorderRadius.only(
+            topLeft: line.isFirst ? const Radius.circular(4) : Radius.zero,
+            topRight: line.isFirst ? const Radius.circular(4) : Radius.zero,
+            bottomLeft: line.isLast ? const Radius.circular(4) : Radius.zero,
+            bottomRight: line.isLast ? const Radius.circular(4) : Radius.zero,
+          ),
+        ),
+        padding: EdgeInsets.fromLTRB(
+          12,
+          line.isFirst ? 12 : 4,
+          12,
+          line.isLast ? 12 : 4,
+        ),
+        child: inner,
+      );
+    } else if (line is TableLine) {
+      content = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Table(
+          border: TableBorder.all(
+            color: Colors.grey.withValues(alpha: 0.3),
+          ),
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          children: (line as TableLine).rows.map((row) {
+            return TableRow(
+              decoration: row.any((c) => c.isHeader)
+                  ? BoxDecoration(color: Colors.grey.withValues(alpha: 0.05))
+                  : null,
+              children: row.map((cell) {
+                return Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: RichText(
+                    text: TextSpan(
+                      style:
+                          (Theme.of(context).textTheme.bodyMedium ??
+                                  const TextStyle())
+                              .copyWith(
+                                fontWeight: cell.isHeader
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                      children: cell.content
+                          .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
+                          .toList(),
+                    ),
+                  ),
+                );
+              }).toList(),
+            );
+          }).toList(),
+        ),
+      );
     } else {
       content = textStack;
     }
@@ -1189,6 +1338,14 @@ class _EditorLine extends StatelessWidget {
         child: content,
       );
     }
+
+    // Wrap with highlight if this is the current line
+    final highlightedContent = Container(
+      color: isCurrentLine
+          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
+          : null,
+      child: content,
+    );
 
     return GestureDetector(
       onTapDown: (d) {
@@ -1237,7 +1394,7 @@ class _EditorLine extends StatelessWidget {
       },
       onPanStart: (d) => _handlePanStart(context, d),
       onPanUpdate: (d) => _handlePanUpdate(context, d),
-      child: content,
+      child: highlightedContent,
     );
   }
 
@@ -1246,8 +1403,65 @@ class _EditorLine extends StatelessWidget {
     if (line is ImageLine) {
       return _buildImage(context, line as ImageLine);
     } else if (line is TextLine) {
+      // Check for specific subtypes if we decided to subclass TextLine,
+      // but assuming TableLine/MathLine extend Line directly:
       return _buildText(context, line as TextLine);
+    } else if (line is TableLine) {
+      return _buildTable(context, line as TableLine);
+    } else if (line is MathLine) {
+      return _buildMath(context, line as MathLine);
     }
     return const SizedBox.shrink();
+  }
+
+  Widget _buildMath(BuildContext context, MathLine line) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Math.tex(
+          line.tex,
+          textStyle: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTable(BuildContext context, TableLine line) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Table(
+        border: TableBorder.all(
+          color: Colors.grey.withValues(alpha: 0.3),
+        ),
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: line.rows.map((row) {
+          return TableRow(
+            decoration: row.any((c) => c.isHeader)
+                ? BoxDecoration(color: Colors.grey.withValues(alpha: 0.05))
+                : null,
+            children: row.map((cell) {
+              return Padding(
+                padding: const EdgeInsets.all(8),
+                child: RichText(
+                  text: TextSpan(
+                    style:
+                        (Theme.of(context).textTheme.bodyMedium ??
+                                const TextStyle())
+                            .copyWith(
+                              fontWeight: cell.isHeader
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                    children: cell.content
+                        .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
+                        .toList(),
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        }).toList(),
+      ),
+    );
   }
 }

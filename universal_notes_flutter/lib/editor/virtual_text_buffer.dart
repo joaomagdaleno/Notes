@@ -32,6 +32,27 @@ class TextLine extends Line {
   }
 }
 
+/// Represents a line within a callout block.
+class CalloutLine extends TextLine {
+  /// Creates a new instance of [CalloutLine].
+  const CalloutLine({
+    required this.type,
+    required this.isFirst,
+    required this.isLast,
+    required super.spans,
+    super.attributes,
+  });
+
+  /// The type of callout.
+  final CalloutType type;
+
+  /// Whether this is the first line of the callout (should show header/icon).
+  final bool isFirst;
+
+  /// Whether this is the last line of the callout.
+  final bool isLast;
+}
+
 /// Represents a line containing an image.
 class ImageLine extends Line {
   /// Creates a new instance of [ImageLine].
@@ -39,6 +60,30 @@ class ImageLine extends Line {
 
   /// The path to the image file.
   final String imagePath;
+}
+
+/// Represents a line containing a table.
+class TableLine extends Line {
+  /// Creates a new instance of [TableLine].
+  const TableLine({
+    required this.rows,
+    super.attributes,
+  });
+
+  /// The rows of the table.
+  final List<List<TableCellModel>> rows;
+}
+
+/// Represents a line containing a math equation.
+class MathLine extends Line {
+  /// Creates a new instance of [MathLine].
+  const MathLine({
+    required this.tex,
+    super.attributes,
+  });
+
+  /// The LaTeX equation.
+  final String tex;
 }
 
 /// Represents a position within the virtualized text buffer as a line and
@@ -112,6 +157,15 @@ class VirtualTextBuffer {
             attributes: block.attributes,
           ),
         );
+      } else if (block is DrawingBlock) {
+        // Placeholder for drawing line if we want to render it in flow
+        // For now, treat as image-like or specialized line?
+        // NoteEditor handles drawings via EditorWidget custom logic?
+        // Actually DocumentModel has DrawingBlock but VirtualTextBuffer didn't handle it.
+        // Assuming EditorWidget renders drawings separately or we add DrawingLine later.
+        // For consistency with existing code (which had ImageBlock), I'll ignore Drawing here
+        // or add a dummy if needed. The model has it.
+        // Existing code: Lines 107 in original view ONLY handled ImageBlock and TextBlock.
       } else if (block is TextBlock) {
         var currentBlockSpans = <TextSpanModel>[];
         // We process spans. On newline, we emit a line WITH this block's
@@ -154,6 +208,61 @@ class VirtualTextBuffer {
             ),
           );
         }
+      } else if (block is CalloutBlock) {
+        // Similar to TextBlock but produces CalloutLines
+        final allLinesSpans = <List<TextSpanModel>>[];
+        var currentBlockSpans = <TextSpanModel>[];
+
+        for (final span in block.spans) {
+          final text = span.text;
+          var start = 0;
+          int end;
+
+          while ((end = text.indexOf('\n', start)) != -1) {
+            final lineText = text.substring(start, end);
+            if (lineText.isNotEmpty) {
+              currentBlockSpans.add(span.copyWith(text: lineText));
+            }
+            allLinesSpans.add(currentBlockSpans);
+            currentBlockSpans = [];
+            start = end + 1;
+          }
+
+          if (start < text.length) {
+            currentBlockSpans.add(span.copyWith(text: text.substring(start)));
+          }
+        }
+        if (currentBlockSpans.isNotEmpty) {
+          allLinesSpans.add(currentBlockSpans);
+        }
+
+        // Now create lines with isFirst/isLast
+        for (var i = 0; i < allLinesSpans.length; i++) {
+          lines.add(
+            CalloutLine(
+              type: block.type,
+              isFirst: i == 0,
+              isLast: i == allLinesSpans.length - 1,
+              spans: allLinesSpans[i],
+              attributes: block.attributes,
+            ),
+          );
+        }
+      } else if (block is TableBlock) {
+        // TableBlock becomes a single TableLine
+        lines.add(
+          TableLine(
+            rows: block.rows,
+            attributes: block.attributes,
+          ),
+        );
+      } else if (block is MathBlock) {
+        lines.add(
+          MathLine(
+            tex: block.tex,
+            attributes: block.attributes,
+          ),
+        );
       }
     }
 
@@ -164,6 +273,10 @@ class VirtualTextBuffer {
       if (line is TextLine) {
         final length = line.spans.fold<int>(0, (sum, s) => sum + s.text.length);
         _lineLengths.add(i == lines.length - 1 ? length : length + 1);
+      } else if (line is TableLine) {
+        _lineLengths.add(1); // Table is 1 unit length
+      } else if (line is MathLine) {
+        _lineLengths.add(1); // Math is 1 unit length
       } else {
         _lineLengths.add(1); // Treat images as a single character offset.
       }

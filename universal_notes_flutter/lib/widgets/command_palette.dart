@@ -7,10 +7,35 @@ import 'package:universal_notes_flutter/screens/graph_view_screen.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 
+/// A command action to be displayed in the palette.
+class CommandAction {
+  /// Creates a new [CommandAction].
+  const CommandAction({
+    required this.title,
+    required this.icon,
+    required this.onSelect,
+  });
+
+  /// The title of the command.
+  final String title;
+
+  /// The icon of the command.
+  final IconData icon;
+
+  /// The callback to execute when selected.
+  final VoidCallback onSelect;
+}
+
 /// A command palette widget for quick navigation and search.
 class CommandPalette extends StatefulWidget {
   /// Creates a new [CommandPalette].
-  const CommandPalette({super.key});
+  const CommandPalette({
+    super.key,
+    this.actions = const [],
+  });
+
+  /// The list of actions available in the palette.
+  final List<CommandAction> actions;
 
   @override
   State<CommandPalette> createState() => _CommandPaletteState();
@@ -90,7 +115,26 @@ class _CommandPaletteState extends State<CommandPalette> {
                             );
                           },
                         ),
-                        // Add more commands here
+                        ...widget.actions
+                            .where(
+                              (action) => action.title.toLowerCase().contains(
+                                _searchController.text
+                                    .substring(1)
+                                    .trim()
+                                    .toLowerCase(),
+                              ),
+                            )
+                            .map(
+                              (action) => _buildCommandItem(
+                                context,
+                                action.title,
+                                action.icon,
+                                () {
+                                  Navigator.of(context).pop();
+                                  action.onSelect();
+                                },
+                              ),
+                            ),
                       ] else ...[
                         ..._results.map(
                           (result) => ListTile(
@@ -147,13 +191,16 @@ class _CommandPaletteState extends State<CommandPalette> {
 }
 
 /// Shows the command palette dialog.
-Future<void> showCommandPalette(BuildContext context) async {
+Future<void> showCommandPalette(
+  BuildContext context, {
+  List<CommandAction> actions = const [],
+}) async {
   await showDialog<void>(
     context: context,
-    builder: (context) => const Center(
+    builder: (context) => Center(
       child: Material(
         color: Colors.transparent,
-        child: CommandPalette(),
+        child: CommandPalette(actions: actions),
       ),
     ),
   );

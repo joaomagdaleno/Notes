@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 
@@ -71,7 +72,7 @@ class TextSpanModel {
   final String? linkUrl;
 
   /// Converts this model to a Flutter [TextSpan] for rendering.
-  TextSpan toTextSpan() {
+  TextSpan toTextSpan({ValueChanged<String>? onLinkTap}) {
     final decorations = <TextDecoration>[];
     if (isUnderline) decorations.add(TextDecoration.underline);
     if (isStrikethrough) decorations.add(TextDecoration.lineThrough);
@@ -87,6 +88,9 @@ class TextSpanModel {
         backgroundColor: backgroundColor,
         fontFamily: isCode ? 'monospace' : fontFamily,
       ),
+      recognizer: (linkUrl != null && onLinkTap != null)
+          ? (TapGestureRecognizer()..onTap = () => onLinkTap(linkUrl!))
+          : null,
     );
   }
 
@@ -215,7 +219,56 @@ class DocumentModel {
                     ?.map((s) => Stroke.fromJson(s as Map<String, dynamic>))
                     .toList() ??
                 [],
-            height: (bMap['height'] as num?)?.toDouble() ?? 200.0,
+            attributes: attributes,
+          );
+        } else if (type == 'callout') {
+          final calloutTypeStr = bMap['calloutType'] as String? ?? 'note';
+          final calloutType = CalloutType.values.firstWhere(
+            (e) => e.name == calloutTypeStr,
+            orElse: () => CalloutType.note,
+          );
+          final spans =
+              (bMap['spans'] as List<dynamic>?)
+                  ?.map(
+                    (s) => TextSpanModel.fromJson(s as Map<String, dynamic>),
+                  )
+                  .toList() ??
+              [];
+          return CalloutBlock(
+            type: calloutType,
+            spans: spans,
+            attributes: attributes,
+          );
+        } else if (type == 'table') {
+          return TableBlock(
+            rows:
+                (bMap['rows'] as List<dynamic>?)
+                    ?.map(
+                      (r) => (r as List<dynamic>)
+                          .map(
+                            (c) => TableCellModel.fromJson(
+                              c as Map<String, dynamic>,
+                            ),
+                          )
+                          .toList(),
+                    )
+                    .toList() ??
+                [],
+            attributes: attributes,
+          );
+        } else if (type == 'math') {
+          return MathBlock(
+            tex: bMap['tex'] as String? ?? '',
+            attributes: attributes,
+          );
+        } else if (type == 'math') {
+          return MathBlock(
+            tex: bMap['tex'] as String? ?? '',
+            attributes: attributes,
+          );
+        } else if (type == 'math') {
+          return MathBlock(
+            tex: bMap['tex'] as String? ?? '',
             attributes: attributes,
           );
         } else {
@@ -282,6 +335,45 @@ class DocumentModel {
             'height': b.height,
             'attributes': b.attributes,
           };
+        } else if (b is CalloutBlock) {
+          return {
+            'type': 'callout',
+            'calloutType': b.type.name,
+            'spans': b.spans.map((s) => s.toJson()).toList(),
+            'attributes': b.attributes,
+          };
+        } else if (b is TableBlock) {
+          return {
+            'type': 'table',
+            'rows': b.rows
+                .map((row) => row.map((cell) => cell.toJson()).toList())
+                .toList(),
+            'attributes': b.attributes,
+          };
+        } else if (b is MathBlock) {
+          return {
+            'type': 'math',
+            'tex': b.tex,
+            'attributes': b.attributes,
+          };
+        } else if (b is MathBlock) {
+          return {
+            'type': 'math',
+            'tex': b.tex,
+            'attributes': b.attributes,
+          };
+        } else if (b is MathBlock) {
+          return {
+            'type': 'math',
+            'tex': b.tex,
+            'attributes': b.attributes,
+          };
+        } else if (b is MathBlock) {
+          return {
+            'type': 'math',
+            'tex': b.tex,
+            'attributes': b.attributes,
+          };
         } else if (b is TextBlock) {
           return {
             'type': 'text',
@@ -293,6 +385,105 @@ class DocumentModel {
       }).toList(),
     };
   }
+}
+
+/// The type of callout/admonition.
+enum CalloutType {
+  /// A general note.
+  note,
+
+  /// A helpful tip.
+  tip,
+
+  /// A warning message.
+  warning,
+
+  /// A dangerous situation or error.
+  danger,
+
+  /// Informational message.
+  info,
+
+  /// Success message.
+  success,
+}
+
+/// A block representing a callout (admonition).
+class CalloutBlock extends DocumentBlock {
+  /// Creates a callout block.
+  CalloutBlock({
+    required this.type,
+    required this.spans,
+    this.attributes = const {},
+  });
+
+  /// The type of callout.
+  final CalloutType type;
+
+  /// The content of the callout.
+  final List<TextSpanModel> spans;
+
+  @override
+  final Map<String, dynamic> attributes;
+
+  /// Converts the callout block to plain text.
+  String toPlainText() {
+    return spans.map((s) => s.text).join();
+  }
+}
+
+/// A model representing a cell in a table.
+class TableCellModel {
+  /// Creates a table cell.
+  const TableCellModel({
+    required this.content,
+    this.isHeader = false,
+    this.attributes = const {},
+  });
+
+  /// The content of the cell.
+  final List<TextSpanModel> content;
+
+  /// Whether this cell is a header.
+  final bool isHeader;
+
+  /// Attributes like alignment.
+  final Map<String, dynamic> attributes;
+
+  /// Converts to JSON.
+  Map<String, dynamic> toJson() => {
+    'content': content.map((s) => s.toJson()).toList(),
+    'isHeader': isHeader,
+    'attributes': attributes,
+  };
+
+  /// Creates from JSON.
+  factory TableCellModel.fromJson(Map<String, dynamic> json) {
+    return TableCellModel(
+      content:
+          (json['content'] as List?)
+              ?.map((e) => TextSpanModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      isHeader: json['isHeader'] as bool? ?? false,
+      attributes: json['attributes'] as Map<String, dynamic>? ?? {},
+    );
+  }
+}
+
+/// A block representing a table.
+class TableBlock extends DocumentBlock {
+  /// Creates a table block.
+  TableBlock({
+    required this.rows,
+    this.attributes = const {},
+  });
+
+  /// The rows of the table, each containing a list of cells.
+  final List<List<TableCellModel>> rows;
+
+  @override
+  final Map<String, dynamic> attributes;
 }
 
 /// A block representing a drawing.
@@ -309,6 +500,21 @@ class DrawingBlock extends DocumentBlock {
 
   /// The height of the drawing canvas area.
   final double height;
+
+  @override
+  final Map<String, dynamic> attributes;
+}
+
+/// A block representing a math equation.
+class MathBlock extends DocumentBlock {
+  /// Creates a math block.
+  MathBlock({
+    required this.tex,
+    this.attributes = const {},
+  });
+
+  /// The LaTeX content.
+  final String tex;
 
   @override
   final Map<String, dynamic> attributes;

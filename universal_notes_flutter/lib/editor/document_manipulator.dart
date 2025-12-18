@@ -271,6 +271,28 @@ class DocumentManipulator {
     );
   }
 
+  /// Applies a link URL to the given selection.
+  static ManipulationResult applyLink(
+    DocumentModel document,
+    TextSelection selection,
+    String? url,
+  ) {
+    final newDoc = applyToSelection(
+      document,
+      selection,
+      (span) => span.copyWith(linkUrl: url),
+    );
+    return ManipulationResult(
+      document: newDoc,
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'pos': selection.start,
+        'len': selection.end - selection.start,
+        'linkUrl': url,
+      },
+    );
+  }
+
   /// Applies an update function to the spans within a selection.
   static DocumentModel applyToSelection(
     DocumentModel document,
@@ -572,6 +594,123 @@ class DocumentManipulator {
       eventPayload: {
         'blockIndex': pos.blockIndex,
         'attrs': currentAttributes,
+      },
+    );
+  }
+
+  /// Converts a block to a CalloutBlock with the specified type.
+  static ManipulationResult convertBlockToCallout(
+    DocumentModel document,
+    int position,
+    CalloutType type,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final block = blocks[pos.blockIndex];
+    if (block is TextBlock) {
+      blocks[pos.blockIndex] = CalloutBlock(
+        type: type,
+        spans: block.spans,
+        attributes: block.attributes,
+      );
+    } else if (block is CalloutBlock) {
+      // Just update type
+      blocks[pos.blockIndex] = CalloutBlock(
+        type: type,
+        spans: block.spans,
+        attributes: block.attributes,
+      );
+    } else {
+      // Ignore other block types
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': pos.blockIndex,
+        'calloutType': type.name,
+      },
+    );
+  }
+
+  /// Converts a block to a TableBlock.
+  static ManipulationResult convertBlockToTable(
+    DocumentModel document,
+    int position,
+    List<List<TableCellModel>> rows,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    // Replace the block with a TableBlock
+    blocks[pos.blockIndex] = TableBlock(
+      rows: rows,
+      // Preserve attributes if possible/desirable?
+      attributes: blocks[pos.blockIndex].attributes,
+    );
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': pos.blockIndex,
+        'type': 'table',
+      },
+    );
+  }
+
+  /// Converts a block to a MathBlock.
+  static ManipulationResult convertBlockToMath(
+    DocumentModel document,
+    int position,
+    String tex,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    // Replace the block with a MathBlock
+    blocks[pos.blockIndex] = MathBlock(
+      tex: tex,
+      attributes: blocks[pos.blockIndex].attributes,
+    );
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': pos.blockIndex,
+        'type': 'math',
       },
     );
   }
