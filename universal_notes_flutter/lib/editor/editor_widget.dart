@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -14,6 +15,7 @@ import 'package:universal_notes_flutter/editor/remote_cursor.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
+import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -1410,8 +1412,89 @@ class _EditorLine extends StatelessWidget {
       return _buildTable(context, line as TableLine);
     } else if (line is MathLine) {
       return _buildMath(context, line as MathLine);
+    } else if (line is TransclusionLine) {
+      return _buildTransclusion(context, line as TransclusionLine);
     }
     return const SizedBox.shrink();
+  }
+
+  Widget _buildTransclusion(BuildContext context, TransclusionLine line) {
+    return FutureBuilder<Note?>(
+      future: NoteRepository.instance.getNoteByTitle(line.noteTitle),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: LinearProgressIndicator(),
+          );
+        }
+
+        final note = snapshot.data;
+        if (note == null) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Nota não encontrada: ${line.noteTitle}',
+              style: const TextStyle(
+                color: Colors.red,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          );
+        }
+
+        // Render a preview of the note content
+        // For simplicity, we'll render the first few blocks or a summarized view
+        final doc = DocumentModel.fromJson(json.decode(note.content));
+
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            border: Border.all(color: Theme.of(context).dividerColor),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.link,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    note.title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(),
+              // Render limited content
+              ...doc.blocks.take(3).map((block) {
+                // Simplified rendering for preview
+                if (block is TextBlock) {
+                  return Text(
+                    block.spans.map((s) => s.text).join(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                }
+                return const SizedBox.shrink();
+              }),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildMath(BuildContext context, MathLine line) {

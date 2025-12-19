@@ -530,3 +530,18 @@ class MathBlock extends DocumentBlock {
   @override
   final Map<String, dynamic> attributes;
 }
+
+/// A block representing a transclusion (embedding another note).
+class TransclusionBlock extends DocumentBlock {
+  /// Creates a transclusion block.
+  TransclusionBlock({
+    required this.noteTitle,
+    this.attributes = const {},
+  });
+
+  /// The title of the note to transclude.
+  final String noteTitle;
+
+  @override
+  final Map<String, dynamic> attributes;
+}

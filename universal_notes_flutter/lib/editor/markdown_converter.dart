@@ -176,6 +176,19 @@ class MarkdownConverter {
       }
     }
 
+    // --- Transclusion Detection (![[note]]) ---
+    if (lineText.trim().startsWith(r'![[') &&
+        lineText.trim().endsWith(r']]') &&
+        lineText.trim().length > 5) {
+      final title = lineText
+          .trim()
+          .substring(3, lineText.trim().length - 2)
+          .trim();
+      if (title.isNotEmpty) {
+        return _applyTransclusion(document, lineStart, title);
+      }
+    }
+
     // --- Inline Patterns ---
     // Check for Links [text](url) -> Triggered by closing paren )
     if (selection.baseOffset > 0 &&
@@ -481,6 +494,29 @@ class MarkdownConverter {
 
     final finalSelection = TextSelection.collapsed(
       offset: lineStart + tex.length + 4, // $$tex$$
+    );
+
+    return MarkdownConversionResult(
+      document: newDoc,
+      selection: finalSelection,
+      results: [convertResult],
+    );
+  }
+
+  static MarkdownConversionResult _applyTransclusion(
+    DocumentModel document,
+    int lineStart,
+    String title,
+  ) {
+    final convertResult = DocumentManipulator.convertBlockToTransclusion(
+      document,
+      lineStart,
+      title,
+    );
+    final newDoc = convertResult.document;
+
+    final finalSelection = TextSelection.collapsed(
+      offset: lineStart + title.length + 5, // ![[title]]
     );
 
     return MarkdownConversionResult(

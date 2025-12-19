@@ -715,6 +715,39 @@ class DocumentManipulator {
     );
   }
 
+  /// Converts a block to a TransclusionBlock.
+  static ManipulationResult convertBlockToTransclusion(
+    DocumentModel document,
+    int position,
+    String noteTitle,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    // Replace the block with a TransclusionBlock
+    blocks[pos.blockIndex] = TransclusionBlock(
+      noteTitle: noteTitle,
+      attributes: blocks[pos.blockIndex].attributes,
+    );
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': pos.blockIndex,
+        'type': 'transclusion',
+      },
+    );
+  }
+
   /// Changes the indentation level of the block.
   /// [change] can be +1 or -1.
   static ManipulationResult indentBlock(
