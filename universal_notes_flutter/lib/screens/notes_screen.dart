@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
@@ -178,13 +179,36 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     }
   }
 
-  Future<void> _openNoteEditor(Note note) async {
+  Future<void> _createNewNoteWithPersona(
+    EditorPersona persona, [
+    String title = 'Nova Nota',
+  ]) async {
+    final note = Note(
+      id: const Uuid().v4(),
+      title: title,
+      content: DocumentModel.empty().toJson().toString(),
+      createdAt: DateTime.now(),
+      lastModified: DateTime.now(),
+      ownerId: 'user',
+    );
+    await NoteRepository.instance.insertNote(note);
+    await _syncService.refreshLocalData();
+    if (context.mounted) {
+      unawaited(_openNoteEditor(note, persona));
+    }
+  }
+
+  Future<void> _openNoteEditor(
+    Note note, [
+    EditorPersona? initialPersona,
+  ]) async {
     if (!mounted) return;
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
         builder: (context) => NoteEditorScreen(
           note: note,
+          initialPersona: initialPersona,
           onSave: (updatedNote) async {
             await NoteRepository.instance.updateNote(updatedNote);
             await _syncService.refreshLocalData();
@@ -423,38 +447,107 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
         // ⚡ Bolt: By nesting this ValueListenableBuilder, only the GridView
         // rebuilds when the view mode changes, not the entire screen.
-        return ValueListenableBuilder<String>(
-          valueListenable: _viewModeNotifier,
-          builder: (context, viewMode, child) {
-            return GridView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(8),
-              gridDelegate: _getGridDelegate(viewMode),
-              itemCount: displayNotes.length,
-              itemBuilder: (context, index) {
-                final note = displayNotes[index];
-                return NoteCard(
-                  note: note,
-                  onTap: () => unawaited(_openNoteEditor(note)),
-                  onSave: (note) async {
-                    final noteRepository = NoteRepository.instance;
-                    await noteRepository.updateNote(note);
-                    await _syncService.refreshLocalData();
-                    return note;
-                  },
-                  onDelete: _deletePermanently,
-                  onFavorite: isTrashView
-                      ? (n) => unawaited(_restoreNote(n))
-                      : (n) => unawaited(_toggleFavorite(n)),
-                  onTrash: isTrashView
-                      ? (n) => unawaited(_deletePermanently(n))
-                      : (n) => unawaited(_moveToTrash(n)),
-                );
-              },
-            );
-          },
+        return Column(
+          children: [
+            if (_selection.type == SidebarItemType.all &&
+                _searchController.text.isEmpty)
+              _buildDashboard(),
+            Expanded(
+              child: ValueListenableBuilder<String>(
+                valueListenable: _viewModeNotifier,
+                builder: (context, viewMode, child) {
+                  return GridView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(8),
+                    gridDelegate: _getGridDelegate(viewMode),
+                    itemCount: displayNotes.length,
+                    itemBuilder: (context, index) {
+                      final note = displayNotes[index];
+                      return NoteCard(
+                        note: note,
+                        onTap: () => unawaited(_openNoteEditor(note)),
+                        onSave: (note) async {
+                          final noteRepository = NoteRepository.instance;
+                          await noteRepository.updateNote(note);
+                          await _syncService.refreshLocalData();
+                          return note;
+                        },
+                        onDelete: _deletePermanently,
+                        onFavorite: isTrashView
+                            ? (n) => unawaited(_restoreNote(n))
+                            : (n) => unawaited(_toggleFavorite(n)),
+                        onTrash: isTrashView
+                            ? (n) => unawaited(_deletePermanently(n))
+                            : (n) => unawaited(_moveToTrash(n)),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
+    );
+  }
+
+  Widget _buildDashboard() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Quick Start',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _DashboardCard(
+                  title: 'Architect',
+                  subtitle: 'Nova Nota',
+                  icon: Icons.edit_note,
+                  color: Colors.blue,
+                  onTap: () =>
+                      _createNewNoteWithPersona(EditorPersona.architect),
+                ),
+                _DashboardCard(
+                  title: 'Writer',
+                  subtitle: 'Novo Documento',
+                  icon: Icons.description,
+                  color: Colors.orange,
+                  onTap: () => _createNewNoteWithPersona(
+                    EditorPersona.writer,
+                    'Novo Documento',
+                  ),
+                ),
+                _DashboardCard(
+                  title: 'Brainstorm',
+                  subtitle: 'Novo Quadro',
+                  icon: Icons.dashboard,
+                  color: Colors.purple,
+                  onTap: () => _createNewNoteWithPersona(
+                    EditorPersona.brainstorm,
+                    'Novo Quadro',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 32),
+          Text(
+            'Recent Notes',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -752,5 +845,60 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     } else {
       return _buildMaterialUI();
     }
+  }
+}
+
+class _DashboardCard extends StatelessWidget {
+  const _DashboardCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 160,
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 32),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: color.withValues(alpha: 0.7),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

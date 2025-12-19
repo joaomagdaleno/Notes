@@ -177,8 +177,8 @@ class MarkdownConverter {
     }
 
     // --- Transclusion Detection (![[note]]) ---
-    if (lineText.trim().startsWith(r'![[') &&
-        lineText.trim().endsWith(r']]') &&
+    if (lineText.trim().startsWith('![[') &&
+        lineText.trim().endsWith(']]') &&
         lineText.trim().length > 5) {
       final title = lineText
           .trim()

@@ -1023,6 +1023,89 @@ class DocumentManipulator {
       },
     );
   }
+
+  /// Updates the layout metadata (e.g., x, y for Brainstorm) of a block.
+
+  static ManipulationResult updateBlockLayout(
+    DocumentModel document,
+    int blockIndex,
+    Map<String, dynamic> layoutMetadata,
+  ) {
+    if (blockIndex < 0 || blockIndex >= document.blocks.length) {
+      return ManipulationResult(
+        document: document,
+        eventType: NoteEventType.format,
+        eventPayload: {},
+      );
+    }
+
+    final oldBlock = document.blocks[blockIndex];
+    final DocumentBlock newBlock;
+
+    // We need to recreate the specific block type to preserve its data
+    if (oldBlock is TextBlock) {
+      newBlock = TextBlock(
+        spans: oldBlock.spans,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is ImageBlock) {
+      newBlock = ImageBlock(
+        imagePath: oldBlock.imagePath,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is DrawingBlock) {
+      newBlock = DrawingBlock(
+        strokes: oldBlock.strokes,
+        height: oldBlock.height,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is CalloutBlock) {
+      newBlock = CalloutBlock(
+        type: oldBlock.type,
+        spans: oldBlock.spans,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is TableBlock) {
+      newBlock = TableBlock(
+        rows: oldBlock.rows,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is MathBlock) {
+      newBlock = MathBlock(
+        tex: oldBlock.tex,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is TransclusionBlock) {
+      newBlock = TransclusionBlock(
+        noteTitle: oldBlock.noteTitle,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else {
+      // Fallback
+      newBlock = oldBlock;
+    }
+
+    final newBlocks = List<DocumentBlock>.from(document.blocks);
+    newBlocks[blockIndex] = newBlock;
+
+    final newDoc = DocumentModel(blocks: newBlocks);
+
+    return ManipulationResult(
+      document: newDoc,
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': blockIndex,
+        'layoutMetadata': layoutMetadata,
+      },
+    );
+  }
 }
 
 class _BlockPosition {

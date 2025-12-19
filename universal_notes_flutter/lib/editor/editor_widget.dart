@@ -749,94 +749,8 @@ class EditorWidgetState extends State<EditorWidget> {
       onKeyEvent: _handleKeyEvent,
       child: Stack(
         children: [
-          ListView.builder(
-            controller: widget.scrollController,
-            itemCount: _buffer.lines.length,
-            itemBuilder: (context, index) {
-              final line = _buffer.lines[index];
-              // Determine remote cursors for this line
-              final cursorsOnLine = widget.remoteCursors.entries
-                  .where((entry) {
-                    final data = entry.value;
-                    final selectionData =
-                        data['selection'] as Map<String, dynamic>?;
-                    if (selectionData == null) return false;
-                    final base = selectionData['base'] as int?;
-                    final extent = selectionData['extent'] as int?;
-                    if (base == null || extent == null) return false;
-
-                    final remoteSelection = TextSelection(
-                      baseOffset: base,
-                      extentOffset: extent,
-                    );
-                    final lineStartOffset = _buffer
-                        .getOffsetForLineTextPosition(
-                          LineTextPosition(line: index, character: 0),
-                        );
-                    final lineLength = line is TextLine
-                        ? line.toPlainText().length
-                        : 1;
-                    final lineEndOffset = lineStartOffset + lineLength;
-
-                    return remoteSelection.start < lineEndOffset &&
-                        remoteSelection.end > lineStartOffset;
-                  })
-                  .map((e) => e.value)
-                  .toList();
-
-              // Calculate if this is the current line for highlighting
-              final cursorLine = _buffer
-                  .getLineTextPositionForOffset(_selection.baseOffset)
-                  .line;
-              final isCurrentLine = cursorLine == index;
-
-              return _EditorLine(
-                key: _lineKeys[index],
-                line: line,
-                lineIndex: index,
-                selection: _selection, // Keep local selection for rendering
-                buffer: _buffer,
-                showCursor: _showCursor, // Keep local showCursor
-                isCurrentLine: isCurrentLine,
-                onTapDown: _handleTapDown,
-                onPanStart: _handlePanStart,
-                onPanUpdate: _handlePanUpdate,
-                remoteCursors: cursorsOnLine,
-                onCheckboxTap: widget.onCheckboxTap,
-                isDrawingMode: widget.isDrawingMode,
-                // We need to pass a callback to update drawing block
-                onStrokeAdded: (stroke) {
-                  final blockIndex = index; // Need accurate block index?
-                  // _buffer.lines[index] might not 1:1 map to blocks if split!
-                  // Wait, DocumentModel blocks map 1:1 to lines?
-                  // VirtualTextBuffer splits on newlines.
-                  // DrawingBlock likely has no newlines, so it's a single line.
-                  // But we verified earlier we might have issues if blocks are
-                  // mixed. Assuming 1-to-1 for now for DrawingBlock.
-
-                  final result = DocumentManipulator.addStrokeToBlock(
-                    widget.document,
-                    blockIndex,
-                    stroke,
-                  );
-                  widget.onDocumentChanged(result.document);
-                },
-                onStrokeRemoved: (stroke) {
-                  final blockIndex = index;
-                  final result = DocumentManipulator.removeStrokeFromBlock(
-                    widget.document,
-                    blockIndex,
-                    stroke,
-                  );
-                  widget.onDocumentChanged(result.document);
-                },
-                currentColor: widget.currentColor,
-                currentStrokeWidth: widget.currentStrokeWidth,
-                softWrap: widget.softWrap,
-                onLinkTap: widget.onLinkTap,
-              );
-            },
-          ),
+          // Dispatch view based on active persona
+          _buildEditorContent(),
           ..._buildRemoteCursors(),
           Positioned(
             top: 0,
@@ -846,6 +760,329 @@ class EditorWidgetState extends State<EditorWidget> {
           ),
         ],
       ),
+    );
+  }
+
+  /// Dispatches to the appropriate view builder based on active persona.
+  Widget _buildEditorContent() {
+    switch (_activePersona) {
+      case EditorPersona.architect:
+        return _buildArchitectView();
+      case EditorPersona.writer:
+        return _buildWriterView();
+      case EditorPersona.brainstorm:
+        return _buildBrainstormView();
+      case EditorPersona.zen:
+        return _buildZenView();
+    }
+  }
+
+  /// Architect mode: Default linear block editor.
+  Widget _buildArchitectView() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 56),
+      child: ListView.builder(
+        controller: widget.scrollController,
+        itemCount: _buffer.lines.length,
+        itemBuilder: (context, index) => _buildEditorLine(index),
+      ),
+    );
+  }
+
+  /// Writer mode: Paginated document view.
+  Widget _buildWriterView() {
+    const pageWidth = 595.0; // A4 width in points
+    const pageHeight = 842.0; // A4 height in points
+    const contentHeightPerPage = pageHeight - (60.0 * 2); // margins
+
+    final pages = _splitLinesIntoPages(contentHeightPerPage);
+
+    return Container(
+      color: Colors.grey.shade300,
+      padding: const EdgeInsets.only(top: 60),
+      child: Center(
+        child: SingleChildScrollView(
+          controller: widget.scrollController,
+          child: Column(
+            children: pages.map((pageLines) {
+              return Container(
+                width: pageWidth,
+                constraints: const BoxConstraints(minHeight: pageHeight),
+                margin: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(60),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: pageLines
+                      .map((item) => _buildEditorLine(item.index))
+                      .toList(),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Groups lines into pages based on estimated height.
+  List<List<_LineWithIndex>> _splitLinesIntoPages(double maxHeight) {
+    final pages = <List<_LineWithIndex>>[];
+    var currentPage = <_LineWithIndex>[];
+    var currentHeight = 0.0;
+
+    for (var i = 0; i < _buffer.lines.length; i++) {
+      final line = _buffer.lines[i];
+      // Estimate line height
+      var lineHeight = 24.0; // Standard text line
+      if (line is ImageLine) lineHeight = 200.0;
+      // Note: DrawingBlock is currently not in _buffer.lines
+      if (line is TableLine) {
+        lineHeight = 40.0 + (line.rows.length * 30.0);
+      }
+      if (line is MathLine) lineHeight = 60.0;
+
+      // Check if it fits in current page
+      if (currentHeight + lineHeight > maxHeight && currentPage.isNotEmpty) {
+        pages.add(currentPage);
+        currentPage = [];
+        currentHeight = 0.0;
+      }
+
+      currentPage.add(_LineWithIndex(line, i));
+      currentHeight += lineHeight;
+    }
+
+    if (currentPage.isNotEmpty) {
+      pages.add(currentPage);
+    }
+
+    return pages.isEmpty ? [[]] : pages;
+  }
+
+  /// Brainstorm mode: Free-form canvas.
+  Widget _buildBrainstormView() {
+    return Container(
+      color: Colors.grey.shade200,
+      padding: const EdgeInsets.only(top: 60),
+      child: InteractiveViewer(
+        constrained: false,
+        boundaryMargin: const EdgeInsets.all(500),
+        minScale: 0.5,
+        maxScale: 3,
+        child: SizedBox(
+          width: 2000,
+          height: 2000,
+          child: Stack(
+            children: [
+              // Grid background
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _GridPainter(
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+              ),
+              // Blocks positioned based on layoutMetadata
+              ...List.generate(_buffer.lines.length, (index) {
+                final line = _buffer.lines[index];
+                // Get position from layoutMetadata if available
+                var x = 100 + (index % 3) * 350.0;
+                var y = 100 + (index ~/ 3) * 200.0;
+
+                final block =
+                    (widget.document.blocks.isNotEmpty &&
+                        index < widget.document.blocks.length)
+                    ? widget.document.blocks[index]
+                    : null;
+
+                if (block != null) {
+                  x = (block.layoutMetadata['x'] as num?)?.toDouble() ?? x;
+                  y = (block.layoutMetadata['y'] as num?)?.toDouble() ?? y;
+                }
+
+                return Positioned(
+                  left: x,
+                  top: y,
+                  child: GestureDetector(
+                    onPanUpdate: (details) {
+                      if (block == null) return;
+                      final currentMetadata = Map<String, dynamic>.from(
+                        block.layoutMetadata,
+                      );
+                      currentMetadata['x'] = x + details.delta.dx;
+                      currentMetadata['y'] = y + details.delta.dy;
+
+                      final result = DocumentManipulator.updateBlockLayout(
+                        widget.document,
+                        index,
+                        currentMetadata,
+                      );
+                      widget.onDocumentChanged(result.document);
+                    },
+                    child: Container(
+                      width: 320,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.12),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).dividerColor.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: line is TextLine
+                          ? Text.rich(
+                              TextSpan(
+                                children: line.spans
+                                    .map(
+                                      (s) => s.toTextSpan(
+                                        onLinkTap: widget.onLinkTap,
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            )
+                          : _buildEditorLine(index),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Zen mode: Distraction-free reading.
+  Widget _buildZenView() {
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      padding: const EdgeInsets.only(top: 60),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 650),
+          child: IgnorePointer(
+            child: ListView.builder(
+              controller: widget.scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              itemCount: _buffer.lines.length,
+              itemBuilder: (context, index) {
+                final line = _buffer.lines[index];
+                if (line is TextLine) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text.rich(
+                      TextSpan(
+                        children: line.spans
+                            .map(
+                              (s) => s.toTextSpan(onLinkTap: widget.onLinkTap),
+                            )
+                            .toList(),
+                      ),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        height: 1.8,
+                        fontSize: 18,
+                      ),
+                    ),
+                  );
+                }
+                return _buildEditorLine(index);
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds a single editor line widget.
+  Widget _buildEditorLine(int index) {
+    final line = _buffer.lines[index];
+    final cursorsOnLine = widget.remoteCursors.entries
+        .where((entry) {
+          final data = entry.value;
+          final selectionData = data['selection'] as Map<String, dynamic>?;
+          if (selectionData == null) return false;
+          final base = selectionData['base'] as int?;
+          final extent = selectionData['extent'] as int?;
+          if (base == null || extent == null) return false;
+
+          final remoteSelection = TextSelection(
+            baseOffset: base,
+            extentOffset: extent,
+          );
+          final lineStartOffset = _buffer.getOffsetForLineTextPosition(
+            LineTextPosition(line: index, character: 0),
+          );
+          final lineLength = line is TextLine ? line.toPlainText().length : 1;
+          final lineEndOffset = lineStartOffset + lineLength;
+
+          return remoteSelection.start < lineEndOffset &&
+              remoteSelection.end > lineStartOffset;
+        })
+        .map((e) => e.value)
+        .toList();
+
+    final cursorLine = _buffer
+        .getLineTextPositionForOffset(_selection.baseOffset)
+        .line;
+    final isCurrentLine = cursorLine == index;
+
+    return _EditorLine(
+      key: _lineKeys[index],
+      line: line,
+      lineIndex: index,
+      selection: _selection,
+      buffer: _buffer,
+      showCursor: _showCursor,
+      isCurrentLine: isCurrentLine,
+      onTapDown: _handleTapDown,
+      onPanStart: _handlePanStart,
+      onPanUpdate: _handlePanUpdate,
+      remoteCursors: cursorsOnLine,
+      onCheckboxTap: widget.onCheckboxTap,
+      isDrawingMode: widget.isDrawingMode,
+      onStrokeAdded: (stroke) {
+        final blockIndex = index;
+        final result = DocumentManipulator.addStrokeToBlock(
+          widget.document,
+          blockIndex,
+          stroke,
+        );
+        widget.onDocumentChanged(result.document);
+      },
+      onStrokeRemoved: (stroke) {
+        final blockIndex = index;
+        final result = DocumentManipulator.removeStrokeFromBlock(
+          widget.document,
+          blockIndex,
+          stroke,
+        );
+        widget.onDocumentChanged(result.document);
+      },
+      currentColor: widget.currentColor,
+      currentStrokeWidth: widget.currentStrokeWidth,
+      softWrap: widget.softWrap,
+      onLinkTap: widget.onLinkTap,
     );
   }
 
@@ -1491,7 +1728,7 @@ class _EditorLine extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8),
             child: LinearProgressIndicator(),
           );
         }
@@ -1499,7 +1736,7 @@ class _EditorLine extends StatelessWidget {
         final note = snapshot.data;
         if (note == null) {
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8),
             child: Text(
               'Nota não encontrada: ${line.noteTitle}',
               style: const TextStyle(
@@ -1617,12 +1854,6 @@ class _EditorLine extends StatelessWidget {
 }
 
 class _PersonaButton extends StatelessWidget {
-  final EditorPersona persona;
-  final EditorPersona activePersona;
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
   const _PersonaButton({
     required this.persona,
     required this.activePersona,
@@ -1630,6 +1861,11 @@ class _PersonaButton extends StatelessWidget {
     required this.label,
     required this.onTap,
   });
+  final EditorPersona persona;
+  final EditorPersona activePersona;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1675,4 +1911,34 @@ class _PersonaButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class _GridPainter extends CustomPainter {
+  final Color color;
+
+  _GridPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.3)
+      ..strokeWidth = 0.5;
+
+    const spacing = 30.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += spacing) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _LineWithIndex {
+  final Line line;
+  final int index;
+  _LineWithIndex(this.line, this.index);
 }

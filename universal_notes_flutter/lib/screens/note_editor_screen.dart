@@ -14,6 +14,7 @@ import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
+import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
@@ -34,6 +35,7 @@ class NoteEditorScreen extends StatefulWidget {
     required this.onSave,
     this.note,
     this.isCollaborative = false,
+    this.initialPersona,
     super.key,
   });
 
@@ -45,6 +47,9 @@ class NoteEditorScreen extends StatefulWidget {
 
   /// Whether the note is in collaborative mode.
   final bool isCollaborative;
+
+  /// The persona to start the editor with.
+  final EditorPersona? initialPersona;
 
   @override
   State<NoteEditorScreen> createState() => _NoteEditorScreenState();
@@ -933,22 +938,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         if (url.startsWith('note://find-by-title/')) {
           final titleEncoded = url.replaceFirst('note://find-by-title/', '');
           final title = Uri.decodeComponent(titleEncoded);
-          // Logic to find note by title and open it.
-          // Since NoteRepository logic for findByTitle is not directly exposed as stream?
-          // We can use NoteRepository.instance.getNotes() and search.
-          // Or impl findByTitle in repo.
-          // Assuming we can iterate notes.
-          // NoteRepository doesn't have `findByTitle`.
-          // Let's implement a quick search or log for now.
-          // For MVP, just print. Ideally navigate.
           debugPrint('Navigating to note: $title');
           // _navigateToNoteByTitle(title);
         } else {
-          launchUrl(Uri.parse(url));
+          unawaited(launchUrl(Uri.parse(url)));
         }
       },
       isDrawingMode: _isDrawingMode,
       softWrap: _softWrap,
+      initialPersona: widget.initialPersona ?? EditorPersona.architect,
     );
 
     // Define the keyboard shortcuts
