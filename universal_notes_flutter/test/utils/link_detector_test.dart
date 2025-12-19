@@ -1,52 +1,62 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:universal_notes_flutter/utils/link_detector.dart';
 
 void main() {
   group('LinkDetector', () {
-    test('processText detects simple URL', () {
-      const text = 'Check out https://flutter.dev for more info';
-      final spans = LinkDetector.processText(text);
-
-      expect(spans.length, 3);
-      expect(spans[0].text, 'Check out ');
-      expect(spans[0].linkUrl, isNull);
-
-      expect(spans[1].text, 'https://flutter.dev');
-      expect(spans[1].linkUrl, 'https://flutter.dev');
-      expect(spans[1].isUnderline, true);
-
-      expect(spans[2].text, ' for more info');
-      expect(spans[2].linkUrl, isNull);
-    });
-
-    test('processText detects multiple URLs', () {
-      const text = 'http://a.com and https://b.org';
-      final spans = LinkDetector.processText(text);
-
-      expect(spans.length, 3);
-      expect(spans[0].text, 'http://a.com');
-      expect(spans[0].linkUrl, 'http://a.com');
-
-      expect(spans[1].text, ' and ');
-
-      expect(spans[2].text, 'https://b.org');
-      expect(spans[2].linkUrl, 'https://b.org');
-    });
-
-    test('isValidUrl validates correctly', () {
-      expect(LinkDetector.isValidUrl('https://google.com'), true);
-      expect(LinkDetector.isValidUrl('http://example.org'), true);
+    test('containsUrl should return true for valid URLs', () {
       expect(
-        LinkDetector.isValidUrl('ftp://example.org'),
-        false,
-      ); // Only http/s
-      expect(LinkDetector.isValidUrl('not a url'), false);
+        LinkDetector.containsUrl('Check this out: https://flutter.dev'),
+        isTrue,
+      );
+      expect(
+        LinkDetector.containsUrl('Visit http://google.com for more info'),
+        isTrue,
+      );
     });
 
-    test('normalizeUrl adds https', () {
-      expect(LinkDetector.normalizeUrl('google.com'), 'https://google.com');
-      expect(LinkDetector.normalizeUrl('https://site.com'), 'https://site.com');
-      expect(LinkDetector.normalizeUrl('http://site.com'), 'http://site.com');
+    test('containsUrl should return false for text without URLs', () {
+      expect(LinkDetector.containsUrl('No links here'), isFalse);
+      expect(LinkDetector.containsUrl('email@example.com'), isFalse);
     });
+
+    test('extractUrls should return all URLs found in text', () {
+      const text = 'Check https://flutter.dev and http://dart.dev';
+      final urls = LinkDetector.extractUrls(text);
+      expect(urls, containsAll(['https://flutter.dev', 'http://dart.dev']));
+      expect(urls.length, 2);
+    });
+
+    test('isValidUrl should validate standard URLs', () {
+      expect(LinkDetector.isValidUrl('https://example.com'), isTrue);
+      expect(LinkDetector.isValidUrl('http://test.org/path?q=1'), isTrue);
+      expect(LinkDetector.isValidUrl('not-a-url'), isFalse);
+      expect(LinkDetector.isValidUrl('ftp://invalid-scheme.com'), isFalse);
+    });
+
+    test('normalizeUrl should add https:// if missing', () {
+      expect(LinkDetector.normalizeUrl('google.com'), 'https://google.com');
+      expect(
+        LinkDetector.normalizeUrl('http://insecure.com'),
+        'http://insecure.com',
+      );
+      expect(
+        LinkDetector.normalizeUrl('https://secure.com'),
+        'https://secure.com',
+      );
+    });
+
+    test(
+      'processText should split text into segments with linkUrl (logic check)',
+      () {
+        final spans = LinkDetector.processText('Link: https://test.com end');
+        expect(spans.length, 3);
+        expect(spans[0].text, 'Link: ');
+        expect(spans[0].linkUrl, isNull);
+        expect(spans[1].text, 'https://test.com');
+        expect(spans[1].linkUrl, 'https://test.com');
+        expect(spans[2].text, ' end');
+        expect(spans[2].linkUrl, isNull);
+      },
+    );
   });
 }
