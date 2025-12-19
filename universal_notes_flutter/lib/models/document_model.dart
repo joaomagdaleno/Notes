@@ -145,18 +145,28 @@ class TextSpanModel {
 abstract class DocumentBlock {
   /// The attributes associated with this block (e.g., indent, alignment).
   Map<String, dynamic> get attributes;
+
+  /// Layout metadata (for Brainstorm mode, like x, y, size).
+  Map<String, dynamic> get layoutMetadata;
 }
 
 /// A block of text content, composed of multiple styled spans.
 class TextBlock extends DocumentBlock {
   /// Creates a text block.
-  TextBlock({required this.spans, this.attributes = const {}});
+  TextBlock({
+    required this.spans,
+    this.attributes = const {},
+    this.layoutMetadata = const {},
+  });
 
   /// The list of styled text spans.
   final List<TextSpanModel> spans;
 
   @override
   final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
 
   /// Converts the text block to plain text.
   String toPlainText() {
@@ -167,13 +177,20 @@ class TextBlock extends DocumentBlock {
 /// A block representing an image.
 class ImageBlock extends DocumentBlock {
   /// Creates an image block.
-  ImageBlock({required this.imagePath, this.attributes = const {}});
+  ImageBlock({
+    required this.imagePath,
+    this.attributes = const {},
+    this.layoutMetadata = const {},
+  });
 
   /// The local file path to the image.
   final String imagePath;
 
   @override
   final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
 }
 
 /// Represents the entire document as a list of content blocks.
@@ -206,11 +223,14 @@ class DocumentModel {
         final bMap = b as Map<String, dynamic>;
         final type = bMap['type'];
         final attributes = bMap['attributes'] as Map<String, dynamic>? ?? {};
+        final layoutMetadata =
+            bMap['layoutMetadata'] as Map<String, dynamic>? ?? {};
 
         if (type == 'image') {
           return ImageBlock(
             imagePath: bMap['imagePath'] as String,
             attributes: attributes,
+            layoutMetadata: layoutMetadata,
           );
         } else if (type == 'drawing') {
           return DrawingBlock(
@@ -220,6 +240,7 @@ class DocumentModel {
                     .toList() ??
                 [],
             attributes: attributes,
+            layoutMetadata: layoutMetadata,
           );
         } else if (type == 'callout') {
           final calloutTypeStr = bMap['calloutType'] as String? ?? 'note';
@@ -238,6 +259,7 @@ class DocumentModel {
             type: calloutType,
             spans: spans,
             attributes: attributes,
+            layoutMetadata: layoutMetadata,
           );
         } else if (type == 'table') {
           return TableBlock(
@@ -255,28 +277,22 @@ class DocumentModel {
                     .toList() ??
                 [],
             attributes: attributes,
+            layoutMetadata: layoutMetadata,
           );
         } else if (type == 'math') {
           return MathBlock(
             tex: bMap['tex'] as String? ?? '',
             attributes: attributes,
-          );
-        } else if (type == 'math') {
-          return MathBlock(
-            tex: bMap['tex'] as String? ?? '',
-            attributes: attributes,
-          );
-        } else if (type == 'math') {
-          return MathBlock(
-            tex: bMap['tex'] as String? ?? '',
-            attributes: attributes,
+            layoutMetadata: layoutMetadata,
           );
         } else if (type == 'transclusion') {
           return TransclusionBlock(
             noteTitle: bMap['noteTitle'] as String? ?? '',
             attributes: attributes,
+            layoutMetadata: layoutMetadata,
           );
         } else {
+          // Default to text block for unknown or 'text' type
           final spans =
               (bMap['spans'] as List<dynamic>?)
                   ?.map(
@@ -284,7 +300,11 @@ class DocumentModel {
                   )
                   .toList() ??
               [];
-          return TextBlock(spans: spans, attributes: attributes);
+          return TextBlock(
+            spans: spans,
+            attributes: attributes,
+            layoutMetadata: layoutMetadata,
+          );
         }
       }).toList();
       return DocumentModel(blocks: blocks);
@@ -327,72 +347,55 @@ class DocumentModel {
   Map<String, dynamic> toJson() {
     return {
       'blocks': blocks.map((b) {
+        final Map<String, dynamic> data;
         if (b is ImageBlock) {
-          return {
+          data = {
             'type': 'image',
             'imagePath': b.imagePath,
-            'attributes': b.attributes,
           };
         } else if (b is DrawingBlock) {
-          return {
+          data = {
             'type': 'drawing',
             'strokes': b.strokes.map((s) => s.toJson()).toList(),
             'height': b.height,
-            'attributes': b.attributes,
           };
         } else if (b is CalloutBlock) {
-          return {
+          data = {
             'type': 'callout',
             'calloutType': b.type.name,
             'spans': b.spans.map((s) => s.toJson()).toList(),
-            'attributes': b.attributes,
           };
         } else if (b is TableBlock) {
-          return {
+          data = {
             'type': 'table',
             'rows': b.rows
                 .map((row) => row.map((cell) => cell.toJson()).toList())
                 .toList(),
-            'attributes': b.attributes,
           };
         } else if (b is MathBlock) {
-          return {
+          data = {
             'type': 'math',
             'tex': b.tex,
-            'attributes': b.attributes,
-          };
-        } else if (b is MathBlock) {
-          return {
-            'type': 'math',
-            'tex': b.tex,
-            'attributes': b.attributes,
-          };
-        } else if (b is MathBlock) {
-          return {
-            'type': 'math',
-            'tex': b.tex,
-            'attributes': b.attributes,
-          };
-        } else if (b is MathBlock) {
-          return {
-            'type': 'math',
-            'tex': b.tex,
-            'attributes': b.attributes,
           };
         } else if (b is TransclusionBlock) {
-          return {
+          data = {
             'type': 'transclusion',
             'noteTitle': b.noteTitle,
-            'attributes': b.attributes,
           };
         } else if (b is TextBlock) {
-          return {
+          data = {
             'type': 'text',
             'spans': b.spans.map((s) => s.toJson()).toList(),
-            'attributes': b.attributes,
           };
+        } else {
+          data = <String, dynamic>{};
         }
-        return <String, dynamic>{};
+
+        if (data.isNotEmpty) {
+          data['attributes'] = b.attributes;
+          data['layoutMetadata'] = b.layoutMetadata;
+        }
+        return data;
       }).toList(),
     };
   }
@@ -426,16 +429,20 @@ class CalloutBlock extends DocumentBlock {
     required this.type,
     required this.spans,
     this.attributes = const {},
+    this.layoutMetadata = const {},
   });
 
   /// The type of callout.
   final CalloutType type;
 
-  /// The content of the callout.
-  final List<TextSpanModel> spans;
-
   @override
   final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
+
+  /// The content of the callout.
+  final List<TextSpanModel> spans;
 
   /// Converts the callout block to plain text.
   String toPlainText() {
@@ -488,6 +495,7 @@ class TableBlock extends DocumentBlock {
   TableBlock({
     required this.rows,
     this.attributes = const {},
+    this.layoutMetadata = const {},
   });
 
   /// The rows of the table, each containing a list of cells.
@@ -495,6 +503,9 @@ class TableBlock extends DocumentBlock {
 
   @override
   final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
 }
 
 /// A block representing a drawing.
@@ -504,6 +515,7 @@ class DrawingBlock extends DocumentBlock {
     required this.strokes,
     this.height = 200.0,
     this.attributes = const {},
+    this.layoutMetadata = const {},
   });
 
   /// The list of strokes in this drawing.
@@ -514,6 +526,9 @@ class DrawingBlock extends DocumentBlock {
 
   @override
   final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
 }
 
 /// A block representing a math equation.
@@ -522,6 +537,7 @@ class MathBlock extends DocumentBlock {
   MathBlock({
     required this.tex,
     this.attributes = const {},
+    this.layoutMetadata = const {},
   });
 
   /// The LaTeX content.
@@ -529,6 +545,9 @@ class MathBlock extends DocumentBlock {
 
   @override
   final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
 }
 
 /// A block representing a transclusion (embedding another note).
@@ -537,6 +556,7 @@ class TransclusionBlock extends DocumentBlock {
   TransclusionBlock({
     required this.noteTitle,
     this.attributes = const {},
+    this.layoutMetadata = const {},
   });
 
   /// The title of the note to transclude.
@@ -544,4 +564,7 @@ class TransclusionBlock extends DocumentBlock {
 
   @override
   final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
 }

@@ -17,6 +17,7 @@ import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
@@ -30,6 +31,7 @@ class EditorWidget extends StatefulWidget {
     required this.document,
     required this.onDocumentChanged,
     required this.onSelectionChanged,
+    this.initialPersona = EditorPersona.architect,
     this.selection,
     this.onSelectionRectChanged,
     this.scrollController,
@@ -61,6 +63,9 @@ class EditorWidget extends StatefulWidget {
 
   /// The current document model.
   final DocumentModel document;
+
+  /// The persona to start with.
+  final EditorPersona initialPersona;
 
   /// Whether the editor is in drawing mode.
   final bool isDrawingMode;
@@ -132,6 +137,7 @@ class EditorWidget extends StatefulWidget {
 
 /// State for [EditorWidget].
 class EditorWidgetState extends State<EditorWidget> {
+  late EditorPersona _activePersona;
   final FocusNode _focusNode = FocusNode();
   late TextSelection _selection;
   late VirtualTextBuffer _buffer;
@@ -150,6 +156,7 @@ class EditorWidgetState extends State<EditorWidget> {
   @override
   void initState() {
     super.initState();
+    _activePersona = widget.initialPersona;
     _selection = widget.selection ?? const TextSelection.collapsed(offset: 0);
     _buffer = VirtualTextBuffer(widget.document);
     _generateKeys();
@@ -180,6 +187,11 @@ class EditorWidgetState extends State<EditorWidget> {
         _generateKeys();
       });
     }
+    if (widget.initialPersona != oldWidget.initialPersona) {
+      setState(() {
+        _activePersona = widget.initialPersona;
+      });
+    }
     if (widget.selection != null && widget.selection != _selection) {
       // Use a post-frame callback to ensure that the layout is up-to-date
       // before trying to calculate the selection rectangle.
@@ -206,6 +218,55 @@ class EditorWidgetState extends State<EditorWidget> {
     _cursorTimer?.cancel();
     _hideAutocomplete();
     super.dispose();
+  }
+
+  Widget _buildPersonaSwitcher() {
+    return Container(
+      height: 40,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _PersonaButton(
+            persona: EditorPersona.architect,
+            activePersona: _activePersona,
+            icon: Icons.architecture,
+            label: 'Architect',
+            onTap: () =>
+                setState(() => _activePersona = EditorPersona.architect),
+          ),
+          _PersonaButton(
+            persona: EditorPersona.writer,
+            activePersona: _activePersona,
+            icon: Icons.description,
+            label: 'Writer',
+            onTap: () => setState(() => _activePersona = EditorPersona.writer),
+          ),
+          _PersonaButton(
+            persona: EditorPersona.brainstorm,
+            activePersona: _activePersona,
+            icon: Icons.gesture,
+            label: 'Brainstorm',
+            onTap: () =>
+                setState(() => _activePersona = EditorPersona.brainstorm),
+          ),
+          _PersonaButton(
+            persona: EditorPersona.zen,
+            activePersona: _activePersona,
+            icon: Icons.self_improvement,
+            label: 'Zen',
+            onTap: () => setState(() => _activePersona = EditorPersona.zen),
+          ),
+        ],
+      ),
+    );
   }
 
   void _onSelectionChanged(TextSelection newSelection) {
@@ -777,6 +838,12 @@ class EditorWidgetState extends State<EditorWidget> {
             },
           ),
           ..._buildRemoteCursors(),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Center(child: _buildPersonaSwitcher()),
+          ),
         ],
       ),
     );
@@ -1544,6 +1611,67 @@ class _EditorLine extends StatelessWidget {
             }).toList(),
           );
         }).toList(),
+      ),
+    );
+  }
+}
+
+class _PersonaButton extends StatelessWidget {
+  final EditorPersona persona;
+  final EditorPersona activePersona;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _PersonaButton({
+    required this.persona,
+    required this.activePersona,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isActive = persona == activePersona;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Tooltip(
+      message: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: isActive ? colorScheme.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: isActive
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurfaceVariant,
+              ),
+              if (isActive) ...[
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isActive
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
