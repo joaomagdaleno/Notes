@@ -731,7 +731,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               ),
               const SizedBox(width: 8),
               Flexible(
-                fit: FlexFit.loose,
                 child: fluent.CommandBar(
                   primaryItems: [
                     fluent.CommandBarButton(
