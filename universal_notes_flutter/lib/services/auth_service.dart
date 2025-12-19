@@ -1,12 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 
 /// Service for handling authentication.
 class AuthService {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  @visibleForTesting
+  late FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   /// Returns a stream of the authentication state.
-  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+  Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();
 
   /// Signs in with email and password.
   Future<UserCredential?> signInWithEmailAndPassword(
@@ -14,7 +17,7 @@ class AuthService {
     String password,
   ) async {
     try {
-      return await _firebaseAuth.signInWithEmailAndPassword(
+      return await firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -31,7 +34,7 @@ class AuthService {
     String password,
   ) async {
     try {
-      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+      final credential = await firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -58,6 +61,6 @@ class AuthService {
 
   /// Signs out the current user.
   Future<void> signOut() async {
-    await _firebaseAuth.signOut();
+    await firebaseAuth.signOut();
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,13 +10,15 @@ import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-
+import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/screens/settings_screen.dart';
+import 'package:universal_notes_flutter/services/firebase_service.dart';
+import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
@@ -127,6 +130,59 @@ class MockWindowManager extends Mock implements WindowManager {
 
 enum ViewMode { gridMedium, gridLarge, list, listSimple, gridSmall }
 
+class MockNoteRepository extends Mock implements NoteRepository {
+  @override
+  String? dbPath;
+
+  @override
+  Future<List<Note>> getAllNotes({
+    String? folderId,
+    String? tagId,
+    bool? isFavorite,
+    bool? isInTrash,
+  }) {
+    return super.noSuchMethod(
+          Invocation.method(#getAllNotes, [], {
+            #folderId: folderId,
+            #tagId: tagId,
+            #isFavorite: isFavorite,
+            #isInTrash: isInTrash,
+          }),
+          returnValue: Future.value(<Note>[]),
+          returnValueForMissingStub: Future.value(<Note>[]),
+        )
+        as Future<List<Note>>;
+  }
+
+  @override
+  Future<List<Folder>> getAllFolders() {
+    return super.noSuchMethod(
+          Invocation.method(#getAllFolders, []),
+          returnValue: Future.value(<Folder>[]),
+          returnValueForMissingStub: Future.value(<Folder>[]),
+        )
+        as Future<List<Folder>>;
+  }
+
+  @override
+  Future<List<String>> getAllTagNames() {
+    return super.noSuchMethod(
+          Invocation.method(#getAllTagNames, []),
+          returnValue: Future.value(<String>[]),
+          returnValueForMissingStub: Future.value(<String>[]),
+        )
+        as Future<List<String>>;
+  }
+
+  @override
+  Future<void> close() async {}
+}
+
+class MockFirebaseService extends Mock implements FirebaseService {
+  @override
+  void dispose() {}
+}
+
 /// Creates a mock FirestoreRepository with default empty stream behavior.
 MockFirestoreRepository createDefaultMockRepository() {
   final mockRepo = MockFirestoreRepository();
@@ -136,7 +192,6 @@ MockFirestoreRepository createDefaultMockRepository() {
       isInTrash: anyNamed('isInTrash'),
       tag: anyNamed('tag'),
       folderId: anyNamed('folderId'),
-      limit: anyNamed('limit') ?? 20,
       lastDocument: anyNamed('lastDocument'),
     ),
   ).thenAnswer((_) => Stream.value(<Note>[]));
@@ -149,42 +204,77 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
-    // Initialize FFI
-    sqfliteFfiInit();
-    // Use FFI database factory
-    databaseFactory = databaseFactoryFfi;
-    // Provide an in-memory database for testing
-    NoteRepository.instance.dbPath = inMemoryDatabasePath;
+    try {
+      // Initialize FFI
+      sqfliteFfiInit();
+      // Use FFI database factory
+      databaseFactory = databaseFactoryFfi;
+      // Provide an in-memory database for testing
+      NoteRepository.instance.dbPath = inMemoryDatabasePath;
 
-    PackageInfo.setMockInitialValues(
-      appName: 'Universal Notes',
-      packageName: 'com.example.universal_notes_flutter',
-      version: '1.0.0',
-      buildNumber: '1',
-      buildSignature: '',
-    );
+      PackageInfo.setMockInitialValues(
+        appName: 'Universal Notes',
+        packageName: 'com.example.universal_notes_flutter',
+        version: '1.0.0',
+        buildNumber: '1',
+        buildSignature: '',
+      );
 
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('plugins.flutter.io/path_provider'),
-          (MethodCall methodCall) async {
-            if (methodCall.method == 'getApplicationDocumentsDirectory' ||
-                methodCall.method == 'getApplicationSupportDirectory') {
-              return Directory.systemTemp.path;
-            }
-            return null;
-          },
-        );
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('plugins.flutter.io/path_provider'),
+            (MethodCall methodCall) async {
+              if (methodCall.method == 'getApplicationDocumentsDirectory' ||
+                  methodCall.method == 'getApplicationSupportDirectory') {
+                return Directory.systemTemp.path;
+              }
+              return null;
+            },
+          );
 
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('window_manager'),
-          (MethodCall methodCall) async {
-            return null;
-          },
-        );
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('window_manager'),
+            (MethodCall methodCall) async {
+              return null;
+            },
+          );
 
-    SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({});
+
+      // Mock singletons
+      final mockFirestore = createDefaultMockRepository();
+      final mockNoteRepo = MockNoteRepository();
+
+      SyncService.instance.firestoreRepository = mockFirestore;
+      SyncService.instance.noteRepository = mockNoteRepo;
+      NoteRepository.instance.firebaseService = MockFirebaseService();
+
+      when(
+        mockNoteRepo.getAllNotes(
+          folderId: anyNamed('folderId'),
+          tagId: anyNamed('tagId'),
+          isFavorite: anyNamed('isFavorite'),
+          isInTrash: anyNamed('isInTrash'),
+        ),
+      ).thenAnswer((_) => Future.value(<Note>[]));
+      when(
+        mockNoteRepo.getAllFolders(),
+      ).thenAnswer((_) => Future.value(<Folder>[]));
+      when(
+        mockNoteRepo.getAllTagNames(),
+      ).thenAnswer((_) => Future.value(<String>[]));
+    } catch (e, stack) {
+      if (kDebugMode) {
+        if (kDebugMode) {
+          print('DEBUG: Error in setUpAll: $e');
+        }
+      }
+      if (kDebugMode) {
+        print('DEBUG: StackTrace: $stack');
+      }
+      rethrow;
+    }
   });
 
   setUp(() async {
@@ -202,9 +292,12 @@ void main() {
 
   testWidgets('NotesScreen displays notes', (WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: NotesScreen(
-          updateService: MockUpdateService(),
+      fluent.FluentApp(
+        home: fluent.FluentTheme(
+          data: fluent.FluentThemeData.light(),
+          child: NotesScreen(
+            updateService: MockUpdateService(),
+          ),
         ),
       ),
     );
@@ -213,7 +306,7 @@ void main() {
     await tester.pump(Duration.zero);
 
     // Verify that the "No notes found" message is displayed.
-    expect(find.text('Nenhuma nota encontrada.'), findsOneWidget);
+    expect(find.text('No notes yet. Create one!'), findsOneWidget);
   });
 
   // --- State Rendering Tests ---

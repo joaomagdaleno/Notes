@@ -22,8 +22,8 @@ class NoteRepository {
   /// The singleton instance of [NoteRepository].
   static NoteRepository instance = NoteRepository._();
 
-  /// The service for handling real-time collaboration.
-  final FirebaseService firebaseService = FirebaseService();
+  @visibleForTesting
+  FirebaseService firebaseService = FirebaseService();
 
   /// The path to the database file.
   String? dbPath;

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -14,8 +16,10 @@ class SyncService {
   /// The singleton instance of [SyncService].
   static final SyncService instance = SyncService._();
 
-  final NoteRepository _noteRepository = NoteRepository.instance;
-  final _firestoreRepository = FirestoreRepository();
+  @visibleForTesting
+  late NoteRepository noteRepository = NoteRepository.instance;
+  @visibleForTesting
+  late FirestoreRepository firestoreRepository = FirestoreRepository();
 
   // StreamControllers to broadcast local data changes
   final _notesController = StreamController<List<Note>>.broadcast();
@@ -51,7 +55,7 @@ class SyncService {
     bool? isFavorite,
     bool? isInTrash,
   }) async {
-    final notes = await _noteRepository.getAllNotes(
+    final notes = await noteRepository.getAllNotes(
       folderId: folderId,
       tagId: tagId,
       isFavorite: isFavorite,
@@ -59,10 +63,10 @@ class SyncService {
     );
     _notesController.add(notes);
 
-    final folders = await _noteRepository.getAllFolders();
+    final folders = await noteRepository.getAllFolders();
     _foldersController.add(folders);
 
-    final tags = await _noteRepository.getAllTagNames();
+    final tags = await noteRepository.getAllTagNames();
     _tagsController.add(tags);
   }
 
@@ -72,7 +76,7 @@ class SyncService {
 
   void _startBackgroundSync() {
     // Listen to remote changes (Firestore -> SQLite)
-    _remoteSubscription = _firestoreRepository.notesStream().listen((
+    _remoteSubscription = firestoreRepository.notesStream().listen((
       remoteNotes,
     ) async {
       await _syncDown(remoteNotes);
@@ -84,7 +88,7 @@ class SyncService {
     for (final remoteNote in remoteNotes) {
       Note? localNote;
       try {
-        localNote = await _noteRepository.getNoteWithContent(remoteNote.id);
+        localNote = await noteRepository.getNoteWithContent(remoteNote.id);
       } on Exception catch (_) {
         // Local note not found
       }
@@ -114,7 +118,7 @@ class SyncService {
 
         // Fetch full content if needed (heuristic check)
         if (content.length < 100) {
-          final fullContent = await _firestoreRepository.getNoteContent(
+          final fullContent = await firestoreRepository.getNoteContent(
             remoteNote.id,
           );
           if (fullContent.isNotEmpty) {
@@ -128,10 +132,10 @@ class SyncService {
         );
 
         if (localNote == null) {
-          await _noteRepository.insertNote(noteToSave);
+          await noteRepository.insertNote(noteToSave);
         } else {
           // Bypass regular updateNote to avoid setting modified status again
-          await _noteRepository.updateNoteContent(noteToSave);
+          await noteRepository.updateNoteContent(noteToSave);
         }
       } else if (localNote.syncStatus != SyncStatus.synced) {
         // Even if local is newer or same, if it was marked as synced
@@ -147,7 +151,7 @@ class SyncService {
   /// Syncs local changes to Firestore (SQLite -> Firestore)
   Future<void> syncUp() async {
     // Dirty Sync strategy: Only push local notes that are modified or local.
-    final localNotes = await _noteRepository.getUnsyncedNotes();
+    final localNotes = await noteRepository.getUnsyncedNotes();
     for (final note in localNotes) {
       await syncUpNote(note);
     }
@@ -159,19 +163,19 @@ class SyncService {
     // FirestoreRepository.
     if (note.syncStatus == SyncStatus.local) {
       // Create
-      final newNote = await _firestoreRepository.addNote(
+      final newNote = await firestoreRepository.addNote(
         title: note.title,
         content: note.content,
       );
       // Update local note with Firestore ID and synced status
-      await _noteRepository.deleteNotePermanently(note.id); // Remove temp ID
-      await _noteRepository.insertNote(
+      await noteRepository.deleteNotePermanently(note.id); // Remove temp ID
+      await noteRepository.insertNote(
         newNote.copyWith(syncStatus: SyncStatus.synced),
       );
     } else {
       // Update
-      await _firestoreRepository.updateNote(note);
-      await _noteRepository.updateNoteContent(
+      await firestoreRepository.updateNote(note);
+      await noteRepository.updateNoteContent(
         note.copyWith(syncStatus: SyncStatus.synced),
       );
     }
@@ -183,7 +187,7 @@ class SyncService {
 
   /// Syncs local unsynced events to Firestore for a specific note.
   Future<void> syncUpEvents(String noteId) async {
-    final localEvents = await _noteRepository.getNoteEvents(noteId);
+    final localEvents = await noteRepository.getNoteEvents(noteId);
 
     // Filter to only unsynced events
     final unsyncedEvents = localEvents
@@ -193,25 +197,25 @@ class SyncService {
     if (unsyncedEvents.isEmpty) return;
 
     // Push to Firestore
-    await _firestoreRepository.addNoteEvents(unsyncedEvents);
+    await firestoreRepository.addNoteEvents(unsyncedEvents);
 
     // Mark as synced locally
     for (final event in unsyncedEvents) {
       final syncedEvent = event.copyWith(syncStatus: SyncStatus.synced);
-      await _noteRepository.updateNoteEvent(syncedEvent);
+      await noteRepository.updateNoteEvent(syncedEvent);
     }
   }
 
   /// Pulls remote events for a note and merges into local DB.
   Future<void> syncDownEvents(String noteId) async {
     // Get last synced timestamp from local events
-    final localEvents = await _noteRepository.getNoteEvents(noteId);
+    final localEvents = await noteRepository.getNoteEvents(noteId);
     final lastLocalTimestamp = localEvents.isNotEmpty
         ? localEvents.last.timestamp
         : DateTime.fromMillisecondsSinceEpoch(0);
 
     // Fetch newer events from Firestore
-    final remoteEvents = await _firestoreRepository.getNoteEventsSince(
+    final remoteEvents = await firestoreRepository.getNoteEventsSince(
       noteId,
       lastLocalTimestamp,
     );
@@ -222,7 +226,7 @@ class SyncService {
 
     // Insert new events into local DB
     for (final event in newEvents) {
-      await _noteRepository.addNoteEvent(event);
+      await noteRepository.addNoteEvent(event);
     }
   }
 
@@ -232,7 +236,7 @@ class SyncService {
 
   /// Syncs learned words to Firestore (automatic background sync).
   Future<void> syncDictionary() async {
-    final user = _firestoreRepository.currentUser;
+    final user = firestoreRepository.currentUser;
     if (user == null) return;
 
     // Push unsynced words
@@ -243,20 +247,20 @@ class SyncService {
   }
 
   Future<void> _syncUpDictionary(String userId) async {
-    final unsyncedWords = await _noteRepository.getUnsyncedWords();
+    final unsyncedWords = await noteRepository.getUnsyncedWords();
     if (unsyncedWords.isEmpty) return;
 
     // Push to Firestore
-    await _firestoreRepository.addDictionaryWords(userId, unsyncedWords);
+    await firestoreRepository.addDictionaryWords(userId, unsyncedWords);
 
     // Mark as synced
     final words = unsyncedWords.map((w) => w['word'] as String).toList();
-    await _noteRepository.markWordsSynced(words);
+    await noteRepository.markWordsSynced(words);
   }
 
   Future<void> _syncDownDictionary(String userId) async {
-    final cloudWords = await _firestoreRepository.getDictionaryWords(userId);
-    await _noteRepository.importWords(cloudWords);
+    final cloudWords = await firestoreRepository.getDictionaryWords(userId);
+    await noteRepository.importWords(cloudWords);
   }
 
   /// Disposes of the controllers and subscriptions.

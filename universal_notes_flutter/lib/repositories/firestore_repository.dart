@@ -1,20 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/services/tracing_service.dart';
 
-/// Repository for interacting with Firestore.
 class FirestoreRepository {
   /// Creates a [FirestoreRepository].
   FirestoreRepository() {
-    _notesCollection = _firestore.collection('notes');
-    _usersCollection = _firestore.collection('users');
-    _foldersCollection = _firestore.collection('folders');
-    _userMetadataCollection = _firestore.collection('metadata');
+    _initCollections();
   }
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @visibleForTesting
+  late FirebaseFirestore firestore = FirebaseFirestore.instance;
+  @visibleForTesting
+  late FirebaseAuth auth = FirebaseAuth.instance;
+
+  void _initCollections() {
+    _notesCollection = firestore.collection('notes');
+    _usersCollection = firestore.collection('users');
+    _foldersCollection = firestore.collection('folders');
+    _userMetadataCollection = firestore.collection('metadata');
+  }
 
   // Reference to the collections
   late final CollectionReference<Map<String, dynamic>> _notesCollection;
@@ -23,7 +31,7 @@ class FirestoreRepository {
   late final CollectionReference<Map<String, dynamic>> _userMetadataCollection;
 
   /// Returns the current authenticated user.
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser => auth.currentUser;
 
   // --- Dictionary Methods ---
 
@@ -32,7 +40,7 @@ class FirestoreRepository {
     String userId,
     List<Map<String, dynamic>> words,
   ) async {
-    final batch = _firestore.batch();
+    final batch = firestore.batch();
     final userDictRef = _usersCollection.doc(userId).collection('dictionary');
 
     for (final wordMap in words) {
@@ -70,7 +78,7 @@ class FirestoreRepository {
     int limit = 20,
     DocumentSnapshot? lastDocument,
   }) {
-    final user = _auth.currentUser;
+    final user = auth.currentUser;
     if (user == null) {
       return Stream.value([]);
     }
@@ -115,7 +123,7 @@ class FirestoreRepository {
   Future<Note> addNote({required String title, required String content}) async {
     final span = TracingService().startSpan('FirestoreRepository.addNote');
     try {
-      final user = _auth.currentUser;
+      final user = auth.currentUser;
       if (user == null) {
         throw Exception('User not logged in');
       }
@@ -176,7 +184,7 @@ class FirestoreRepository {
 
     // Sync tags metadata
     if (note.tags.isNotEmpty) {
-      final user = _auth.currentUser;
+      final user = auth.currentUser;
       if (user != null) {
         await _updateUserTags(user.uid, note.tags);
       }
@@ -201,7 +209,7 @@ class FirestoreRepository {
 
   /// Deletes multiple notes by their IDs in a batch.
   Future<void> deleteNotes(List<String> noteIds) async {
-    final batch = _firestore.batch();
+    final batch = firestore.batch();
     for (final id in noteIds) {
       batch.delete(_notesCollection.doc(id));
     }
@@ -210,7 +218,7 @@ class FirestoreRepository {
 
   /// Returns a stream of all unique tags used by the current user.
   Stream<List<String>> getAllTagsStream() {
-    final user = _auth.currentUser;
+    final user = auth.currentUser;
     if (user == null) {
       return Stream.value([]);
     }
@@ -231,7 +239,7 @@ class FirestoreRepository {
     String permission,
   ) async {
     // 🛡️ Sentinel: Prevent a user from sharing a note with themselves.
-    final currentUser = _auth.currentUser;
+    final currentUser = auth.currentUser;
     if (currentUser != null && currentUser.email == email) {
       return false; // Cannot share with oneself
     }
@@ -279,7 +287,7 @@ class FirestoreRepository {
 
   /// Creates a new folder.
   Future<void> createFolder(String name) async {
-    final user = _auth.currentUser;
+    final user = auth.currentUser;
     if (user == null) throw Exception('User not logged in');
 
     await _foldersCollection.add({
@@ -291,7 +299,7 @@ class FirestoreRepository {
 
   /// Returns a stream of folders for the current user.
   Stream<List<Map<String, dynamic>>> getFoldersStream() {
-    final user = _auth.currentUser;
+    final user = auth.currentUser;
     if (user == null) return Stream.value([]);
 
     return _foldersCollection
@@ -317,7 +325,7 @@ class FirestoreRepository {
 
   /// Retrieves all folders (for backup).
   Future<List<Map<String, dynamic>>> getAllFolders() async {
-    final user = _auth.currentUser;
+    final user = auth.currentUser;
     if (user == null) return [];
 
     final snapshot = await _foldersCollection
@@ -351,7 +359,7 @@ class FirestoreRepository {
 
   /// Retrieves all notes (for backup).
   Future<List<Note>> getAllNotes() async {
-    final user = _auth.currentUser;
+    final user = auth.currentUser;
     if (user == null) return [];
     // This might be expensive, in real app consider pagination or not backing
     // up everything always
@@ -375,7 +383,7 @@ class FirestoreRepository {
 
   /// Pushes a single [event] to Firestore.
   Future<void> addNoteEvent(NoteEvent event) async {
-    final user = _auth.currentUser;
+    final user = auth.currentUser;
     if (user == null) throw Exception('User not logged in');
 
     await _notesCollection
@@ -388,10 +396,10 @@ class FirestoreRepository {
   /// Pushes multiple events to Firestore in a batch.
   Future<void> addNoteEvents(List<NoteEvent> events) async {
     if (events.isEmpty) return;
-    final user = _auth.currentUser;
+    final user = auth.currentUser;
     if (user == null) throw Exception('User not logged in');
 
-    final batch = _firestore.batch();
+    final batch = firestore.batch();
     for (final event in events) {
       final docRef = _notesCollection
           .doc(event.noteId)
@@ -446,7 +454,7 @@ class FirestoreRepository {
     String displayName,
     int colorValue,
   ) async {
-    final user = _auth.currentUser;
+    final user = auth.currentUser;
     if (user == null) return;
 
     await _notesCollection.doc(noteId).collection('cursors').doc(user.uid).set({
@@ -476,7 +484,7 @@ class FirestoreRepository {
 
   /// Clean up old cursors (optional maintenance)
   Future<void> removeCursor(String noteId) async {
-    final user = _auth.currentUser;
+    final user = auth.currentUser;
     if (user == null) return;
     await _notesCollection
         .doc(noteId)

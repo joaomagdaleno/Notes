@@ -698,137 +698,150 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     return fluent.NavigationView(
       appBar: fluent.NavigationAppBar(
         title: Text(_getAppBarTitle()),
-        actions: fluent.Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            fluent.DropDownButton(
-              title: const Icon(fluent.FluentIcons.sort),
-              items: [
-                fluent.MenuFlyoutItem(
-                  text: const Text('Data (Mais Recentes)'),
-                  onPressed: () =>
-                      _sortOrderNotifier.value = SortOrder.dateDesc,
-                ),
-                fluent.MenuFlyoutItem(
-                  text: const Text('Data (Mais Antigas)'),
-                  onPressed: () => _sortOrderNotifier.value = SortOrder.dateAsc,
-                ),
-                fluent.MenuFlyoutItem(
-                  text: const Text('Título (A-Z)'),
-                  onPressed: () =>
-                      _sortOrderNotifier.value = SortOrder.titleAsc,
-                ),
-                fluent.MenuFlyoutItem(
-                  text: const Text('Título (Z-A)'),
-                  onPressed: () =>
-                      _sortOrderNotifier.value = SortOrder.titleDesc,
-                ),
-              ],
-            ),
-            fluent.CommandBar(
-              primaryItems: [
-                fluent.CommandBarButton(
-                  icon: const Icon(fluent.FluentIcons.view_all),
-                  onPressed: () => _viewModeNotifier.value = 'grid_medium',
-                ),
-                fluent.CommandBarButton(
-                  icon: const Icon(fluent.FluentIcons.grid_view_large),
-                  onPressed: () => _viewModeNotifier.value = 'grid_large',
-                ),
-                fluent.CommandBarButton(
-                  icon: const Icon(fluent.FluentIcons.list),
-                  onPressed: () => _viewModeNotifier.value = 'list',
-                ),
-                fluent.CommandBarButton(
-                  icon: const Icon(fluent.FluentIcons.update_restore),
-                  onPressed: () => unawaited(_updateService.checkForUpdate()),
-                ),
-                fluent.CommandBarButton(
-                  icon: const Icon(fluent.FluentIcons.brightness),
-                  onPressed: () {
-                    if (context.mounted) {
-                      unawaited(
-                        Provider.of<ThemeService>(
-                          context,
-                          listen: false,
-                        ).toggleTheme(),
-                      );
-                    }
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      pane: fluent.NavigationPane(
-        displayMode: fluent.PaneDisplayMode.compact,
-        header: Sidebar(onSelectionChanged: _onSelectionChanged),
-      ),
-      content: fluent.ScaffoldPage(
-        header: Padding(
-          padding: const EdgeInsets.all(8),
-          child: fluent.TextBox(
-            controller: _searchController,
-            placeholder: 'Search is temporarily disabled...',
-            prefix: const Padding(
-              padding: EdgeInsets.only(left: 8),
-              child: Icon(fluent.FluentIcons.search),
-            ),
-            enabled: false,
-          ),
-        ),
-        content: StreamBuilder<List<Note>>(
-          stream: _notesStream,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: fluent.ProgressRing());
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const EmptyState(
-                icon: fluent.FluentIcons.note_forward,
-                message: 'No notes here. Try creating one!',
-              );
-            }
-            return _buildNotesList(snapshot.data!);
-          },
-        ),
-        bottomBar: isTrashView
-            ? null
-            : Padding(
-                padding: const EdgeInsets.all(16),
-                child: fluent.Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    fluent.FilledButton(
-                      onPressed: _createNewNote,
-                      child: const fluent.Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(fluent.FluentIcons.add),
-                          SizedBox(width: 8),
-                          Text('New Note'),
-                        ],
-                      ),
+        actions: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: fluent.Row(
+            mainAxisSize: fluent.MainAxisSize.min,
+            mainAxisAlignment: fluent.MainAxisAlignment.end,
+            children: [
+              fluent.DropDownButton(
+                title: const Icon(fluent.FluentIcons.sort),
+                items: [
+                  fluent.MenuFlyoutItem(
+                    text: const Text('Data (Mais Recentes)'),
+                    onPressed: () =>
+                        _sortOrderNotifier.value = SortOrder.dateDesc,
+                  ),
+                  fluent.MenuFlyoutItem(
+                    text: const Text('Data (Mais Antigas)'),
+                    onPressed: () =>
+                        _sortOrderNotifier.value = SortOrder.dateAsc,
+                  ),
+                  fluent.MenuFlyoutItem(
+                    text: const Text('Título (A-Z)'),
+                    onPressed: () =>
+                        _sortOrderNotifier.value = SortOrder.titleAsc,
+                  ),
+                  fluent.MenuFlyoutItem(
+                    text: const Text('Título (Z-A)'),
+                    onPressed: () =>
+                        _sortOrderNotifier.value = SortOrder.titleDesc,
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                fit: FlexFit.loose,
+                child: fluent.CommandBar(
+                  primaryItems: [
+                    fluent.CommandBarButton(
+                      icon: const Icon(fluent.FluentIcons.view_all),
+                      onPressed: () => _viewModeNotifier.value = 'grid_medium',
                     ),
-                    const SizedBox(width: 16),
-                    fluent.Button(
-                      onPressed: _abrirEditorRapido,
-                      child: const fluent.Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(fluent.FluentIcons.quick_note),
-                          SizedBox(width: 8),
-                          Text('Quick Note'),
-                        ],
-                      ),
+                    fluent.CommandBarButton(
+                      icon: const Icon(fluent.FluentIcons.grid_view_large),
+                      onPressed: () => _viewModeNotifier.value = 'grid_large',
+                    ),
+                    fluent.CommandBarButton(
+                      icon: const Icon(fluent.FluentIcons.list),
+                      onPressed: () => _viewModeNotifier.value = 'list',
+                    ),
+                    fluent.CommandBarButton(
+                      icon: const Icon(fluent.FluentIcons.update_restore),
+                      onPressed: () =>
+                          unawaited(_updateService.checkForUpdate()),
+                    ),
+                    fluent.CommandBarButton(
+                      icon: const Icon(fluent.FluentIcons.brightness),
+                      onPressed: () {
+                        if (context.mounted) {
+                          unawaited(
+                            Provider.of<ThemeService>(
+                              context,
+                              listen: false,
+                            ).toggleTheme(),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+      content: Row(
+        children: [
+          Sidebar(onSelectionChanged: _onSelectionChanged),
+          Expanded(
+            child: fluent.ScaffoldPage(
+              header: Padding(
+                padding: const EdgeInsets.all(8),
+                child: fluent.TextBox(
+                  controller: _searchController,
+                  placeholder: 'Search is temporarily disabled...',
+                  prefix: const Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: Icon(fluent.FluentIcons.search),
+                  ),
+                  enabled: false,
+                ),
+              ),
+              content: StreamBuilder<List<Note>>(
+                stream: _notesStream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: fluent.ProgressRing());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const EmptyState(
+                      icon: fluent.FluentIcons.note_forward,
+                      message: 'No notes yet. Create one!',
+                    );
+                  }
+                  return _buildNotesList(snapshot.data!);
+                },
+              ),
+              bottomBar: isTrashView
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: fluent.Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          fluent.FilledButton(
+                            onPressed: _createNewNote,
+                            child: const fluent.Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(fluent.FluentIcons.add),
+                                SizedBox(width: 8),
+                                Text('New Note'),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          fluent.Button(
+                            onPressed: _abrirEditorRapido,
+                            child: const fluent.Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(fluent.FluentIcons.quick_note),
+                                SizedBox(width: 8),
+                                Text('Quick Note'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }
