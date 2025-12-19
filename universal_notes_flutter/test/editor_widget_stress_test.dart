@@ -7,7 +7,9 @@ import 'package:universal_notes_flutter/editor/editor_widget.dart';
 // Helper to generate a very long document.
 DocumentModel _generateLongDocument(int wordCount) {
   final longText = List.generate(wordCount, (index) => 'word$index ').join();
-  return DocumentAdapter.fromJson('[{"text":"$longText"}]');
+  return DocumentAdapter.fromJson(
+    '[{"type":"text","spans":[{"text":"$longText"}]}]',
+  );
 }
 
 void main() {

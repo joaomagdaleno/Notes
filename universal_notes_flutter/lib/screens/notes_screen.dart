@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
@@ -847,16 +846,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    // ⚡ Bolt: The top-level ValueListenableBuilder was removed.
-    // Rebuilds are now handled granularly within the build methods,
-    // preventing the entire screen from rebuilding unnecessarily.
-    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
-      return _buildMaterialUI();
-    } else if (Platform.isWindows) {
+    if (kIsWeb) return _buildMaterialUI();
+
+    final platform = defaultTargetPlatform;
+    if (platform == TargetPlatform.windows ||
+        platform == TargetPlatform.macOS ||
+        platform == TargetPlatform.linux) {
       return _buildFluentUI();
-    } else {
-      return _buildMaterialUI();
     }
+    return _buildMaterialUI();
   }
 }
 

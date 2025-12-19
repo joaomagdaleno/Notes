@@ -56,7 +56,7 @@ class NoteRepository {
     final path = join(dir.path, _dbName);
     return openDatabase(
       path,
-      version: 11,
+      version: 12,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -113,6 +113,8 @@ class NoteRepository {
         type TEXT,
         payload TEXT,
         timestamp INTEGER,
+        syncStatus TEXT,
+        deviceId TEXT,
         FOREIGN KEY (noteId) REFERENCES $_notesTable(id) ON DELETE CASCADE
       )
     ''');
@@ -206,6 +208,14 @@ class NoteRepository {
       );
       await db.execute('ALTER TABLE $_foldersTable ADD COLUMN query TEXT');
       await db.execute('ALTER TABLE $_notesTable ADD COLUMN thumbnail BLOB');
+    }
+    if (oldVersion < 12) {
+      await db.execute(
+        'ALTER TABLE $_noteEventsTable ADD COLUMN syncStatus TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE $_noteEventsTable ADD COLUMN deviceId TEXT',
+      );
     }
   }
 

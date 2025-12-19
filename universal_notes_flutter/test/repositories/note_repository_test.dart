@@ -1,8 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/models/tag.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:sqflite/sqflite.dart';
 
 void main() {
   // --- START OF THE FIX ---
@@ -63,6 +67,63 @@ void main() {
       await noteRepository.deleteNote(note.id);
       final notes = await noteRepository.getAllNotes();
       expect(notes.length, 0);
+    });
+
+    test('Tag operations', () async {
+      final tag = Tag(
+        id: 't1',
+        name: 'Test Tag',
+        color: const Color(0xFF00FF00),
+      );
+      await noteRepository.createTag(tag);
+      final allTags = await noteRepository.getAllTags();
+      expect(allTags.any((t) => t.name == 'Test Tag'), true);
+
+      await noteRepository.addTagToNote(note.id, tag.id);
+      final noteTags = await noteRepository.getTagsForNote(note.id);
+      expect(noteTags.length, 1);
+      expect(noteTags[0].name, 'Test Tag');
+
+      await noteRepository.removeTagFromNote(note.id, tag.id);
+      final noteTagsAfter = await noteRepository.getTagsForNote(note.id);
+      expect(noteTagsAfter.length, 0);
+    });
+
+    test('Folder operations', () async {
+      final folder = await noteRepository.createFolder('Work');
+      expect(folder.name, 'Work');
+
+      final folders = await noteRepository.getAllFolders();
+      expect(folders.any((f) => f.name == 'Work'), true);
+
+      await noteRepository.deleteFolder(folder.id);
+      final foldersAfter = await noteRepository.getAllFolders();
+      expect(foldersAfter.any((f) => f.id == folder.id), false);
+    });
+
+    test('Snippet operations', () async {
+      final snippet = await noteRepository.createSnippet(
+        trigger: '/hi',
+        content: 'Hello World',
+      );
+      expect(snippet.trigger, '/hi');
+
+      final allSnippets = await noteRepository.getAllSnippets();
+      expect(allSnippets.any((s) => s.trigger == '/hi'), true);
+    });
+
+    test('Note event operations', () async {
+      final event = NoteEvent(
+        id: 'e1',
+        noteId: note.id,
+        type: NoteEventType.insert,
+        payload: {'text': 'X'},
+        timestamp: DateTime.now(),
+      );
+      await noteRepository.addNoteEvent(event);
+      final events = await noteRepository.getNoteEvents(note.id);
+      expect(events.length, 1);
+      expect(events[0].id, 'e1');
     });
 
     test(

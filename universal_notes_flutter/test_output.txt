@@ -1,0 +1,12 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/markdown_converter_test.dart
+00:00 +0: MarkdownConverter should apply italic style on _text_ 
+00:00 +0 -1: MarkdownConverter should apply italic style on _text_  [E]
+  Expected: 'Italic'
+    Actual: 'Italic '
+     Which: is different. Both strings start the same, but the actual value also has the following trailing characters:  
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\editor\markdown_converter_test.dart 31:7       main.<fn>.<fn>
+  
+00:00 +0 -1: Some tests failed.

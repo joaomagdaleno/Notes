@@ -1,0 +1,936 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/auth_service_test.dart
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/chaos_resilience_test.dart: UpdateService Resilience (Chaos) handles timeout gracefully
+00:00 +1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/chaos_resilience_test.dart: UpdateService Resilience (Chaos) handles server 500 errors gracefully
+00:01 +2: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/coverage_helper_test.dart
+00:05 +2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/coverage_helper_test.dart: coverage helper
+00:07 +3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/document_manipulator_test.dart: DocumentManipulator insertText should add text to an empty document
+00:07 +4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/document_manipulator_test.dart: DocumentManipulator insertText should add text in the middle of existing text
+00:07 +5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/document_manipulator_test.dart: DocumentManipulator deleteText should remove text correctly
+00:07 +6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/document_manipulator_test.dart: DocumentManipulator toggleStyle should apply bold to selected text
+00:07 +7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/document_manipulator_test.dart: DocumentManipulator changeBlockIndent should update block attributes
+00:07 +8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/document_manipulator_test.dart: DocumentManipulator insertImage should add an image block
+00:07 +9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/document_manipulator_test.dart: DocumentManipulator convertBlockToCallout should transform block type
+00:07 +10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/document_manipulator_test.dart: DocumentManipulator toggleList should apply list attribute
+00:08 +11: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart
+00:12 +11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart: (setUpAll)
+00:12 +11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart: EditorWidget types text
+00:13 +12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart: EditorWidget types text
+00:13 +13: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart: EditorWidget types text
+00:13 +14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart: EditorWidget types text
+00:13 +15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart: EditorWidget types text
+00:14 +16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart: EditorWidget handles backspace
+00:14 +17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart: EditorWidget triggers bold shortcut
+00:14 +18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart: (tearDownAll)
+00:15 +18: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/markdown_converter_test.dart
+00:17 +18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/markdown_converter_test.dart: MarkdownConverter should apply bold style on *text* 
+00:17 +19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/markdown_converter_test.dart: MarkdownConverter should apply italic style on _text_ 
+00:17 +20: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/markdown_converter_test.dart: MarkdownConverter should apply heading block on # 
+00:17 +21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/markdown_converter_test.dart: MarkdownConverter should apply checklist on - [ ] 
+00:17 +22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/markdown_converter_test.dart: MarkdownConverter should handle links [text](url)
+00:17 +23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/markdown_converter_test.dart: MarkdownConverter should convert table separator |---|
+00:17 +24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/markdown_converter_test.dart: MarkdownConverter should handle math block $$tex$$
+00:17 +25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/markdown_converter_test.dart: MarkdownConverter should handle transclusion ![[note]]
+00:18 +26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/virtual_text_buffer_test.dart: VirtualTextBuffer should split text blocks by newlines
+00:18 +27: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/virtual_text_buffer_test.dart: VirtualTextBuffer should handle callout blocks with multiple lines
+00:18 +28: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/virtual_text_buffer_test.dart: VirtualTextBuffer getLineTextPositionForOffset should return correct position
+00:18 +29: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/virtual_text_buffer_test.dart: VirtualTextBuffer getOffsetForLineTextPosition should return correct offset
+00:18 +30: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/virtual_text_buffer_test.dart: VirtualTextBuffer should handle non-text blocks as length 1
+00:19 +31: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor_widget_stress_test.dart
+00:22 +31: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor_widget_stress_test.dart: EditorWidget Stress Tests should render a 50,000-word document without crashing
+00:25 +32: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_fluent_test.dart: MyFluentApp UI Tests NotesScreen renders on Windows without crashing
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1100:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1599:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1078:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  NotesScreen renders on Windows without crashing
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:26 +32 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_fluent_test.dart: MyFluentApp UI Tests NotesScreen renders on Windows without crashing [E]
+  Test failed. See exception logs above.
+  The test description was: NotesScreen renders on Windows without crashing
+  
+00:28 +32 -1: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_material_test.dart
+00:31 +32 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_material_test.dart: MyApp Material UI Tests NotesScreen renders on Android without crashing
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1100:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1599:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1078:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  NotesScreen renders on Android without crashing
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:34 +32 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:34 +32 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_material_test.dart: MyApp Material UI Tests NotesScreen renders on Android without crashing [E]
+  Test failed. See exception logs above.
+  The test description was: NotesScreen renders on Android without crashing
+  
+00:41 +33 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +34 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +35 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +36 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +37 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +38 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +39 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +40 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +41 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +42 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +43 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +44 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:45 +45 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:50 +46 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:50 +47 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:50 +48 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:54 +49 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:54 +50 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:54 +51 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:54 +52 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+00:54 +53 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes
+Warning database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+pumpAndSettle timed out
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:717:11)
+<asynchronous suspension>
+#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#2      main._pumpNotesScreen (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:288:5)
+<asynchronous suspension>
+#3      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:294:5)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  NotesScreen displays notes
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:58 +53 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes [E]
+  Test failed. See exception logs above.
+  The test description was: NotesScreen displays notes
+  
+00:58 +53 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+00:58 +53 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen displays notes [E]
+  DatabaseException(error database_closed)
+  package:sqflite_common/src/database_mixin.dart 518:7                      SqfliteDatabaseMixin.checkNotClosed
+  package:sqflite_common/src/database_mixin.dart 147:8                      SqfliteDatabaseExecutorMixin._rawQuery
+  package:sqflite_common/src/database_mixin.dart 140:12                     SqfliteDatabaseExecutorMixin.rawQuery
+  package:sqflite_common/src/database_mixin.dart 128:12                     SqfliteDatabaseExecutorMixin.query
+  package:universal_notes_flutter/repositories/note_repository.dart 480:27  NoteRepository.getAllFolders
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerBinaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 98:7           SyncService._startBackgroundSync.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                _StreamImpl.listen
+  package:universal_notes_flutter/services/sync_service.dart 94:61          SyncService._startBackgroundSync
+  package:universal_notes_flutter/services/sync_service.dart 51:5           SyncService.init
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerUnaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 48:5           SyncService.init
+  test\main_test.dart 259:32                                                main.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerUnaryCallback
+  test\main_test.dart 254:5                                                 main.<fn>
+  
+00:59 +54 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+00:59 +55 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+00:59 +56 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+00:59 +57 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+00:59 +58 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:02 +59 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:02 +60 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:03 +61 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:03 +62 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:06 +63 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:06 +64 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:06 +65 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:09 +66 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:09 +67 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:09 +68 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:09 +69 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:09 +70 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:09 +71 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:09 +72 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:14 +73 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:14 +74 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:14 +75 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:17 +76 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:17 +77 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:17 +78 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:17 +79 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:17 +80 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:17 +81 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:17 +82 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:17 +83 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:17 +84 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:21 +85 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:22 +86 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:22 +87 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:22 +88 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:23 +89 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:23 +90 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:23 +91 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:23 +92 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:23 +93 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:24 +94 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:24 +95 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:27 +96 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:32 +97 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:32 +98 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:33 +99 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:33 +100 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:34 +100 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Android
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AboutScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart:107:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart line 107
+The test description was:
+  returns to SettingsScreen after navigating back on Android
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+01:34 +100 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:34 +100 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Android [E]
+  Test failed. See exception logs above.
+  The test description was: returns to SettingsScreen after navigating back on Android
+  
+01:34 +100 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Windows
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AboutScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart:134:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart line 134
+The test description was:
+  returns to SettingsScreen after navigating back on Windows
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+01:34 +100 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:34 +100 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Windows [E]
+  Test failed. See exception logs above.
+  The test description was: returns to SettingsScreen after navigating back on Windows
+  
+01:34 +100 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:40 +100 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:40 +100 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/autocomplete_service_test.dart: AutocompleteService returns suggestions from all sources in order [E]
+  type 'Null' is not a subtype of type 'Future<List<String>>'
+  test\services\autocomplete_service_test.dart 8:7    MockFirestoreRepository.getFrequentWords
+  test\services\autocomplete_service_test.dart 29:21  main.<fn>.<fn>
+  
+01:45 +101 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:45 +102 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:45 +103 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:45 +104 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:45 +105 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:53 +106 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:55 +107 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+01:58 +108 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:01 +109 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:10 +110 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:17 +111 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:17 +111 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:17 +111 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/event_replayer_test.dart: EventReplayer reconstructs document from insert events [E]
+  Expected: 'Hello World'
+    Actual: ''
+     Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: Hello Worl ...
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\services\event_replayer_test.dart 32:7         main.<fn>.<fn>
+  
+02:18 +111 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:18 +111 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/event_replayer_test.dart: EventReplayer reconstructs document with delete events [E]
+  Expected: 'Hello'
+    Actual: ''
+     Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: Hello
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\services\event_replayer_test.dart 54:7         main.<fn>.<fn>
+  
+02:18 +111 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:18 +111 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/event_replayer_test.dart: EventReplayer handles events out of order by sorting [E]
+  Expected: 'Hello World'
+    Actual: ''
+     Which: is different. Both strings start the same, but the actual value is missing the following trailing characters: Hello Worl ...
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\services\event_replayer_test.dart 76:7         main.<fn>.<fn>
+  
+02:18 +112 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:26 +113 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:34 +114 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:34 +115 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:34 +116 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:34 +117 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:39 +118 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:39 +119 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:39 +120 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:43 +120 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:43 +120 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/tag_suggestion_service_test.dart: TagSuggestionService should suggest tags found in document text [E]
+  Expected: contains all of ['flutter', 'dart']
+    Actual: MappedListIterable<Tag, String>:['Flutter', 'Dart']
+     Which: has no match for 'flutter' at index 0 along with 1 other unmatched
+  
+  package:matcher                                      expect
+  test\services\tag_suggestion_service_test.dart 28:7  main.<fn>.<fn>
+  
+02:43 +121 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:43 +122 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:43 +123 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:46 +124 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:46 +124 -11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:46 +124 -11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/tracing_service_test.dart: TracingService should start a span with the given name [E]
+  Bad state: A global TracerProvider has already been created. registerGlobalTracerProvider must be called only once before any calls to the getter globalTracerProvider.
+  package:opentelemetry/src/api/open_telemetry.dart 29:5              registerGlobalTracerProvider
+  package:universal_notes_flutter/services/tracing_service.dart 25:5  TracingService.init
+  test\services\tracing_service_test.dart 9:35                        main.<fn>.<fn>
+  
+02:46 +124 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:46 +124 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/tracing_service_test.dart: TracingService singleton instance should be shared [E]
+  Bad state: A global TracerProvider has already been created. registerGlobalTracerProvider must be called only once before any calls to the getter globalTracerProvider.
+  package:opentelemetry/src/api/open_telemetry.dart 29:5              registerGlobalTracerProvider
+  package:universal_notes_flutter/services/tracing_service.dart 25:5  TracingService.init
+  test\services\tracing_service_test.dart 9:35                        main.<fn>.<fn>
+  
+02:49 +125 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +126 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +127 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +128 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +129 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +130 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +131 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +132 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +133 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +134 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +135 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +136 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +137 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +138 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:49 +139 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:54 +140 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:57 +141 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:57 +142 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:57 +143 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:57 +144 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:57 +145 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+02:57 +146 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:00 +147 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:00 +148 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:00 +149 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:00 +150 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:00 +151 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:05 +152 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:05 +153 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:05 +154 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:05 +155 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:05 +156 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:06 +157 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:06 +158 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:06 +159 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:06 +160 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:06 +161 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:06 +162 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:06 +163 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:11 +164 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:11 +165 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:11 +166 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:11 +167 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:11 +168 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:11 +169 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:11 +170 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:11 +171 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:11 +172 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:17 +173 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:17 +174 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+../../../../AppData/Local/Pub/Cache/hosted/pub.dev/alchemist-0.8.0/lib/src/blocked_text_image.dart:65:7: Error: The non-abstract class 'BlockedTextCanvasAdapter' is missing implementations for these members:
+ - Canvas.clipRSuperellipse
+ - Canvas.drawRSuperellipse
+Try to either
+ - provide an implementation,
+ - inherit an implementation from a superclass or mixin,
+ - mark the class as abstract, or
+ - provide a 'noSuchMethod' implementation.
+class BlockedTextCanvasAdapter implements Canvas {
+      ^^^^^^^^^^^^^^^^^^^^^^^^
+org-dartlang-sdk:///flutter/lib/ui/painting.dart:5967:8: Context: 'Canvas.clipRSuperellipse' is defined here.
+  void clipRSuperellipse(RSuperellipse rsuperellipse, {bool doAntiAlias = true});
+       ^^^^^^^^^^^^^^^^^
+org-dartlang-sdk:///flutter/lib/ui/painting.dart:6097:8: Context: 'Canvas.drawRSuperellipse' is defined here.
+  void drawRSuperellipse(RSuperellipse rsuperellipse, Paint paint);
+       ^^^^^^^^^^^^^^^^^
+03:21 +174 -13: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_golden_test.dart [E]
+  Failed to load "C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_golden_test.dart":
+  Compilation failed for testPath=C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_golden_test.dart: ../../../../AppData/Local/Pub/Cache/hosted/pub.dev/alchemist-0.8.0/lib/src/blocked_text_image.dart:65:7: Error: The non-abstract class 'BlockedTextCanvasAdapter' is missing implementations for these members:
+   - Canvas.clipRSuperellipse
+   - Canvas.drawRSuperellipse
+  Try to either
+   - provide an implementation,
+   - inherit an implementation from a superclass or mixin,
+   - mark the class as abstract, or
+   - provide a 'noSuchMethod' implementation.
+  class BlockedTextCanvasAdapter implements Canvas {
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+  org-dartlang-sdk:///flutter/lib/ui/painting.dart:5967:8: Context: 'Canvas.clipRSuperellipse' is defined here.
+    void clipRSuperellipse(RSuperellipse rsuperellipse, {bool doAntiAlias = true});
+         ^^^^^^^^^^^^^^^^^
+  org-dartlang-sdk:///flutter/lib/ui/painting.dart:6097:8: Context: 'Canvas.drawRSuperellipse' is defined here.
+    void drawRSuperellipse(RSuperellipse rsuperellipse, Paint paint);
+         ^^^^^^^^^^^^^^^^^
+  .
+03:34 +174 -13: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_test.dart: FluentNoteCard displays title and content preview for valid content
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "This is a test note.": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_test.dart:39:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_test.dart line 39
+The test description was:
+  displays title and content preview for valid content
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+03:34 +174 -14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:34 +174 -14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_test.dart: FluentNoteCard displays title and content preview for valid content [E]
+  Test failed. See exception logs above.
+  The test description was: displays title and content preview for valid content
+  
+03:34 +174 -14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_test.dart: FluentNoteCard displays fallback text for invalid content
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "...": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_test.dart:58:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_test.dart line 58
+The test description was:
+  displays fallback text for invalid content
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+03:34 +174 -15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:34 +174 -15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card_test.dart: FluentNoteCard displays fallback text for invalid content [E]
+  Test failed. See exception logs above.
+  The test description was: displays fallback text for invalid content
+  
+03:34 +175 -15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:34 +176 -15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:40 +176 -15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: NoteCard displays note
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Test Note": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart:30:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart line 30
+The test description was:
+  NoteCard displays note
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+03:40 +176 -16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:40 +176 -16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: NoteCard displays note [E]
+  Test failed. See exception logs above.
+  The test description was: NoteCard displays note
+  
+03:40 +177 -16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:40 +177 -16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: tapping NoteCard navigates to NoteEditorScreen when onTap null
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "NoteEditorScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart:105:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart line 105
+The test description was:
+  tapping NoteCard navigates to NoteEditorScreen when onTap null
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+03:40 +177 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:40 +177 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card_test.dart: tapping NoteCard navigates to NoteEditorScreen when onTap null [E]
+  Test failed. See exception logs above.
+  The test description was: tapping NoteCard navigates to NoteEditorScreen when onTap null
+  
+03:41 +178 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:47 +179 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:48 +180 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:48 +181 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:48 +182 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:49 +182 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart: tapping NoteSimpleListTile navigates to editor when onTap is null
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY WIDGETS LIBRARY Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following FirebaseException was thrown building Builder:
+[core/no-app] No Firebase App '[DEFAULT]' has been created - call Firebase.initializeApp()
+
+The relevant error-causing widget was:
+  MaterialApp
+  MaterialApp:file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart:109:9
+
+When the exception was thrown, this was the stack:
+#0      MethodChannelFirebase.app (package:firebase_core_platform_interface/src/method_channel/method_channel_firebase.dart:190:5)
+#1      Firebase.app (package:firebase_core/src/firebase.dart:91:41)
+#2      FirebaseStorage.instance (package:firebase_storage/src/firebase_storage.dart:51:21)
+#3      new StorageService (package:universal_notes_flutter/services/storage_service.dart:10:52)
+#4      new _NoteEditorScreenState (package:universal_notes_flutter/screens/note_editor_screen.dart:93:42)
+#5      NoteEditorScreen.createState (package:universal_notes_flutter/screens/note_editor_screen.dart:59:44)
+#6      new StatefulElement (package:flutter/src/widgets/framework.dart:5905:60)
+#7      StatefulWidget.createElement (package:flutter/src/widgets/framework.dart:779:38)
+...     Normal element mounting (260 frames)
+#267    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#268    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
+#269    Element.updateChild (package:flutter/src/widgets/framework.dart:4059:18)
+#270    Element.updateChildren (package:flutter/src/widgets/framework.dart:4258:32)
+#271    MultiChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7302:17)
+#272    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#273    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#274    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#275    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#276    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#277    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#278    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#279    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#280    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#281    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#282    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#283    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#284    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#285    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#286    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#287    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#288    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#289    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#290    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#291    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#292    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#293    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#294    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#295    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#296    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#297    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#298    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#299    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#300    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#301    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#302    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#303    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#304    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#305    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#306    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#307    SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7125:14)
+#308    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#309    SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7125:14)
+#310    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#311    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#312    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#313    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#314    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#315    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#316    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#317    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#318    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#319    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#320    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#321    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#322    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#323    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#324    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#325    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
+#326    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#327    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#328    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#329    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#332    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#333    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#334    WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:719:23)
+#337    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#338    WidgetTester.pumpAndSettle (package:flutter_test/src/widget_tester.dart:712:27)
+#339    main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart:125:20)
+<asynchronous suspension>
+#340    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#341    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "NoteEditorScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart:128:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart line 128
+The test description was:
+  tapping NoteSimpleListTile navigates to editor when onTap is null
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+03:49 +182 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails
+03:49 +182 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart: tapping NoteSimpleListTile navigates to editor when onTap is null [E]
+  Test failed. See exception logs above.
+  The test description was: tapping NoteSimpleListTile navigates to editor when onTap is null
+  
+../../../../AppData/Local/Pub/Cache/hosted/pub.dev/alchemist-0.8.0/lib/src/blocked_text_image.dart:65:7: Error: The non-abstract class 'BlockedTextCanvasAdapter' is missing implementations for these members:
+ - Canvas.clipRSuperellipse
+ - Canvas.drawRSuperellipse
+Try to either
+ - provide an implementation,
+ - inherit an implementation from a superclass or mixin,
+ - mark the class as abstract, or
+ - provide a 'noSuchMethod' implementation.
+class BlockedTextCanvasAdapter implements Canvas {
+      ^^^^^^^^^^^^^^^^^^^^^^^^
+org-dartlang-sdk:///flutter/lib/ui/painting.dart:5967:8: Context: 'Canvas.clipRSuperellipse' is defined here.
+  void clipRSuperellipse(RSuperellipse rsuperellipse, {bool doAntiAlias = true});
+       ^^^^^^^^^^^^^^^^^
+org-dartlang-sdk:///flutter/lib/ui/painting.dart:6097:8: Context: 'Canvas.drawRSuperellipse' is defined here.
+  void drawRSuperellipse(RSuperellipse rsuperellipse, Paint paint);
+       ^^^^^^^^^^^^^^^^^
+03:52 +182 -19: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/simple_fluent_golden_test.dart [E]
+  Failed to load "C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/simple_fluent_golden_test.dart":
+  Compilation failed for testPath=C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/simple_fluent_golden_test.dart: ../../../../AppData/Local/Pub/Cache/hosted/pub.dev/alchemist-0.8.0/lib/src/blocked_text_image.dart:65:7: Error: The non-abstract class 'BlockedTextCanvasAdapter' is missing implementations for these members:
+   - Canvas.clipRSuperellipse
+   - Canvas.drawRSuperellipse
+  Try to either
+   - provide an implementation,
+   - inherit an implementation from a superclass or mixin,
+   - mark the class as abstract, or
+   - provide a 'noSuchMethod' implementation.
+  class BlockedTextCanvasAdapter implements Canvas {
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+  org-dartlang-sdk:///flutter/lib/ui/painting.dart:5967:8: Context: 'Canvas.clipRSuperellipse' is defined here.
+    void clipRSuperellipse(RSuperellipse rsuperellipse, {bool doAntiAlias = true});
+         ^^^^^^^^^^^^^^^^^
+  org-dartlang-sdk:///flutter/lib/ui/painting.dart:6097:8: Context: 'Canvas.drawRSuperellipse' is defined here.
+    void drawRSuperellipse(RSuperellipse rsuperellipse, Paint paint);
+         ^^^^^^^^^^^^^^^^^
+  .
+../../../../AppData/Local/Pub/Cache/hosted/pub.dev/alchemist-0.8.0/lib/src/blocked_text_image.dart:65:7: Error: The non-abstract class 'BlockedTextCanvasAdapter' is missing implementations for these members:
+ - Canvas.clipRSuperellipse
+ - Canvas.drawRSuperellipse
+Try to either
+ - provide an implementation,
+ - inherit an implementation from a superclass or mixin,
+ - mark the class as abstract, or
+ - provide a 'noSuchMethod' implementation.
+class BlockedTextCanvasAdapter implements Canvas {
+      ^^^^^^^^^^^^^^^^^^^^^^^^
+org-dartlang-sdk:///flutter/lib/ui/painting.dart:5967:8: Context: 'Canvas.clipRSuperellipse' is defined here.
+  void clipRSuperellipse(RSuperellipse rsuperellipse, {bool doAntiAlias = true});
+       ^^^^^^^^^^^^^^^^^
+org-dartlang-sdk:///flutter/lib/ui/painting.dart:6097:8: Context: 'Canvas.drawRSuperellipse' is defined here.
+  void drawRSuperellipse(RSuperellipse rsuperellipse, Paint paint);
+       ^^^^^^^^^^^^^^^^^
+03:58 +182 -20: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/standard_golden_test.dart [E]
+  Failed to load "C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/standard_golden_test.dart":
+  Compilation failed for testPath=C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/standard_golden_test.dart: ../../../../AppData/Local/Pub/Cache/hosted/pub.dev/alchemist-0.8.0/lib/src/blocked_text_image.dart:65:7: Error: The non-abstract class 'BlockedTextCanvasAdapter' is missing implementations for these members:
+   - Canvas.clipRSuperellipse
+   - Canvas.drawRSuperellipse
+  Try to either
+   - provide an implementation,
+   - inherit an implementation from a superclass or mixin,
+   - mark the class as abstract, or
+   - provide a 'noSuchMethod' implementation.
+  class BlockedTextCanvasAdapter implements Canvas {
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+  org-dartlang-sdk:///flutter/lib/ui/painting.dart:5967:8: Context: 'Canvas.clipRSuperellipse' is defined here.
+    void clipRSuperellipse(RSuperellipse rsuperellipse, {bool doAntiAlias = true});
+         ^^^^^^^^^^^^^^^^^
+  org-dartlang-sdk:///flutter/lib/ui/painting.dart:6097:8: Context: 'Canvas.drawRSuperellipse' is defined here.
+    void drawRSuperellipse(RSuperellipse rsuperellipse, Paint paint);
+         ^^^^^^^^^^^^^^^^^
+  .
+10:58 +182 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows error message when fetch fails [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+10:58 +182 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows empty state when no notes exist
+11:08 +182 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering shows empty state when no notes exist [E]
+  Exception: Fetch failed
+  dart:async                                                        new Stream.error
+  test\main_test.dart 311:34                                        main.<fn>.<fn>.<fn>
+  package:mockito/src/mock.dart 194:47                              Mock.noSuchMethod
+  test\main_test.dart 43:18                                         MockFirestoreRepository.notesStream
+  package:universal_notes_flutter/services/sync_service.dart 94:47  SyncService._startBackgroundSync
+  package:universal_notes_flutter/services/sync_service.dart 51:5   SyncService.init
+  ===== asynchronous gap ===========================
+  dart:async                                                        _CustomZone.registerUnaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 48:5   SyncService.init
+  test\main_test.dart 259:32                                        main.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                        _CustomZone.registerUnaryCallback
+  test\main_test.dart 254:5                                         main.<fn>
+  
+Warning database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+pumpAndSettle timed out
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:717:11)
+<asynchronous suspension>
+#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#2      main._pumpNotesScreen (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:288:5)
+<asynchronous suspension>
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:324:7)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  shows empty state when no notes exist
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+  Test failed. See exception logs above.
+  The test description was: shows empty state when no notes exist
+  
+11:08 +182 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering displays notes when available
+11:09 +182 -23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen State Rendering displays notes when available [E]
+  Exception: Fetch failed
+  dart:async                                                        new Stream.error
+  test\main_test.dart 311:34                                        main.<fn>.<fn>.<fn>
+  package:mockito/src/mock.dart 194:47                              Mock.noSuchMethod
+  test\main_test.dart 43:18                                         MockFirestoreRepository.notesStream
+  package:universal_notes_flutter/services/sync_service.dart 94:47  SyncService._startBackgroundSync
+  package:universal_notes_flutter/services/sync_service.dart 51:5   SyncService.init
+  ===== asynchronous gap ===========================
+  dart:async                                                        _CustomZone.registerUnaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 48:5   SyncService.init
+  test\main_test.dart 259:32                                        main.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                        _CustomZone.registerUnaryCallback
+  test\main_test.dart 254:5                                         main.<fn>
+  
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+21:09 +182 -23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen View Modes cycles through view modes when button is tapped
+Warning database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+pumpAndSettle timed out
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:717:11)
+<asynchronous suspension>
+#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#2      main._pumpNotesScreen (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:288:5)
+<asynchronous suspension>
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:348:7)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  cycles through view modes when button is tapped
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+21:19 +182 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen View Modes cycles through view modes when button is tapped [E]
+  Test failed. See exception logs above.
+  The test description was: cycles through view modes when button is tapped
+  
+21:19 +182 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Note Filtering shows only non-trash notes by default
+31:19 +182 -25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Note Filtering shows only non-trash notes by default [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+31:19 +182 -25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Note Filtering filters favorites correctly
+41:19 +182 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Note Filtering filters favorites correctly [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+41:19 +182 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Navigation FAB navigates to note editor
+Warning database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+pumpAndSettle timed out
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:717:11)
+<asynchronous suspension>
+#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#2      main._pumpNotesScreen (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:288:5)
+<asynchronous suspension>
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:467:7)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  FAB navigates to note editor
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+41:28 +182 -27: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Navigation FAB navigates to note editor [E]
+  Test failed. See exception logs above.
+  The test description was: FAB navigates to note editor
+  
+41:28 +182 -27: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Navigation shows Sidebar on mobile layout (Fluent UI)
+Warning database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+pumpAndSettle timed out
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:717:11)
+<asynchronous suspension>
+#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#2      main._pumpNotesScreen (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:288:5)
+<asynchronous suspension>
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:480:7)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  shows Sidebar on mobile layout (Fluent UI)
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+41:37 +182 -28: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Navigation shows Sidebar on mobile layout (Fluent UI) [E]
+  Test failed. See exception logs above.
+  The test description was: shows Sidebar on mobile layout (Fluent UI)
+  
+41:37 +182 -28: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen AppBar shows correct title for default index
+Warning database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+pumpAndSettle timed out
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:717:11)
+<asynchronous suspension>
+#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#2      main._pumpNotesScreen (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:288:5)
+<asynchronous suspension>
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:491:7)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  shows correct title for default index
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+41:46 +182 -29: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen AppBar shows correct title for default index [E]
+  Test failed. See exception logs above.
+  The test description was: shows correct title for default index
+  
+41:46 +182 -29: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Error State shows error message when future fails

@@ -139,6 +139,7 @@ class EditorWidget extends StatefulWidget {
 class EditorWidgetState extends State<EditorWidget> {
   late EditorPersona _activePersona;
   final FocusNode _focusNode = FocusNode();
+  FocusNode get focusNode => _focusNode;
   late TextSelection _selection;
   late VirtualTextBuffer _buffer;
   final Map<int, GlobalKey> _lineKeys = {};
@@ -1211,14 +1212,18 @@ class _EditorLine extends StatelessWidget {
   final bool softWrap;
   final ValueChanged<String>? onLinkTap;
 
-  int _getOffsetForPosition(BuildContext context, Offset localPosition) {
+  int _getOffsetForPosition(
+    BuildContext context,
+    Offset localPosition,
+    double maxWidth,
+  ) {
     if (line is! TextLine) return 0;
 
     final textLine = line as TextLine;
     final painter = TextPainter(
       text: textLine.toTextSpan(),
       textDirection: TextDirection.ltr,
-    )..layout(maxWidth: context.size!.width);
+    )..layout(maxWidth: maxWidth);
 
     final position = painter.getPositionForOffset(localPosition);
     return buffer.getOffsetForLineTextPosition(
@@ -1226,21 +1231,45 @@ class _EditorLine extends StatelessWidget {
     );
   }
 
-  void _handleTapDown(BuildContext context, TapDownDetails details) {
+  void _handleTapDown(
+    BuildContext context,
+    TapDownDetails details,
+    double maxWidth,
+  ) {
     if (line is! TextLine) return;
-    final offset = _getOffsetForPosition(context, details.localPosition);
+    final offset = _getOffsetForPosition(
+      context,
+      details.localPosition,
+      maxWidth,
+    );
     onTapDown(details, lineIndex, TextSelection.collapsed(offset: offset));
   }
 
-  void _handlePanStart(BuildContext context, DragStartDetails details) {
+  void _handlePanStart(
+    BuildContext context, {
+    required DragStartDetails details,
+    required double maxWidth,
+  }) {
     if (line is! TextLine) return;
-    final offset = _getOffsetForPosition(context, details.localPosition);
+    final offset = _getOffsetForPosition(
+      context,
+      details.localPosition,
+      maxWidth,
+    );
     onPanStart(details, lineIndex, TextSelection.collapsed(offset: offset));
   }
 
-  void _handlePanUpdate(BuildContext context, DragUpdateDetails details) {
+  void _handlePanUpdate(
+    BuildContext context, {
+    required DragUpdateDetails details,
+    required double maxWidth,
+  }) {
     if (line is! TextLine) return;
-    final offset = _getOffsetForPosition(context, details.localPosition);
+    final offset = _getOffsetForPosition(
+      context,
+      details.localPosition,
+      maxWidth,
+    );
     onPanUpdate(details, lineIndex, selection.copyWith(extentOffset: offset));
   }
 
@@ -1267,440 +1296,425 @@ class _EditorLine extends StatelessWidget {
   }
 
   Widget _buildText(BuildContext context, TextLine line) {
-    // 1. Calculate geometry helper values
-    final lineStartOffset = buffer.getOffsetForLineTextPosition(
-      LineTextPosition(line: lineIndex, character: 0),
-    );
-    final lineLength = line.toPlainText().length;
-    final lineEndOffset = lineStartOffset + lineLength;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
 
-    // 2. Check if we need to render cursor or selection
-    final cursorPosition = buffer.getLineTextPositionForOffset(
-      selection.baseOffset,
-    );
-    final isCursorInThisLine =
-        selection.isCollapsed && cursorPosition.line == lineIndex;
+        // 1. Calculate geometry helper values
+        final lineStartOffset = buffer.getOffsetForLineTextPosition(
+          LineTextPosition(line: lineIndex, character: 0),
+        );
+        final lineLength = line.toPlainText().length;
+        final lineEndOffset = lineStartOffset + lineLength;
 
-    // Strict intersection check
-    final hasSelection =
-        selection.isValid &&
-        !selection.isCollapsed &&
-        selection.start < lineEndOffset &&
-        selection.end > lineStartOffset;
+        // 2. Check if we need to render cursor or selection
+        final cursorPosition = buffer.getLineTextPositionForOffset(
+          selection.baseOffset,
+        );
+        final isCursorInThisLine =
+            selection.isCollapsed && cursorPosition.line == lineIndex;
 
-    // --- Prepare visual wrapping based on attributes ---
-    final attributes = line.attributes;
-    final blockType = attributes['blockType'] as String?;
-    final textAlignStr = attributes['textAlign'] as String? ?? 'left';
-    final indentLevel = attributes['indent'] as int? ?? 0;
+        // Strict intersection check
+        final hasSelection =
+            selection.isValid &&
+            !selection.isCollapsed &&
+            selection.start < lineEndOffset &&
+            selection.end > lineStartOffset;
 
-    TextAlign textAlign;
-    switch (textAlignStr) {
-      case 'center':
-        textAlign = TextAlign.center;
-      case 'right':
-        textAlign = TextAlign.right;
-      case 'justify':
-        textAlign = TextAlign.justify;
-      case 'left':
-      default:
-        textAlign = TextAlign.left;
-    }
+        // --- Prepare visual wrapping based on attributes ---
+        final attributes = line.attributes;
+        final blockType = attributes['blockType'] as String?;
+        final textAlignStr = attributes['textAlign'] as String? ?? 'left';
 
-    // Indentation padding
-    final indentPadding = indentLevel * 24.0;
+        TextAlign textAlign;
+        switch (textAlignStr) {
+          case 'center':
+            textAlign = TextAlign.center;
+          case 'right':
+            textAlign = TextAlign.right;
+          case 'justify':
+            textAlign = TextAlign.justify;
+          case 'left':
+          default:
+            textAlign = TextAlign.left;
+        }
 
-    Widget content;
-
-    // 4. Perform expensive layout only if needed (moved up for wrapping)
-    // We need TextSpan to apply line-level styles (like heading size) if not
-    // handled in model. Actually, headings might handled by model attributes?
-    // No, we store 'level' in block attributes, not span attributes.
-    // So we need to scale the text here.
-
-    var textSpan = TextSpan(
-      style: DefaultTextStyle.of(context).style,
-      children: line.spans
-          .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
-          .toList(),
-    );
-
-    if (blockType == 'heading') {
-      final level = attributes['level'] as int? ?? 1;
-      final fontSize = 32.0 - (level * 4); // Simple scaling
-      textSpan = TextSpan(
-        text: textSpan.text,
-        children: textSpan.children,
-        style: (textSpan.style ?? const TextStyle()).copyWith(
-          fontSize: fontSize,
-          fontWeight: FontWeight.bold,
-        ),
-      );
-    }
-
-    if (blockType == 'code-block') {
-      textSpan = TextSpan(
-        text: textSpan.text,
-        children: textSpan.children,
-        style: (textSpan.style ?? const TextStyle()).copyWith(
-          fontFamily: 'monospace',
-          color: Colors.grey[800],
-        ),
-      );
-    }
-
-    // 3. Early return optimization
-    final painter =
-        TextPainter(
-          text: textSpan,
-          textAlign: textAlign,
-          textDirection: TextDirection.ltr,
-        )..layout(
-          maxWidth: softWrap
-              ? (context.size?.width ?? double.infinity)
-              : double.infinity,
+        var textSpan = TextSpan(
+          style: DefaultTextStyle.of(context).style,
+          children: line.spans
+              .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
+              .toList(),
         );
 
-    final selectionBoxes = <Widget>[];
-    if (hasSelection) {
-      final selectionStart = math.max(lineStartOffset, selection.start);
-      final selectionEnd = math.min(lineEndOffset, selection.end);
-
-      final localSelection = TextSelection(
-        baseOffset: selectionStart - lineStartOffset,
-        extentOffset: selectionEnd - lineStartOffset,
-      );
-
-      selectionBoxes.addAll(
-        painter
-            .getBoxesForSelection(localSelection)
-            .map(
-              (box) => Positioned(
-                left: box.left,
-                top: box.top,
-                width: box.right - box.left,
-                height: box.bottom - box.top,
-                child: Container(color: Colors.blue.withValues(alpha: 0.3)),
-              ),
+        if (blockType == 'heading') {
+          final level = attributes['level'] as int? ?? 1;
+          final fontSize = 32.0 - (level * 4); // Simple scaling
+          textSpan = TextSpan(
+            text: textSpan.text,
+            children: textSpan.children,
+            style: (textSpan.style ?? const TextStyle()).copyWith(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
             ),
-      );
-    }
-
-    // Core text widget (Stack of text + selection + cursor)
-    final Widget textStack = Padding(
-      padding: EdgeInsets.only(left: indentPadding),
-      child: Stack(
-        children: [
-          RichText(
-            text: textSpan,
-            textAlign: textAlign,
-            softWrap: softWrap,
-            overflow: softWrap ? TextOverflow.clip : TextOverflow.visible,
-          ),
-          ...selectionBoxes,
-          if (isCursorInThisLine && showCursor)
-            Positioned.fromRect(
-              rect:
-                  painter.getOffsetForCaret(
-                    TextPosition(offset: cursorPosition.character),
-                    Rect.zero,
-                  ) &
-                  Size(2, painter.preferredLineHeight),
-              child: Container(color: Colors.blue),
-            ),
-        ],
-      ),
-    );
-
-    // --- Apply Block Decorations ---
-    // --- Determine Content Based on Block Type ---
-    if (attributes['blockType'] == 'drawing') {
-      // We need the actual block from the model, but Line is from
-      // VirtualTextBuffer. VirtualTextBuffer lines map to model blocks, but
-      // we might have lost the direct reference unless we store block index
-      // or the block object in attributes.
-      // Actually DocumentModel.toJson re-creates blocks.
-      // Warning: VirtualTextBuffer might not fully support non-text blocks
-      // yet if it splits them. Assuming Block-Per-Line for drawings.
-
-      final strokesRaw = attributes['strokes'] as List<dynamic>? ?? [];
-      final strokes = strokesRaw
-          .map((e) => Stroke.fromJson(e as Map<String, dynamic>))
-          .toList();
-      final height = (attributes['height'] as num?)?.toDouble() ?? 200.0;
-
-      content = InteractiveDrawingBlock(
-        strokes: strokes,
-        height: height,
-        isDrawingMode: isDrawingMode,
-        onStrokeAdded: (stroke) {
-          onStrokeAdded?.call(stroke);
-        },
-        onStrokeRemoved: (stroke) {
-          onStrokeRemoved?.call(stroke);
-        },
-        currentColor: currentColor,
-        currentStrokeWidth: currentStrokeWidth,
-      );
-    } else if (blockType == 'quote') {
-      content = Container(
-        decoration: const BoxDecoration(
-          border: Border(left: BorderSide(color: Colors.grey, width: 4)),
-        ),
-        padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
-        child: textStack, // Text itself is italic? Model could handle, or here.
-      );
-    } else if (blockType == 'code-block') {
-      content = Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: textStack,
-      );
-    } else if (blockType == 'unordered-list') {
-      content = Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(
-            width: 24,
-            child: Text('•', style: TextStyle(fontSize: 24, height: 1)),
-          ),
-          Expanded(child: textStack),
-        ],
-      );
-    } else if (blockType == 'ordered-list') {
-      // Smart numbering logic: scan backwards for preceding list items.
-      var listIndex = 1;
-      for (var i = lineIndex - 1; i >= 0; i--) {
-        final prevLine = buffer.lines[i];
-        if (prevLine is TextLine &&
-            prevLine.attributes['blockType'] == 'ordered-list') {
-          listIndex++;
-        } else {
-          break;
+          );
         }
-      }
 
-      content = Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 24,
-            child: Text(
-              '$listIndex.',
-              style: const TextStyle(fontSize: 16, height: 1.5),
+        if (blockType == 'code-block') {
+          textSpan = TextSpan(
+            text: textSpan.text,
+            children: textSpan.children,
+            style: (textSpan.style ?? const TextStyle()).copyWith(
+              fontFamily: 'monospace',
+              color: Colors.grey[800],
             ),
-          ),
-          Expanded(child: textStack),
-        ],
-      );
-    } else if (blockType == 'checklist') {
-      final isChecked = attributes['checked'] as bool? ?? false;
-      content = Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () {
-              onCheckboxTap?.call(lineStartOffset);
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8, top: 2),
-              child: Icon(
-                isChecked ? Icons.check_box : Icons.check_box_outline_blank,
-                size: 20,
-                color: isChecked ? Colors.grey : Colors.black87,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Opacity(opacity: isChecked ? 0.5 : 1.0, child: textStack),
-          ),
-        ],
-      );
-    } else if (line is CalloutLine) {
-      final type = line.type;
+          );
+        }
 
-      Color color;
-      IconData icon;
+        // 3. Early return optimization
+        final painter =
+            TextPainter(
+              text: textSpan,
+              textAlign: textAlign,
+              textDirection: TextDirection.ltr,
+            )..layout(
+              maxWidth: softWrap ? maxWidth : double.infinity,
+            );
 
-      switch (type) {
-        case CalloutType.note:
-          color = Colors.blue;
-          icon = Icons.info;
-        case CalloutType.tip:
-          color = Colors.green;
-          icon = Icons.lightbulb;
-        case CalloutType.warning:
-          color = Colors.orange;
-          icon = Icons.warning;
-        case CalloutType.danger:
-          color = Colors.red;
-          icon = Icons.error;
-        case CalloutType.info:
-          color = Colors.lightBlue;
-          icon = Icons.info_outline;
-        case CalloutType.success:
-          color = Colors.greenAccent;
-          icon = Icons.check_circle;
-      }
+        final selectionBoxes = <Widget>[];
+        if (hasSelection) {
+          final selectionStart = math.max(lineStartOffset, selection.start);
+          final selectionEnd = math.min(lineEndOffset, selection.end);
 
-      const iconSize = 20.0;
-      const spacing = 12.0;
+          final localSelection = TextSelection(
+            baseOffset: selectionStart - lineStartOffset,
+            extentOffset: selectionEnd - lineStartOffset,
+          );
 
-      var inner = textStack;
-      if (line.isFirst) {
-        inner = Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          selectionBoxes.addAll(
+            painter
+                .getBoxesForSelection(localSelection)
+                .map(
+                  (box) => Positioned(
+                    left: box.left,
+                    top: box.top,
+                    width: box.right - box.left,
+                    height: box.bottom - box.top,
+                    child: Container(color: Colors.blue.withValues(alpha: 0.3)),
+                  ),
+                ),
+          );
+        }
+
+        // Core text widget (Stack of text + selection + cursor)
+        final Widget textStack = Stack(
           children: [
-            Icon(icon, color: color, size: iconSize),
-            const SizedBox(width: spacing),
-            Expanded(child: textStack),
+            RichText(
+              text: textSpan,
+              textAlign: textAlign,
+              softWrap: softWrap,
+              overflow: softWrap ? TextOverflow.clip : TextOverflow.visible,
+            ),
+            ...selectionBoxes,
+            if (isCursorInThisLine && showCursor)
+              Positioned.fromRect(
+                rect:
+                    painter.getOffsetForCaret(
+                      TextPosition(offset: cursorPosition.character),
+                      Rect.zero,
+                    ) &
+                    Size(2, painter.preferredLineHeight),
+                child: Container(color: Colors.blue),
+              ),
           ],
         );
-      } else {
-        inner = Padding(
-          padding: const EdgeInsets.only(left: iconSize + spacing),
-          child: textStack,
-        );
-      }
 
-      content = Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          border: Border(
-            left: BorderSide(color: color, width: 4),
-            top: line.isFirst
-                ? BorderSide(color: color.withValues(alpha: 0.1))
-                : BorderSide.none,
-            bottom: line.isLast
-                ? BorderSide(color: color.withValues(alpha: 0.1))
-                : BorderSide.none,
-            right: BorderSide(color: color.withValues(alpha: 0.1)),
-          ),
-          borderRadius: BorderRadius.only(
-            topLeft: line.isFirst ? const Radius.circular(4) : Radius.zero,
-            topRight: line.isFirst ? const Radius.circular(4) : Radius.zero,
-            bottomLeft: line.isLast ? const Radius.circular(4) : Radius.zero,
-            bottomRight: line.isLast ? const Radius.circular(4) : Radius.zero,
-          ),
-        ),
-        padding: EdgeInsets.fromLTRB(
-          12,
-          line.isFirst ? 12 : 4,
-          12,
-          line.isLast ? 12 : 4,
-        ),
-        child: inner,
-      );
-    } else if (line is TableLine) {
-      content = Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Table(
-          border: TableBorder.all(
-            color: Colors.grey.withValues(alpha: 0.3),
-          ),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          children: (line as TableLine).rows.map((row) {
-            return TableRow(
-              decoration: row.any((c) => c.isHeader)
-                  ? BoxDecoration(color: Colors.grey.withValues(alpha: 0.05))
-                  : null,
-              children: row.map((cell) {
-                return Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: RichText(
-                    text: TextSpan(
-                      style:
-                          (Theme.of(context).textTheme.bodyMedium ??
-                                  const TextStyle())
-                              .copyWith(
-                                fontWeight: cell.isHeader
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                      children: cell.content
-                          .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
-                          .toList(),
-                    ),
+        Widget content;
+
+        // --- Apply Block Decorations ---
+        if (attributes['blockType'] == 'drawing') {
+          final strokesRaw = attributes['strokes'] as List<dynamic>? ?? [];
+          final strokes = strokesRaw
+              .map((e) => Stroke.fromJson(e as Map<String, dynamic>))
+              .toList();
+          final height = (attributes['height'] as num?)?.toDouble() ?? 200.0;
+
+          content = InteractiveDrawingBlock(
+            strokes: strokes,
+            height: height,
+            isDrawingMode: isDrawingMode,
+            onStrokeAdded: (stroke) => onStrokeAdded?.call(stroke),
+            onStrokeRemoved: (stroke) => onStrokeRemoved?.call(stroke),
+            currentColor: currentColor,
+            currentStrokeWidth: currentStrokeWidth,
+          );
+        } else if (blockType == 'quote') {
+          content = Container(
+            decoration: const BoxDecoration(
+              border: Border(left: BorderSide(color: Colors.grey, width: 4)),
+            ),
+            padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
+            child: textStack,
+          );
+        } else if (blockType == 'code-block') {
+          content = Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: textStack,
+          );
+        } else if (blockType == 'unordered-list') {
+          content = Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(
+                width: 24,
+                child: Text('•', style: TextStyle(fontSize: 24, height: 1)),
+              ),
+              Expanded(child: textStack),
+            ],
+          );
+        } else if (blockType == 'ordered-list') {
+          var listIndex = 1;
+          for (var i = lineIndex - 1; i >= 0; i--) {
+            final prevLine = buffer.lines[i];
+            if (prevLine is TextLine &&
+                prevLine.attributes['blockType'] == 'ordered-list') {
+              listIndex++;
+            } else {
+              break;
+            }
+          }
+
+          content = Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 24,
+                child: Text(
+                  '$listIndex.',
+                  style: const TextStyle(fontSize: 16, height: 1.5),
+                ),
+              ),
+              Expanded(child: textStack),
+            ],
+          );
+        } else if (blockType == 'checklist') {
+          final isChecked = attributes['checked'] as bool? ?? false;
+          content = Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () => onCheckboxTap?.call(lineStartOffset),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8, top: 2),
+                  child: Icon(
+                    isChecked ? Icons.check_box : Icons.check_box_outline_blank,
+                    size: 20,
+                    color: isChecked ? Colors.grey : Colors.black87,
                   ),
+                ),
+              ),
+              Expanded(
+                child: Opacity(
+                  opacity: isChecked ? 0.5 : 1.0,
+                  child: textStack,
+                ),
+              ),
+            ],
+          );
+        } else if (line is CalloutLine) {
+          final type = line.type;
+          Color color;
+          IconData icon;
+          switch (type) {
+            case CalloutType.note:
+              color = Colors.blue;
+              icon = Icons.info;
+            case CalloutType.tip:
+              color = Colors.green;
+              icon = Icons.lightbulb;
+            case CalloutType.warning:
+              color = Colors.orange;
+              icon = Icons.warning;
+            case CalloutType.danger:
+              color = Colors.red;
+              icon = Icons.error;
+            case CalloutType.info:
+              color = Colors.lightBlue;
+              icon = Icons.info_outline;
+            case CalloutType.success:
+              color = Colors.greenAccent;
+              icon = Icons.check_circle;
+          }
+
+          const iconSize = 20.0;
+          const spacing = 12.0;
+
+          var inner = textStack;
+          if (line.isFirst) {
+            inner = Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, color: color, size: iconSize),
+                const SizedBox(width: spacing),
+                Expanded(child: textStack),
+              ],
+            );
+          } else {
+            inner = Padding(
+              padding: const EdgeInsets.only(left: iconSize + spacing),
+              child: textStack,
+            );
+          }
+
+          content = Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              border: Border(
+                left: BorderSide(color: color, width: 4),
+                top: line.isFirst
+                    ? BorderSide(color: color.withValues(alpha: 0.1))
+                    : BorderSide.none,
+                bottom: line.isLast
+                    ? BorderSide(color: color.withValues(alpha: 0.1))
+                    : BorderSide.none,
+                right: BorderSide(color: color.withValues(alpha: 0.1)),
+              ),
+              borderRadius: BorderRadius.only(
+                topLeft: line.isFirst ? const Radius.circular(4) : Radius.zero,
+                topRight: line.isFirst ? const Radius.circular(4) : Radius.zero,
+                bottomLeft: line.isLast
+                    ? const Radius.circular(4)
+                    : Radius.zero,
+                bottomRight: line.isLast
+                    ? const Radius.circular(4)
+                    : Radius.zero,
+              ),
+            ),
+            padding: EdgeInsets.fromLTRB(
+              12,
+              line.isFirst ? 12 : 4,
+              12,
+              line.isLast ? 12 : 4,
+            ),
+            child: inner,
+          );
+        } else if (line is TableLine) {
+          content = Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Table(
+              border: TableBorder.all(
+                color: Colors.grey.withValues(alpha: 0.3),
+              ),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: (line as TableLine).rows.map((row) {
+                return TableRow(
+                  decoration: row.any((c) => c.isHeader)
+                      ? BoxDecoration(
+                          color: Colors.grey.withValues(alpha: 0.05),
+                        )
+                      : null,
+                  children: row.map((cell) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: RichText(
+                        text: TextSpan(
+                          style:
+                              (Theme.of(context).textTheme.bodyMedium ??
+                                      const TextStyle())
+                                  .copyWith(
+                                    fontWeight: cell.isHeader
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                          children: cell.content
+                              .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
+                              .toList(),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 );
               }).toList(),
-            );
-          }).toList(),
-        ),
-      );
-    } else {
-      content = textStack;
-    }
-
-    // Apply Indentation
-    if (indentLevel > 0) {
-      content = Padding(
-        padding: EdgeInsets.only(left: indentPadding),
-        child: content,
-      );
-    }
-
-    // Wrap with highlight if this is the current line
-    final highlightedContent = Container(
-      color: isCurrentLine
-          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
-          : null,
-      child: content,
-    );
-
-    return GestureDetector(
-      onTapDown: (d) {
-        // Handle Link Taps
-        final localTapOffset = d.localPosition;
-
-        // Adjust local position for block padding
-        var effectiveOffset = localTapOffset;
-        if (blockType == 'quote') {
-          effectiveOffset -= const Offset(16, 4);
-        } else if (blockType == 'code-block') {
-          effectiveOffset -= const Offset(8, 8);
-        } else if (blockType == 'unordered-list') {
-          effectiveOffset -= const Offset(24, 0); // approx
+            ),
+          );
+        } else {
+          content = textStack;
         }
 
-        // Find text position from offset
-        final textPosition = painter.getPositionForOffset(effectiveOffset);
-        // final span = textSpan.getSpanForPosition(textPosition);
+        final indentPadding = (attributes['indent'] as int? ?? 0) * 24.0;
+        if (indentPadding > 0) {
+          content = Padding(
+            padding: EdgeInsets.only(left: indentPadding),
+            child: content,
+          );
+        }
 
-        // We can't easily access the TextSpanModel from the Flutter TextSpan
-        // here directly unless we built it with a recognizer or meta-data.
-        // But we iterate line.spans. Simpler: Check the line model logic.
+        // Wrap with highlight if this is the current line
+        final highlightedContent = Container(
+          color: isCurrentLine
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
+              : null,
+          child: content,
+        );
 
-        // Alternative: Use the offset `textPosition.offset` to find the span
-        // model in `line.spans`
-        var currentOffset = 0;
-        for (final s in line.spans) {
-          final len = s.text.length;
-          if (textPosition.offset >= currentOffset &&
-              textPosition.offset < currentOffset + len) {
-            if (s.linkUrl != null) {
-              // It's a link! Open it.
-              final url = Uri.tryParse(s.linkUrl!);
-              if (url != null) {
-                unawaited(launchUrl(url, mode: LaunchMode.externalApplication));
+        return GestureDetector(
+          onTapDown: (d) {
+            // Handle Link Taps
+            final localTapOffset = d.localPosition;
+
+            // Adjust local position for block padding
+            var effectiveOffset = localTapOffset;
+            if (blockType == 'quote')
+              effectiveOffset -= const Offset(16, 4);
+            else if (blockType == 'code-block')
+              effectiveOffset -= const Offset(8, 8);
+            else if (blockType == 'unordered-list')
+              effectiveOffset -= const Offset(24, 0);
+
+            // Find text position from offset
+            final textPosition = painter.getPositionForOffset(effectiveOffset);
+            // final span = textSpan.getSpanForPosition(textPosition);
+
+            // We can't easily access the TextSpanModel from the Flutter TextSpan
+            // here directly unless we built it with a recognizer or meta-data.
+            // But we iterate line.spans. Simpler: Check the line model logic.
+
+            // Alternative: Use the offset `textPosition.offset` to find the span
+            // model in `line.spans`
+            var currentOffset = 0;
+            for (final s in line.spans) {
+              final len = s.text.length;
+              if (textPosition.offset >= currentOffset &&
+                  textPosition.offset < currentOffset + len) {
+                if (s.linkUrl != null) {
+                  // It's a link! Open it.
+                  final url = Uri.tryParse(s.linkUrl!);
+                  if (url != null) {
+                    unawaited(
+                      launchUrl(url, mode: LaunchMode.externalApplication),
+                    );
+                  }
+                  return;
+                }
+                break;
               }
-              return;
+              currentOffset += len;
             }
-            break;
-          }
-          currentOffset += len;
-        }
 
-        _handleTapDown(context, d);
+            _handleTapDown(context, d, maxWidth);
+          },
+          onPanStart: (d) =>
+              _handlePanStart(context, details: d, maxWidth: maxWidth),
+          onPanUpdate: (d) =>
+              _handlePanUpdate(context, details: d, maxWidth: maxWidth),
+          child: highlightedContent,
+        );
       },
-      onPanStart: (d) => _handlePanStart(context, d),
-      onPanUpdate: (d) => _handlePanUpdate(context, d),
-      child: highlightedContent,
     );
   }
 
