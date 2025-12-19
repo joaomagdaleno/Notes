@@ -60,11 +60,32 @@ class MarkdownConverter {
           document,
           lineStart,
           selection,
-          pattern
-              .length, // length of '# ' is pattern.length + 1 for space? No, pattern is trimmed.
+          pattern.length + 1, // length of '# ' is pattern.length + 1 for space
           // logic below handles deletion
           {'blockType': 'heading', 'level': pattern.length},
         );
+      }
+
+      // Callouts (> [!TYPE])
+      final calloutMatch = RegExp(r'^> \[!(\w+)\]$').firstMatch(pattern);
+      if (calloutMatch != null) {
+        final typeStr = calloutMatch.group(1)!.toLowerCase();
+        try {
+          final type = CalloutType.values.firstWhere(
+            (e) => e.name == typeStr,
+          );
+          return _applyCallout(
+            document,
+            lineStart,
+            selection,
+            pattern.length + 1, // "> [!NOTE] "
+            type,
+          );
+        } on ArgumentError {
+          // Invalid callout type, ignore
+        } catch (_) {
+          // ignore other errors
+        }
       }
 
       // Blockquote (>)
@@ -77,7 +98,6 @@ class MarkdownConverter {
           {'blockType': 'quote'},
         );
       }
-
       // Unordered List (-)
       if (pattern == '-') {
         return _applyBlockAttribute(
@@ -86,6 +106,39 @@ class MarkdownConverter {
           selection,
           2,
           {'blockType': 'unordered-list'},
+        );
+      }
+
+      // Ordered List (1., 2., 3., etc.)
+      if (RegExp(r'^\d+\.$').hasMatch(pattern)) {
+        return _applyBlockAttribute(
+          document,
+          lineStart,
+          selection,
+          pattern.length + 1, // "1. " including space
+          {'blockType': 'ordered-list'},
+        );
+      }
+
+      // Unchecked Checklist (- [ ])
+      if (lineText.trimLeft().startsWith('- [ ] ')) {
+        return _applyBlockAttribute(
+          document,
+          lineStart,
+          selection,
+          6, // "- [ ] "
+          {'blockType': 'checklist', 'checked': false},
+        );
+      }
+
+      // Checked Checklist (- [x])
+      if (lineText.trimLeft().startsWith('- [x] ')) {
+        return _applyBlockAttribute(
+          document,
+          lineStart,
+          selection,
+          6, // "- [x] "
+          {'blockType': 'checklist', 'checked': true},
         );
       }
 
@@ -98,6 +151,41 @@ class MarkdownConverter {
           4, // "``` "
           {'blockType': 'code-block'},
         );
+      }
+    }
+
+    // --- Table Detection (Multi-line) ---
+    // Triggered when user types '|' or Enter?
+    // Actually typically on Enter after the separator line |---|---|
+    // Or just generic check.
+    if (lineText.trim().startsWith('|')) {
+      final tableResult = _tryConvertTable(document, lineStart);
+      if (tableResult != null) return tableResult;
+    }
+
+    // --- Math Block Detection ($$ tex $$) ---
+    if (lineText.trim().startsWith(r'$$') &&
+        lineText.trim().endsWith(r'$$') &&
+        lineText.trim().length > 4) {
+      final tex = lineText
+          .trim()
+          .substring(2, lineText.trim().length - 2)
+          .trim();
+      if (tex.isNotEmpty) {
+        return _applyMathBlock(document, lineStart, tex);
+      }
+    }
+
+    // --- Transclusion Detection (![[note]]) ---
+    if (lineText.trim().startsWith('![[') &&
+        lineText.trim().endsWith(']]') &&
+        lineText.trim().length > 5) {
+      final title = lineText
+          .trim()
+          .substring(3, lineText.trim().length - 2)
+          .trim();
+      if (title.isNotEmpty) {
+        return _applyTransclusion(document, lineStart, title);
       }
     }
 
@@ -201,6 +289,38 @@ class MarkdownConverter {
     return null;
   }
 
+  static MarkdownConversionResult _applyCallout(
+    DocumentModel document,
+    int lineStart,
+    TextSelection selection,
+    int lengthToDelete,
+    CalloutType type,
+  ) {
+    final deleteResult = DocumentManipulator.deleteText(
+      document,
+      lineStart,
+      lengthToDelete,
+    );
+    var newDoc = deleteResult.document;
+
+    final convertResult = DocumentManipulator.convertBlockToCallout(
+      newDoc,
+      lineStart,
+      type,
+    );
+    newDoc = convertResult.document;
+
+    final finalSelection = TextSelection.collapsed(
+      offset: lineStart,
+    );
+
+    return MarkdownConversionResult(
+      document: newDoc,
+      selection: finalSelection,
+      results: [deleteResult, convertResult],
+    );
+  }
+
   static MarkdownConversionResult _applyBlockAttribute(
     DocumentModel document,
     int lineStart,
@@ -240,6 +360,169 @@ class MarkdownConverter {
       document: newDoc,
       selection: finalSelection,
       results: [deleteResult, attrResult],
+    );
+  }
+
+  static MarkdownConversionResult? _tryConvertTable(
+    DocumentModel document,
+    int currentLineStart,
+  ) {
+    // Check previous lines for table structure.
+    // Minimum:
+    // Header | Header
+    // --- | ---
+    // (Current line might be empty or start of next row)
+
+    // We need random access to lines.
+    // This is expensive with current API (toPlainText).
+    // But typically we only need to look back 1 line (separator).
+    // If current line IS the separator (users typed |---|), we convert then.
+    // Let's assume user types:
+    // | A | B |
+    // |---|---| <ENTER> -> Trigger
+
+    final text = document.toPlainText();
+    final currentLineEnd = text.indexOf('\n', currentLineStart);
+    final effectiveEnd = currentLineEnd == -1 ? text.length : currentLineEnd;
+    final currentLineText = text
+        .substring(currentLineStart, effectiveEnd)
+        .trim();
+
+    // Regex for separator line: ^\|?(\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?$
+    final separatorRegex = RegExp(r'^\|?(\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?$');
+
+    if (separatorRegex.hasMatch(currentLineText)) {
+      // This looks like a separator line.
+      // Check previous line for Header.
+      if (currentLineStart == 0) return null;
+
+      var prevLineEnd = currentLineStart - 1; // Skip the newline before current
+      if (text[prevLineEnd] == '\n') prevLineEnd--; // Should be \n
+
+      var prevLineStart = text.lastIndexOf('\n', prevLineEnd);
+      if (prevLineStart == -1) {
+        prevLineStart = 0;
+      } else {
+        prevLineStart++; // Skip the newline
+      }
+
+      if (prevLineStart >= currentLineStart) return null; // Logic check
+
+      final prevLineText = text
+          .substring(prevLineStart, currentLineStart - 1 /* \n */)
+          .trim();
+      if (prevLineText.isEmpty) return null;
+
+      // Header row must have pipes or at least match column count?
+      // Simple check: if separator has pipes, header should probably too
+      // or at least be non-empty.
+
+      // Parse columns
+      final separatorCols = currentLineText
+          .split('|')
+          .where((s) => s.trim().isNotEmpty)
+          .length;
+      final headerCols = prevLineText
+          .split('|')
+          .where((s) => s.trim().isNotEmpty)
+          .length;
+
+      if (separatorCols > 0 && headerCols > 0) {
+        // Rough match
+        // Convert!
+        // We consume both lines and create a TableBlock.
+        // Header Row
+        final headerCells = prevLineText
+            .split('|')
+            .where((s) => s.trim().isNotEmpty) // Simple split, naive
+            .map(
+              (s) => TableCellModel(
+                content: [TextSpanModel(text: s.trim())],
+                isHeader: true,
+              ),
+            )
+            .toList();
+
+        final rows = [headerCells];
+
+        final lengthToDelete = effectiveEnd - prevLineStart;
+
+        final deleteResult = DocumentManipulator.deleteText(
+          document,
+          prevLineStart,
+          lengthToDelete,
+        );
+        var newDoc = deleteResult.document;
+
+        // Convert the now empty/placeholder block to TableBlock
+        final convertResult = DocumentManipulator.convertBlockToTable(
+          newDoc,
+          prevLineStart,
+          rows,
+        );
+        newDoc = convertResult.document;
+
+        final finalSelection = TextSelection.collapsed(
+          offset: prevLineStart, // Cursor at start of table? Or after?
+          // TableBlock is 1 unit length in buffer usually.
+          // But here we might want to be after it.
+        );
+        // Ideally we want to be *after* the table or inside first cell?
+        // For now, cursor at start.
+
+        return MarkdownConversionResult(
+          document: newDoc,
+          selection: finalSelection,
+          results: [deleteResult, convertResult],
+        );
+      }
+    }
+    return null;
+  }
+
+  static MarkdownConversionResult _applyMathBlock(
+    DocumentModel document,
+    int lineStart,
+    String tex,
+  ) {
+    final convertResult = DocumentManipulator.convertBlockToMath(
+      document,
+      lineStart,
+      tex,
+    );
+    final newDoc = convertResult.document;
+
+    final finalSelection = TextSelection.collapsed(
+      offset: lineStart + tex.length + 4, // $$tex$$
+    );
+
+    return MarkdownConversionResult(
+      document: newDoc,
+      selection: finalSelection,
+      results: [convertResult],
+    );
+  }
+
+  static MarkdownConversionResult _applyTransclusion(
+    DocumentModel document,
+    int lineStart,
+    String title,
+  ) {
+    final convertResult = DocumentManipulator.convertBlockToTransclusion(
+      document,
+      lineStart,
+      title,
+    );
+    final newDoc = convertResult.document;
+
+    final finalSelection = TextSelection.collapsed(
+      offset: lineStart + title.length + 5, // ![[title]]
+    );
+
+    return MarkdownConversionResult(
+      document: newDoc,
+      selection: finalSelection,
+      results: [convertResult],
     );
   }
 }

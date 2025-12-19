@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
@@ -51,7 +52,7 @@ enum SortOrder {
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
-  SortOrder _sortOrder = SortOrder.dateDesc;
+  final _sortOrderNotifier = ValueNotifier<SortOrder>(SortOrder.dateDesc);
   final SyncService _syncService = SyncService.instance;
   late final UpdateService _updateService;
   late Stream<List<Note>> _notesStream;
@@ -80,9 +81,11 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   void dispose() {
     windowManager.removeListener(this);
     _scrollController.dispose();
-    _searchController.removeListener(_onSearchChanged);
-    _searchController.dispose();
+    _searchController
+      ..removeListener(_onSearchChanged)
+      ..dispose();
     _viewModeNotifier.dispose();
+    _sortOrderNotifier.dispose();
     super.dispose();
   }
 
@@ -104,7 +107,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
     _searchDebounce = Timer(const Duration(milliseconds: 300), () async {
       final results = await NoteRepository.instance.searchNotes(query);
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           _searchResults = results;
           _isSearching = false;
@@ -138,11 +141,13 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     }
 
     // Trigger refresh of local data into the stream
-    _syncService.refreshLocalData(
-      folderId: folderId,
-      tagId: tagId,
-      isFavorite: isFavorite,
-      isInTrash: isInTrash,
+    unawaited(
+      _syncService.refreshLocalData(
+        folderId: folderId,
+        tagId: tagId,
+        isFavorite: isFavorite,
+        isInTrash: isInTrash,
+      ),
     );
   }
 
@@ -151,7 +156,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       _selection = selection;
       _updateNotesStream();
     });
-    Navigator.of(context).pop();
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _createNewNote() async {
@@ -160,26 +167,51 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       title: 'Nova Nota',
       content: DocumentModel.empty()
           .toJson()
-          .toString(), // Or empty string literal per NoteRepository
+          .toString(), // Or empty string literal
       createdAt: DateTime.now(),
       lastModified: DateTime.now(),
       ownerId: 'user', // Default user
     );
     await NoteRepository.instance.insertNote(note);
-    _syncService.refreshLocalData();
-    unawaited(_openNoteEditor(note));
+    await _syncService.refreshLocalData();
+    if (context.mounted) {
+      unawaited(_openNoteEditor(note));
+    }
   }
 
-  Future<void> _openNoteEditor(Note note) async {
+  Future<void> _createNewNoteWithPersona(
+    EditorPersona persona, [
+    String title = 'Nova Nota',
+  ]) async {
+    final note = Note(
+      id: const Uuid().v4(),
+      title: title,
+      content: DocumentModel.empty().toJson().toString(),
+      createdAt: DateTime.now(),
+      lastModified: DateTime.now(),
+      ownerId: 'user',
+    );
+    await NoteRepository.instance.insertNote(note);
+    await _syncService.refreshLocalData();
+    if (context.mounted) {
+      unawaited(_openNoteEditor(note, persona));
+    }
+  }
+
+  Future<void> _openNoteEditor(
+    Note note, [
+    EditorPersona? initialPersona,
+  ]) async {
     if (!mounted) return;
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
         builder: (context) => NoteEditorScreen(
           note: note,
+          initialPersona: initialPersona,
           onSave: (updatedNote) async {
             await NoteRepository.instance.updateNote(updatedNote);
-            _syncService.refreshLocalData();
+            await _syncService.refreshLocalData();
             return updatedNote;
           },
         ),
@@ -377,62 +409,145 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   Widget _buildNotesList(List<Note> notes) {
     final isTrashView = _selection.type == SidebarItemType.trash;
 
-    // Filter by search query
-    final query = _searchController.text.toLowerCase();
-    var filteredNotes = notes;
-    if (query.isNotEmpty) {
-      filteredNotes = notes.where((note) {
-        return note.title.toLowerCase().contains(query) ||
-            note.content.toLowerCase().contains(query);
-      }).toList();
-    }
+    // ⚡ Bolt: Using ValueListenableBuilder to rebuild only the list when
+    // sorting changes, preventing the whole screen from rebuilding.
+    return ValueListenableBuilder<SortOrder>(
+      valueListenable: _sortOrderNotifier,
+      builder: (context, sortOrder, child) {
+        // Filter by search query
+        final query = _searchController.text.toLowerCase();
+        var displayNotes = notes;
+        if (query.isNotEmpty) {
+          displayNotes = notes.where((note) {
+            return note.title.toLowerCase().contains(query) ||
+                note.content.toLowerCase().contains(query);
+          }).toList();
+        }
 
-    // Apply client-side sorting
-    filteredNotes.sort((a, b) {
-      switch (_sortOrder) {
-        case SortOrder.dateAsc:
-          return a.lastModified.compareTo(b.lastModified);
-        case SortOrder.titleAsc:
-          return a.title.toLowerCase().compareTo(b.title.toLowerCase());
-        case SortOrder.titleDesc:
-          return b.title.toLowerCase().compareTo(a.title.toLowerCase());
-        case SortOrder.dateDesc:
-          return b.lastModified.compareTo(a.lastModified);
-      }
-    });
+        // Apply client-side sorting
+        displayNotes.sort((a, b) {
+          switch (sortOrder) {
+            case SortOrder.dateAsc:
+              return a.lastModified.compareTo(b.lastModified);
+            case SortOrder.titleAsc:
+              return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+            case SortOrder.titleDesc:
+              return b.title.toLowerCase().compareTo(a.title.toLowerCase());
+            case SortOrder.dateDesc:
+              return b.lastModified.compareTo(a.lastModified);
+          }
+        });
 
-    if (filteredNotes.isEmpty) {
-      return const EmptyState(
-        icon: Icons.note_add,
-        message: 'No notes yet. Create one!',
-      );
-    }
+        if (displayNotes.isEmpty) {
+          return const EmptyState(
+            icon: Icons.note_add,
+            message: 'No notes yet. Create one!',
+          );
+        }
 
-    return GridView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(8),
-      gridDelegate: _getGridDelegate(_viewModeNotifier.value),
-      itemCount: filteredNotes.length,
-      itemBuilder: (context, index) {
-        final note = filteredNotes[index];
-        return NoteCard(
-          note: note,
-          onTap: () => unawaited(_openNoteEditor(note)),
-          onSave: (note) async {
-            final noteRepository = NoteRepository.instance;
-            await noteRepository.updateNote(note);
-            await _syncService.refreshLocalData();
-            return note;
-          },
-          onDelete: _deletePermanently,
-          onFavorite: isTrashView
-              ? (n) => unawaited(_restoreNote(n))
-              : (n) => unawaited(_toggleFavorite(n)),
-          onTrash: isTrashView
-              ? (n) => unawaited(_deletePermanently(n))
-              : (n) => unawaited(_moveToTrash(n)),
+        // ⚡ Bolt: By nesting this ValueListenableBuilder, only the GridView
+        // rebuilds when the view mode changes, not the entire screen.
+        return Column(
+          children: [
+            if (_selection.type == SidebarItemType.all &&
+                _searchController.text.isEmpty)
+              _buildDashboard(),
+            Expanded(
+              child: ValueListenableBuilder<String>(
+                valueListenable: _viewModeNotifier,
+                builder: (context, viewMode, child) {
+                  return GridView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(8),
+                    gridDelegate: _getGridDelegate(viewMode),
+                    itemCount: displayNotes.length,
+                    itemBuilder: (context, index) {
+                      final note = displayNotes[index];
+                      return NoteCard(
+                        note: note,
+                        onTap: () => unawaited(_openNoteEditor(note)),
+                        onSave: (note) async {
+                          final noteRepository = NoteRepository.instance;
+                          await noteRepository.updateNote(note);
+                          await _syncService.refreshLocalData();
+                          return note;
+                        },
+                        onDelete: _deletePermanently,
+                        onFavorite: isTrashView
+                            ? (n) => unawaited(_restoreNote(n))
+                            : (n) => unawaited(_toggleFavorite(n)),
+                        onTrash: isTrashView
+                            ? (n) => unawaited(_deletePermanently(n))
+                            : (n) => unawaited(_moveToTrash(n)),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
+    );
+  }
+
+  Widget _buildDashboard() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Quick Start',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _DashboardCard(
+                  title: 'Architect',
+                  subtitle: 'Nova Nota',
+                  icon: Icons.edit_note,
+                  color: Colors.blue,
+                  onTap: () =>
+                      _createNewNoteWithPersona(EditorPersona.architect),
+                ),
+                _DashboardCard(
+                  title: 'Writer',
+                  subtitle: 'Novo Documento',
+                  icon: Icons.description,
+                  color: Colors.orange,
+                  onTap: () => _createNewNoteWithPersona(
+                    EditorPersona.writer,
+                    'Novo Documento',
+                  ),
+                ),
+                _DashboardCard(
+                  title: 'Brainstorm',
+                  subtitle: 'Novo Quadro',
+                  icon: Icons.dashboard,
+                  color: Colors.purple,
+                  onTap: () => _createNewNoteWithPersona(
+                    EditorPersona.brainstorm,
+                    'Novo Quadro',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 32),
+          Text(
+            'Recent Notes',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -461,17 +576,21 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           IconButton(
             icon: const Icon(Icons.brightness_6),
             onPressed: () {
-              unawaited(
-                Provider.of<ThemeService>(context, listen: false).toggleTheme(),
-              );
+              if (context.mounted) {
+                unawaited(
+                  Provider.of<ThemeService>(
+                    context,
+                    listen: false,
+                  ).toggleTheme(),
+                );
+              }
             },
           ),
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
             onSelected: (SortOrder result) {
-              setState(() {
-                _sortOrder = result;
-              });
+              // ⚡ Bolt: Update notifier directly, no setState needed.
+              _sortOrderNotifier.value = result;
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<SortOrder>>[
               const PopupMenuItem<SortOrder>(
@@ -588,22 +707,21 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Recentes)'),
                   onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.dateDesc),
+                      _sortOrderNotifier.value = SortOrder.dateDesc,
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Data (Mais Antigas)'),
-                  onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.dateAsc),
+                  onPressed: () => _sortOrderNotifier.value = SortOrder.dateAsc,
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (A-Z)'),
                   onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.titleAsc),
+                      _sortOrderNotifier.value = SortOrder.titleAsc,
                 ),
                 fluent.MenuFlyoutItem(
                   text: const Text('Título (Z-A)'),
                   onPressed: () =>
-                      setState(() => _sortOrder = SortOrder.titleDesc),
+                      _sortOrderNotifier.value = SortOrder.titleDesc,
                 ),
               ],
             ),
@@ -627,10 +745,16 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 ),
                 fluent.CommandBarButton(
                   icon: const Icon(fluent.FluentIcons.brightness),
-                  onPressed: () => Provider.of<ThemeService>(
-                    context,
-                    listen: false,
-                  ).toggleTheme(),
+                  onPressed: () {
+                    if (context.mounted) {
+                      unawaited(
+                        Provider.of<ThemeService>(
+                          context,
+                          listen: false,
+                        ).toggleTheme(),
+                      );
+                    }
+                  },
                 ),
               ],
             ),
@@ -711,18 +835,70 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    // ValueListenableBuilder is used to rebuild the grid when view mode changes
-    return ValueListenableBuilder<String>(
-      valueListenable: _viewModeNotifier,
-      builder: (context, viewMode, child) {
-        if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
-          return _buildMaterialUI();
-        } else if (Platform.isWindows) {
-          return _buildFluentUI();
-        } else {
-          return _buildMaterialUI();
-        }
-      },
+    // ⚡ Bolt: The top-level ValueListenableBuilder was removed.
+    // Rebuilds are now handled granularly within the build methods,
+    // preventing the entire screen from rebuilding unnecessarily.
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+      return _buildMaterialUI();
+    } else if (Platform.isWindows) {
+      return _buildFluentUI();
+    } else {
+      return _buildMaterialUI();
+    }
+  }
+}
+
+class _DashboardCard extends StatelessWidget {
+  const _DashboardCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 160,
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 32),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: color.withValues(alpha: 0.7),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

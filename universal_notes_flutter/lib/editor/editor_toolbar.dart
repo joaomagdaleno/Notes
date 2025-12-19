@@ -223,7 +223,22 @@ class EditorToolbar extends StatelessWidget {
           Center(
             child: ValueListenableBuilder<int>(
               valueListenable: wordCountNotifier,
-              builder: (context, count, child) => Text('$count words'),
+              builder: (context, count, child) {
+                final readingTimeMinutes = (count / 200).ceil();
+                final readingTimeText = readingTimeMinutes <= 1
+                    ? '~1 min'
+                    : '~$readingTimeMinutes min';
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.schedule, size: 14),
+                    const SizedBox(width: 4),
+                    Text(readingTimeText),
+                    const SizedBox(width: 12),
+                    Text('$count words'),
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(width: 8),

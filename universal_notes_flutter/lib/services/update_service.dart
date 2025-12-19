@@ -57,14 +57,23 @@ class UpdateService {
       // indefinitely.
       final response = await _client
           .get(url)
-          .timeout(const Duration(seconds: 30));
+          .timeout(
+            const Duration(seconds: 30),
+          );
 
       if (response.statusCode == 200) {
         // 🛡️ Sentinel: Safely decode JSON to prevent crashes from invalid
         // data.
-        final dynamic decodedJson = jsonDecode(
-          response.body,
-        );
+        final dynamic decodedJson;
+        try {
+          decodedJson = jsonDecode(response.body);
+        } on FormatException {
+          return UpdateCheckResult(
+            UpdateCheckStatus.error,
+            errorMessage: 'Resposta de atualização inválida do servidor.',
+          );
+        }
+
         if (decodedJson is! Map<String, dynamic>) {
           return UpdateCheckResult(
             UpdateCheckStatus.error,
@@ -103,18 +112,16 @@ class UpdateService {
 
             // 🛡️ Sentinel: Safely find and access release asset to prevent
             // crashes.
-            final releaseAsset =
-                assets.firstWhere(
-                      (dynamic asset) {
-                        if (asset is! Map<String, dynamic>) return false;
-                        final name = asset['name'];
-                        return name is String && name.endsWith(fileExtension);
-                      },
-                      orElse: () => null,
-                    )
-                    as Map<String, dynamic>?;
+            final releaseAsset = assets.firstWhere(
+              (dynamic asset) {
+                if (asset is! Map<String, dynamic>) return false;
+                final name = asset['name'];
+                return name is String && name.endsWith(fileExtension);
+              },
+              orElse: () => null,
+            );
 
-            if (releaseAsset != null) {
+            if (releaseAsset is Map<String, dynamic>) {
               final downloadUrl = releaseAsset['browser_download_url'];
               if (downloadUrl is String) {
                 return UpdateCheckResult(

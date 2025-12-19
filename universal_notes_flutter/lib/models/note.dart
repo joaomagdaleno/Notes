@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:universal_notes_flutter/models/sync_status.dart';
 
 /// A class representing a single note, adapted for Firestore.
 @immutable
@@ -19,6 +20,7 @@ class Note {
     this.isInTrash = false,
     this.imageUrl,
     this.folderId,
+    this.syncStatus = SyncStatus.synced,
   });
 
   /// Creates a [Note] from a Firestore document snapshot.
@@ -60,6 +62,9 @@ class Note {
       isFavorite: (map['isFavorite'] as int?) == 1,
       isInTrash: (map['isInTrash'] as int?) == 1,
       folderId: map['folderId'] as String?,
+      syncStatus: map['syncStatus'] != null
+          ? SyncStatus.values[map['syncStatus'] as int]
+          : SyncStatus.synced,
     );
   }
 
@@ -102,6 +107,9 @@ class Note {
   /// The folder ID if any
   final String? folderId;
 
+  /// The status of synchronization.
+  final SyncStatus syncStatus;
+
   /// Returns the date to display (usually lastModified).
   DateTime get date => lastModified;
 
@@ -120,6 +128,7 @@ class Note {
     bool? isInTrash,
     String? imageUrl,
     String? folderId,
+    SyncStatus? syncStatus,
   }) {
     return Note(
       id: id ?? this.id,
@@ -134,6 +143,8 @@ class Note {
       isFavorite: isFavorite ?? this.isFavorite,
       isInTrash: isInTrash ?? this.isInTrash,
       imageUrl: imageUrl ?? this.imageUrl,
+      folderId: folderId ?? this.folderId,
+      syncStatus: syncStatus ?? this.syncStatus,
     );
   }
 
@@ -164,6 +175,7 @@ class Note {
       'isFavorite': isFavorite ? 1 : 0,
       'isInTrash': isInTrash ? 1 : 0,
       'folderId': folderId,
+      'syncStatus': syncStatus.index,
     };
   }
 }

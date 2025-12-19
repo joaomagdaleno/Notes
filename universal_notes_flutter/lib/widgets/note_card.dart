@@ -41,6 +41,21 @@ class NoteCard extends StatefulWidget {
   // This avoids repeated object creation.
   static final _dateFormat = DateFormat('d MMM. yyyy');
 
+  // ⚡ Bolt: Memoize BoxDecoration for performance.
+  // Re-creating this decoration on every build is inefficient.
+  // This avoids repeated object creation for the gradient overlay.
+  static const _gradientDecoration = BoxDecoration(
+    gradient: LinearGradient(
+      colors: [
+        Color(0x99000000), // Colors.black.withAlpha(153)
+        Colors.transparent,
+        Color(0xCC000000), // Colors.black.withAlpha(204)
+      ],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+  );
+
   @override
   State<NoteCard> createState() => _NoteCardState();
 }
@@ -139,29 +154,18 @@ class _NoteCardState extends State<NoteCard> {
                         alignment: Alignment.topRight,
                         child: Icon(Icons.star, color: Colors.amber, size: 20),
                       ),
-                    const Spacer(),
-                    Text(
-                      widget.note.title.isNotEmpty
-                          ? widget.note.title
-                          : 'Sem Título',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      const SizedBox(height: 4),
+                      Text(
+                        NoteCard._dateFormat.format(widget.note.lastModified),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: Colors.white70),
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      NoteCard._dateFormat.format(widget.note.lastModified),
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

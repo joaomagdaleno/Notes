@@ -243,7 +243,7 @@ class DocumentManipulator {
       eventPayload: {
         'pos': selection.start,
         'len': selection.end - selection.start,
-        // ignore: deprecated_member_use
+        // ignore: deprecated_member_use, documented for clarity: using hex value for storage
         'color': color.value,
       },
     );
@@ -267,6 +267,28 @@ class DocumentManipulator {
         'pos': selection.start,
         'len': selection.end - selection.start,
         'fontSize': fontSize,
+      },
+    );
+  }
+
+  /// Applies a link URL to the given selection.
+  static ManipulationResult applyLink(
+    DocumentModel document,
+    TextSelection selection,
+    String? url,
+  ) {
+    final newDoc = applyToSelection(
+      document,
+      selection,
+      (span) => span.copyWith(linkUrl: url),
+    );
+    return ManipulationResult(
+      document: newDoc,
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'pos': selection.start,
+        'len': selection.end - selection.start,
+        'linkUrl': url,
       },
     );
   }
@@ -448,6 +470,14 @@ class DocumentManipulator {
               attributes: block.attributes,
             ),
           );
+        } else {
+          // Keep the block even if empty, to preserve structure/cursor potential
+          newBlocks.add(
+            TextBlock(
+              spans: [const TextSpanModel(text: '')],
+              attributes: block.attributes,
+            ),
+          );
         }
       }
       // If the block is an ImageBlock and is within the deletion range,
@@ -540,8 +570,8 @@ class DocumentManipulator {
 
     // We reuse setBlockAttributes logic but we need to pass the FULL modified
     // map because setBlockAttributes MERGES.
-    // Actually, to support removal, we might need a method that REPLACES attributes
-    // or supports null to remove.
+    // Actually, to support removal, we might need a method that REPLACES
+    // attributes or supports null to remove.
     // Our setBlockAttributes logic above merges.
     // Let's modify setBlockAttributes or handle it here manually.
     // We'll handle it manually here for precision.
@@ -564,6 +594,156 @@ class DocumentManipulator {
       eventPayload: {
         'blockIndex': pos.blockIndex,
         'attrs': currentAttributes,
+      },
+    );
+  }
+
+  /// Converts a block to a CalloutBlock with the specified type.
+  static ManipulationResult convertBlockToCallout(
+    DocumentModel document,
+    int position,
+    CalloutType type,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    final block = blocks[pos.blockIndex];
+    if (block is TextBlock) {
+      blocks[pos.blockIndex] = CalloutBlock(
+        type: type,
+        spans: block.spans,
+        attributes: block.attributes,
+      );
+    } else if (block is CalloutBlock) {
+      // Just update type
+      blocks[pos.blockIndex] = CalloutBlock(
+        type: type,
+        spans: block.spans,
+        attributes: block.attributes,
+      );
+    } else {
+      // Ignore other block types
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': pos.blockIndex,
+        'calloutType': type.name,
+      },
+    );
+  }
+
+  /// Converts a block to a TableBlock.
+  static ManipulationResult convertBlockToTable(
+    DocumentModel document,
+    int position,
+    List<List<TableCellModel>> rows,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    // Replace the block with a TableBlock
+    blocks[pos.blockIndex] = TableBlock(
+      rows: rows,
+      // Preserve attributes if possible/desirable?
+      attributes: blocks[pos.blockIndex].attributes,
+    );
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': pos.blockIndex,
+        'type': 'table',
+      },
+    );
+  }
+
+  /// Converts a block to a MathBlock.
+  static ManipulationResult convertBlockToMath(
+    DocumentModel document,
+    int position,
+    String tex,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    // Replace the block with a MathBlock
+    blocks[pos.blockIndex] = MathBlock(
+      tex: tex,
+      attributes: blocks[pos.blockIndex].attributes,
+    );
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': pos.blockIndex,
+        'type': 'math',
+      },
+    );
+  }
+
+  /// Converts a block to a TransclusionBlock.
+  static ManipulationResult convertBlockToTransclusion(
+    DocumentModel document,
+    int position,
+    String noteTitle,
+  ) {
+    final blocks = List<DocumentBlock>.from(document.blocks);
+    final pos = _findBlockPosition(blocks, position);
+
+    if (pos.blockIndex == -1) {
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    // Replace the block with a TransclusionBlock
+    blocks[pos.blockIndex] = TransclusionBlock(
+      noteTitle: noteTitle,
+      attributes: blocks[pos.blockIndex].attributes,
+    );
+
+    return ManipulationResult(
+      document: DocumentModel(blocks: blocks),
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': pos.blockIndex,
+        'type': 'transclusion',
       },
     );
   }
@@ -681,6 +861,11 @@ class DocumentManipulator {
       if (blockLength > 0 &&
           globalPosition == accumulatedLength + blockLength) {
         return _BlockPosition(i, blockLength);
+      }
+
+      // Match empty blocks if we are at their position
+      if (blockLength == 0 && globalPosition == accumulatedLength) {
+        return _BlockPosition(i, 0);
       }
 
       accumulatedLength += blockLength;
@@ -809,6 +994,117 @@ class DocumentManipulator {
       if (pA.x != pB.x || pA.y != pB.y) return false;
     }
     return true;
+  }
+
+  /// Toggles a link URL on the given selection.
+  ///
+  /// If [url] is provided, applies the link.
+  /// If null, removes any existing link.
+  static ManipulationResult toggleLink(
+    DocumentModel document,
+    TextSelection selection,
+    String? url,
+  ) {
+    final newDoc = applyToSelection(
+      document,
+      selection,
+      (span) => span.copyWith(
+        linkUrl: url,
+        isUnderline: url != null || span.isUnderline,
+      ),
+    );
+    return ManipulationResult(
+      document: newDoc,
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'pos': selection.start,
+        'len': selection.end - selection.start,
+        'linkUrl': url,
+      },
+    );
+  }
+
+  /// Updates the layout metadata (e.g., x, y for Brainstorm) of a block.
+
+  static ManipulationResult updateBlockLayout(
+    DocumentModel document,
+    int blockIndex,
+    Map<String, dynamic> layoutMetadata,
+  ) {
+    if (blockIndex < 0 || blockIndex >= document.blocks.length) {
+      return ManipulationResult(
+        document: document,
+        eventType: NoteEventType.format,
+        eventPayload: {},
+      );
+    }
+
+    final oldBlock = document.blocks[blockIndex];
+    final DocumentBlock newBlock;
+
+    // We need to recreate the specific block type to preserve its data
+    if (oldBlock is TextBlock) {
+      newBlock = TextBlock(
+        spans: oldBlock.spans,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is ImageBlock) {
+      newBlock = ImageBlock(
+        imagePath: oldBlock.imagePath,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is DrawingBlock) {
+      newBlock = DrawingBlock(
+        strokes: oldBlock.strokes,
+        height: oldBlock.height,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is CalloutBlock) {
+      newBlock = CalloutBlock(
+        type: oldBlock.type,
+        spans: oldBlock.spans,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is TableBlock) {
+      newBlock = TableBlock(
+        rows: oldBlock.rows,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is MathBlock) {
+      newBlock = MathBlock(
+        tex: oldBlock.tex,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else if (oldBlock is TransclusionBlock) {
+      newBlock = TransclusionBlock(
+        noteTitle: oldBlock.noteTitle,
+        attributes: oldBlock.attributes,
+        layoutMetadata: layoutMetadata,
+      );
+    } else {
+      // Fallback
+      newBlock = oldBlock;
+    }
+
+    final newBlocks = List<DocumentBlock>.from(document.blocks);
+    newBlocks[blockIndex] = newBlock;
+
+    final newDoc = DocumentModel(blocks: newBlocks);
+
+    return ManipulationResult(
+      document: newDoc,
+      eventType: NoteEventType.format,
+      eventPayload: {
+        'blockIndex': blockIndex,
+        'layoutMetadata': layoutMetadata,
+      },
+    );
   }
 }
 

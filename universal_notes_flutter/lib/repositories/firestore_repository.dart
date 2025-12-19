@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/services/tracing_service.dart';
 
 /// Repository for interacting with Firestore.
 class FirestoreRepository {
@@ -10,6 +11,7 @@ class FirestoreRepository {
     _notesCollection = _firestore.collection('notes');
     _usersCollection = _firestore.collection('users');
     _foldersCollection = _firestore.collection('folders');
+    _userMetadataCollection = _firestore.collection('metadata');
   }
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -18,6 +20,7 @@ class FirestoreRepository {
   late final CollectionReference<Map<String, dynamic>> _notesCollection;
   late final CollectionReference<Map<String, dynamic>> _usersCollection;
   late final CollectionReference<Map<String, dynamic>> _foldersCollection;
+  late final CollectionReference<Map<String, dynamic>> _userMetadataCollection;
 
   /// Returns the current authenticated user.
   User? get currentUser => _auth.currentUser;
@@ -58,13 +61,14 @@ class FirestoreRepository {
   }
 
   /// Returns a stream of notes filtered by [isFavorite], [isInTrash], and
-  /// [tag].
+  /// [tag], with support for cursor-based pagination via [lastDocument].
   Stream<List<Note>> notesStream({
     bool? isFavorite,
     bool? isInTrash,
     String? tag,
     String? folderId,
     int limit = 20,
+    DocumentSnapshot? lastDocument,
   }) {
     final user = _auth.currentUser;
     if (user == null) {
@@ -83,7 +87,7 @@ class FirestoreRepository {
       query = query.where('folderId', isEqualTo: folderId);
     }
 
-    // For the "All Notes" view, we want notes that are not in trash.
+    // For the \"All Notes\" view, we want notes that are not in trash.
     // For other views (like Favorites), we also respect the trash status.
     if (isInTrash != null) {
       query = query.where('isInTrash', isEqualTo: isInTrash);
@@ -91,9 +95,16 @@ class FirestoreRepository {
       query = query.where('isInTrash', isEqualTo: false);
     }
 
-    // Apply order and limit
-    // Ordering by lastModified ensures we fetch/sync the most recent notes first
-    query = query.orderBy('lastModified', descending: true).limit(limit);
+    // Apply order
+    query = query.orderBy('lastModified', descending: true);
+
+    // Apply pagination
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument);
+    }
+
+    // Apply limit
+    query = query.limit(limit);
 
     return query.snapshots().map((snapshot) {
       return snapshot.docs.map(Note.fromFirestore).toList();
@@ -102,36 +113,51 @@ class FirestoreRepository {
 
   /// Adds a new note with [title] and [content].
   Future<Note> addNote({required String title, required String content}) async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      throw Exception('User not logged in');
+    final span = TracingService().startSpan('FirestoreRepository.addNote');
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('User not logged in');
+      }
+      final now = DateTime.now();
+
+      // Create snippet (first 100 chars)
+      final snippet = content.length > 100
+          ? content.substring(0, 100)
+          : content;
+
+      final docRef = await _notesCollection.add({
+        'title': title,
+        'content': snippet, // Store only snippet in main doc
+        'createdAt': Timestamp.fromDate(now),
+        'lastModified': Timestamp.fromDate(now),
+        'ownerId': user.uid,
+        'collaborators': <String, dynamic>{},
+        'tags': <String>[],
+        'memberIds': [user.uid], // Owner is always a member
+        'isFavorite': false,
+        'isInTrash': false,
+      });
+
+      // Store full content in subcollection
+      await docRef.collection('content').doc('main').set({
+        'fullContent': content,
+      });
+
+      final snapshot = await docRef.get();
+
+      // Start with snippet, Editor will fetch full content
+      return Note.fromFirestore(snapshot);
+    } finally {
+      span.end();
     }
-    final now = DateTime.now();
+  }
 
-    // Create snippet (first 100 chars)
-    final snippet = content.length > 100 ? content.substring(0, 100) : content;
-
-    final docRef = await _notesCollection.add({
-      'title': title,
-      'content': snippet, // Store only snippet in main doc
-      'createdAt': Timestamp.fromDate(now),
-      'lastModified': Timestamp.fromDate(now),
-      'ownerId': user.uid,
-      'collaborators': <String, dynamic>{},
-      'tags': <String>[],
-      'memberIds': [user.uid], // Owner is always a member
-      'isFavorite': false,
-      'isInTrash': false,
-    });
-
-    // Store full content in subcollection
-    await docRef.collection('content').doc('main').set({
-      'fullContent': content,
-    });
-
-    final snapshot = await docRef.get();
-    // Start with snippet, Editor will fetch full content
-    return Note.fromFirestore(snapshot);
+  /// Updates the user's unique tags list in metadata.
+  Future<void> _updateUserTags(String userId, List<String> tags) async {
+    await _userMetadataCollection.doc(userId).set({
+      'tags': FieldValue.arrayUnion(tags),
+    }, SetOptions(merge: true));
   }
 
   /// Updates an existing [note].
@@ -147,6 +173,14 @@ class FirestoreRepository {
     noteData['content'] = snippet;
 
     await _notesCollection.doc(note.id).update(noteData);
+
+    // Sync tags metadata
+    if (note.tags.isNotEmpty) {
+      final user = _auth.currentUser;
+      if (user != null) {
+        await _updateUserTags(user.uid, note.tags);
+      }
+    }
 
     // Update full content in subcollection
     await _notesCollection.doc(note.id).collection('content').doc('main').set({
@@ -181,17 +215,13 @@ class FirestoreRepository {
       return Stream.value([]);
     }
 
-    return _notesCollection
-        .where('ownerId', isEqualTo: user.uid)
-        .snapshots()
-        .map((snapshot) {
-          final tags = <String>{};
-          for (final doc in snapshot.docs) {
-            final note = Note.fromFirestore(doc);
-            tags.addAll(note.tags);
-          }
-          return tags.toList()..sort();
-        });
+    return _userMetadataCollection.doc(user.uid).snapshots().map((snapshot) {
+      if (!snapshot.exists) return [];
+      final data = snapshot.data();
+      if (data == null) return [];
+      final tags = (data['tags'] as List<dynamic>?)?.cast<String>() ?? [];
+      return tags..sort();
+    });
   }
 
   /// Shares a note with [email] giving them [permission].
@@ -200,6 +230,12 @@ class FirestoreRepository {
     String email,
     String permission,
   ) async {
+    // 🛡️ Sentinel: Prevent a user from sharing a note with themselves.
+    final currentUser = _auth.currentUser;
+    if (currentUser != null && currentUser.email == email) {
+      return false; // Cannot share with oneself
+    }
+
     final querySnapshot = await _usersCollection
         .where('email', isEqualTo: email)
         .limit(1)

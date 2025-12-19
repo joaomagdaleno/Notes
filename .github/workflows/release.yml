@@ -23,6 +23,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
           files: |
             artifacts/windows-installer/UniversalNotesSetup-${{ steps.version.outputs.tag_version }}.exe
             artifacts/android-apk/universal_notes-v${{ steps.version.outputs.tag_version }}.apk

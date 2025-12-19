@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 
@@ -71,7 +72,7 @@ class TextSpanModel {
   final String? linkUrl;
 
   /// Converts this model to a Flutter [TextSpan] for rendering.
-  TextSpan toTextSpan() {
+  TextSpan toTextSpan({ValueChanged<String>? onLinkTap}) {
     final decorations = <TextDecoration>[];
     if (isUnderline) decorations.add(TextDecoration.underline);
     if (isStrikethrough) decorations.add(TextDecoration.lineThrough);
@@ -87,6 +88,9 @@ class TextSpanModel {
         backgroundColor: backgroundColor,
         fontFamily: isCode ? 'monospace' : fontFamily,
       ),
+      recognizer: (linkUrl != null && onLinkTap != null)
+          ? (TapGestureRecognizer()..onTap = () => onLinkTap(linkUrl!))
+          : null,
     );
   }
 
@@ -141,18 +145,28 @@ class TextSpanModel {
 abstract class DocumentBlock {
   /// The attributes associated with this block (e.g., indent, alignment).
   Map<String, dynamic> get attributes;
+
+  /// Layout metadata (for Brainstorm mode, like x, y, size).
+  Map<String, dynamic> get layoutMetadata;
 }
 
 /// A block of text content, composed of multiple styled spans.
 class TextBlock extends DocumentBlock {
   /// Creates a text block.
-  TextBlock({required this.spans, this.attributes = const {}});
+  TextBlock({
+    required this.spans,
+    this.attributes = const {},
+    this.layoutMetadata = const {},
+  });
 
   /// The list of styled text spans.
   final List<TextSpanModel> spans;
 
   @override
   final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
 
   /// Converts the text block to plain text.
   String toPlainText() {
@@ -163,13 +177,20 @@ class TextBlock extends DocumentBlock {
 /// A block representing an image.
 class ImageBlock extends DocumentBlock {
   /// Creates an image block.
-  ImageBlock({required this.imagePath, this.attributes = const {}});
+  ImageBlock({
+    required this.imagePath,
+    this.attributes = const {},
+    this.layoutMetadata = const {},
+  });
 
   /// The local file path to the image.
   final String imagePath;
 
   @override
   final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
 }
 
 /// Represents the entire document as a list of content blocks.
@@ -202,11 +223,14 @@ class DocumentModel {
         final bMap = b as Map<String, dynamic>;
         final type = bMap['type'];
         final attributes = bMap['attributes'] as Map<String, dynamic>? ?? {};
+        final layoutMetadata =
+            bMap['layoutMetadata'] as Map<String, dynamic>? ?? {};
 
         if (type == 'image') {
           return ImageBlock(
             imagePath: bMap['imagePath'] as String,
             attributes: attributes,
+            layoutMetadata: layoutMetadata,
           );
         } else if (type == 'drawing') {
           return DrawingBlock(
@@ -215,10 +239,15 @@ class DocumentModel {
                     ?.map((s) => Stroke.fromJson(s as Map<String, dynamic>))
                     .toList() ??
                 [],
-            height: (bMap['height'] as num?)?.toDouble() ?? 200.0,
             attributes: attributes,
+            layoutMetadata: layoutMetadata,
           );
-        } else {
+        } else if (type == 'callout') {
+          final calloutTypeStr = bMap['calloutType'] as String? ?? 'note';
+          final calloutType = CalloutType.values.firstWhere(
+            (e) => e.name == calloutTypeStr,
+            orElse: () => CalloutType.note,
+          );
           final spans =
               (bMap['spans'] as List<dynamic>?)
                   ?.map(
@@ -226,7 +255,56 @@ class DocumentModel {
                   )
                   .toList() ??
               [];
-          return TextBlock(spans: spans, attributes: attributes);
+          return CalloutBlock(
+            type: calloutType,
+            spans: spans,
+            attributes: attributes,
+            layoutMetadata: layoutMetadata,
+          );
+        } else if (type == 'table') {
+          return TableBlock(
+            rows:
+                (bMap['rows'] as List<dynamic>?)
+                    ?.map(
+                      (r) => (r as List<dynamic>)
+                          .map(
+                            (c) => TableCellModel.fromJson(
+                              c as Map<String, dynamic>,
+                            ),
+                          )
+                          .toList(),
+                    )
+                    .toList() ??
+                [],
+            attributes: attributes,
+            layoutMetadata: layoutMetadata,
+          );
+        } else if (type == 'math') {
+          return MathBlock(
+            tex: bMap['tex'] as String? ?? '',
+            attributes: attributes,
+            layoutMetadata: layoutMetadata,
+          );
+        } else if (type == 'transclusion') {
+          return TransclusionBlock(
+            noteTitle: bMap['noteTitle'] as String? ?? '',
+            attributes: attributes,
+            layoutMetadata: layoutMetadata,
+          );
+        } else {
+          // Default to text block for unknown or 'text' type
+          final spans =
+              (bMap['spans'] as List<dynamic>?)
+                  ?.map(
+                    (s) => TextSpanModel.fromJson(s as Map<String, dynamic>),
+                  )
+                  .toList() ??
+              [];
+          return TextBlock(
+            spans: spans,
+            attributes: attributes,
+            layoutMetadata: layoutMetadata,
+          );
         }
       }).toList();
       return DocumentModel(blocks: blocks);
@@ -269,30 +347,165 @@ class DocumentModel {
   Map<String, dynamic> toJson() {
     return {
       'blocks': blocks.map((b) {
+        final Map<String, dynamic> data;
         if (b is ImageBlock) {
-          return {
+          data = {
             'type': 'image',
             'imagePath': b.imagePath,
-            'attributes': b.attributes,
           };
         } else if (b is DrawingBlock) {
-          return {
+          data = {
             'type': 'drawing',
             'strokes': b.strokes.map((s) => s.toJson()).toList(),
             'height': b.height,
-            'attributes': b.attributes,
+          };
+        } else if (b is CalloutBlock) {
+          data = {
+            'type': 'callout',
+            'calloutType': b.type.name,
+            'spans': b.spans.map((s) => s.toJson()).toList(),
+          };
+        } else if (b is TableBlock) {
+          data = {
+            'type': 'table',
+            'rows': b.rows
+                .map((row) => row.map((cell) => cell.toJson()).toList())
+                .toList(),
+          };
+        } else if (b is MathBlock) {
+          data = {
+            'type': 'math',
+            'tex': b.tex,
+          };
+        } else if (b is TransclusionBlock) {
+          data = {
+            'type': 'transclusion',
+            'noteTitle': b.noteTitle,
           };
         } else if (b is TextBlock) {
-          return {
+          data = {
             'type': 'text',
             'spans': b.spans.map((s) => s.toJson()).toList(),
-            'attributes': b.attributes,
           };
+        } else {
+          data = <String, dynamic>{};
         }
-        return <String, dynamic>{};
+
+        if (data.isNotEmpty) {
+          data['attributes'] = b.attributes;
+          data['layoutMetadata'] = b.layoutMetadata;
+        }
+        return data;
       }).toList(),
     };
   }
+}
+
+/// The type of callout/admonition.
+enum CalloutType {
+  /// A general note.
+  note,
+
+  /// A helpful tip.
+  tip,
+
+  /// A warning message.
+  warning,
+
+  /// A dangerous situation or error.
+  danger,
+
+  /// Informational message.
+  info,
+
+  /// Success message.
+  success,
+}
+
+/// A block representing a callout (admonition).
+class CalloutBlock extends DocumentBlock {
+  /// Creates a callout block.
+  CalloutBlock({
+    required this.type,
+    required this.spans,
+    this.attributes = const {},
+    this.layoutMetadata = const {},
+  });
+
+  /// The type of callout.
+  final CalloutType type;
+
+  @override
+  final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
+
+  /// The content of the callout.
+  final List<TextSpanModel> spans;
+
+  /// Converts the callout block to plain text.
+  String toPlainText() {
+    return spans.map((s) => s.text).join();
+  }
+}
+
+/// A model representing a cell in a table.
+class TableCellModel {
+  /// Creates a table cell.
+  const TableCellModel({
+    required this.content,
+    this.isHeader = false,
+    this.attributes = const {},
+  });
+
+  /// Creates from JSON.
+  factory TableCellModel.fromJson(Map<String, dynamic> json) {
+    return TableCellModel(
+      content:
+          (json['content'] as List?)
+              ?.map((e) => TextSpanModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      isHeader: json['isHeader'] as bool? ?? false,
+      attributes: json['attributes'] as Map<String, dynamic>? ?? {},
+    );
+  }
+
+  /// The content of the cell.
+  final List<TextSpanModel> content;
+
+  /// Whether this cell is a header.
+  final bool isHeader;
+
+  /// Attributes like alignment.
+  final Map<String, dynamic> attributes;
+
+  /// Converts to JSON.
+  Map<String, dynamic> toJson() => {
+    'content': content.map((s) => s.toJson()).toList(),
+    'isHeader': isHeader,
+    'attributes': attributes,
+  };
+}
+
+/// A block representing a table.
+class TableBlock extends DocumentBlock {
+  /// Creates a table block.
+  TableBlock({
+    required this.rows,
+    this.attributes = const {},
+    this.layoutMetadata = const {},
+  });
+
+  /// The rows of the table, each containing a list of cells.
+  final List<List<TableCellModel>> rows;
+
+  @override
+  final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
 }
 
 /// A block representing a drawing.
@@ -302,6 +515,7 @@ class DrawingBlock extends DocumentBlock {
     required this.strokes,
     this.height = 200.0,
     this.attributes = const {},
+    this.layoutMetadata = const {},
   });
 
   /// The list of strokes in this drawing.
@@ -312,4 +526,45 @@ class DrawingBlock extends DocumentBlock {
 
   @override
   final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
+}
+
+/// A block representing a math equation.
+class MathBlock extends DocumentBlock {
+  /// Creates a math block.
+  MathBlock({
+    required this.tex,
+    this.attributes = const {},
+    this.layoutMetadata = const {},
+  });
+
+  /// The LaTeX content.
+  final String tex;
+
+  @override
+  final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
+}
+
+/// A block representing a transclusion (embedding another note).
+class TransclusionBlock extends DocumentBlock {
+  /// Creates a transclusion block.
+  TransclusionBlock({
+    required this.noteTitle,
+    this.attributes = const {},
+    this.layoutMetadata = const {},
+  });
+
+  /// The title of the note to transclude.
+  final String noteTitle;
+
+  @override
+  final Map<String, dynamic> attributes;
+
+  @override
+  final Map<String, dynamic> layoutMetadata;
 }

@@ -116,15 +116,14 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
       widget.note.id,
     );
     final tags = await NoteRepository.instance.getTagsForNote(widget.note.id);
-    if (context.mounted) {
-      unawaited(
-        showDialog<void>(
-          context: context,
-          builder: (context) =>
-              NotePreviewDialog(note: noteWithContent, tags: tags),
-        ),
-      );
-    }
+    if (!context.mounted) return;
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (context) =>
+            NotePreviewDialog(note: noteWithContent, tags: tags),
+      ),
+    );
   }
 
   @override

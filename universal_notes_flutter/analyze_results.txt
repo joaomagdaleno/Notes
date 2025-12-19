@@ -1,0 +1,3 @@
+[info] The line length exceeds the 80-character limit (C:\Users\joaovitormagdaleno\Documents\GitHub\Notes\universal_notes_flutter\lib\screens\note_editor_screen.dart:306:81)
+[info] The line length exceeds the 80-character limit (C:\Users\joaovitormagdaleno\Documents\GitHub\Notes\universal_notes_flutter\lib\screens\note_editor_screen.dart:566:81)
+[info] The line length exceeds the 80-character limit (C:\Users\joaovitormagdaleno\Documents\GitHub\Notes\universal_notes_flutter\lib\screens\note_editor_screen.dart:598:81)

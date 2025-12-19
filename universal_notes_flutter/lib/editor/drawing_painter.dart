@@ -3,7 +3,10 @@ import 'package:universal_notes_flutter/models/stroke.dart';
 
 /// A painter that renders a list of strokes on the canvas.
 class DrawingPainter extends CustomPainter {
+  /// Creates a [DrawingPainter] with a list of [strokes].
   DrawingPainter(this.strokes);
+
+  /// The list of strokes to paint.
   final List<Stroke> strokes;
 
   @override

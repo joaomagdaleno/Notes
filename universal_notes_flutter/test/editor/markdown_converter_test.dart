@@ -53,12 +53,12 @@ void main() {
       );
     });
 
-    test('converts -strikethrough- pattern', () {
+    test('converts ~strikethrough~ pattern', () {
       final doc = DocumentModel(
         blocks: [
           TextBlock(
             spans: [
-              const TextSpanModel(text: 'Hello -World- '),
+              const TextSpanModel(text: 'Hello ~World~ '),
             ],
           ),
         ],
@@ -89,10 +89,12 @@ void main() {
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
-      final spans = (result!.document.blocks.first as TextBlock).spans;
-      expect(spans.length, 1);
+      final block = result!.document.blocks.first as TextBlock;
+      expect(block.attributes['blockType'], 'heading');
+      expect(block.attributes['level'], 1);
+      // We expect the # to be removed
+      final spans = block.spans;
       expect(spans[0].text, 'My Title');
-      expect(spans[0].fontSize, 32.0);
     });
 
     test('converts - list pattern', () {
@@ -110,7 +112,8 @@ void main() {
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
-      expect(result!.document.toPlainText(), '• ');
+      final block = result!.document.blocks.first as TextBlock;
+      expect(block.attributes['blockType'], 'unordered-list');
     });
 
     test('does not convert incomplete patterns', () {
@@ -128,6 +131,88 @@ void main() {
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNull);
+    });
+
+    test('converts 1. ordered list pattern', () {
+      final doc = DocumentModel(
+        blocks: [
+          TextBlock(
+            spans: [
+              const TextSpanModel(text: '1. '),
+            ],
+          ),
+        ],
+      );
+      const selection = TextSelection.collapsed(offset: 3);
+
+      final result = MarkdownConverter.checkAndApply(doc, selection);
+
+      expect(result, isNotNull);
+      final block = result!.document.blocks.first as TextBlock;
+      expect(block.attributes['blockType'], 'ordered-list');
+    });
+
+    test('converts - [ ] unchecked checkbox pattern', () {
+      final doc = DocumentModel(
+        blocks: [
+          TextBlock(
+            spans: [
+              const TextSpanModel(text: '- [ ] '),
+            ],
+          ),
+        ],
+      );
+      const selection = TextSelection.collapsed(offset: 6);
+
+      final result = MarkdownConverter.checkAndApply(doc, selection);
+
+      expect(result, isNotNull);
+      final block = result!.document.blocks.first as TextBlock;
+      expect(block.attributes['blockType'], 'checklist');
+      expect(block.attributes['checked'], false);
+    });
+
+    test('converts - [x] checked checkbox pattern', () {
+      final doc = DocumentModel(
+        blocks: [
+          TextBlock(
+            spans: [
+              const TextSpanModel(text: '- [x] '),
+            ],
+          ),
+        ],
+      );
+      const selection = TextSelection.collapsed(offset: 6);
+
+      final result = MarkdownConverter.checkAndApply(doc, selection);
+
+      expect(result, isNotNull);
+      final block = result!.document.blocks.first as TextBlock;
+      expect(block.attributes['blockType'], 'checklist');
+      expect(block.attributes['checked'], true);
+    });
+
+    test('converts [link](url) pattern', () {
+      final doc = DocumentModel(
+        blocks: [
+          TextBlock(
+            spans: [
+              const TextSpanModel(text: 'Click [here](https://example.com)'),
+            ],
+          ),
+        ],
+      );
+      const selection = TextSelection.collapsed(offset: 33); // End of string
+
+      final result = MarkdownConverter.checkAndApply(doc, selection);
+
+      expect(result, isNotNull);
+      final spans = (result!.document.blocks.first as TextBlock).spans;
+      expect(spans.length, 2);
+      expect(spans[0].text, 'Click ');
+      expect(spans[1].text, 'here');
+      expect(spans[1].linkUrl, 'https://example.com');
+      expect(spans[1].isUnderline, true);
     });
   });
 }

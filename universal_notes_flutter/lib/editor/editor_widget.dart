@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
 import 'package:universal_notes_flutter/editor/interactive_drawing_block.dart';
@@ -12,11 +15,14 @@ import 'package:universal_notes_flutter/editor/remote_cursor.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
+import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// A widget that provides a text editor with rich text capabilities.
 class EditorWidget extends StatefulWidget {
@@ -25,6 +31,7 @@ class EditorWidget extends StatefulWidget {
     required this.document,
     required this.onDocumentChanged,
     required this.onSelectionChanged,
+    this.initialPersona = EditorPersona.architect,
     this.selection,
     this.onSelectionRectChanged,
     this.scrollController,
@@ -37,9 +44,14 @@ class EditorWidget extends StatefulWidget {
     this.onFind,
     this.onEscape,
     this.onCheckboxTap,
+    this.onToggleList,
+    this.onInsertLink,
+    this.onLinkTap,
+    this.onToggleLock,
     this.isDrawingMode = false,
     this.currentColor = Colors.black,
     this.currentStrokeWidth = 2.0,
+    this.softWrap = true,
     super.key,
   });
 
@@ -52,8 +64,14 @@ class EditorWidget extends StatefulWidget {
   /// The current document model.
   final DocumentModel document;
 
+  /// The persona to start with.
+  final EditorPersona initialPersona;
+
   /// Whether the editor is in drawing mode.
   final bool isDrawingMode;
+
+  /// Whether lines should wrap when they exceed the width.
+  final bool softWrap;
 
   /// Callback when the document changes.
   final ValueChanged<DocumentModel> onDocumentChanged;
@@ -101,12 +119,25 @@ class EditorWidget extends StatefulWidget {
   /// Callback when a checkbox is tapped.
   final ValueChanged<int>? onCheckboxTap;
 
+  /// Callback when a list toggle shortcut is pressed (Ctrl+L, Ctrl+Shift+L).
+  final void Function(String listType)? onToggleList;
+
+  /// Callback when insert link shortcut is pressed (Ctrl+K).
+  final VoidCallback? onInsertLink;
+
+  /// Callback when a link is tapped.
+  final ValueChanged<String>? onLinkTap;
+
+  /// Callback when toggle lock shortcut is pressed (Ctrl+E).
+  final VoidCallback? onToggleLock;
+
   @override
   State<EditorWidget> createState() => EditorWidgetState();
 }
 
 /// State for [EditorWidget].
 class EditorWidgetState extends State<EditorWidget> {
+  late EditorPersona _activePersona;
   final FocusNode _focusNode = FocusNode();
   late TextSelection _selection;
   late VirtualTextBuffer _buffer;
@@ -125,6 +156,7 @@ class EditorWidgetState extends State<EditorWidget> {
   @override
   void initState() {
     super.initState();
+    _activePersona = widget.initialPersona;
     _selection = widget.selection ?? const TextSelection.collapsed(offset: 0);
     _buffer = VirtualTextBuffer(widget.document);
     _generateKeys();
@@ -155,6 +187,11 @@ class EditorWidgetState extends State<EditorWidget> {
         _generateKeys();
       });
     }
+    if (widget.initialPersona != oldWidget.initialPersona) {
+      setState(() {
+        _activePersona = widget.initialPersona;
+      });
+    }
     if (widget.selection != null && widget.selection != _selection) {
       // Use a post-frame callback to ensure that the layout is up-to-date
       // before trying to calculate the selection rectangle.
@@ -181,6 +218,55 @@ class EditorWidgetState extends State<EditorWidget> {
     _cursorTimer?.cancel();
     _hideAutocomplete();
     super.dispose();
+  }
+
+  Widget _buildPersonaSwitcher() {
+    return Container(
+      height: 40,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _PersonaButton(
+            persona: EditorPersona.architect,
+            activePersona: _activePersona,
+            icon: Icons.architecture,
+            label: 'Architect',
+            onTap: () =>
+                setState(() => _activePersona = EditorPersona.architect),
+          ),
+          _PersonaButton(
+            persona: EditorPersona.writer,
+            activePersona: _activePersona,
+            icon: Icons.description,
+            label: 'Writer',
+            onTap: () => setState(() => _activePersona = EditorPersona.writer),
+          ),
+          _PersonaButton(
+            persona: EditorPersona.brainstorm,
+            activePersona: _activePersona,
+            icon: Icons.gesture,
+            label: 'Brainstorm',
+            onTap: () =>
+                setState(() => _activePersona = EditorPersona.brainstorm),
+          ),
+          _PersonaButton(
+            persona: EditorPersona.zen,
+            activePersona: _activePersona,
+            icon: Icons.self_improvement,
+            label: 'Zen',
+            onTap: () => setState(() => _activePersona = EditorPersona.zen),
+          ),
+        ],
+      ),
+    );
   }
 
   void _onSelectionChanged(TextSelection newSelection) {
@@ -327,6 +413,30 @@ class EditorWidgetState extends State<EditorWidget> {
         );
         widget.onSelectionChanged.call(_selection);
         setState(() {});
+        return;
+      }
+
+      // List shortcuts
+      if (event.logicalKey == LogicalKeyboardKey.keyL) {
+        if (isShiftPressed) {
+          // Ctrl+Shift+L: Toggle ordered list
+          widget.onToggleList?.call('ordered');
+        } else {
+          // Ctrl+L: Toggle bullet list
+          widget.onToggleList?.call('bullet');
+        }
+        return;
+      }
+
+      // Insert link shortcut (Ctrl+K)
+      if (event.logicalKey == LogicalKeyboardKey.keyK) {
+        widget.onInsertLink?.call();
+        return;
+      }
+
+      // Toggle lock shortcut (Ctrl+E)
+      if (event.logicalKey == LogicalKeyboardKey.keyE) {
+        widget.onToggleLock?.call();
         return;
       }
     }
@@ -639,88 +749,340 @@ class EditorWidgetState extends State<EditorWidget> {
       onKeyEvent: _handleKeyEvent,
       child: Stack(
         children: [
-          ListView.builder(
-            controller: widget.scrollController,
-            itemCount: _buffer.lines.length,
-            itemBuilder: (context, index) {
-              final line = _buffer.lines[index];
-              // Determine remote cursors for this line
-              final cursorsOnLine = widget.remoteCursors.entries
-                  .where((entry) {
-                    final data = entry.value;
-                    final selectionData =
-                        data['selection'] as Map<String, dynamic>?;
-                    if (selectionData == null) return false;
-                    final base = selectionData['base'] as int?;
-                    final extent = selectionData['extent'] as int?;
-                    if (base == null || extent == null) return false;
-
-                    final remoteSelection = TextSelection(
-                      baseOffset: base,
-                      extentOffset: extent,
-                    );
-                    final lineStartOffset = _buffer
-                        .getOffsetForLineTextPosition(
-                          LineTextPosition(line: index, character: 0),
-                        );
-                    final lineLength = line is TextLine
-                        ? line.toPlainText().length
-                        : 1;
-                    final lineEndOffset = lineStartOffset + lineLength;
-
-                    return remoteSelection.start < lineEndOffset &&
-                        remoteSelection.end > lineStartOffset;
-                  })
-                  .map((e) => e.value)
-                  .toList();
-
-              return _EditorLine(
-                key: _lineKeys[index],
-                line: line,
-                lineIndex: index,
-                selection: _selection, // Keep local selection for rendering
-                buffer: _buffer,
-                showCursor: _showCursor, // Keep local showCursor
-                onTapDown: _handleTapDown,
-                onPanStart: _handlePanStart,
-                onPanUpdate: _handlePanUpdate,
-                remoteCursors: cursorsOnLine,
-                onCheckboxTap: widget.onCheckboxTap,
-                isDrawingMode: widget.isDrawingMode,
-                // We need to pass a callback to update drawing block
-                onStrokeAdded: (stroke) {
-                  final blockIndex = index; // Need accurate block index?
-                  // _buffer.lines[index] might not 1:1 map to blocks if split!
-                  // Wait, DocumentModel blocks map 1:1 to lines?
-                  // VirtualTextBuffer splits on newlines.
-                  // DrawingBlock likely has no newlines, so it's a single line.
-                  // But we verified earlier we might have issues if blocks are mixed.
-                  // Assuming 1-to-1 for now for DrawingBlock.
-
-                  final result = DocumentManipulator.addStrokeToBlock(
-                    widget.document,
-                    blockIndex,
-                    stroke,
-                  );
-                  widget.onDocumentChanged(result.document);
-                },
-                onStrokeRemoved: (stroke) {
-                  final blockIndex = index;
-                  final result = DocumentManipulator.removeStrokeFromBlock(
-                    widget.document,
-                    blockIndex,
-                    stroke,
-                  );
-                  widget.onDocumentChanged(result.document);
-                },
-                currentColor: widget.currentColor,
-                currentStrokeWidth: widget.currentStrokeWidth,
-              );
-            },
-          ),
+          // Dispatch view based on active persona
+          _buildEditorContent(),
           ..._buildRemoteCursors(),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Center(child: _buildPersonaSwitcher()),
+          ),
         ],
       ),
+    );
+  }
+
+  /// Dispatches to the appropriate view builder based on active persona.
+  Widget _buildEditorContent() {
+    switch (_activePersona) {
+      case EditorPersona.architect:
+        return _buildArchitectView();
+      case EditorPersona.writer:
+        return _buildWriterView();
+      case EditorPersona.brainstorm:
+        return _buildBrainstormView();
+      case EditorPersona.zen:
+        return _buildZenView();
+    }
+  }
+
+  /// Architect mode: Default linear block editor.
+  Widget _buildArchitectView() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 56),
+      child: ListView.builder(
+        controller: widget.scrollController,
+        itemCount: _buffer.lines.length,
+        itemBuilder: (context, index) => _buildEditorLine(index),
+      ),
+    );
+  }
+
+  /// Writer mode: Paginated document view.
+  Widget _buildWriterView() {
+    const pageWidth = 595.0; // A4 width in points
+    const pageHeight = 842.0; // A4 height in points
+    const contentHeightPerPage = pageHeight - (60.0 * 2); // margins
+
+    final pages = _splitLinesIntoPages(contentHeightPerPage);
+
+    return Container(
+      color: Colors.grey.shade300,
+      padding: const EdgeInsets.only(top: 60),
+      child: Center(
+        child: SingleChildScrollView(
+          controller: widget.scrollController,
+          child: Column(
+            children: pages.map((pageLines) {
+              return Container(
+                width: pageWidth,
+                constraints: const BoxConstraints(minHeight: pageHeight),
+                margin: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(60),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: pageLines
+                      .map((item) => _buildEditorLine(item.index))
+                      .toList(),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Groups lines into pages based on estimated height.
+  List<List<_LineWithIndex>> _splitLinesIntoPages(double maxHeight) {
+    final pages = <List<_LineWithIndex>>[];
+    var currentPage = <_LineWithIndex>[];
+    var currentHeight = 0.0;
+
+    for (var i = 0; i < _buffer.lines.length; i++) {
+      final line = _buffer.lines[i];
+      // Estimate line height
+      var lineHeight = 24.0; // Standard text line
+      if (line is ImageLine) lineHeight = 200.0;
+      // Note: DrawingBlock is currently not in _buffer.lines
+      if (line is TableLine) {
+        lineHeight = 40.0 + (line.rows.length * 30.0);
+      }
+      if (line is MathLine) lineHeight = 60.0;
+
+      // Check if it fits in current page
+      if (currentHeight + lineHeight > maxHeight && currentPage.isNotEmpty) {
+        pages.add(currentPage);
+        currentPage = [];
+        currentHeight = 0.0;
+      }
+
+      currentPage.add(_LineWithIndex(line, i));
+      currentHeight += lineHeight;
+    }
+
+    if (currentPage.isNotEmpty) {
+      pages.add(currentPage);
+    }
+
+    return pages.isEmpty ? [[]] : pages;
+  }
+
+  /// Brainstorm mode: Free-form canvas.
+  Widget _buildBrainstormView() {
+    return Container(
+      color: Colors.grey.shade200,
+      padding: const EdgeInsets.only(top: 60),
+      child: InteractiveViewer(
+        constrained: false,
+        boundaryMargin: const EdgeInsets.all(500),
+        minScale: 0.5,
+        maxScale: 3,
+        child: SizedBox(
+          width: 2000,
+          height: 2000,
+          child: Stack(
+            children: [
+              // Grid background
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _GridPainter(
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+              ),
+              // Blocks positioned based on layoutMetadata
+              ...List.generate(_buffer.lines.length, (index) {
+                final line = _buffer.lines[index];
+                // Get position from layoutMetadata if available
+                var x = 100 + (index % 3) * 350.0;
+                var y = 100 + (index ~/ 3) * 200.0;
+
+                final block =
+                    (widget.document.blocks.isNotEmpty &&
+                        index < widget.document.blocks.length)
+                    ? widget.document.blocks[index]
+                    : null;
+
+                if (block != null) {
+                  x = (block.layoutMetadata['x'] as num?)?.toDouble() ?? x;
+                  y = (block.layoutMetadata['y'] as num?)?.toDouble() ?? y;
+                }
+
+                return Positioned(
+                  left: x,
+                  top: y,
+                  child: GestureDetector(
+                    onPanUpdate: (details) {
+                      if (block == null) return;
+                      final currentMetadata = Map<String, dynamic>.from(
+                        block.layoutMetadata,
+                      );
+                      currentMetadata['x'] = x + details.delta.dx;
+                      currentMetadata['y'] = y + details.delta.dy;
+
+                      final result = DocumentManipulator.updateBlockLayout(
+                        widget.document,
+                        index,
+                        currentMetadata,
+                      );
+                      widget.onDocumentChanged(result.document);
+                    },
+                    child: Container(
+                      width: 320,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.12),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).dividerColor.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: line is TextLine
+                          ? Text.rich(
+                              TextSpan(
+                                children: line.spans
+                                    .map(
+                                      (s) => s.toTextSpan(
+                                        onLinkTap: widget.onLinkTap,
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            )
+                          : _buildEditorLine(index),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Zen mode: Distraction-free reading.
+  Widget _buildZenView() {
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      padding: const EdgeInsets.only(top: 60),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 650),
+          child: IgnorePointer(
+            child: ListView.builder(
+              controller: widget.scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              itemCount: _buffer.lines.length,
+              itemBuilder: (context, index) {
+                final line = _buffer.lines[index];
+                if (line is TextLine) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text.rich(
+                      TextSpan(
+                        children: line.spans
+                            .map(
+                              (s) => s.toTextSpan(onLinkTap: widget.onLinkTap),
+                            )
+                            .toList(),
+                      ),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        height: 1.8,
+                        fontSize: 18,
+                      ),
+                    ),
+                  );
+                }
+                return _buildEditorLine(index);
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds a single editor line widget.
+  Widget _buildEditorLine(int index) {
+    final line = _buffer.lines[index];
+    final cursorsOnLine = widget.remoteCursors.entries
+        .where((entry) {
+          final data = entry.value;
+          final selectionData = data['selection'] as Map<String, dynamic>?;
+          if (selectionData == null) return false;
+          final base = selectionData['base'] as int?;
+          final extent = selectionData['extent'] as int?;
+          if (base == null || extent == null) return false;
+
+          final remoteSelection = TextSelection(
+            baseOffset: base,
+            extentOffset: extent,
+          );
+          final lineStartOffset = _buffer.getOffsetForLineTextPosition(
+            LineTextPosition(line: index, character: 0),
+          );
+          final lineLength = line is TextLine ? line.toPlainText().length : 1;
+          final lineEndOffset = lineStartOffset + lineLength;
+
+          return remoteSelection.start < lineEndOffset &&
+              remoteSelection.end > lineStartOffset;
+        })
+        .map((e) => e.value)
+        .toList();
+
+    final cursorLine = _buffer
+        .getLineTextPositionForOffset(_selection.baseOffset)
+        .line;
+    final isCurrentLine = cursorLine == index;
+
+    return _EditorLine(
+      key: _lineKeys[index],
+      line: line,
+      lineIndex: index,
+      selection: _selection,
+      buffer: _buffer,
+      showCursor: _showCursor,
+      isCurrentLine: isCurrentLine,
+      onTapDown: _handleTapDown,
+      onPanStart: _handlePanStart,
+      onPanUpdate: _handlePanUpdate,
+      remoteCursors: cursorsOnLine,
+      onCheckboxTap: widget.onCheckboxTap,
+      isDrawingMode: widget.isDrawingMode,
+      onStrokeAdded: (stroke) {
+        final blockIndex = index;
+        final result = DocumentManipulator.addStrokeToBlock(
+          widget.document,
+          blockIndex,
+          stroke,
+        );
+        widget.onDocumentChanged(result.document);
+      },
+      onStrokeRemoved: (stroke) {
+        final blockIndex = index;
+        final result = DocumentManipulator.removeStrokeFromBlock(
+          widget.document,
+          blockIndex,
+          stroke,
+        );
+        widget.onDocumentChanged(result.document);
+      },
+      currentColor: widget.currentColor,
+      currentStrokeWidth: widget.currentStrokeWidth,
+      softWrap: widget.softWrap,
+      onLinkTap: widget.onLinkTap,
     );
   }
 
@@ -820,28 +1182,34 @@ class _EditorLine extends StatelessWidget {
     required this.remoteCursors,
     required this.currentColor,
     required this.currentStrokeWidth,
+    this.isCurrentLine = false,
     this.onCheckboxTap,
     this.isDrawingMode = false,
     this.onStrokeAdded,
     this.onStrokeRemoved,
+    this.softWrap = true,
+    this.onLinkTap,
     super.key,
   });
+
+  final Line line;
+  final int lineIndex;
+  final TextSelection selection;
+  final VirtualTextBuffer buffer;
+  final bool showCursor;
   final void Function(TapDownDetails, int, TextSelection) onTapDown;
   final void Function(DragStartDetails, int, TextSelection) onPanStart;
   final void Function(DragUpdateDetails, int, TextSelection) onPanUpdate;
   final List<Map<String, dynamic>> remoteCursors;
+  final Color currentColor;
+  final double currentStrokeWidth;
+  final bool isCurrentLine;
   final ValueChanged<int>? onCheckboxTap;
   final bool isDrawingMode;
   final ValueChanged<Stroke>? onStrokeAdded;
   final ValueChanged<Stroke>? onStrokeRemoved;
-  final Color currentColor;
-  final double currentStrokeWidth;
-
-  final Line line;
-  final TextSelection selection;
-  final int lineIndex;
-  final VirtualTextBuffer buffer;
-  final bool showCursor;
+  final bool softWrap;
+  final ValueChanged<String>? onLinkTap;
 
   int _getOffsetForPosition(BuildContext context, Offset localPosition) {
     if (line is! TextLine) return 0;
@@ -945,12 +1313,17 @@ class _EditorLine extends StatelessWidget {
     Widget content;
 
     // 4. Perform expensive layout only if needed (moved up for wrapping)
-    // We need TextSpan to apply line-level styles (like heading size) if not handled in model.
-    // Actually, headings might handled by model attributes?
+    // We need TextSpan to apply line-level styles (like heading size) if not
+    // handled in model. Actually, headings might handled by model attributes?
     // No, we store 'level' in block attributes, not span attributes.
     // So we need to scale the text here.
 
-    var textSpan = line.toTextSpan();
+    var textSpan = TextSpan(
+      style: DefaultTextStyle.of(context).style,
+      children: line.spans
+          .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
+          .toList(),
+    );
 
     if (blockType == 'heading') {
       final level = attributes['level'] as int? ?? 1;
@@ -977,11 +1350,16 @@ class _EditorLine extends StatelessWidget {
     }
 
     // 3. Early return optimization
-    final painter = TextPainter(
-      text: textSpan,
-      textAlign: textAlign,
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: context.size?.width ?? double.infinity);
+    final painter =
+        TextPainter(
+          text: textSpan,
+          textAlign: textAlign,
+          textDirection: TextDirection.ltr,
+        )..layout(
+          maxWidth: softWrap
+              ? (context.size?.width ?? double.infinity)
+              : double.infinity,
+        );
 
     final selectionBoxes = <Widget>[];
     if (hasSelection) {
@@ -1016,6 +1394,8 @@ class _EditorLine extends StatelessWidget {
           RichText(
             text: textSpan,
             textAlign: textAlign,
+            softWrap: softWrap,
+            overflow: softWrap ? TextOverflow.clip : TextOverflow.visible,
           ),
           ...selectionBoxes,
           if (isCursorInThisLine && showCursor)
@@ -1035,12 +1415,13 @@ class _EditorLine extends StatelessWidget {
     // --- Apply Block Decorations ---
     // --- Determine Content Based on Block Type ---
     if (attributes['blockType'] == 'drawing') {
-      // We need the actual block from the model, but Line is from VirtualTextBuffer.
-      // VirtualTextBuffer lines map to model blocks, but we might have lost the direct reference
-      // unless we store block index or the block object in attributes.
+      // We need the actual block from the model, but Line is from
+      // VirtualTextBuffer. VirtualTextBuffer lines map to model blocks, but
+      // we might have lost the direct reference unless we store block index
+      // or the block object in attributes.
       // Actually DocumentModel.toJson re-creates blocks.
-      // Warning: VirtualTextBuffer might not fully support non-text blocks yet if it splits them.
-      // Assuming Block-Per-Line for drawings.
+      // Warning: VirtualTextBuffer might not fully support non-text blocks
+      // yet if it splits them. Assuming Block-Per-Line for drawings.
 
       final strokesRaw = attributes['strokes'] as List<dynamic>? ?? [];
       final strokes = strokesRaw
@@ -1091,18 +1472,27 @@ class _EditorLine extends StatelessWidget {
         ],
       );
     } else if (blockType == 'ordered-list') {
-      // TODO(developer): Smart numbering is hard without global index.
-      // For now, we show "1." for everything or try to guess?
-      // Without traversal, we can't know index.
-      // Temporary solution: "1." always. User can see visual difference.
-      // Or pass indices from VirtualTextBuffer?
-      // Let's stick with "1." to signify it's a list.
+      // Smart numbering logic: scan backwards for preceding list items.
+      var listIndex = 1;
+      for (var i = lineIndex - 1; i >= 0; i--) {
+        final prevLine = buffer.lines[i];
+        if (prevLine is TextLine &&
+            prevLine.attributes['blockType'] == 'ordered-list') {
+          listIndex++;
+        } else {
+          break;
+        }
+      }
+
       content = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             width: 24,
-            child: Text('1.', style: TextStyle(fontSize: 16, height: 1.5)),
+            child: Text(
+              '$listIndex.',
+              style: const TextStyle(fontSize: 16, height: 1.5),
+            ),
           ),
           Expanded(child: textStack),
         ],
@@ -1130,6 +1520,119 @@ class _EditorLine extends StatelessWidget {
           ),
         ],
       );
+    } else if (line is CalloutLine) {
+      final type = line.type;
+
+      Color color;
+      IconData icon;
+
+      switch (type) {
+        case CalloutType.note:
+          color = Colors.blue;
+          icon = Icons.info;
+        case CalloutType.tip:
+          color = Colors.green;
+          icon = Icons.lightbulb;
+        case CalloutType.warning:
+          color = Colors.orange;
+          icon = Icons.warning;
+        case CalloutType.danger:
+          color = Colors.red;
+          icon = Icons.error;
+        case CalloutType.info:
+          color = Colors.lightBlue;
+          icon = Icons.info_outline;
+        case CalloutType.success:
+          color = Colors.greenAccent;
+          icon = Icons.check_circle;
+      }
+
+      const iconSize = 20.0;
+      const spacing = 12.0;
+
+      var inner = textStack;
+      if (line.isFirst) {
+        inner = Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: iconSize),
+            const SizedBox(width: spacing),
+            Expanded(child: textStack),
+          ],
+        );
+      } else {
+        inner = Padding(
+          padding: const EdgeInsets.only(left: iconSize + spacing),
+          child: textStack,
+        );
+      }
+
+      content = Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          border: Border(
+            left: BorderSide(color: color, width: 4),
+            top: line.isFirst
+                ? BorderSide(color: color.withValues(alpha: 0.1))
+                : BorderSide.none,
+            bottom: line.isLast
+                ? BorderSide(color: color.withValues(alpha: 0.1))
+                : BorderSide.none,
+            right: BorderSide(color: color.withValues(alpha: 0.1)),
+          ),
+          borderRadius: BorderRadius.only(
+            topLeft: line.isFirst ? const Radius.circular(4) : Radius.zero,
+            topRight: line.isFirst ? const Radius.circular(4) : Radius.zero,
+            bottomLeft: line.isLast ? const Radius.circular(4) : Radius.zero,
+            bottomRight: line.isLast ? const Radius.circular(4) : Radius.zero,
+          ),
+        ),
+        padding: EdgeInsets.fromLTRB(
+          12,
+          line.isFirst ? 12 : 4,
+          12,
+          line.isLast ? 12 : 4,
+        ),
+        child: inner,
+      );
+    } else if (line is TableLine) {
+      content = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Table(
+          border: TableBorder.all(
+            color: Colors.grey.withValues(alpha: 0.3),
+          ),
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          children: (line as TableLine).rows.map((row) {
+            return TableRow(
+              decoration: row.any((c) => c.isHeader)
+                  ? BoxDecoration(color: Colors.grey.withValues(alpha: 0.05))
+                  : null,
+              children: row.map((cell) {
+                return Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: RichText(
+                    text: TextSpan(
+                      style:
+                          (Theme.of(context).textTheme.bodyMedium ??
+                                  const TextStyle())
+                              .copyWith(
+                                fontWeight: cell.isHeader
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                      children: cell.content
+                          .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
+                          .toList(),
+                    ),
+                  ),
+                );
+              }).toList(),
+            );
+          }).toList(),
+        ),
+      );
     } else {
       content = textStack;
     }
@@ -1141,6 +1644,14 @@ class _EditorLine extends StatelessWidget {
         child: content,
       );
     }
+
+    // Wrap with highlight if this is the current line
+    final highlightedContent = Container(
+      color: isCurrentLine
+          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
+          : null,
+      child: content,
+    );
 
     return GestureDetector(
       onTapDown: (d) {
@@ -1161,12 +1672,12 @@ class _EditorLine extends StatelessWidget {
         final textPosition = painter.getPositionForOffset(effectiveOffset);
         // final span = textSpan.getSpanForPosition(textPosition);
 
-        // We can't easily access the TextSpanModel from the Flutter TextSpan here directly
-        // unless we built it with a recognizer or meta-data.
-        // But we iterate line.spans.
-        // Simpler: Check the line model logic.
+        // We can't easily access the TextSpanModel from the Flutter TextSpan
+        // here directly unless we built it with a recognizer or meta-data.
+        // But we iterate line.spans. Simpler: Check the line model logic.
 
-        // Alternative: Use the offset `textPosition.offset` to find the span model in `line.spans`
+        // Alternative: Use the offset `textPosition.offset` to find the span
+        // model in `line.spans`
         var currentOffset = 0;
         for (final s in line.spans) {
           final len = s.text.length;
@@ -1174,22 +1685,10 @@ class _EditorLine extends StatelessWidget {
               textPosition.offset < currentOffset + len) {
             if (s.linkUrl != null) {
               // It's a link! Open it.
-              // For now, since we can't easily injection URL launcher here
-              // without dependnecy, we will just print or show usage.
-              // The user said "sem utilizar dependencias".
-              // So we can't use url_launcher?
-              // Standard Flutter can't open URLs without url_launcher package.
-              // I will just print to console or show a Snackbar if context available?
-              // "Opening: ${s.linkUrl}"
-              // Actually, if dependencies are forbidden, I can't add `url_launcher`.
-              // But `universal_notes_flutter` likely has it?
-              // Checked pubspec in memory: yes, it has `url_launcher`?
-              // No, I viewed pubspec earlier.
-              // Let's assume effectively I can't use new deps.
-              // I'll show a snackbar.
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Open Link: ${s.linkUrl}')),
-              );
+              final url = Uri.tryParse(s.linkUrl!);
+              if (url != null) {
+                unawaited(launchUrl(url, mode: LaunchMode.externalApplication));
+              }
               return;
             }
             break;
@@ -1201,7 +1700,7 @@ class _EditorLine extends StatelessWidget {
       },
       onPanStart: (d) => _handlePanStart(context, d),
       onPanUpdate: (d) => _handlePanUpdate(context, d),
-      child: content,
+      child: highlightedContent,
     );
   }
 
@@ -1210,8 +1709,236 @@ class _EditorLine extends StatelessWidget {
     if (line is ImageLine) {
       return _buildImage(context, line as ImageLine);
     } else if (line is TextLine) {
+      // Check for specific subtypes if we decided to subclass TextLine,
+      // but assuming TableLine/MathLine extend Line directly:
       return _buildText(context, line as TextLine);
+    } else if (line is TableLine) {
+      return _buildTable(context, line as TableLine);
+    } else if (line is MathLine) {
+      return _buildMath(context, line as MathLine);
+    } else if (line is TransclusionLine) {
+      return _buildTransclusion(context, line as TransclusionLine);
     }
     return const SizedBox.shrink();
   }
+
+  Widget _buildTransclusion(BuildContext context, TransclusionLine line) {
+    return FutureBuilder<Note?>(
+      future: NoteRepository.instance.getNoteByTitle(line.noteTitle),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(8),
+            child: LinearProgressIndicator(),
+          );
+        }
+
+        final note = snapshot.data;
+        if (note == null) {
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              'Nota não encontrada: ${line.noteTitle}',
+              style: const TextStyle(
+                color: Colors.red,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          );
+        }
+
+        // Render a preview of the note content
+        // For simplicity, we'll render the first few blocks or a summarized view
+        final doc = DocumentModel.fromJson(json.decode(note.content));
+
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            border: Border.all(color: Theme.of(context).dividerColor),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.link,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    note.title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(),
+              // Render limited content
+              ...doc.blocks.take(3).map((block) {
+                // Simplified rendering for preview
+                if (block is TextBlock) {
+                  return Text(
+                    block.spans.map((s) => s.text).join(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                }
+                return const SizedBox.shrink();
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMath(BuildContext context, MathLine line) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Math.tex(
+          line.tex,
+          textStyle: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTable(BuildContext context, TableLine line) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Table(
+        border: TableBorder.all(
+          color: Colors.grey.withValues(alpha: 0.3),
+        ),
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: line.rows.map((row) {
+          return TableRow(
+            decoration: row.any((c) => c.isHeader)
+                ? BoxDecoration(color: Colors.grey.withValues(alpha: 0.05))
+                : null,
+            children: row.map((cell) {
+              return Padding(
+                padding: const EdgeInsets.all(8),
+                child: RichText(
+                  text: TextSpan(
+                    style:
+                        (Theme.of(context).textTheme.bodyMedium ??
+                                const TextStyle())
+                            .copyWith(
+                              fontWeight: cell.isHeader
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                    children: cell.content
+                        .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
+                        .toList(),
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _PersonaButton extends StatelessWidget {
+  const _PersonaButton({
+    required this.persona,
+    required this.activePersona,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+  final EditorPersona persona;
+  final EditorPersona activePersona;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isActive = persona == activePersona;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Tooltip(
+      message: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: isActive ? colorScheme.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: isActive
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurfaceVariant,
+              ),
+              if (isActive) ...[
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isActive
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GridPainter extends CustomPainter {
+
+  _GridPainter({required this.color});
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.3)
+      ..strokeWidth = 0.5;
+
+    const spacing = 30.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += spacing) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _LineWithIndex {
+  _LineWithIndex(this.line, this.index);
+  final Line line;
+  final int index;
 }

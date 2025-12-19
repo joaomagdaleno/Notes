@@ -1,0 +1,7 @@
+﻿Analyzing 3 items...                                            
+
+   info - The line length exceeds the 80-character limit - lib\screens\note_editor_screen.dart:306:81 - lines_longer_than_80_chars
+   info - The line length exceeds the 80-character limit - lib\screens\note_editor_screen.dart:566:81 - lines_longer_than_80_chars
+   info - The line length exceeds the 80-character limit - lib\screens\note_editor_screen.dart:598:81 - lines_longer_than_80_chars
+   info - Sort directive sections alphabetically - lib\services\storage_service.dart:3:1 - directives_ordering
+

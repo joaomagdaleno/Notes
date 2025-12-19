@@ -14,6 +14,7 @@ import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
+import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
@@ -21,7 +22,10 @@ import 'package:universal_notes_flutter/services/event_replayer.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
 import 'package:universal_notes_flutter/services/history_grouper.dart';
 import 'package:universal_notes_flutter/services/storage_service.dart';
+import 'package:universal_notes_flutter/services/template_service.dart';
+import 'package:universal_notes_flutter/widgets/command_palette.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 /// A screen for editing a note.
@@ -31,6 +35,7 @@ class NoteEditorScreen extends StatefulWidget {
     required this.onSave,
     this.note,
     this.isCollaborative = false,
+    this.initialPersona,
     super.key,
   });
 
@@ -43,6 +48,9 @@ class NoteEditorScreen extends StatefulWidget {
   /// Whether the note is in collaborative mode.
   final bool isCollaborative;
 
+  /// The persona to start the editor with.
+  final EditorPersona? initialPersona;
+
   @override
   State<NoteEditorScreen> createState() => _NoteEditorScreenState();
 }
@@ -53,6 +61,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   late DocumentModel _document;
   // final bool _showCursor = false; // Blinking cursor
   bool _isDrawingMode = false; // Handwriting mode
+  bool _softWrap = true;
 
   // Undo/Redo Stacks
   // Undo/Redo Stacks
@@ -77,7 +86,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
   final _firestoreRepository = FirestoreRepository();
-  final _storageService = StorageService();
+  final StorageService _storageService = StorageService();
   final _imagePicker = ImagePicker();
 
   // --- Collaboration State (Temporarily disabled) ---
@@ -303,57 +312,60 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     if (_note == null) return;
 
     // Listen to remote cursors
-    _cursorSubscription = _firestoreRepository
-        .listenToCursors(_note!.id)
-        .listen((cursors) {
-          if (!mounted) return;
-          final newCursors = <String, Map<String, dynamic>>{};
-          for (final cursorData in cursors) {
-            final userId = cursorData['userId'] as String;
-            if (userId != _firestoreRepository.currentUser?.uid) {
-              // Transform data format for EditorWidget
-              newCursors[userId] = {
-                'selection': {
-                  'base': cursorData['baseOffset'],
-                  'extent': cursorData['extentOffset'],
-                },
-                // ignore: deprecated_member_use
-                'color': cursorData['colorValue'] ?? Colors.grey.value,
-                'name': cursorData['displayName'] ?? 'Guest',
-              };
-            }
-          }
-          setState(() {
-            _remoteCursors
-              ..clear()
-              ..addAll(newCursors);
-          });
-        });
+    final cursorStream = _firestoreRepository.listenToCursors(_note!.id);
+    _cursorSubscription = cursorStream.listen((cursors) {
+      if (!mounted) return;
+      final newCursors = <String, Map<String, dynamic>>{};
+      for (final cursorData in cursors) {
+        final userId = cursorData['userId'] as String;
+        if (userId != _firestoreRepository.currentUser?.uid) {
+          // Transform data format for EditorWidget
+          newCursors[userId] = {
+            'selection': {
+              'base': cursorData['baseOffset'],
+              'extent': cursorData['extentOffset'],
+            },
+            // ignore: deprecated_member_use, documented for clarity: using hex value for storage
+            'color': cursorData['colorValue'] ?? Colors.grey.value,
+            'name': cursorData['displayName'] ?? 'Guest',
+          };
+        }
+      }
+      setState(() {
+        _remoteCursors
+          ..clear()
+          ..addAll(newCursors);
+      });
+    });
 
     // Listen to remote events (Document Sync)
     // We only care about events AFTER we loaded the document?
-    // Actually, if we loaded the document content, it might be stale if we didn't use a real-time listener for content.
-    // The current architecture seems to load 'fullContent' once.
-    // Ideally we should replay events that happened since 'lastModified'?
-    // For simplicity in this step, we listen to the stream of events.
-    // WARNING: This receives ALL events. We need to filter by those we haven't applied or are remote.
-    // A robust system would track 'lastAppliedEventId'.
-    _remoteEventsSubscription = _firestoreRepository.getNoteEventsStream(_note!.id).listen((
-      events,
-    ) {
-      // Filter out local events (we generated them) or already applied?
-      // For this MVP, we might re-apply everything or just the new ones.
-      // Optimally: user EventReplayer to build state?
-      // But we have local unsaved changes in _document.
-      // Re-applying all events from scratch would overwite local changes if they are not pushed yet.
-      // This is complex.
-      // Let's assume for this "Activate" task that we simply show cursors for now, and maybe
-      // rely on manual specific event handling if feasible.
-      // The prompt said "Ative a funcionalidade", referring probably to what was DISABLED.
-      // The 'cursor' part was explicitly disabled. The sync part was less clear.
-      // Let's implement cursor sync fully.
-      // For document sync, we can try to replay new events.
-    });
+    // Actually, if we loaded the document content, it might be stale if we
+    // didn't use a real-time listener for content. The current architecture
+    // seems to load 'fullContent' once. Ideally we should replay events that
+    // happened since 'lastModified'? For simplicity in this step, we listen
+    // to the stream of events.
+    // WARNING: This receives ALL events. We need to filter by those we
+    // haven't applied or are remote. A robust system would track
+    // 'lastAppliedEventId'.
+    _remoteEventsSubscription = _firestoreRepository
+        .getNoteEventsStream(_note!.id)
+        .listen((events) {
+          // Filter out local events (we generated them) or already applied?
+          // For this MVP, we might re-apply everything or just the new ones.
+          // Optimally: user EventReplayer to build state?
+          // But we have local unsaved changes in _document.
+          // Re-applying all events from scratch would overwite local changes if
+          // they are not pushed yet. This is complex. Let's assume for this
+          // "Activate" task that we simply show cursors for now, and maybe
+          // rely on manual specific event handling if feasible.
+          // The 'cursor' part was explicitly disabled. The sync part was less
+          // clear.
+          // The 'cursor' part was explicitly disabled. The sync part was less
+          // clear.
+          // Let's implement cursor sync fully. For document sync, we can try to
+          // replay new events.
+        });
   }
 
   Future<void> _broadcastCursorPosition(TextSelection selection) async {
@@ -366,7 +378,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       selection.baseOffset,
       selection.extentOffset,
       user.displayName ?? 'Anonymous',
-      // ignore: deprecated_member_use
+      // ignore: deprecated_member_use, documented for clarity: using hex value
       Colors.blue.value, // We could pick a random color per user session
     );
   }
@@ -430,11 +442,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
     // Create a Version Snapshot locally (if not empty)
     // We do this after saving the note itself.
-    // Ideally we'd compare content with last version to avoid duplicates,
-    // but for now, we'll create a version on every "Autosave" that is triggered.
-    // To avoid spamming versions on every character (handled by debounce),
-    // we might want to limit frequency (e.g. 1 per hour) in the future.
-    // For now, let's keep it simple: Create version.
+    // Ideally we'd compare content with last version to avoid duplicates, but
+    // for now, we'll create a version on every "Autosave" that is triggered.
+    // To avoid spamming versions on every character (handled by debounce), we
+    // might want to limit frequency (e.g. 1 per hour) in the future. For now,
+    // let's keep it simple: Create version.
     /* 
        Wait, creating a version on every autosave (debounce 1s) is too much. 
        Let's ONLY create version on:
@@ -442,7 +454,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
        2. Or if X minutes passed since last version?
        
        For this Step, let's enable it on Manual Save primarily.
-       So, I will NOT put it here in _autosave unless I add a flag 'createVersion'.
+       So, I will NOT put it here in _autosave unless I add a flag
+       'createVersion'.
     */
 
     // If Shared, push to Firestore (Real-Time / Sync)
@@ -479,9 +492,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         content: jsonContent,
         date: DateTime.now(),
       );
-      // We need access to repository directly.
-      // Ideally we'd use a service or the repository instance if we kept it.
-      // We removed _noteRepository field earlier. Let's add it back or use singleton.
+      // We need access to repository directly. Ideally we'd use a service or
+      // the repository instance if we kept it. We removed _noteRepository
+      // field earlier. Let's add it back or use singleton.
       await NoteRepository.instance.createNoteVersion(version);
     }
 
@@ -530,8 +543,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                                     'Restaurar para este ponto?',
                                   ),
                                   content: const Text(
-                                    'Isso reverterá o documento para o estado selecionado. '
-                                    'Uma nova linha do tempo será criada a partir daqui.',
+                                    'Isso reverterá o documento para o estado '
+                                    'selecionado. Uma nova linha do tempo será '
+                                    'criada a partir daqui.',
                                   ),
                                   actions: [
                                     TextButton(
@@ -553,16 +567,18 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                               point.eventsUpToPoint,
                             );
 
-                            _initializeEditor(restoredDoc.toPlainText());
-                            // Note: ideally _initializeEditor should take a DocumentModel if we want to preserve rich text state properly.
-                            // But EventReplayer returns DocumentModel.
                             // _initializeEditor parses string -> DocumentModel.
-                            // If EventReplayer is accurate, we should probably set _document directly if possible or update _initializeEditor/update wrapper.
-                            // Currently _initializeEditor acts on String content.
-                            // IF DocumentManipulator handles rich text, we lose it if we convert toPlainText() unless _initializeEditor re-parses it correctly or we bypass it.
-                            // For v1 event sourcing, if we only store pure text events? No, we have Format events.
-                            // So converting toPlainText() LOSES formatting.
-                            // We must update the state directly.
+                            // If EventReplayer is accurate, we should probably
+                            // set _document directly if possible or update
+                            // _initializeEditor/update wrapper. Currently
+                            // _initializeEditor acts on String content. IF
+                            // DocumentManipulator handles rich text, we lose
+                            // it if we convert toPlainText() unless
+                            // _initializeEditor re-parses it correctly or we
+                            // bypass it. For v1 event sourcing, if we only
+                            // store pure text events? No, we have Format
+                            // events. So converting toPlainText() LOSES
+                            // formatting. We must update the state directly.
 
                             setState(() {
                               _document = restoredDoc;
@@ -579,25 +595,33 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                               );
                             });
 
-                            Navigator.pop(context); // Close History Dialog
+                            if (context.mounted) {
+                              Navigator.pop(context); // Close History Dialog
+                            }
 
-                            // Trigger save to persist restoration as a NEW event?
-                            // No, typically we just treat this as a massive change or log a specific "Rollback" event.
-                            // For now, _autosave will run eventually, OR we should force a log.
-                            // But wait, if we set state, _onDocumentChanged wasn't
-                            // called.
-                            // So we need to trigger downstream effects.
+                            // Trigger save to persist restoration as NEW event?
+                            // No, typically we just treat this as a massive
+                            // change or log a specific "Rollback" event. For
+                            // now, _autosave will run eventually, OR we should
+                            // force a log. But wait, if we set state,
+                            // _onDocumentChanged wasn't called. So we need to
+                            // trigger downstream effects.
 
-                            // Let's create a snapshot event or rely on next edit.
-                            // Better: Log a 'restore' event manually if we want to trace it,
-                            // but simply setting the document puts the user in that state.
-                            // Any subsequent edit will append events.
+                            // Let's create a snapshot event or rely on next
+                            // edit. Better: Log a 'restore' event manually if
+                            // we want to trace it, but simply setting the
+                            // document puts the user in that state. Any
+                            // subsequent edit will append events.
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Versão restaurada com sucesso.'),
-                              ),
-                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Versão restaurada com sucesso.',
+                                  ),
+                                ),
+                              );
+                            }
                           }
                         },
                       );
@@ -910,7 +934,19 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           setState(() => _isFindBarVisible = false);
         }
       },
+      onLinkTap: (url) {
+        if (url.startsWith('note://find-by-title/')) {
+          final titleEncoded = url.replaceFirst('note://find-by-title/', '');
+          final title = Uri.decodeComponent(titleEncoded);
+          debugPrint('Navigating to note: $title');
+          // _navigateToNoteByTitle(title);
+        } else {
+          unawaited(launchUrl(Uri.parse(url)));
+        }
+      },
       isDrawingMode: _isDrawingMode,
+      softWrap: _softWrap,
+      initialPersona: widget.initialPersona ?? EditorPersona.architect,
     );
 
     // Define the keyboard shortcuts
@@ -950,140 +986,208 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _CenterLineIntent: _CenterLineAction(this),
       _ShowFormatMenuIntent: _ShowFormatMenuAction(this),
     };
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        await _saveNote();
-        if (context.mounted) Navigator.of(context).pop();
-      },
-      child: Actions(
-        actions: actions,
-        child: Shortcuts(
-          shortcuts: shortcuts,
-          child: Scaffold(
-            appBar: _isFocusMode
-                ? null
-                : AppBar(
-                    title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
-                    actions: [
-                      if (_isCollaborative)
-                        _CollaboratorAvatars(remoteCursors: _remoteCursors),
-                      IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: () => setState(
-                          () => _isFindBarVisible = !_isFindBarVisible,
-                        ),
-                      ),
-                      if (widget.note != null)
-                        IconButton(
-                          icon: const Icon(Icons.share),
-                          onPressed: _showShareDialog,
-                        ),
-                      IconButton(
-                        icon: const Icon(Icons.attach_file),
-                        onPressed: _attachImage,
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          _isFocusMode
-                              ? Icons.fullscreen_exit
-                              : Icons.fullscreen,
-                        ),
-                        onPressed: _toggleFocusMode,
-                      ),
-                      PopupMenuButton<String>(
-                        onSelected: (value) async {
-                          if (widget.note == null) return;
-                          final exportService = ExportService();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Exportando...'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                          if (value == 'txt') {
-                            await exportService.exportToTxt(widget.note!);
-                          } else if (value == 'pdf') {
-                            await exportService.exportToPdf(widget.note!);
-                          }
-                        },
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                              const PopupMenuItem<String>(
-                                value: 'txt',
-                                child: Text('Exportar para TXT'),
-                              ),
-                              const PopupMenuItem<String>(
-                                value: 'pdf',
-                                child: Text('Exportar para PDF'),
-                              ),
-                            ],
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.history),
-                        tooltip: 'Ver Histórico',
-                        onPressed: _showHistoryDialog,
-                      ),
-                    ],
-                  ),
-            floatingActionButton: _isFocusMode
-                ? null
-                : FloatingActionButton(
-                    onPressed: _saveNote,
-                    child: const Icon(Icons.save),
-                  ),
-            body: SafeArea(
-              top: !_isFocusMode,
-              bottom: !_isFocusMode,
-              child: Stack(
-                children: [
-                  Column(
-                    children: [
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder:
-                            (Widget child, Animation<double> animation) {
-                              return SizeTransition(
-                                sizeFactor: animation,
-                                child: child,
-                              );
-                            },
-                        child: _isFindBarVisible && !_isFocusMode
-                            ? FindReplaceBar(
-                                key: const ValueKey('findBar'),
-                                onFindChanged: _onFindChanged,
-                                onFindNext: _findNext,
-                                onFindPrevious: _findPrevious,
-                                onReplace: _replace,
-                                onReplaceAll: _replaceAll,
-                                onClose: () => setState(
-                                  () => _isFindBarVisible = false,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                      if (!_isFocusMode) _buildTagEditor(),
-                      if (_note?.imageUrl != null)
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Image.network(_note!.imageUrl!),
-                        ),
 
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: editor,
-                        ),
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.keyK, control: true):
+            _showContextCommandPalette,
+      },
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          await _saveNote();
+          if (context.mounted) Navigator.of(context).pop();
+        },
+        child: Actions(
+          actions: actions,
+          child: Shortcuts(
+            shortcuts: shortcuts,
+            child: Scaffold(
+              appBar: _isFocusMode
+                  ? null
+                  : AppBar(
+                      title: Text(
+                        widget.note == null ? 'New Note' : 'Edit Note',
                       ),
-                      if (!_isFocusMode)
-                        EditorToolbar(
-                          isDrawingMode: _isDrawingMode,
-                          onToggleDrawingMode: () {
-                            setState(() {
-                              _isDrawingMode = !_isDrawingMode;
-                            });
+                      actions: [
+                        if (_isCollaborative)
+                          _CollaboratorAvatars(remoteCursors: _remoteCursors),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () => setState(
+                            () => _isFindBarVisible = !_isFindBarVisible,
+                          ),
+                        ),
+                        if (widget.note != null)
+                          IconButton(
+                            icon: const Icon(Icons.share),
+                            onPressed: _showShareDialog,
+                          ),
+                        IconButton(
+                          icon: const Icon(Icons.attach_file),
+                          onPressed: _attachImage,
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            _isFocusMode
+                                ? Icons.fullscreen_exit
+                                : Icons.fullscreen,
+                          ),
+                          onPressed: _toggleFocusMode,
+                        ),
+                        PopupMenuButton<String>(
+                          onSelected: (value) async {
+                            if (widget.note == null) return;
+                            final exportService = ExportService();
+
+                            if (value == 'txt') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Exportando para TXT...'),
+                                  duration: Duration(seconds: 1),
+                                ),
+                              );
+                              await exportService.exportToTxt(widget.note!);
+                            } else if (value == 'pdf') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Exportando para PDF...'),
+                                  duration: Duration(seconds: 1),
+                                ),
+                              );
+                              await exportService.exportToPdf(widget.note!);
+                            } else if (value == 'toggle_wrap') {
+                              setState(() {
+                                _softWrap = !_softWrap;
+                              });
+                            }
                           },
+                          itemBuilder: (BuildContext context) =>
+                              <PopupMenuEntry<String>>[
+                                const PopupMenuItem<String>(
+                                  value: 'txt',
+                                  child: Text('Exportar para TXT'),
+                                ),
+                                const PopupMenuItem<String>(
+                                  value: 'pdf',
+                                  child: Text('Exportar para PDF'),
+                                ),
+                                const PopupMenuDivider(),
+                                PopupMenuItem<String>(
+                                  value: 'toggle_wrap',
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        _softWrap
+                                            ? Icons.wrap_text
+                                            : Icons.format_align_left,
+                                        color: Colors.black87,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        _softWrap
+                                            ? 'Disable Word Wrap'
+                                            : 'Enable Word Wrap',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.history),
+                          tooltip: 'Ver Histórico',
+                          onPressed: _showHistoryDialog,
+                        ),
+                      ],
+                    ),
+              floatingActionButton: _isFocusMode
+                  ? null
+                  : FloatingActionButton(
+                      onPressed: _saveNote,
+                      child: const Icon(Icons.save),
+                    ),
+              body: SafeArea(
+                top: !_isFocusMode,
+                bottom: !_isFocusMode,
+                child: Stack(
+                  children: [
+                    Column(
+                      children: [
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                                return SizeTransition(
+                                  sizeFactor: animation,
+                                  child: child,
+                                );
+                              },
+                          child: _isFindBarVisible && !_isFocusMode
+                              ? FindReplaceBar(
+                                  key: const ValueKey('findBar'),
+                                  onFindChanged: _onFindChanged,
+                                  onFindNext: _findNext,
+                                  onFindPrevious: _findPrevious,
+                                  onReplace: _replace,
+                                  onReplaceAll: _replaceAll,
+                                  onClose: () => setState(
+                                    () => _isFindBarVisible = false,
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                        if (!_isFocusMode) _buildTagEditor(),
+                        if (_note?.imageUrl != null)
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Image.network(_note!.imageUrl!),
+                          ),
+
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: editor,
+                          ),
+                        ),
+                        if (!_isFocusMode)
+                          EditorToolbar(
+                            isDrawingMode: _isDrawingMode,
+                            onToggleDrawingMode: () {
+                              setState(() {
+                                _isDrawingMode = !_isDrawingMode;
+                              });
+                            },
+                            onBold: () => _toggleStyle(StyleAttribute.bold),
+                            onItalic: () => _toggleStyle(StyleAttribute.italic),
+                            onUnderline: () =>
+                                _toggleStyle(StyleAttribute.underline),
+                            onStrikethrough: () =>
+                                _toggleStyle(StyleAttribute.strikethrough),
+                            onColor: _showColorPicker,
+                            onFontSize: _showFontSizePicker,
+                            onSnippets: _showSnippetsScreen,
+                            onImage: _attachImage,
+                            onUndo: _undo,
+                            onRedo: _redo,
+                            canUndo: _canUndo,
+                            canRedo: _canRedo,
+                            wordCountNotifier: _wordCountNotifier,
+                            charCountNotifier: _charCountNotifier,
+                            onAlignment: (align) =>
+                                _toggleBlockAttribute('align', align),
+                            onIndent: _indentBlock,
+                            onList: (type) =>
+                                _toggleBlockAttribute('list', type),
+                          ),
+                      ],
+                    ),
+                    if (_isToolbarVisible)
+                      Positioned(
+                        top: _selectionRect!.top - 55,
+                        left: _selectionRect!.left,
+                        child: FloatingToolbar(
                           onBold: () => _toggleStyle(StyleAttribute.bold),
                           onItalic: () => _toggleStyle(StyleAttribute.italic),
                           onUnderline: () =>
@@ -1091,36 +1195,103 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                           onStrikethrough: () =>
                               _toggleStyle(StyleAttribute.strikethrough),
                           onColor: _showColorPicker,
-                          onFontSize: _showFontSizePicker,
-                          onSnippets: _showSnippetsScreen,
-                          onImage: _attachImage,
-                          onUndo: _undo,
-                          onRedo: _redo,
-                          canUndo: _canUndo,
-                          canRedo: _canRedo,
-                          wordCountNotifier: _wordCountNotifier,
-                          charCountNotifier: _charCountNotifier,
-                          onAlignment: (align) =>
-                              _toggleBlockAttribute('align', align),
-                          onIndent: _indentBlock,
-                          onList: (type) => _toggleBlockAttribute('list', type),
+                          onLink: _showLinkDialog,
                         ),
-                    ],
-                  ),
-                  if (_isToolbarVisible)
-                    Positioned(
-                      top: _selectionRect!.top - 55,
-                      left: _selectionRect!.left,
-                      child: FloatingToolbar(
-                        onBold: () => _toggleStyle(StyleAttribute.bold),
-                        onItalic: () => _toggleStyle(StyleAttribute.italic),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showContextCommandPalette() {
+    unawaited(
+      showCommandPalette(
+        context,
+        actions: [
+          CommandAction(
+            title: 'New Note',
+            icon: Icons.note_add,
+            onSelect: () {
+              unawaited(
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => NoteEditorScreen(
+                      onSave: widget.onSave,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          CommandAction(
+            title: 'Toggle Focus Mode',
+            icon: _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
+            onSelect: _toggleFocusMode,
+          ),
+          CommandAction(
+            title: 'Show Snippets',
+            icon: Icons.smart_button,
+            onSelect: _showSnippetsScreen,
+          ),
+          CommandAction(
+            title: 'Callout: Note',
+            icon: Icons.info,
+            onSelect: () => _insertCallout(CalloutType.note),
+          ),
+          CommandAction(
+            title: 'Callout: Tip',
+            icon: Icons.lightbulb,
+            onSelect: () => _insertCallout(CalloutType.tip),
+          ),
+          CommandAction(
+            title: 'Callout: Warning',
+            icon: Icons.warning,
+            onSelect: () => _insertCallout(CalloutType.warning),
+          ),
+          CommandAction(
+            title: 'Callout: Danger',
+            icon: Icons.error,
+            onSelect: () => _insertCallout(CalloutType.danger),
+          ),
+          CommandAction(
+            title: 'Callout: Info',
+            icon: Icons.info_outline,
+            onSelect: () => _insertCallout(CalloutType.info),
+          ),
+          CommandAction(
+            title: 'Callout: Success',
+            icon: Icons.check_circle,
+            onSelect: () => _insertCallout(CalloutType.success),
+          ),
+          CommandAction(
+            title: 'Insert Template',
+            icon: Icons.copy_all,
+            onSelect: _showTemplatePicker,
+          ),
+          if (_note != null) ...[
+            CommandAction(
+              title: 'Export to PDF',
+              icon: Icons.picture_as_pdf,
+              onSelect: () async {
+                final exportService = ExportService();
+                await exportService.exportToPdf(widget.note!);
+              },
+            ),
+            CommandAction(
+              title: 'Export to TXT',
+              icon: Icons.text_snippet,
+              onSelect: () async {
+                final exportService = ExportService();
+                await exportService.exportToTxt(widget.note!);
+              },
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -1167,6 +1338,20 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         _document,
         lineIndex,
         delta,
+      );
+      _applyManipulation(result);
+    }
+  }
+
+  void _insertCallout(CalloutType type) {
+    if (_selection.isCollapsed) {
+      final lineIndex = _getBlockIndexForOffset(_selection.baseOffset);
+      if (lineIndex < 0) return;
+
+      final result = DocumentManipulator.convertBlockToCallout(
+        _document,
+        lineIndex,
+        type,
       );
       _applyManipulation(result);
     }
@@ -1265,6 +1450,91 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         ),
       ),
     );
+  }
+
+  Future<void> _showLinkDialog() async {
+    final controller = TextEditingController();
+    // Pre-fill with existing link if any?
+    // Not easy to get current span link efficiently without traversing,
+    // but assuming clean slate or overwrite for now.
+
+    final url = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Insert Link'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'URL',
+            hintText: 'https://example.com',
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(controller.text),
+            child: const Text('Insert'),
+          ),
+        ],
+      ),
+    );
+
+    if (url != null && url.isNotEmpty) {
+      final result = DocumentManipulator.applyLink(
+        _document,
+        _selection,
+        url,
+      );
+      _applyManipulation(result);
+    }
+  }
+
+  Future<void> _showTemplatePicker() async {
+    final templates = TemplateService.getTemplates();
+    await showDialog<void>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Choose a Template'),
+        children: templates.map((t) {
+          return SimpleDialogOption(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _insertTemplate(t);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    t.description,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  void _insertTemplate(NoteTemplate template) {
+    // Insert template content at cursor
+    final result = DocumentManipulator.insertText(
+      _document,
+      _selection.baseOffset,
+      template.contentMarkdown,
+    );
+    _applyManipulation(result);
   }
 }
 

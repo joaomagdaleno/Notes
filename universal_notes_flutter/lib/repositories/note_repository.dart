@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,6 +10,7 @@ import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/snippet.dart';
+import 'package:universal_notes_flutter/models/sync_status.dart';
 import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/services/firebase_service.dart';
 import 'package:uuid/uuid.dart';
@@ -54,7 +56,7 @@ class NoteRepository {
     final path = join(dir.path, _dbName);
     return openDatabase(
       path,
-      version: 9,
+      version: 11,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -62,13 +64,16 @@ class NoteRepository {
 
   Future<void> _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE $_foldersTable(id TEXT PRIMARY KEY, name TEXT)
+      CREATE TABLE $_foldersTable(
+        id TEXT PRIMARY KEY, name TEXT, isSmart INTEGER DEFAULT 0, query TEXT
+      )
     ''');
     await db.execute('''
       CREATE TABLE $_notesTable(
         id TEXT PRIMARY KEY, title TEXT, content TEXT, date INTEGER,
         isFavorite INTEGER, isLocked INTEGER, isInTrash INTEGER, isDeleted INTEGER, isDraft INTEGER,
-        drawingJson TEXT, prefsJson TEXT, folderId TEXT,
+        drawingJson TEXT, prefsJson TEXT, folderId TEXT, syncStatus INTEGER DEFAULT 2,
+        thumbnail BLOB,
         FOREIGN KEY (folderId) REFERENCES $_foldersTable(id) ON DELETE SET NULL
       )
     ''');
@@ -189,6 +194,18 @@ class NoteRepository {
           isSynced INTEGER DEFAULT 0
         )
       ''');
+    }
+    if (oldVersion < 10) {
+      await db.execute(
+        'ALTER TABLE $_notesTable ADD COLUMN syncStatus INTEGER DEFAULT 2',
+      );
+    }
+    if (oldVersion < 11) {
+      await db.execute(
+        'ALTER TABLE $_foldersTable ADD COLUMN isSmart INTEGER DEFAULT 0',
+      );
+      await db.execute('ALTER TABLE $_foldersTable ADD COLUMN query TEXT');
+      await db.execute('ALTER TABLE $_notesTable ADD COLUMN thumbnail BLOB');
     }
   }
 
@@ -437,6 +454,16 @@ class NoteRepository {
     return folder;
   }
 
+  /// Inserts a folder with a specific ID (used for backup restore).
+  Future<void> insertFolder(Folder folder) async {
+    final db = await database;
+    await db.insert(
+      _foldersTable,
+      folder.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
   /// Retrieves all folders.
   Future<List<Folder>> getAllFolders() async {
     final db = await database;
@@ -468,7 +495,7 @@ class NoteRepository {
     await db.transaction((txn) async {
       await txn.insert(
         _notesTable,
-        note.toMap(),
+        note.copyWith(syncStatus: SyncStatus.local).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
       await _updateTagsForNote(txn, note);
@@ -570,12 +597,27 @@ class NoteRepository {
     throw Exception('Note not found');
   }
 
+  /// Retrieves a note by its title.
+  Future<Note?> getNoteByTitle(String title) async {
+    final db = await database;
+    final maps = await db.query(
+      _notesTable,
+      where: 'title = ? AND isInTrash = 0',
+      whereArgs: [title],
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return Note.fromMap(maps.first);
+    }
+    return null;
+  }
+
   /// Updates the content of a note.
   Future<void> updateNoteContent(Note note) async {
     final db = await database;
     await db.update(
       _notesTable,
-      note.toMap(),
+      note.copyWith(syncStatus: SyncStatus.modified).toMap(),
       where: 'id = ?',
       whereArgs: [note.id],
     );
@@ -588,7 +630,7 @@ class NoteRepository {
     await db.transaction((txn) async {
       await txn.update(
         _notesTable,
-        note.toMap(),
+        note.copyWith(syncStatus: SyncStatus.modified).toMap(),
         where: 'id = ?',
         whereArgs: [note.id],
       );
@@ -632,7 +674,8 @@ class NoteRepository {
     // Since we lazy-create tags, _tagsTable might have orphans if we remove
     // tags from notes.
     // ideal: join with _noteTagsTable to find used tags.
-    // Or just return all known tags. Let's return all known tags to allow reuse.
+    // Or just return all known tags. Let's return all known tags to allow
+    // reuse.
     final result = await db.query(
       _tagsTable,
       columns: ['name'],
@@ -755,8 +798,7 @@ class NoteRepository {
 
   // --- Full-Text Search Methods ---
 
-  /// Searches notes using full-text search.
-  /// Returns a list of [SearchResult] ordered by relevance.
+  /// Performs a full-text search across notes.
   Future<List<SearchResult>> searchNotes(String query) async {
     if (query.trim().isEmpty) return [];
 
@@ -766,43 +808,35 @@ class NoteRepository {
     final sanitizedQuery = query
         .replaceAll('"', '""')
         .split(' ')
-        .where((w) => w.isNotEmpty)
+        .where((w) => w.length > 1) // Only use words > 1 char for search
         .map((w) => '"$w"*') // Prefix match with quotes for safety
         .join(' ');
 
     if (sanitizedQuery.isEmpty) return [];
 
-    // Query FTS5 with ranking
-    final results = await db.rawQuery(
-      '''
+    // Query FTS5 with ranking - Title has higher weight (10.0 vs 1.0)
+    final results = await db.rawQuery('''
       SELECT 
-        n.id,
-        n.title,
-        n.content,
-        n.date,
-        n.isFavorite,
-        n.isLocked,
-        n.isInTrash,
-        n.isDeleted,
-        n.isDraft,
-        n.folderId,
-        snippet($_notesFtsTable, 1, '<b>', '</b>', '...', 32) as snippet,
-        bm25($_notesFtsTable) as rank
+        n.*,
+        snippet($_notesFtsTable, 0, '<b>', '</b>', '...', 16) as title_snippet,
+        snippet($_notesFtsTable, 1, '<b>', '</b>', '...', 32) as content_snippet,
+        bm25($_notesFtsTable, 10.0, 1.0) as rank
       FROM $_notesFtsTable fts
       JOIN $_notesTable n ON fts.rowid = n.rowid
-      WHERE $_notesFtsTable MATCH ?
+      WHERE $_notesFtsTable MATCH '$sanitizedQuery'
         AND n.isInTrash = 0
         AND n.isDeleted = 0
       ORDER BY rank
-      LIMIT 50
-    ''',
-      [sanitizedQuery],
-    );
+      LIMIT 100
+    ''');
 
     return results.map((row) {
+      final titleSnippet = row['title_snippet'] as String? ?? '';
+      final contentSnippet = row['content_snippet'] as String? ?? '';
+
       return SearchResult(
         note: Note.fromMap(row),
-        snippet: row['snippet'] as String? ?? '',
+        snippet: titleSnippet.contains('<b>') ? titleSnippet : contentSnippet,
         rank: (row['rank'] as num?)?.toDouble() ?? 0.0,
       );
     }).toList();
@@ -894,6 +928,17 @@ class NoteRepository {
     }
 
     await batch.commit(noResult: true);
+  }
+
+  /// Retrieves all notes that haven't been synced to the remote storage.
+  Future<List<Note>> getUnsyncedNotes() async {
+    final db = await database;
+    final results = await db.query(
+      _notesTable,
+      where: 'syncStatus = ? OR syncStatus = ?',
+      whereArgs: [SyncStatus.local.index, SyncStatus.modified.index],
+    );
+    return results.map(Note.fromMap).toList();
   }
 }
 
