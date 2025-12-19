@@ -41,11 +41,19 @@ class SyncService {
 
   /// Initial fetch from local DB to populate streams
   Future<void> init() async {
+    await _remoteSubscription?.cancel();
     await refreshLocalData();
     // Start background sync
     _startBackgroundSync();
     // Try to push local changes
     unawaited(syncUp());
+  }
+
+  /// Cancels subscriptions for testing.
+  @visibleForTesting
+  Future<void> reset() async {
+    await _remoteSubscription?.cancel();
+    _remoteSubscription = null;
   }
 
   /// Re-reads data from SQLite and emits to streams

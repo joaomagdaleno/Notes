@@ -1,0 +1,17 @@
+﻿00:00 +0: loading C:/Users/joaovitormagdaleno/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart
+00:00 +0: (setUpAll)
+00:00 +0 -1: (setUpAll) [E]
+  type 'Null' is not a subtype of type 'Future<List<Note>>'
+  test\main_test.dart 140:7                                          MockNoteRepository.getUnsyncedNotes
+  package:universal_notes_flutter/services/sync_service.dart 162:45  SyncService.syncUp
+  package:universal_notes_flutter/services/sync_service.dart 49:15   SyncService.init
+  ===== asynchronous gap ===========================
+  dart:async                                                         Future._asyncCompleteError
+  package:universal_notes_flutter/services/sync_service.dart 49:15   SyncService.init
+  ===== asynchronous gap ===========================
+  dart:async                                                         _CustomZone.registerUnaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 44:5    SyncService.init
+  test\main_test.dart 346:34                                         main.<fn>
+  
+00:00 +0 -1: (tearDownAll)
+00:00 +0 -1: Some tests failed.
