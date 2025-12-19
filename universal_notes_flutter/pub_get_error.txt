@@ -1,3 +1,0 @@
-Resolving dependencies...
-Because universal_notes_flutter depends on very_good_analysis ^11.0.0 which doesn't match any versions, version solving failed.
-Failed to update packages.
