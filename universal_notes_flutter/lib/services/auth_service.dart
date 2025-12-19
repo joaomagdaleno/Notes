@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 
 /// Service for handling authentication.

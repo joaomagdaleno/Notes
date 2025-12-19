@@ -81,10 +81,8 @@ class MarkdownConverter {
             pattern.length + 1, // "> [!NOTE] "
             type,
           );
-        } on ArgumentError {
-          // Invalid callout type, ignore
-        } catch (_) {
-          // ignore other errors
+        } on Exception catch (_) {
+          // ignore errors or invalid callout types
         }
       }
 

@@ -170,14 +170,14 @@ class VirtualTextBuffer {
           ),
         );
       } else if (block is DrawingBlock) {
-        // Placeholder for drawing line if we want to render it in flow
-        // For now, treat as image-like or specialized line?
         // NoteEditor handles drawings via EditorWidget custom logic?
-        // Actually DocumentModel has DrawingBlock but VirtualTextBuffer didn't handle it.
-        // Assuming EditorWidget renders drawings separately or we add DrawingLine later.
-        // For consistency with existing code (which had ImageBlock), I'll ignore Drawing here
+        // Actually DocumentModel has DrawingBlock but VirtualTextBuffer
+        // didn't handle it. Assuming EditorWidget renders drawings
+        // separately or we add DrawingLine later. For consistency with
+        // existing code (which had ImageBlock), I'll ignore Drawing here
         // or add a dummy if needed. The model has it.
-        // Existing code: Lines 107 in original view ONLY handled ImageBlock and TextBlock.
+        // Existing code: Lines 107 in original view ONLY handled ImageBlock
+        // and TextBlock.
       } else if (block is TextBlock) {
         var currentBlockSpans = <TextSpanModel>[];
         // We process spans. On newline, we emit a line WITH this block's

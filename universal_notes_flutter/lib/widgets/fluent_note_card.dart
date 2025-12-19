@@ -71,8 +71,8 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
     // A try-catch block is added for resilience against malformed JSON.
     try {
       return DocumentAdapter.fromJson(jsonContent).toPlainText();
-    } catch (e) {
-      return 'Error parsing content';
+    } on Exception catch (e) {
+      return 'Error parsing content: $e';
     }
   }
 

@@ -36,25 +36,10 @@ class NoteCard extends StatefulWidget {
   /// Callback when swiped left (move to trash).
   final void Function(Note)? onTrash;
 
-  // ⚡ Bolt: Memoize DateFormat for performance.
-  // Re-creating DateFormat on every build is inefficient.
-  // This avoids repeated object creation.
+  // ⚡ Bolt: Memoize DateFormat for better performance.
   static final _dateFormat = DateFormat('d MMM. yyyy');
 
-  // ⚡ Bolt: Memoize BoxDecoration for performance.
-  // Re-creating this decoration on every build is inefficient.
-  // This avoids repeated object creation for the gradient overlay.
-  static const _gradientDecoration = BoxDecoration(
-    gradient: LinearGradient(
-      colors: [
-        Color(0x99000000), // Colors.black.withAlpha(153)
-        Colors.transparent,
-        Color(0xCC000000), // Colors.black.withAlpha(204)
-      ],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-  );
+  // static const _gradientDecoration = ... (Removed duplicate/unused)
 
   @override
   State<NoteCard> createState() => _NoteCardState();
@@ -154,18 +139,17 @@ class _NoteCardState extends State<NoteCard> {
                         alignment: Alignment.topRight,
                         child: Icon(Icons.star, color: Colors.amber, size: 20),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        NoteCard._dateFormat.format(widget.note.lastModified),
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                      ),
-                    ],
-                  ),
+                    const SizedBox(height: 4),
+                    Text(
+                      NoteCard._dateFormat.format(widget.note.lastModified),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

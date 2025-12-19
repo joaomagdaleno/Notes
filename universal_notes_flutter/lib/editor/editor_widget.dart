@@ -1747,8 +1747,8 @@ class _EditorLine extends StatelessWidget {
           );
         }
 
-        // Render a preview of the note content
-        // For simplicity, we'll render the first few blocks or a summarized view
+        // Render a preview of the note content. For simplicity, we'll
+        // render the first few blocks or a summarized view
         final doc = DocumentModel.fromJson(json.decode(note.content));
 
         return Container(
@@ -1914,7 +1914,6 @@ class _PersonaButton extends StatelessWidget {
 }
 
 class _GridPainter extends CustomPainter {
-
   _GridPainter({required this.color});
   final Color color;
 
