@@ -5,7 +5,7 @@ import 'package:universal_notes_flutter/models/sync_status.dart';
 
 void main() {
   group('NoteEvent', () {
-    final timestamp = DateTime(2023, 1);
+    final timestamp = DateTime(2023);
     final payload = {'text': 'hello', 'position': 0};
 
     test('should create a NoteEvent instance', () {
