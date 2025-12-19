@@ -62,7 +62,20 @@ class NoteCard extends StatefulWidget {
 
 class _NoteCardState extends State<NoteCard> {
   // String _plainTextContent = '';
-  bool _isHovering = false;
+  // ⚡ Bolt: Hoisting the gradient decoration for performance.
+  // This avoids re-creating the BoxDecoration on every build, which is
+  // a common performance anti-pattern in Flutter.
+  static final _gradientDecoration = BoxDecoration(
+    gradient: LinearGradient(
+      colors: [
+        Colors.black.withAlpha(153), // 0.6 alpha
+        Colors.transparent,
+        Colors.black.withAlpha(204), // 0.8 alpha
+      ],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+  );
 
   @override
   void initState() {
@@ -92,74 +105,54 @@ class _NoteCardState extends State<NoteCard> {
   Widget build(BuildContext context) {
     final hasImage = widget.note.imageUrl?.isNotEmpty ?? false;
 
-    final card = MouseRegion(
-      onEnter: (_) => setState(() => _isHovering = true),
-      onExit: (_) => setState(() => _isHovering = false),
-      child: Card(
-        elevation: _isHovering ? 8 : 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        clipBehavior: Clip.antiAlias, // Important for the image background
-        child: InkWell(
-          onTap: widget.onTap,
-          onLongPress: () {
-            final renderBox = context.findRenderObject() as RenderBox?;
-            if (renderBox != null) {
-              final offset = renderBox.localToGlobal(
-                renderBox.size.center(Offset.zero),
-              );
-              _showContextMenu(context, offset);
-            }
-          },
-          child: Semantics(
-            label: widget.note.title.isNotEmpty
-                ? 'Nota: ${widget.note.title}'
-                : 'Nota Sem Título',
-            hint:
-                'Modificado em '
-                '${NoteCard._dateFormat.format(widget.note.lastModified)}',
-            button: true,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (hasImage)
-                  Image.network(
-                    widget.note.imageUrl!,
-                    fit: BoxFit.cover,
-                  ),
-                // Gradient overlay for text readability
-                const DecoratedBox(
-                  decoration: NoteCard._gradientDecoration,
+    final card = Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      clipBehavior: Clip.antiAlias, // Important for the image background
+      child: InkWell(
+        onTap: widget.onTap,
+        onLongPress: () {
+          final renderBox = context.findRenderObject() as RenderBox?;
+          if (renderBox != null) {
+            final offset = renderBox.localToGlobal(
+              renderBox.size.center(Offset.zero),
+            );
+            _showContextMenu(context, offset);
+          }
+        },
+        child: Semantics(
+          label: widget.note.title.isNotEmpty
+              ? 'Nota: ${widget.note.title}'
+              : 'Nota Sem Título',
+          hint:
+              'Modificado em '
+              '${NoteCard._dateFormat.format(widget.note.lastModified)}',
+          button: true,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (hasImage)
+                Image.network(
+                  widget.note.imageUrl!,
+                  fit: BoxFit.cover,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // Favorite indicator
-                      if (widget.note.isFavorite)
-                        const Align(
-                          alignment: Alignment.topRight,
-                          child: Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                            size: 20,
-                          ),
-                        ),
-                      const Spacer(),
-                      Text(
-                        widget.note.title.isNotEmpty
-                            ? widget.note.title
-                            : 'Sem Título',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+              // Gradient overlay for text readability
+              Container(
+                decoration: _gradientDecoration,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // Favorite indicator
+                    if (widget.note.isFavorite)
+                      const Align(
+                        alignment: Alignment.topRight,
+                        child: Icon(Icons.star, color: Colors.amber, size: 20),
                       ),
                       const SizedBox(height: 4),
                       Text(

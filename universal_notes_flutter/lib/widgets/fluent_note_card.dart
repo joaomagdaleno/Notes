@@ -48,29 +48,30 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
   @override
   void initState() {
     super.initState();
-    // ⚡ Bolt: Caching the plain text content of a note.
-    // Parsing JSON and converting to plain text on every build is expensive.
-    // This computes it once when the widget is created or when the note
-    // content changes, making the build method much more efficient.
     _plainTextContent = _computePlainText(widget.note.content);
   }
 
   @override
-  void didUpdateWidget(covariant FluentNoteCard oldWidget) {
+  void didUpdateWidget(FluentNoteCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.note.content != oldWidget.note.content) {
-      setState(() {
-        _plainTextContent = _computePlainText(widget.note.content);
-      });
+      // ⚡ Bolt: Recalculate plain text only when content changes.
+      // This prevents expensive JSON parsing on every rebuild.
+      _plainTextContent = _computePlainText(widget.note.content);
     }
   }
 
+  // ⚡ Bolt: Caching the plain text content of a note.
+  // Parsing JSON on every build is expensive. This computes it once
+  // when the widget is created or when the note content changes.
   String _computePlainText(String jsonContent) {
-    if (jsonContent.isEmpty) return '';
+    if (jsonContent.isEmpty) {
+      return '';
+    }
+    // A try-catch block is added for resilience against malformed JSON.
     try {
       return DocumentAdapter.fromJson(jsonContent).toPlainText();
-    } on Exception catch (_) {
-      // Handle potential malformed JSON gracefully.
+    } catch (e) {
       return 'Error parsing content';
     }
   }
