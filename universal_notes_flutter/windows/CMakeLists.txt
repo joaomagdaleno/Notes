@@ -1,6 +1,5 @@
 # Project-level configuration.
-cmake_minimum_required(VERSION 3.14)
-set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(universal_notes_flutter LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
@@ -94,11 +93,12 @@ install(DIRECTORY "${NATIVE_ASSETS_DIR}"
    DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
    COMPONENT Runtime)
 
-# Fully re-copy the assets directory on each build to avoid having stale files
-# from a previous install.
-set(FLUTTER_ASSET_DIR_NAME "flutter_assets")
+# Fully re-copy the assets directory on each build.
+# We remove the old one ONLY if it exists to avoid errors.
 install(CODE "
-  file(REMOVE_RECURSE \"${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}\")
+  if(EXISTS \"${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}\")
+    file(REMOVE_RECURSE \"${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}\")
+  endif()
   " COMPONENT Runtime)
 install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
   DESTINATION "${INSTALL_BUNDLE_DATA_DIR}" COMPONENT Runtime)
