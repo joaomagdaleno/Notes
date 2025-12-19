@@ -1,14 +1,12 @@
 import 'package:test/test.dart';
 import 'package:universal_notes_flutter/services/tracing_service.dart';
-import 'package:opentelemetry/api.dart';
 
 void main() {
   group('TracingService', () {
     late TracingService service;
 
     setUp(() {
-      service = TracingService();
-      service.init();
+      service = TracingService()..init();
     });
 
     test('should provide a tracer after initialization', () {

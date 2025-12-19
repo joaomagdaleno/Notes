@@ -17,12 +17,12 @@ void main() {
     });
 
     test('should return original content if it is not a list', () {
-      final content = '{"key": "value"}';
+      const content = '{"key": "value"}';
       expect(getPreviewText(content), content);
     });
 
     test('should return original content if it is not valid JSON', () {
-      final content = 'plain text that is not json';
+      const content = 'plain text that is not json';
       expect(getPreviewText(content), content);
     });
 

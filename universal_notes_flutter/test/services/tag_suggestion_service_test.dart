@@ -3,8 +3,8 @@ import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/services/tag_suggestion_service.dart';
 
-// Note: This test might fail to run with 'dart test' if Flutter imports cannot be resolved.
-// It is intended for 'flutter test' once the environment issue is resolved.
+// Note: This test might fail to run with 'dart test' if Flutter imports
+// cannot be resolved. It is intended for 'flutter test' later.
 
 void main() {
   group('TagSuggestionService', () {

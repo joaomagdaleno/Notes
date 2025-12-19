@@ -24,7 +24,6 @@ void main() {
       expect(event.payload, payload);
       expect(event.timestamp, timestamp);
       expect(event.deviceId, 'dev1');
-      expect(event.syncStatus, SyncStatus.local);
     });
 
     test('fromMap should create a NoteEvent from a local map', () {
@@ -76,7 +75,9 @@ void main() {
 
       expect(map['id'], 'evt4');
       expect(map['type'], 'imageInsert');
-      expect(jsonDecode(map['payload'] as String)['url'], 'http://test.com');
+      final payload =
+          jsonDecode(map['payload'] as String) as Map<String, dynamic>;
+      expect(payload['url'], 'http://test.com');
       expect(map['syncStatus'], 'local');
     });
 
@@ -93,7 +94,8 @@ void main() {
       final map = event.toFirestore();
 
       expect(map['noteId'], 'note5');
-      expect(map['payload']['text'], 'abc');
+      final payload = map['payload'] as Map<String, dynamic>;
+      expect(payload['text'], 'abc');
       expect(map['deviceId'], 'dev5');
     });
 

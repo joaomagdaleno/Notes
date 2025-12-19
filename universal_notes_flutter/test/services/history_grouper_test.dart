@@ -50,7 +50,7 @@ void main() {
 
       final points = HistoryGrouper.groupEvents(events);
 
-      // Should have some "Resumo Diário" points and "Versão Atual" (if any recent)
+      // Should have daily summaries and maybe "Versão Atual" (if any recent)
       // Since all are old, we get daily summaries.
       // Max 5 strategy for old events.
       expect(points.any((p) => p.label == 'Resumo Diário'), isTrue);
