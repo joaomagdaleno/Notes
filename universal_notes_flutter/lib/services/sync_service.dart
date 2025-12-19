@@ -16,6 +16,9 @@ class SyncService {
   /// The singleton instance of [SyncService].
   static final SyncService instance = SyncService._();
 
+  bool _isDisposed = false;
+  Future<void>? _syncUpFuture;
+
   @visibleForTesting
   late NoteRepository noteRepository = NoteRepository.instance;
   @visibleForTesting
@@ -41,19 +44,23 @@ class SyncService {
 
   /// Initial fetch from local DB to populate streams
   Future<void> init() async {
+    _isDisposed = false;
     await _remoteSubscription?.cancel();
     await refreshLocalData();
     // Start background sync
     _startBackgroundSync();
     // Try to push local changes
-    unawaited(syncUp());
+    _syncUpFuture = syncUp();
   }
 
   /// Cancels subscriptions for testing.
   @visibleForTesting
   Future<void> reset() async {
+    _isDisposed = true;
     await _remoteSubscription?.cancel();
     _remoteSubscription = null;
+    await _syncUpFuture;
+    _syncUpFuture = null;
   }
 
   /// Re-reads data from SQLite and emits to streams
@@ -87,6 +94,7 @@ class SyncService {
     _remoteSubscription = firestoreRepository.notesStream().listen((
       remoteNotes,
     ) async {
+      if (_isDisposed) return;
       await _syncDown(remoteNotes);
     });
   }
@@ -158,9 +166,11 @@ class SyncService {
 
   /// Syncs local changes to Firestore (SQLite -> Firestore)
   Future<void> syncUp() async {
+    if (_isDisposed) return;
     // Dirty Sync strategy: Only push local notes that are modified or local.
     final localNotes = await noteRepository.getUnsyncedNotes();
     for (final note in localNotes) {
+      if (_isDisposed) break;
       await syncUpNote(note);
     }
   }

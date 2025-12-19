@@ -8,6 +8,9 @@ class AuthService {
   @visibleForTesting
   late FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
+  @visibleForTesting
+  late FirestoreRepository firestoreRepository = FirestoreRepository();
+
   /// Returns a stream of the authentication state.
   Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();
 
@@ -42,7 +45,6 @@ class AuthService {
       if (credential.user != null) {
         // Create user profile in Firestore
         try {
-          final firestoreRepository = FirestoreRepository();
           await firestoreRepository.createUser(credential.user!);
         } on Exception {
           // Re-throwing the exception to allow the UI to handle the error,

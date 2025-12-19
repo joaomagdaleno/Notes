@@ -10,7 +10,6 @@ import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -24,7 +23,7 @@ import 'package:universal_notes_flutter/widgets/sidebar.dart';
 import 'package:window_manager/window_manager.dart';
 
 // Mock class for testing purposes.
-class MockUpdateService extends UpdateService {
+class MockUpdateService extends Mock implements UpdateService {
   @override
   Future<UpdateCheckResult> checkForUpdate() async {
     return UpdateCheckResult(UpdateCheckStatus.noUpdate);
@@ -109,6 +108,7 @@ class MockFirestoreRepository extends Mock implements FirestoreRepository {
     return super.noSuchMethod(
           Invocation.method(#getNoteContent, [noteId]),
           returnValue: Future.value(''),
+          returnValueForMissingStub: Future.value(''),
         )
         as Future<String>;
   }
@@ -136,87 +136,6 @@ class MockWindowManager extends Mock implements WindowManager {
 }
 
 enum ViewMode { gridMedium, gridLarge, list, listSimple, gridSmall }
-
-class MockNoteRepository extends Mock implements NoteRepository {
-  @override
-  String? dbPath;
-
-  @override
-  Future<List<Note>> getAllNotes({
-    String? folderId,
-    String? tagId,
-    bool? isFavorite,
-    bool? isInTrash,
-  }) {
-    return super.noSuchMethod(
-          Invocation.method(#getAllNotes, [], {
-            #folderId: folderId,
-            #tagId: tagId,
-            #isFavorite: isFavorite,
-            #isInTrash: isInTrash,
-          }),
-          returnValue: Future.value(<Note>[]),
-        )
-        as Future<List<Note>>;
-  }
-
-  @override
-  Future<List<Folder>> getAllFolders() {
-    return super.noSuchMethod(
-          Invocation.method(#getAllFolders, []),
-          returnValue: Future.value(<Folder>[]),
-        )
-        as Future<List<Folder>>;
-  }
-
-  @override
-  Future<List<String>> getAllTagNames() {
-    return super.noSuchMethod(
-          Invocation.method(#getAllTagNames, []),
-          returnValue: Future.value(<String>[]),
-        )
-        as Future<List<String>>;
-  }
-
-  @override
-  Future<Note> getNoteWithContent(String? noteId) {
-    return super.noSuchMethod(
-          Invocation.method(#getNoteWithContent, [noteId]),
-          returnValue: Future.value(
-            Note(
-              id: noteId ?? '',
-              title: '',
-              content: '',
-              createdAt: DateTime.now(),
-              lastModified: DateTime.now(),
-              ownerId: 'user1',
-            ),
-          ),
-        )
-        as Future<Note>;
-  }
-
-  @override
-  Future<String> insertNote(Note? note) {
-    return super.noSuchMethod(
-          Invocation.method(#insertNote, [note]),
-          returnValue: Future.value(note?.id ?? ''),
-        )
-        as Future<String>;
-  }
-
-  @override
-  Future<List<Note>> getUnsyncedNotes() {
-    return super.noSuchMethod(
-          Invocation.method(#getUnsyncedNotes, []),
-          returnValue: Future<List<Note>>.value([]),
-        )
-        as Future<List<Note>>;
-  }
-
-  @override
-  Future<void> close() async {}
-}
 
 class MockFirebaseService extends Mock implements FirebaseService {
   @override
@@ -331,10 +250,12 @@ void main() {
   });
 
   setUp(() async {
-    // Close the database before each test to ensure a clean state
+    // Reset sync first to stop background work
+    await SyncService.instance.reset();
+    // Then close and re-init database
     await NoteRepository.instance.close();
     await NoteRepository.instance.initDB();
-    await SyncService.instance.reset();
+    // Finally init sync service
     await SyncService.instance.init();
   });
 
