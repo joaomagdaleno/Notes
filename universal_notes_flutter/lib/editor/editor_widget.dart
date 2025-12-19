@@ -1914,9 +1914,9 @@ class _PersonaButton extends StatelessWidget {
 }
 
 class _GridPainter extends CustomPainter {
-  final Color color;
 
   _GridPainter({required this.color});
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1938,7 +1938,7 @@ class _GridPainter extends CustomPainter {
 }
 
 class _LineWithIndex {
+  _LineWithIndex(this.line, this.index);
   final Line line;
   final int index;
-  _LineWithIndex(this.line, this.index);
 }
