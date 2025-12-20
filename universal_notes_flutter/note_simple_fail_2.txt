@@ -1,0 +1,133 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart
+00:00 +0: NoteSimpleListTile displays title
+00:02 +1: tapping NoteSimpleListTile calls onTap
+00:02 +2: long-pressing NoteSimpleListTile shows context menu
+00:03 +3: tapping delete on context menu calls onDelete
+00:03 +4: tapping NoteSimpleListTile navigates to editor when onTap is null
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following MissingStubError was thrown running a test:
+'getAllSnippets'
+No stub was found which matches the arguments of this method call:
+getAllSnippets()
+
+Add a stub for this method using Mockito's 'when' API, or generate the MockNoteRepository mock with
+the @GenerateNiceMocks annotation (see
+https://pub.dev/documentation/mockito/latest/annotations/MockSpec-class.html).
+
+When the exception was thrown, this was the stack:
+#0      Mock._noSuchMethod (package:mockito/src/mock.dart:200:7)
+#1      Mock.noSuchMethod (package:mockito/src/mock.dart:194:47)
+#2      MockNoteRepository.getAllSnippets (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.mocks.dart:239:14)
+#3      SnippetConverter.precacheSnippets (package:universal_notes_flutter/editor/snippet_converter.dart:32:53)
+#4      _NoteEditorScreenState.initState (package:universal_notes_flutter/screens/note_editor_screen.dart:142:32)
+#5      StatefulElement._firstBuild (package:flutter/src/widgets/framework.dart:5953:55)
+#6      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5796:5)
+...     Normal element mounting (260 frames)
+#266    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#267    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
+#268    Element.updateChild (package:flutter/src/widgets/framework.dart:4059:18)
+#269    Element.updateChildren (package:flutter/src/widgets/framework.dart:4258:32)
+#270    MultiChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7302:17)
+#271    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#272    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#273    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#274    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#275    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#276    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#277    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#278    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#279    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#280    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#281    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#282    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#283    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#284    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#285    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#286    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#287    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#288    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#289    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#290    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#291    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#292    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#293    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#294    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#295    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#296    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#297    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#298    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#299    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#300    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#301    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#302    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#303    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#304    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#305    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#306    SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7125:14)
+#307    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#308    SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7125:14)
+#309    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#310    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#311    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#312    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#313    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#314    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#315    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#316    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#317    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#318    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#319    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#320    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#321    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#322    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#323    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#324    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
+#325    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#326    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#327    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#328    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#331    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#332    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#333    WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:719:23)
+#336    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#337    WidgetTester.pumpAndSettle (package:flutter_test/src/widget_tester.dart:712:27)
+#338    main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart:148:20)
+<asynchronous suspension>
+#339    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#340    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+The test description was:
+  tapping NoteSimpleListTile navigates to editor when onTap is null
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:07 +4 -1: tapping NoteSimpleListTile navigates to editor when onTap is null [E]
+  Test failed. See exception logs above.
+  The test description was: tapping NoteSimpleListTile navigates to editor when onTap is null
+  
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test (but after the test had completed):
+Expected: at least one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Test Note": []>
+   Which: means none were found but some were expected
+
+When the exception was thrown, this was the stack:
+#0      fail (package:matcher/src/expect/expect.dart:149:31)
+#1      _expect (package:matcher/src/expect/expect.dart:144:3)
+#2      expect (package:matcher/src/expect/expect.dart:56:3)
+#3      expect (package:flutter_test/src/widget_tester.dart:473:18)
+#4      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile_test.dart:157:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+  Test failed. See exception logs above.
+  The test description was: tapping NoteSimpleListTile navigates to editor when onTap is null
+  
+00:07 +4 -1: Some tests failed.

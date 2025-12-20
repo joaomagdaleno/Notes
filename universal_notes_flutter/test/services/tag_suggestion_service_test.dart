@@ -25,7 +25,7 @@ void main() {
       );
 
       expect(suggestions.length, 2);
-      expect(suggestions.map((t) => t.name), containsAll(['flutter', 'dart']));
+      expect(suggestions.map((t) => t.name), containsAll(['Flutter', 'Dart']));
     });
 
     test('should not suggest tags already in currentTags', () {

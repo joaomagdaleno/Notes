@@ -90,7 +90,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
   late final FirestoreRepository _firestoreRepository;
-  final StorageService _storageService = StorageService();
+  final _storageService = StorageService.instance;
   final _imagePicker = ImagePicker();
 
   // --- Collaboration State (Temporarily disabled) ---
@@ -121,7 +121,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   @override
   void initState() {
     super.initState();
-    _firestoreRepository = widget.firestoreRepository ?? FirestoreRepository();
+    _firestoreRepository = FirestoreRepository.instance;
     _note = widget.note;
     _currentTags = _note?.tags.toList() ?? [];
     WidgetsBinding.instance.addObserver(this);

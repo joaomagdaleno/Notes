@@ -14,7 +14,7 @@ class SyncService {
   SyncService._();
 
   /// The singleton instance of [SyncService].
-  static final SyncService instance = SyncService._();
+  static SyncService instance = SyncService._();
 
   bool _isDisposed = false;
   Future<void>? _syncUpFuture;
@@ -22,7 +22,7 @@ class SyncService {
   @visibleForTesting
   late NoteRepository noteRepository = NoteRepository.instance;
   @visibleForTesting
-  late FirestoreRepository firestoreRepository = FirestoreRepository();
+  late FirestoreRepository firestoreRepository = FirestoreRepository.instance;
 
   // StreamControllers to broadcast local data changes
   final _notesController = StreamController<List<Note>>.broadcast();

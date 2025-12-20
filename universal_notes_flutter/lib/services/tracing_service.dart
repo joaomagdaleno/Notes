@@ -11,8 +11,12 @@ class TracingService {
   late sdk.TracerProviderBase _tracerProvider;
   late Tracer _tracer;
 
+  bool _initialized = false;
+
   /// Initializes the OpenTelemetry SDK.
   void init() {
+    if (_initialized) return;
+
     // For now, we use a simple ConsoleExporter or Noop for testing
     // In a real app, this would export to Zipkin, Honeycomb, or a collector.
     _tracerProvider = sdk.TracerProviderBase(
@@ -22,8 +26,13 @@ class TracingService {
       ],
     );
 
-    registerGlobalTracerProvider(_tracerProvider);
+    try {
+      registerGlobalTracerProvider(_tracerProvider);
+    } catch (_) {
+      // Global provider might already be registered
+    }
     _tracer = _tracerProvider.getTracer('universal-notes-flutter');
+    _initialized = true;
   }
 
   /// Gets the global tracer.

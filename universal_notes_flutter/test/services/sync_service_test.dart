@@ -12,12 +12,31 @@ void main() {
   late MockNoteRepository mockNoteRepository;
   late MockFirestoreRepository mockFirestoreRepository;
 
-  setUp(() {
+  setUp(() async {
     mockNoteRepository = MockNoteRepository();
     mockFirestoreRepository = MockFirestoreRepository();
     syncService = SyncService.instance;
+    await syncService.reset(); // Ensure clean state
     syncService.noteRepository = mockNoteRepository;
     syncService.firestoreRepository = mockFirestoreRepository;
+    await syncService.init();
+
+    when(mockNoteRepository.getUnsyncedNotes()).thenAnswer((_) async => []);
+    when(
+      mockNoteRepository.getAllNotes(
+        folderId: anyNamed('folderId'),
+        tagId: anyNamed('tagId'),
+        isFavorite: anyNamed('isFavorite'),
+        isInTrash: anyNamed('isInTrash'),
+      ),
+    ).thenAnswer((_) async => []);
+    when(mockNoteRepository.getAllFolders()).thenAnswer((_) async => []);
+    when(mockNoteRepository.getAllTagNames()).thenAnswer((_) async => []);
+    when(mockFirestoreRepository.getNoteContent(any)).thenAnswer((
+      realInvocation,
+    ) async {
+      return 'Remote Content';
+    });
   });
 
   group('SyncService', () {
@@ -76,8 +95,10 @@ void main() {
       // Need to mock these for internal calls in syncUpNote
       when(
         mockNoteRepository.deleteNotePermanently(any),
-      ).thenAnswer((_) async => 1);
-      when(mockNoteRepository.insertNote(any)).thenAnswer((_) async => 1);
+      ).thenAnswer((_) async => null);
+      when(
+        mockNoteRepository.insertNote(any),
+      ).thenAnswer((_) async => 'remote-id');
 
       await syncService.syncUp();
 
@@ -115,7 +136,7 @@ void main() {
       ).thenAnswer((_) async => localNote);
       when(
         mockNoteRepository.updateNoteContent(any),
-      ).thenAnswer((_) async => 1);
+      ).thenAnswer((_) async => null);
 
       // Also needed for refreshLocalData inside syncDown
       when(
@@ -143,7 +164,7 @@ void main() {
       remoteStreamController.add([remoteNote]);
 
       // Wait for async processing
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
 
       verify(
         mockNoteRepository.updateNoteContent(

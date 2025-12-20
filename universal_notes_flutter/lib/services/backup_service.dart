@@ -63,7 +63,7 @@ class BackupService {
   BackupService._();
 
   /// The singleton instance of [BackupService].
-  static final BackupService instance = BackupService._();
+  static BackupService instance = BackupService._();
 
   /// Exports the entire database content to an encrypted JSON file.
   /// Returns the path of the saved file.

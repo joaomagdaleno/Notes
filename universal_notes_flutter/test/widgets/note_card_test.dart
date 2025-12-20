@@ -2,15 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
+import 'note_card_test.mocks.dart';
+
+@GenerateMocks([StorageService, FirestoreRepository, NoteRepository])
 void main() {
+  late MockStorageService mockStorageService;
+  late MockNoteRepository mockNoteRepository;
+
+  setUp(() {
+    mockStorageService = MockStorageService();
+    mockNoteRepository = MockNoteRepository();
+    StorageService.instance = mockStorageService;
+    NoteRepository.instance = mockNoteRepository;
+
+    // Default stubs
+    when(mockNoteRepository.getAllSnippets()).thenAnswer((_) async => []);
+  });
+
   testWidgets('NoteCard displays note', (WidgetTester tester) async {
     final note = Note(
       id: '1',
       title: 'Test Note',
-      content: r'[{"insert":"This is a test note.\n"}]',
-createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
+      content: r'[{"type":"text","spans":[{"text":"This is a test note."}]}]',
+      createdAt: DateTime.now(),
+      lastModified: DateTime.now(),
+      ownerId: 'user1',
     );
 
     await tester.pumpWidget(
@@ -40,7 +63,9 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       id: '1',
       title: 'Test Note',
       content: '',
-createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
+      createdAt: DateTime.now(),
+      lastModified: DateTime.now(),
+      ownerId: 'user1',
     );
 
     await tester.pumpWidget(
@@ -74,7 +99,9 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         id: '1',
         title: 'Test Note',
         content: r'[{"insert":"Content\n"}]',
-createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
       );
 
       await tester.pumpWidget(
@@ -103,6 +130,8 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
       // Should navigate to NoteEditorScreen
       expect(find.byType(NoteEditorScreen), findsOneWidget);
+      // Check for the note title in the AppBar
+      expect(find.text('Nota: Test Note'), findsOneWidget);
     },
   );
 
@@ -113,7 +142,9 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       id: '1',
       title: 'Test Note',
       content: r'[{"insert":"Content\n"}]',
-createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
+      createdAt: DateTime.now(),
+      lastModified: DateTime.now(),
+      ownerId: 'user1',
     );
 
     await tester.pumpWidget(

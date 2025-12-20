@@ -13,7 +13,7 @@ void main() {
         isUnderline: true,
         isStrikethrough: true,
         isCode: true,
-        fontSize: 18.0,
+        fontSize: 18,
         color: Colors.red,
         backgroundColor: Colors.yellow,
         fontFamily: 'Roboto',
@@ -142,10 +142,10 @@ void main() {
               const Stroke(
                 points: [Point(0, 0)],
                 color: Colors.black,
-                width: 1.0,
+                width: 1,
               ),
             ],
-            height: 300.0,
+            height: 300,
           ),
         ],
       );
@@ -245,8 +245,8 @@ void main() {
 
   group('TableCellModel', () {
     test('toJson and fromJson symmetry', () {
-      final cell = TableCellModel(
-        content: [const TextSpanModel(text: 'Cell')],
+      const cell = TableCellModel(
+        content: [TextSpanModel(text: 'Cell')],
         isHeader: true,
       );
 

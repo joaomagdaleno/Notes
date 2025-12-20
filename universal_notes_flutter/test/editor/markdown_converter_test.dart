@@ -1,13 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/editor/markdown_converter.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
-import 'package:flutter/material.dart';
 
 void main() {
   group('MarkdownConverter', () {
     test('should apply bold style on *text* ', () {
       final doc = DocumentModel.fromPlainText('*Bold* ');
-      final selection = const TextSelection.collapsed(offset: 7);
+      const selection = TextSelection.collapsed(offset: 7);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
@@ -19,7 +19,7 @@ void main() {
 
     test('should apply italic style on _text_ ', () {
       final doc = DocumentModel.fromPlainText('_Italic_ ');
-      final selection = const TextSelection.collapsed(offset: 9);
+      const selection = TextSelection.collapsed(offset: 9);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
@@ -35,18 +35,18 @@ void main() {
 
     test('should apply heading block on # ', () {
       final doc = DocumentModel.fromPlainText('# ');
-      final selection = const TextSelection.collapsed(offset: 2);
+      const selection = TextSelection.collapsed(offset: 2);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
       expect(result!.document.blocks.first.attributes['blockType'], 'heading');
-      expect(result!.document.blocks.first.attributes['level'], 1);
+      expect(result.document.blocks.first.attributes['level'], 1);
     });
 
     test('should apply checklist on - [ ] ', () {
       final doc = DocumentModel.fromPlainText('- [ ] ');
-      final selection = const TextSelection.collapsed(offset: 6);
+      const selection = TextSelection.collapsed(offset: 6);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
@@ -55,12 +55,12 @@ void main() {
         result!.document.blocks.first.attributes['blockType'],
         'checklist',
       );
-      expect(result!.document.blocks.first.attributes['checked'], false);
+      expect(result.document.blocks.first.attributes['checked'], false);
     });
 
     test('should handle links [text](url)', () {
       final doc = DocumentModel.fromPlainText('[Google](https://google.com)');
-      final selection = const TextSelection.collapsed(offset: 28);
+      const selection = TextSelection.collapsed(offset: 28);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
@@ -75,7 +75,7 @@ void main() {
       // Separator row
       final doc = DocumentModel.fromPlainText('| A | B |\n|---|---|');
       // Cursor at the end of separator line
-      final selection = const TextSelection.collapsed(offset: 19);
+      const selection = TextSelection.collapsed(offset: 19);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
@@ -88,25 +88,25 @@ void main() {
 
     test(r'should handle math block $$tex$$', () {
       final doc = DocumentModel.fromPlainText(r'$$E=mc^2$$');
-      final selection = const TextSelection.collapsed(offset: 10);
+      const selection = TextSelection.collapsed(offset: 10);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
       expect(result!.document.blocks.first, isA<MathBlock>());
-      expect((result!.document.blocks.first as MathBlock).tex, 'E=mc^2');
+      expect((result.document.blocks.first as MathBlock).tex, 'E=mc^2');
     });
 
     test('should handle transclusion ![[note]]', () {
       final doc = DocumentModel.fromPlainText('![[My Note]]');
-      final selection = const TextSelection.collapsed(offset: 12);
+      const selection = TextSelection.collapsed(offset: 12);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
       expect(result!.document.blocks.first, isA<TransclusionBlock>());
       expect(
-        (result!.document.blocks.first as TransclusionBlock).noteTitle,
+        (result.document.blocks.first as TransclusionBlock).noteTitle,
         'My Note',
       );
     });

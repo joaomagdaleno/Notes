@@ -1,0 +1,83 @@
+Analyzing universal_notes_flutter...                            
+
+   info - Don't invoke 'print' in production code - calculate_coverage.dart:6:5 - avoid_print
+   info - Unnecessary type annotation on a local variable - calculate_coverage.dart:11:3 - omit_local_variable_types
+   info - Unnecessary type annotation on a local variable - calculate_coverage.dart:12:3 - omit_local_variable_types
+   info - Don't invoke 'print' in production code - calculate_coverage.dart:23:5 - avoid_print
+   info - Don't invoke 'print' in production code - calculate_coverage.dart:26:5 - avoid_print
+   info - Don't invoke 'print' in production code - calculate_coverage.dart:27:5 - avoid_print
+   info - Don't invoke 'print' in production code - calculate_coverage.dart:28:5 - avoid_print
+   info - Catch clause should use 'on' to specify the type of exception being caught - lib\editor\document_adapter.dart:34:7 - avoid_catches_without_on_clauses
+   info - Missing documentation for a public member - lib\editor\editor_widget.dart:142:17 - public_member_api_docs
+   info - Statements in an if should be enclosed in a block - lib\editor\editor_widget.dart:1673:15 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\editor\editor_widget.dart:1675:15 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\editor\editor_widget.dart:1677:15 - curly_braces_in_flow_control_structures
+   info - The line length exceeds the 80-character limit - lib\editor\editor_widget.dart:1683:81 - lines_longer_than_80_chars
+   info - The line length exceeds the 80-character limit - lib\editor\editor_widget.dart:1687:81 - lines_longer_than_80_chars
+   info - Missing documentation for a public member - lib\repositories\firestore_repository.dart:9:7 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\firestore_repository.dart:16:26 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\firestore_repository.dart:18:21 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:26:19 - public_member_api_docs
+   info - Missing documentation for a public member - lib\services\auth_service.dart:9:21 - public_member_api_docs
+   info - Missing documentation for a public member - lib\services\auth_service.dart:12:28 - public_member_api_docs
+   info - Missing documentation for a public member - lib\services\sync_service.dart:23:23 - public_member_api_docs
+   info - Missing documentation for a public member - lib\services\sync_service.dart:25:28 - public_member_api_docs
+   info - Catch clause should use 'on' to specify the type of exception being caught - lib\services\tracing_service.dart:31:7 - avoid_catches_without_on_clauses
+   info - Unreachable member 'MockUserCredential' in an executable library - test\auth_service_test.dart:12:7 - unreachable_from_main
+   info - Unreachable member 'MockUser' in an executable library - test\auth_service_test.dart:14:7 - unreachable_from_main
+   info - Unnecessary duplication of receiver - test\auth_service_test.dart:37:5 - cascade_invocations
+   info - Unnecessary duplication of receiver - test\auth_service_test.dart:38:5 - cascade_invocations
+   info - Sort directive sections alphabetically - test\coverage_helper_test.dart:12:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\coverage_helper_test.dart:13:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\coverage_helper_test.dart:15:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\coverage_helper_test.dart:16:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\coverage_helper_test.dart:17:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\coverage_helper_test.dart:19:1 - directives_ordering
+   info - Use 'const' for final variables initialized to a constant value - test\editor\document_manipulator_test.dart:32:7 - prefer_const_declarations
+   info - Sort directive sections alphabetically - test\editor\editor_widget_test.dart:5:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\editor\editor_widget_test.dart:7:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\editor\editor_widget_test.dart:9:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\editor\editor_widget_test.dart:11:1 - directives_ordering
+   info - The import of 'package:sqflite/sqflite.dart' is unnecessary because all of the used elements are also provided by the import of 'package:sqflite_common_ffi/sqflite_ffi.dart' - test\editor\editor_widget_test.dart:11:8 - unnecessary_import
+   info - Unnecessary type annotation on a local variable - test\editor\editor_widget_test.dart:28:5 - omit_local_variable_types
+   info - Unnecessary type annotation on a local variable - test\editor\editor_widget_test.dart:29:5 - omit_local_variable_types
+   info - Unnecessary type annotation on a local variable - test\editor\editor_widget_test.dart:58:5 - omit_local_variable_types
+   info - Unnecessary type annotation on a local variable - test\editor\editor_widget_test.dart:59:5 - omit_local_variable_types
+   info - Unnecessary type annotation on a local variable - test\editor\editor_widget_test.dart:88:5 - omit_local_variable_types
+   info - Use 'const' with the constructor to improve performance - test\editor\virtual_text_buffer_test.dart:22:21 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - test\editor\virtual_text_buffer_test.dart:89:29 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - test\editor\virtual_text_buffer_test.dart:91:29 - prefer_const_constructors
+   info - The line length exceeds the 80-character limit - test\editor\virtual_text_buffer_test.dart:97:81 - lines_longer_than_80_chars
+   info - The local variable '_pumpNotesScreen' starts with an underscore - test\main_test.dart:263:16 - no_leading_underscores_for_local_identifiers
+   info - The line length exceeds the 80-character limit - test\models\document_model_test.dart:62:81 - lines_longer_than_80_chars
+warning - The type argument(s) of 'List' can't be inferred - test\models\document_model_test.dart:241:47 - inference_failure_on_collection_literal
+   info - Sort directive sections alphabetically - test\models\misc_models_test.dart:5:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\models\misc_models_test.dart:6:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\models\misc_models_test.dart:7:1 - directives_ordering
+   info - Unnecessary use of a 'double' literal - test\models\misc_models_test.dart:13:23 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - test\models\misc_models_test.dart:13:29 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - test\models\misc_models_test.dart:26:16 - prefer_int_literals
+   info - The value of the argument is redundant because it matches the default value - test\models\note_event_test.dart:7:51 - avoid_redundant_argument_values
+   info - The value of the argument is redundant because it matches the default value - test\models\note_event_test.dart:17:21 - avoid_redundant_argument_values
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - test\models\note_test.dart:16:22 - prefer_const_literals_to_create_immutables
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - test\models\note_test.dart:17:13 - prefer_const_literals_to_create_immutables
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - test\models\note_test.dart:18:18 - prefer_const_literals_to_create_immutables
+   info - The value of the argument is redundant because it matches the default value - test\models\note_test.dart:20:18 - avoid_redundant_argument_values
+   info - The value of the argument is redundant because it matches the default value - test\models\note_test.dart:23:19 - avoid_redundant_argument_values
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - test\models\note_test.dart:78:40 - prefer_const_literals_to_create_immutables
+   info - Sort directive sections alphabetically - test\repositories\note_repository_test.dart:7:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\repositories\note_repository_test.dart:9:1 - directives_ordering
+   info - The import of 'package:sqflite/sqflite.dart' is unnecessary because all of the used elements are also provided by the import of 'package:sqflite_common_ffi/sqflite_ffi.dart' - test\repositories\note_repository_test.dart:9:8 - unnecessary_import
+   info - Use 'const' with the constructor to improve performance - test\repositories\note_repository_test.dart:73:19 - prefer_const_constructors
+   info - Unnecessary type annotation on a local variable - test\services\autocomplete_service_test.dart:23:17 - omit_local_variable_types
+   info - Unnecessary type annotation on a local variable - test\services\autocomplete_service_test.dart:24:17 - omit_local_variable_types
+   info - Unnecessary duplication of receiver - test\services\sync_service_test.dart:21:5 - cascade_invocations
+   info - Don't return 'null' from a function with a return type of 'void' - test\services\sync_service_test.dart:98:24 - avoid_returning_null_for_void
+   info - The value of the argument is redundant because it matches the default value - test\services\sync_service_test.dart:131:21 - avoid_redundant_argument_values
+   info - Don't return 'null' from a function with a return type of 'void' - test\services\sync_service_test.dart:139:24 - avoid_returning_null_for_void
+   info - The line length exceeds the 80-character limit - test\services\sync_service_test.dart:155:81 - lines_longer_than_80_chars
+   info - The line length exceeds the 80-character limit - test\services\sync_service_test.dart:156:81 - lines_longer_than_80_chars
+   info - 'Future'-returning calls in a non-'async' function - test\widgets\fluent_note_card_golden_test.dart:9:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - test\widgets\simple_fluent_golden_test.dart:7:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - test\widgets\standard_golden_test.dart:7:5 - discarded_futures
+

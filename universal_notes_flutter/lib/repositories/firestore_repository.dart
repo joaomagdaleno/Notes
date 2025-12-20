@@ -7,7 +7,16 @@ import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/services/tracing_service.dart';
 
 class FirestoreRepository {
-  /// Creates a [FirestoreRepository].
+  /// The singleton instance of [FirestoreRepository].
+  static FirestoreRepository instance = FirestoreRepository._();
+
+  FirestoreRepository._() {
+    _initCollections();
+  }
+
+  /// Creates a [FirestoreRepository] (for migration or specific needs, but
+  /// instance should be preferred).
+  @visibleForTesting
   FirestoreRepository() {
     _initCollections();
   }

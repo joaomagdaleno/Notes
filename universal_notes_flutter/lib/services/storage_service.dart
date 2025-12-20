@@ -7,6 +7,11 @@ import 'package:uuid/uuid.dart';
 
 /// Service for interacting with Firebase Storage.
 class StorageService {
+  StorageService._();
+
+  /// The singleton instance of [StorageService].
+  static StorageService instance = StorageService._();
+
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
   /// Uploads an image file to Firebase Storage and returns the download URL.

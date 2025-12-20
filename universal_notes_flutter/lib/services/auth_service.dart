@@ -9,7 +9,7 @@ class AuthService {
   late FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   @visibleForTesting
-  late FirestoreRepository firestoreRepository = FirestoreRepository();
+  FirestoreRepository firestoreRepository = FirestoreRepository.instance;
 
   /// Returns a stream of the authentication state.
   Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();

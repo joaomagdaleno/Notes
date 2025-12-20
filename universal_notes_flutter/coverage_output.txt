@@ -2702,3 +2702,193 @@ The test description was:
   dart:isolate  _RawReceivePort._handleMessage
   
 86:07 +178 ~3 -57: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Data Operations deleting a note calls deleteNote
+96:08 +178 ~3 -58: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Data Operations deleting a note calls deleteNote [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+96:08 +178 ~3 -58: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Unimplemented Actions tapping search and sort on Android does not crash
+Warning database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+pumpAndSettle timed out
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:717:11)
+<asynchronous suspension>
+#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#2      main._pumpNotesScreen (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:288:5)
+<asynchronous suspension>
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:1018:7)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  tapping search and sort on Android does not crash
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+96:19 +178 ~3 -59: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Unimplemented Actions tapping search and sort on Android does not crash [E]
+  Test failed. See exception logs above.
+  The test description was: tapping search and sort on Android does not crash
+  
+96:19 +178 ~3 -59: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Unimplemented Actions tapping search and sort on Windows does not crash
+Warning database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+pumpAndSettle timed out
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:717:11)
+<asynchronous suspension>
+#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#2      main._pumpNotesScreen (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:288:5)
+<asynchronous suspension>
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:1039:7)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  tapping search and sort on Windows does not crash
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+96:31 +178 ~3 -60: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Unimplemented Actions tapping search and sort on Windows does not crash [E]
+  Test failed. See exception logs above.
+  The test description was: tapping search and sort on Windows does not crash
+  
+96:31 +178 ~3 -60: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Windows Interaction tapping a note card on Windows navigates
+96:31 +178 ~3 -60: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Unimplemented Actions tapping search and sort on Windows does not crash [E]
+  DatabaseException(error database_closed)
+  package:sqflite_common/src/database_mixin.dart 518:7                      SqfliteDatabaseMixin.checkNotClosed
+  package:sqflite_common/src/database_mixin.dart 213:8                      SqfliteDatabaseExecutorMixin._rawUpdate
+  package:sqflite_common/src/database_mixin.dart 206:12                     SqfliteDatabaseExecutorMixin.rawUpdate
+  package:sqflite_common/src/database_mixin.dart 245:12                     SqfliteDatabaseExecutorMixin.update
+  package:universal_notes_flutter/repositories/note_repository.dart 628:14  NoteRepository.updateNoteContent
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerBinaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 98:7           SyncService._startBackgroundSync.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                _StreamImpl.listen
+  package:universal_notes_flutter/services/sync_service.dart 94:61          SyncService._startBackgroundSync
+  package:universal_notes_flutter/services/sync_service.dart 51:5           SyncService.init
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerUnaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 48:5           SyncService.init
+  test\main_test.dart 259:32                                                main.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerUnaryCallback
+  test\main_test.dart 254:5                                                 main.<fn>
+  
+96:42 +178 ~3 -60: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Windows Interaction tapping a note card on Windows navigates
+Warning database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+pumpAndSettle timed out
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:717:11)
+<asynchronous suspension>
+#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#2      main._pumpNotesScreen (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:288:5)
+<asynchronous suspension>
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:1054:7)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  tapping a note card on Windows navigates
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+96:42 +178 ~3 -61: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Windows Interaction tapping a note card on Windows navigates [E]
+  Test failed. See exception logs above.
+  The test description was: tapping a note card on Windows navigates
+  
+96:42 +178 ~3 -61: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Windows Interaction tapping navigation pane items calls callbacks
+Warning database has been locked for 0:00:10.000000. Make sure you always use the transaction object for database operations during a transaction
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+pumpAndSettle timed out
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:717:11)
+<asynchronous suspension>
+#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#2      main._pumpNotesScreen (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:288:5)
+<asynchronous suspension>
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:1069:7)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  tapping navigation pane items calls callbacks
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+96:52 +178 ~3 -62: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Windows Interaction tapping navigation pane items calls callbacks [E]
+  Test failed. See exception logs above.
+  The test description was: tapping navigation pane items calls callbacks
+  
+96:52 +178 ~3 -62: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Platform Logic calls window listener onWindowClose
+96:52 +178 ~3 -62: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Windows Interaction tapping navigation pane items calls callbacks [E]
+  DatabaseException(error database_closed)
+  package:sqflite_common/src/database_mixin.dart 518:7                      SqfliteDatabaseMixin.checkNotClosed
+  package:sqflite_common/src/database_mixin.dart 213:8                      SqfliteDatabaseExecutorMixin._rawUpdate
+  package:sqflite_common/src/database_mixin.dart 206:12                     SqfliteDatabaseExecutorMixin.rawUpdate
+  package:sqflite_common/src/database_mixin.dart 245:12                     SqfliteDatabaseExecutorMixin.update
+  package:universal_notes_flutter/repositories/note_repository.dart 628:14  NoteRepository.updateNoteContent
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerBinaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 98:7           SyncService._startBackgroundSync.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                _StreamImpl.listen
+  package:universal_notes_flutter/services/sync_service.dart 94:61          SyncService._startBackgroundSync
+  package:universal_notes_flutter/services/sync_service.dart 51:5           SyncService.init
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerUnaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 48:5           SyncService.init
+  test\main_test.dart 259:32                                                main.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerUnaryCallback
+  test\main_test.dart 254:5                                                 main.<fn>
+  
+96:52 +178 ~3 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen Platform Logic calls window listener onWindowClose [E]
+  DatabaseException(error database_closed)
+  package:sqflite_common/src/database_mixin.dart 518:7                      SqfliteDatabaseMixin.checkNotClosed
+  package:sqflite_common/src/database_mixin.dart 213:8                      SqfliteDatabaseExecutorMixin._rawUpdate
+  package:sqflite_common/src/database_mixin.dart 206:12                     SqfliteDatabaseExecutorMixin.rawUpdate
+  package:sqflite_common/src/database_mixin.dart 245:12                     SqfliteDatabaseExecutorMixin.update
+  package:universal_notes_flutter/repositories/note_repository.dart 628:14  NoteRepository.updateNoteContent
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerBinaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 171:24         SyncService.syncUp
+  package:universal_notes_flutter/services/sync_service.dart 53:21          SyncService.init
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerUnaryCallback
+  package:universal_notes_flutter/services/sync_service.dart 48:5           SyncService.init
+  test\main_test.dart 259:32                                                main.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                _CustomZone.registerUnaryCallback
+  test\main_test.dart 254:5                                                 main.<fn>
+  
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+106:53 +178 ~3 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: (tearDownAll)
+106:58 +178 ~3 -63: Some tests failed.

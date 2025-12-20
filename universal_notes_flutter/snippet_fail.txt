@@ -1,0 +1,71 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/snippet_converter_test.dart
+test/editor/snippet_converter_test.dart:27:31: Error: Couldn't find constructor 'TextSelection.collapsed'.
+      final selection = const TextSelection.collapsed(offset: 6);
+                              ^^^^^^^^^^^^^
+test/editor/snippet_converter_test.dart:41:13: Error: No named parameter with the name 'createdAt'.
+            createdAt: DateTime.now(),
+            ^^^^^^^^^
+lib/models/snippet.dart:4:9: Context: Found this candidate, but the arguments don't match.
+  const Snippet({
+        ^^^^^^^
+test/editor/snippet_converter_test.dart:50:33: Error: Couldn't find constructor 'TextSelection.collapsed'.
+        final selection = const TextSelection.collapsed(offset: 10);
+                                ^^^^^^^^^^^^^
+test/editor/snippet_converter_test.dart:66:11: Error: No named parameter with the name 'createdAt'.
+          createdAt: DateTime.now(),
+          ^^^^^^^^^
+lib/models/snippet.dart:4:9: Context: Found this candidate, but the arguments don't match.
+  const Snippet({
+        ^^^^^^^
+test/editor/snippet_converter_test.dart:75:31: Error: Couldn't find constructor 'TextSelection.collapsed'.
+      final selection = const TextSelection.collapsed(offset: 3);
+                              ^^^^^^^^^^^^^
+test/editor/snippet_converter_test.dart:46:35: Error: A value of type 'List<dynamic>' can't be returned from an async function with return type 'Future<List<Snippet>>'.
+ - 'List' is from 'dart:core'.
+ - 'Future' is from 'dart:async'.
+ - 'Snippet' is from 'package:universal_notes_flutter/models/snippet.dart' ('lib/models/snippet.dart').
+        ).thenAnswer((_) async => snippets);
+                                  ^
+test/editor/snippet_converter_test.dart:71:33: Error: A value of type 'List<dynamic>' can't be returned from an async function with return type 'Future<List<Snippet>>'.
+ - 'List' is from 'dart:core'.
+ - 'Future' is from 'dart:async'.
+ - 'Snippet' is from 'package:universal_notes_flutter/models/snippet.dart' ('lib/models/snippet.dart').
+      ).thenAnswer((_) async => snippets);
+                                ^
+00:00 +0 -1: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/snippet_converter_test.dart [E]
+  Failed to load "C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/snippet_converter_test.dart":
+  Compilation failed for testPath=C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/snippet_converter_test.dart: test/editor/snippet_converter_test.dart:27:31: Error: Couldn't find constructor 'TextSelection.collapsed'.
+        final selection = const TextSelection.collapsed(offset: 6);
+                                ^^^^^^^^^^^^^
+  test/editor/snippet_converter_test.dart:41:13: Error: No named parameter with the name 'createdAt'.
+              createdAt: DateTime.now(),
+              ^^^^^^^^^
+  lib/models/snippet.dart:4:9: Context: Found this candidate, but the arguments don't match.
+    const Snippet({
+          ^^^^^^^
+  test/editor/snippet_converter_test.dart:50:33: Error: Couldn't find constructor 'TextSelection.collapsed'.
+          final selection = const TextSelection.collapsed(offset: 10);
+                                  ^^^^^^^^^^^^^
+  test/editor/snippet_converter_test.dart:66:11: Error: No named parameter with the name 'createdAt'.
+            createdAt: DateTime.now(),
+            ^^^^^^^^^
+  lib/models/snippet.dart:4:9: Context: Found this candidate, but the arguments don't match.
+    const Snippet({
+          ^^^^^^^
+  test/editor/snippet_converter_test.dart:75:31: Error: Couldn't find constructor 'TextSelection.collapsed'.
+        final selection = const TextSelection.collapsed(offset: 3);
+                                ^^^^^^^^^^^^^
+  test/editor/snippet_converter_test.dart:46:35: Error: A value of type 'List<dynamic>' can't be returned from an async function with return type 'Future<List<Snippet>>'.
+   - 'List' is from 'dart:core'.
+   - 'Future' is from 'dart:async'.
+   - 'Snippet' is from 'package:universal_notes_flutter/models/snippet.dart' ('lib/models/snippet.dart').
+          ).thenAnswer((_) async => snippets);
+                                    ^
+  test/editor/snippet_converter_test.dart:71:33: Error: A value of type 'List<dynamic>' can't be returned from an async function with return type 'Future<List<Snippet>>'.
+   - 'List' is from 'dart:core'.
+   - 'Future' is from 'dart:async'.
+   - 'Snippet' is from 'package:universal_notes_flutter/models/snippet.dart' ('lib/models/snippet.dart').
+        ).thenAnswer((_) async => snippets);
+                                  ^
+  .
+00:00 +0 -1: Some tests failed.

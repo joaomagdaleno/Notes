@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-// import 'package:universal_notes_flutter/editor/document_adapter.dart';
+import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 /// A widget that displays a note as a card.
@@ -46,7 +47,7 @@ class NoteCard extends StatefulWidget {
 }
 
 class _NoteCardState extends State<NoteCard> {
-  // String _plainTextContent = '';
+  String _plainTextContent = '';
   // ⚡ Bolt: Hoisting the gradient decoration for performance.
   // This avoids re-creating the BoxDecoration on every build, which is
   // a common performance anti-pattern in Flutter.
@@ -65,26 +66,26 @@ class _NoteCardState extends State<NoteCard> {
   @override
   void initState() {
     super.initState();
-    // _plainTextContent = _computePlainText(widget.note.content);
+    _plainTextContent = _computePlainText(widget.note.content);
   }
 
   @override
   void didUpdateWidget(NoteCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.note.content != oldWidget.note.content) {
-      // _plainTextContent = _computePlainText(widget.note.content);
+      _plainTextContent = _computePlainText(widget.note.content);
     }
   }
 
   // ⚡ Bolt: Caching the plain text content of a note.
   // Parsing JSON on every build is expensive. This computes it once
   // when the widget is created or when the note content changes.
-  // String _computePlainText(String jsonContent) {
-  //   if (jsonContent.isEmpty) {
-  //     return '';
-  //   }
-  //   return DocumentAdapter.fromJson(jsonContent).toPlainText();
-  // }
+  String _computePlainText(String jsonContent) {
+    if (jsonContent.isEmpty) {
+      return '';
+    }
+    return DocumentAdapter.fromJson(jsonContent).toPlainText();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +98,18 @@ class _NoteCardState extends State<NoteCard> {
       ),
       clipBehavior: Clip.antiAlias, // Important for the image background
       child: InkWell(
-        onTap: widget.onTap,
+        onTap:
+            widget.onTap ??
+            () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (context) => NoteEditorScreen(
+                    note: widget.note,
+                    onSave: widget.onSave,
+                  ),
+                ),
+              );
+            },
         onLongPress: () {
           final renderBox = context.findRenderObject() as RenderBox?;
           if (renderBox != null) {
@@ -139,7 +151,25 @@ class _NoteCardState extends State<NoteCard> {
                         alignment: Alignment.topRight,
                         child: Icon(Icons.star, color: Colors.amber, size: 20),
                       ),
+                    Text(
+                      widget.note.title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: 4),
+                    Text(
+                      _plainTextContent,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white70,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
                     Text(
                       NoteCard._dateFormat.format(widget.note.lastModified),
                       style: Theme.of(
