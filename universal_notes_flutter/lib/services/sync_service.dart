@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -29,6 +28,16 @@ class SyncService {
   final _foldersController = StreamController<List<Folder>>.broadcast();
   final _tagsController = StreamController<List<String>>.broadcast();
   final _conflictController = StreamController<SyncConflict>.broadcast();
+
+  List<Note> _lastNotes = [];
+
+  /// The last known list of notes (cached from local DB).
+  List<Note> get currentNotes => _lastNotes;
+
+  List<Note> _lastNotes = [];
+
+  /// The last known list of notes (cached from local DB).
+  List<Note> get currentNotes => _lastNotes;
 
   /// A broadcast stream of all notes.
   Stream<List<Note>> get notesStream => _notesController.stream;
@@ -76,6 +85,7 @@ class SyncService {
       isFavorite: isFavorite,
       isInTrash: isInTrash,
     );
+    _lastNotes = notes;
     _notesController.add(notes);
 
     final folders = await noteRepository.getAllFolders();
@@ -91,12 +101,17 @@ class SyncService {
 
   void _startBackgroundSync() {
     // Listen to remote changes (Firestore -> SQLite)
-    _remoteSubscription = firestoreRepository.notesStream().listen((
-      remoteNotes,
-    ) async {
-      if (_isDisposed) return;
-      await _syncDown(remoteNotes);
-    });
+    _remoteSubscription = firestoreRepository.notesStream().listen(
+      (remoteNotes) async {
+        if (_isDisposed) return;
+        await _syncDown(remoteNotes);
+      },
+      onError: (e, stack) {
+        if (kDebugMode) {
+          print('Error in sync stream: $e');
+        }
+      },
+    );
   }
 
   /// Syncs remote changes to local database (Firestore -> SQLite)
