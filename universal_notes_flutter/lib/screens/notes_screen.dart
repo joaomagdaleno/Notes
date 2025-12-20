@@ -858,7 +858,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 }
 
-class _DashboardCard extends StatelessWidget {
+class _DashboardCard extends StatefulWidget {
   const _DashboardCard({
     required this.title,
     required this.subtitle,
@@ -874,37 +874,72 @@ class _DashboardCard extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_DashboardCard> createState() => _DashboardCardState();
+}
+
+class _DashboardCardState extends State<_DashboardCard> {
+  // ⚡ Bolt: Caching expensive objects to avoid rebuilding them on every frame.
+  late BoxDecoration _boxDecoration;
+  late TextStyle _titleTextStyle;
+  late TextStyle _subtitleTextStyle;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateStyles();
+  }
+
+  @override
+  void didUpdateWidget(_DashboardCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // ⚡ Bolt: Only update styles when the color changes, preventing unnecessary
+    // object recreation.
+    if (widget.color != oldWidget.color) {
+      _updateStyles();
+    }
+  }
+
+  void _updateStyles() {
+    _boxDecoration = BoxDecoration(
+      color: widget.color.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: widget.color.withValues(alpha: 0.2)),
+    );
+    _titleTextStyle = TextStyle(
+      color: widget.color,
+      fontWeight: FontWeight.bold,
+      fontSize: 16,
+    );
+    _subtitleTextStyle = TextStyle(
+      color: widget.color.withValues(alpha: 0.7),
+      fontSize: 12,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Container(
         width: 160,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
+        // ⚡ Bolt: Using the cached decoration.
+        decoration: _boxDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color, size: 32),
+            Icon(widget.icon, color: widget.color, size: 32),
             const SizedBox(height: 12),
             Text(
-              title,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              widget.title,
+              // ⚡ Bolt: Using the cached title style.
+              style: _titleTextStyle,
             ),
             Text(
-              subtitle,
-              style: TextStyle(
-                color: color.withValues(alpha: 0.7),
-                fontSize: 12,
-              ),
+              widget.subtitle,
+              // ⚡ Bolt: Using the cached subtitle style.
+              style: _subtitleTextStyle,
             ),
           ],
         ),
