@@ -34,11 +34,6 @@ class SyncService {
   /// The last known list of notes (cached from local DB).
   List<Note> get currentNotes => _lastNotes;
 
-  List<Note> _lastNotes = [];
-
-  /// The last known list of notes (cached from local DB).
-  List<Note> get currentNotes => _lastNotes;
-
   /// A broadcast stream of all notes.
   Stream<List<Note>> get notesStream => _notesController.stream;
 

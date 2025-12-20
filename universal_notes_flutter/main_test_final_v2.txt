@@ -1,0 +1,119 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: NotesScreen displays notes
+DEBUG: NotesScreen initState completed
+Pending timers:
+Timer (duration: 0:00:10.000000, periodic: false), created:
+#0      new FakeTimer._ (package:fake_async/fake_async.dart:342:62)
+#1      FakeAsync._createTimer (package:fake_async/fake_async.dart:260:29)
+#2      FakeAsync.run.<anonymous closure> (package:fake_async/fake_async.dart:185:15)
+#6      SqfliteDatabaseMixin.txnSynchronized (package:sqflite_common/src/database_mixin.dart:582:33)
+#7      SqfliteDatabaseMixin.txnRawQuery (package:sqflite_common/src/database_mixin.dart:677:12)
+#8      SqfliteDatabaseExecutorMixin._rawQuery (package:sqflite_common/src/database_mixin.dart:148:15)
+#9      SqfliteDatabaseExecutorMixin.rawQuery (package:sqflite_common/src/database_mixin.dart:140:12)
+#10     NoteRepository.getAllNotes (package:universal_notes_flutter/repositories/note_repository.dart:579:27)
+<asynchronous suspension>
+#11     SyncService.refreshLocalData (package:universal_notes_flutter/services/sync_service.dart:77:19)
+<asynchronous suspension>
+(elided 3 frames from dart:async)
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+A Timer is still pending even after the widget tree was disposed.
+'package:flutter_test/src/binding.dart':
+Failed assertion: line 1617 pos 12: '!timersPending'
+
+When the exception was thrown, this was the stack:
+#2      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1617:12)
+#3      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1078:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from class _AssertionError and package:stack_trace)
+
+The test description was:
+  NotesScreen displays notes
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +0 -1: NotesScreen displays notes [E]
+  Test failed. See exception logs above.
+  The test description was: NotesScreen displays notes
+  
+00:04 +0 -1: NotesScreen State Rendering shows error message when fetch fails
+10:04 +0 -2: NotesScreen State Rendering shows error message when fetch fails [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+10:04 +0 -2: NotesScreen State Rendering shows empty state when no notes exist
+DEBUG: NotesScreen initState completed
+Pending timers:
+Timer (duration: 0:00:10.000000, periodic: false), created:
+#0      new FakeTimer._ (package:fake_async/fake_async.dart:342:62)
+#1      FakeAsync._createTimer (package:fake_async/fake_async.dart:260:29)
+#2      FakeAsync.run.<anonymous closure> (package:fake_async/fake_async.dart:185:15)
+#6      SqfliteDatabaseMixin.txnSynchronized (package:sqflite_common/src/database_mixin.dart:582:33)
+#7      SqfliteDatabaseMixin.txnRawQuery (package:sqflite_common/src/database_mixin.dart:677:12)
+#8      SqfliteDatabaseExecutorMixin._rawQuery (package:sqflite_common/src/database_mixin.dart:148:15)
+#9      SqfliteDatabaseExecutorMixin.rawQuery (package:sqflite_common/src/database_mixin.dart:140:12)
+#10     NoteRepository.getAllNotes (package:universal_notes_flutter/repositories/note_repository.dart:579:27)
+<asynchronous suspension>
+#11     SyncService.refreshLocalData (package:universal_notes_flutter/services/sync_service.dart:77:19)
+<asynchronous suspension>
+(elided 3 frames from dart:async)
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+A Timer is still pending even after the widget tree was disposed.
+'package:flutter_test/src/binding.dart':
+Failed assertion: line 1617 pos 12: '!timersPending'
+
+When the exception was thrown, this was the stack:
+#2      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1617:12)
+#3      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1078:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from class _AssertionError and package:stack_trace)
+
+The test description was:
+  shows empty state when no notes exist
+════════════════════════════════════════════════════════════════════════════════════════════════════
+10:05 +0 -3: NotesScreen State Rendering shows empty state when no notes exist [E]
+  Test failed. See exception logs above.
+  The test description was: shows empty state when no notes exist
+  
+10:05 +0 -3: NotesScreen State Rendering displays notes when available
+20:05 +0 -4: NotesScreen State Rendering displays notes when available [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+20:05 +0 -4: NotesScreen View Modes cycles through view modes when button is tapped
+DEBUG: NotesScreen initState completed
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _IconWidgetFinder:<Found 0 widgets with icon "IconData(U+0E8A9)": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart:372:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart line 372
+The test description was:
+  cycles through view modes when button is tapped
+════════════════════════════════════════════════════════════════════════════════════════════════════
+20:08 +0 -5: NotesScreen View Modes cycles through view modes when button is tapped [E]
+  Test failed. See exception logs above.
+  The test description was: cycles through view modes when button is tapped
+  
+20:08 +0 -5: NotesScreen Note Filtering shows only non-trash notes by default
+30:08 +0 -6: NotesScreen Note Filtering shows only non-trash notes by default [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+30:08 +0 -6: NotesScreen Note Filtering filters favorites correctly

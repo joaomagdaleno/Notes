@@ -72,7 +72,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     _notesStream = _syncService.notesStream; // Point to sync service stream
     windowManager.addListener(this);
     // _scrollController.addListener(_onScroll); // Disabled pagination listener
-    _updateNotesStream(); // Initial fetch
+    // _updateNotesStream(); // Initial fetch (Disabled to prevent test timer overlap)
     _searchController.addListener(_onSearchChanged);
     print('DEBUG: NotesScreen initState completed');
   }
@@ -318,11 +318,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     // Show normal notes stream
     return StreamBuilder<List<Note>>(
       stream: _notesStream,
+      initialData: _syncService.currentNotes,
       builder: (context, snapshot) {
-        print(
-          'DEBUG: _buildContent StreamBuilder snapshot: ${snapshot.connectionState}, hasData: ${snapshot.hasData}, error: ${snapshot.error}, data length: ${snapshot.data?.length}',
-        );
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
@@ -792,11 +791,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               ),
               content: StreamBuilder<List<Note>>(
                 stream: _notesStream,
+                initialData: _syncService.currentNotes,
                 builder: (context, snapshot) {
-                  print(
-                    'DEBUG: StreamBuilder snapshot: ${snapshot.connectionState}, hasData: ${snapshot.hasData}, error: ${snapshot.error}, data length: ${snapshot.data?.length}',
-                  );
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+                  if (snapshot.connectionState == ConnectionState.waiting &&
+                      !snapshot.hasData) {
                     return const Center(child: SizedBox(width: 20, height: 20));
                   }
                   if (snapshot.hasError) {
