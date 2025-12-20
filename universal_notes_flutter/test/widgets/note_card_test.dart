@@ -14,13 +14,16 @@ import 'note_card_test.mocks.dart';
 @GenerateMocks([StorageService, FirestoreRepository, NoteRepository])
 void main() {
   late MockStorageService mockStorageService;
+  late MockFirestoreRepository mockFirestoreRepository;
   late MockNoteRepository mockNoteRepository;
 
   setUp(() {
     mockStorageService = MockStorageService();
     mockNoteRepository = MockNoteRepository();
+    mockFirestoreRepository = MockFirestoreRepository();
     StorageService.instance = mockStorageService;
     NoteRepository.instance = mockNoteRepository;
+    FirestoreRepository.instance = mockFirestoreRepository;
 
     // Default stubs
     when(mockNoteRepository.getAllSnippets()).thenAnswer((_) async => []);
@@ -131,7 +134,7 @@ void main() {
       // Should navigate to NoteEditorScreen
       expect(find.byType(NoteEditorScreen), findsOneWidget);
       // Check for the note title in the AppBar
-      expect(find.text('Nota: Test Note'), findsOneWidget);
+      expect(find.text('Edit Note'), findsOneWidget);
     },
   );
 

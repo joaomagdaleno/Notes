@@ -59,12 +59,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     unawaited(
                       Navigator.of(context).push(
                         fluent.FluentPageRoute<void>(
-                          // CORREÇÃO: Envolve o AboutScreen em um MaterialApp
-                          builder: (context) => MaterialApp(
-                            title: 'Sobre',
-                            home: AboutScreen(packageInfo: _packageInfo!),
-                            debugShowCheckedModeBanner: false,
-                          ),
+                          builder: (context) =>
+                              AboutScreen(packageInfo: _packageInfo!),
                         ),
                       ),
                     );

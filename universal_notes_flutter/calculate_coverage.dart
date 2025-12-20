@@ -8,8 +8,8 @@ void main() async {
   }
 
   final lines = await file.readAsLines();
-  int totalLF = 0;
-  int totalLH = 0;
+  var totalLF = 0;
+  var totalLH = 0;
 
   for (final line in lines) {
     if (line.startsWith('LF:')) {

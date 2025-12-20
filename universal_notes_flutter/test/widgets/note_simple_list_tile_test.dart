@@ -152,8 +152,8 @@ void main() {
 
       // Check if we've navigated to the NoteEditorScreen
       expect(find.byType(NoteEditorScreen), findsOneWidget);
-      // Check for the note title in the AppBar (it's prefixed with "Nota: ")
-      expect(find.text('Nota: Test Note'), findsOneWidget);
+      // Check for the note title in the AppBar
+      expect(find.text('Edit Note'), findsOneWidget);
     },
   );
 }

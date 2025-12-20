@@ -236,6 +236,9 @@ void main() {
       // Mock singletons
       SyncService.instance.firestoreRepository = createDefaultMockRepository();
       NoteRepository.instance.firebaseService = MockFirebaseService();
+
+      // Initialize DB once
+      await NoteRepository.instance.initDB();
     } catch (e, stack) {
       if (kDebugMode) {
         if (kDebugMode) {
@@ -252,11 +255,23 @@ void main() {
   setUp(() async {
     // Reset sync first to stop background work
     await SyncService.instance.reset();
-    // Then close and re-init database
-    await NoteRepository.instance.close();
-    await NoteRepository.instance.initDB();
+
+    // Clear tables
+    final db = await NoteRepository.instance.database;
+    await db.delete('notes');
+    await db.delete('folders');
+    await db.delete('tags');
+    await db.delete('snippets');
+    await db.delete('note_versions');
+    await db.delete('note_events');
+    await db.delete('user_dictionary');
+
     // Finally init sync service
     await SyncService.instance.init();
+  });
+
+  tearDown(() async {
+    await SyncService.instance.reset();
   });
 
   // --- Helpers ---

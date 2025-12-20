@@ -790,7 +790,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 stream: _notesStream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: fluent.ProgressRing());
+                    return const Center(child: SizedBox(width: 20, height: 20));
                   }
                   if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));

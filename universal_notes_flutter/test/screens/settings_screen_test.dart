@@ -100,6 +100,7 @@ void main() {
 
       try {
         await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
+        await tester.pumpAndSettle();
 
         // Navigate to AboutScreen
         await tester.tap(find.byType(ListTile));
@@ -107,8 +108,7 @@ void main() {
         expect(find.byType(AboutScreen), findsOneWidget);
 
         // Navigate back
-        final backButton = find.byTooltip('Back');
-        await tester.tap(backButton);
+        await tester.tap(find.byType(BackButton));
         await tester.pumpAndSettle();
 
         // Should be back at SettingsScreen with loading reset
@@ -127,6 +127,7 @@ void main() {
 
       try {
         await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
+        await tester.pumpAndSettle();
 
         // Navigate to AboutScreen
         await tester.tap(find.byType(fluent.ListTile));
