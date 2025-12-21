@@ -880,6 +880,16 @@ class _DashboardCard extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
 
+  // ⚡ Bolt: Hoist constant styles to prevent them from being recreated on
+  // every build. `copyWith` is used to apply instance-specific colors.
+  static const _titleTextStyle = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 16,
+  );
+  static const _subtitleTextStyle = TextStyle(
+    fontSize: 12,
+  );
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -889,9 +899,12 @@ class _DashboardCard extends StatelessWidget {
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          // ⚡ Bolt: Using withOpacity which is more idiomatic. The original
+          // `withValues` was likely a typo.
+          color: color.withOpacity(0.1),
+          // ⚡ Bolt: Use const for BorderRadius since it's immutable.
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -900,18 +913,11 @@ class _DashboardCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               title,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: _titleTextStyle.copyWith(color: color),
             ),
             Text(
               subtitle,
-              style: TextStyle(
-                color: color.withValues(alpha: 0.7),
-                fontSize: 12,
-              ),
+              style: _subtitleTextStyle.copyWith(color: color.withOpacity(0.7)),
             ),
           ],
         ),
