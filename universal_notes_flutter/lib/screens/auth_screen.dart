@@ -91,28 +91,22 @@ class _AuthScreenState extends State<AuthScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                      onPressed:
-                          _isSigningIn || _isSigningUp ? null : _signIn,
+                      onPressed: _isSigningIn || _isSigningUp ? null : _signIn,
                       child: _isSigningIn
                           ? const SizedBox(
-                              height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Sign In'),
                     ),
                     ElevatedButton(
-                      onPressed:
-                          _isSigningIn || _isSigningUp ? null : _signUp,
+                      onPressed: _isSigningIn || _isSigningUp ? null : _signUp,
                       child: _isSigningUp
                           ? const SizedBox(
-                              height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Sign Up'),
                     ),
