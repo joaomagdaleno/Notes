@@ -74,6 +74,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     // _scrollController.addListener(_onScroll); // Disabled pagination listener
     _updateNotesStream(); // Initial fetch
     _searchController.addListener(_onSearchChanged);
+    print('DEBUG: NotesScreen initState completed');
   }
 
   @override
@@ -318,6 +319,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     return StreamBuilder<List<Note>>(
       stream: _notesStream,
       builder: (context, snapshot) {
+        print(
+          'DEBUG: _buildContent StreamBuilder snapshot: ${snapshot.connectionState}, hasData: ${snapshot.hasData}, error: ${snapshot.error}, data length: ${snapshot.data?.length}',
+        );
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -789,6 +793,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               content: StreamBuilder<List<Note>>(
                 stream: _notesStream,
                 builder: (context, snapshot) {
+                  print(
+                    'DEBUG: StreamBuilder snapshot: ${snapshot.connectionState}, hasData: ${snapshot.hasData}, error: ${snapshot.error}, data length: ${snapshot.data?.length}',
+                  );
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: SizedBox(width: 20, height: 20));
                   }

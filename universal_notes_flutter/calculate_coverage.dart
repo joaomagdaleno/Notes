@@ -3,8 +3,13 @@ import 'dart:io';
 void main() async {
   final file = File('coverage/lcov.info');
   if (!file.existsSync()) {
-    print('Coverage file not found.');
+   
+                  print('Coverage file not found.');
+                }
+              }
     return;
+    }
+    
   }
 
   final lines = await file.readAsLines();

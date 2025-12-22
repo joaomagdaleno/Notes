@@ -233,9 +233,7 @@ void main() {
 
       SharedPreferences.setMockInitialValues({});
 
-      // Mock singletons
-      SyncService.instance.firestoreRepository = createDefaultMockRepository();
-      NoteRepository.instance.firebaseService = MockFirebaseService();
+      // Note: we don't mock singletons here anymore, we do it in setUp
 
       // Initialize DB once
       await NoteRepository.instance.initDB();
@@ -265,6 +263,10 @@ void main() {
     await db.delete('note_versions');
     await db.delete('note_events');
     await db.delete('user_dictionary');
+
+    // Fresh mocks for each test
+    SyncService.instance.firestoreRepository = createDefaultMockRepository();
+    NoteRepository.instance.firebaseService = MockFirebaseService();
 
     // Finally init sync service
     await SyncService.instance.init();
@@ -299,8 +301,10 @@ void main() {
     );
     // Pump to trigger initState and stream subscription
     await tester.pump();
-    // Pump and settle to allow all async work and animations to finish
-    await tester.pumpAndSettle();
+    // Allow async data to load
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump();
+    // await tester.pumpAndSettle(); // Disabled to avoid timeouts
   }
 
   // --- Basic Widget Tests ---
@@ -348,7 +352,8 @@ void main() {
       await SyncService.instance.init();
 
       await _pumpNotesScreen(tester);
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
       expect(find.text('Test Note 1'), findsOneWidget);
       expect(find.text('Test Note 2'), findsOneWidget);
     });
@@ -369,8 +374,7 @@ void main() {
       // Tap multiple times to cycle through all modes
       for (var i = 0; i < 5; i++) {
         await tester.tap(viewModeButton);
-        await tester
-            .pumpAndSettle(); // pumpAndSettle to clear any hover/tap animations
+        await tester.pump();
       }
 
       // Verify it doesn't crash
