@@ -50,6 +50,11 @@ enum SortOrder {
 }
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
+  // ⚡ Bolt: Caching the RegExp for snippet highlighting.
+  // This avoids recompiling the regular expression on every search result,
+  // improving performance when rendering the search results list.
+  static final _highlightRegex = RegExp('<b>(.*?)</b>');
+
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final _sortOrderNotifier = ValueNotifier<SortOrder>(SortOrder.dateDesc);
   final SyncService _syncService = SyncService.instance;
@@ -373,10 +378,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   /// Parses the FTS5 snippet with <b> tags into rich text.
   Widget _buildHighlightedSnippet(String snippet) {
     final parts = <TextSpan>[];
-    final regex = RegExp('<b>(.*?)</b>');
     var lastEnd = 0;
 
-    for (final match in regex.allMatches(snippet)) {
+    for (final match in _highlightRegex.allMatches(snippet)) {
       // Add text before match
       if (match.start > lastEnd) {
         parts.add(TextSpan(text: snippet.substring(lastEnd, match.start)));
