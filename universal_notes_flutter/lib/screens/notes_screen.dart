@@ -566,22 +566,27 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         actions: [
           IconButton(
             icon: const Icon(Icons.view_module),
+            tooltip: 'Grid View (Medium)',
             onPressed: () => _viewModeNotifier.value = 'grid_medium',
           ),
           IconButton(
             icon: const Icon(Icons.view_comfy),
+            tooltip: 'Grid View (Large)',
             onPressed: () => _viewModeNotifier.value = 'grid_large',
           ),
           IconButton(
             icon: const Icon(Icons.view_list),
+            tooltip: 'List View',
             onPressed: () => _viewModeNotifier.value = 'list',
           ),
           IconButton(
             icon: const Icon(Icons.update),
+            tooltip: 'Check for Updates',
             onPressed: () => unawaited(_updateService.checkForUpdate()),
           ),
           IconButton(
             icon: const Icon(Icons.brightness_6),
+            tooltip: 'Toggle Theme',
             onPressed: () {
               if (context.mounted) {
                 unawaited(
@@ -595,6 +600,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           ),
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
+            tooltip: 'Sort Order',
             onSelected: (SortOrder result) {
               // ⚡ Bolt: Update notifier directly, no setState needed.
               _sortOrderNotifier.value = result;
@@ -711,30 +717,33 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             mainAxisSize: fluent.MainAxisSize.min,
             mainAxisAlignment: fluent.MainAxisAlignment.end,
             children: [
-              fluent.DropDownButton(
-                title: const Icon(fluent.FluentIcons.sort),
-                items: [
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Data (Mais Recentes)'),
-                    onPressed: () =>
-                        _sortOrderNotifier.value = SortOrder.dateDesc,
-                  ),
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Data (Mais Antigas)'),
-                    onPressed: () =>
-                        _sortOrderNotifier.value = SortOrder.dateAsc,
-                  ),
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Título (A-Z)'),
-                    onPressed: () =>
-                        _sortOrderNotifier.value = SortOrder.titleAsc,
-                  ),
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Título (Z-A)'),
-                    onPressed: () =>
-                        _sortOrderNotifier.value = SortOrder.titleDesc,
-                  ),
-                ],
+              fluent.Tooltip(
+                message: 'Sort Order',
+                child: fluent.DropDownButton(
+                  title: const Icon(fluent.FluentIcons.sort),
+                  items: [
+                    fluent.MenuFlyoutItem(
+                      text: const Text('Data (Mais Recentes)'),
+                      onPressed: () =>
+                          _sortOrderNotifier.value = SortOrder.dateDesc,
+                    ),
+                    fluent.MenuFlyoutItem(
+                      text: const Text('Data (Mais Antigas)'),
+                      onPressed: () =>
+                          _sortOrderNotifier.value = SortOrder.dateAsc,
+                    ),
+                    fluent.MenuFlyoutItem(
+                      text: const Text('Título (A-Z)'),
+                      onPressed: () =>
+                          _sortOrderNotifier.value = SortOrder.titleAsc,
+                    ),
+                    fluent.MenuFlyoutItem(
+                      text: const Text('Título (Z-A)'),
+                      onPressed: () =>
+                          _sortOrderNotifier.value = SortOrder.titleDesc,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -742,23 +751,28 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                   primaryItems: [
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.view_all),
+                      tooltip: 'Grid View (Medium)',
                       onPressed: () => _viewModeNotifier.value = 'grid_medium',
                     ),
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.grid_view_large),
+                      tooltip: 'Grid View (Large)',
                       onPressed: () => _viewModeNotifier.value = 'grid_large',
                     ),
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.list),
+                      tooltip: 'List View',
                       onPressed: () => _viewModeNotifier.value = 'list',
                     ),
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.update_restore),
+                      tooltip: 'Check for Updates',
                       onPressed: () =>
                           unawaited(_updateService.checkForUpdate()),
                     ),
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.brightness),
+                      tooltip: 'Toggle Theme',
                       onPressed: () {
                         if (context.mounted) {
                           unawaited(
