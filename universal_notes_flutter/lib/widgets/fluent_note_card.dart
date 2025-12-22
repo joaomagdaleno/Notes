@@ -44,6 +44,7 @@ class FluentNoteCard extends StatefulWidget {
 class _FluentNoteCardState extends State<FluentNoteCard> {
   final _flyoutController = fluent.FlyoutController();
   String _plainTextContent = '';
+  bool _isHovered = false;
 
   @override
   void initState() {
@@ -128,6 +129,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
     return fluent.FlyoutTarget(
       controller: _flyoutController,
       child: GestureDetector(
@@ -138,11 +140,17 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
         onLongPressStart: (details) {
           _showContextMenu(details.globalPosition);
         },
-        child: fluent.Card(
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12),
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _isHovered = true),
+          onExit: (_) => setState(() => _isHovered = false),
+          child: fluent.Card(
+            backgroundColor: _isHovered
+                ? theme.selectionColor.withOpacity(0.1)
+                : theme.cardColor,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

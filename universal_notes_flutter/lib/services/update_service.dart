@@ -58,7 +58,7 @@ class UpdateService {
       final response = await _client
           .get(url)
           .timeout(
-            const Duration(seconds: 30),
+            const Duration(seconds: 600),
           );
 
       if (response.statusCode == 200) {
