@@ -885,31 +885,41 @@ class _DashboardCard extends StatefulWidget {
 }
 
 class _DashboardCardState extends State<_DashboardCard> {
-  // ⚡ Bolt: Caching the BoxDecoration prevents it from being recreated on
-  // every build, which is a significant performance optimization, especially
-  // for widgets in a list.
+  // ⚡ Bolt: Caching expensive objects to avoid rebuilding them on every frame.
   late BoxDecoration _boxDecoration;
+  late TextStyle _titleTextStyle;
+  late TextStyle _subtitleTextStyle;
 
   @override
   void initState() {
     super.initState();
-    _boxDecoration = _createDecoration(widget.color);
+    _updateStyles();
   }
 
   @override
   void didUpdateWidget(_DashboardCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Only update the decoration if the color has actually changed.
+    // ⚡ Bolt: Only update styles when the color changes, preventing unnecessary
+    // object recreation.
     if (widget.color != oldWidget.color) {
-      _boxDecoration = _createDecoration(widget.color);
+      _updateStyles();
     }
   }
 
-  BoxDecoration _createDecoration(Color color) {
-    return BoxDecoration(
-      color: color.withAlpha(25), // ~10% opacity
+  void _updateStyles() {
+    _boxDecoration = BoxDecoration(
+      color: widget.color.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: color.withAlpha(51)), // ~20% opacity
+      border: Border.all(color: widget.color.withValues(alpha: 0.2)),
+    );
+    _titleTextStyle = TextStyle(
+      color: widget.color,
+      fontWeight: FontWeight.bold,
+      fontSize: 16,
+    );
+    _subtitleTextStyle = TextStyle(
+      color: widget.color.withValues(alpha: 0.7),
+      fontSize: 12,
     );
   }
 
@@ -921,6 +931,7 @@ class _DashboardCardState extends State<_DashboardCard> {
         width: 160,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
+        // ⚡ Bolt: Using the cached decoration.
         decoration: _boxDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -929,18 +940,13 @@ class _DashboardCardState extends State<_DashboardCard> {
             const SizedBox(height: 12),
             Text(
               widget.title,
-              style: TextStyle(
-                color: widget.color,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              // ⚡ Bolt: Using the cached title style.
+              style: _titleTextStyle,
             ),
             Text(
               widget.subtitle,
-              style: TextStyle(
-                color: widget.color.withAlpha(178), // ~70% opacity
-                fontSize: 12,
-              ),
+              // ⚡ Bolt: Using the cached subtitle style.
+              style: _subtitleTextStyle,
             ),
           ],
         ),
