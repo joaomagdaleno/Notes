@@ -375,8 +375,27 @@ class DocumentManipulator {
     final blocks = List<DocumentBlock>.from(document.blocks);
     final pos = _findBlockPosition(blocks, position);
 
-    if (pos.blockIndex == -1 || blocks[pos.blockIndex] is! TextBlock) {
-      // Cannot insert text into an image block or at the end
+    if (pos.blockIndex == -1) {
+      if (blocks.isEmpty && position == 0) {
+        final newBlock = TextBlock(spans: [TextSpanModel(text: text)]);
+        return ManipulationResult(
+          document: DocumentModel(blocks: [newBlock]),
+          eventType: NoteEventType.insert,
+          eventPayload: {
+            'pos': 0,
+            'text': text,
+          },
+        );
+      }
+      return ManipulationResult(
+        document: document,
+        eventPayload: {},
+        eventType: NoteEventType.unknown,
+      );
+    }
+
+    if (blocks[pos.blockIndex] is! TextBlock) {
+      // Cannot insert text into an image block
       return ManipulationResult(
         document: document,
         eventPayload: {},

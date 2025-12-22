@@ -1,0 +1,51 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/autocomplete_service_test.dart
+00:00 +0: AutocompleteService isWordBoundary should correctly identify boundaries
+00:00 +1: AutocompleteService getSuggestions extracts words from current note
+00:00 +1 -1: AutocompleteService getSuggestions extracts words from current note [E]
+  FormatException: Message corrupted
+  package:flutter/src/services/message_codecs.dart 533:9                    StandardMessageCodec.readValueOfType
+  package:flutter/src/services/message_codecs.dart 477:12                   StandardMessageCodec.readValue
+  package:flutter/src/services/message_codecs.dart 607:41                   StandardMethodCodec.decodeMethodCall
+  package:flutter_test/src/test_default_binary_messenger.dart 312:45        TestDefaultBinaryMessenger.setMockMethodCallHandler.<fn>
+  package:flutter_test/src/test_default_binary_messenger.dart 147:29        TestDefaultBinaryMessenger.send
+  package:flutter/src/services/asset_bundle.dart 329:10                     PlatformAssetBundle.load
+  package:flutter/src/services/asset_bundle.dart 92:33                      AssetBundle.loadString
+  package:flutter/src/services/asset_bundle.dart 193:56                     CachingAssetBundle.loadString.<fn>
+  dart:_compact_hash                                                        _LinkedHashMapMixin.putIfAbsent
+  package:flutter/src/services/asset_bundle.dart 193:27                     CachingAssetBundle.loadString
+  package:universal_notes_flutter/services/autocomplete_service.dart 68:38  AutocompleteService._loadDictionary
+  package:universal_notes_flutter/services/autocomplete_service.dart 56:32  AutocompleteService.getSuggestions
+  
+00:00 +1 -1: AutocompleteService getSuggestions uses learned words
+00:00 +1 -2: AutocompleteService getSuggestions uses learned words [E]
+  FormatException: Message corrupted
+  package:flutter/src/services/message_codecs.dart 533:9                    StandardMessageCodec.readValueOfType
+  package:flutter/src/services/message_codecs.dart 477:12                   StandardMessageCodec.readValue
+  package:flutter/src/services/message_codecs.dart 607:41                   StandardMethodCodec.decodeMethodCall
+  package:flutter_test/src/test_default_binary_messenger.dart 312:45        TestDefaultBinaryMessenger.setMockMethodCallHandler.<fn>
+  package:flutter_test/src/test_default_binary_messenger.dart 147:29        TestDefaultBinaryMessenger.send
+  package:flutter/src/services/asset_bundle.dart 329:10                     PlatformAssetBundle.load
+  package:flutter/src/services/asset_bundle.dart 92:33                      AssetBundle.loadString
+  package:flutter/src/services/asset_bundle.dart 193:56                     CachingAssetBundle.loadString.<fn>
+  dart:_compact_hash                                                        _LinkedHashMapMixin.putIfAbsent
+  package:flutter/src/services/asset_bundle.dart 193:27                     CachingAssetBundle.loadString
+  package:universal_notes_flutter/services/autocomplete_service.dart 68:38  AutocompleteService._loadDictionary
+  package:universal_notes_flutter/services/autocomplete_service.dart 56:32  AutocompleteService.getSuggestions
+  
+00:00 +1 -2: AutocompleteService getSuggestions falls back to dictionary
+00:00 +1 -3: AutocompleteService getSuggestions falls back to dictionary [E]
+  FormatException: Message corrupted
+  package:flutter/src/services/message_codecs.dart 533:9                    StandardMessageCodec.readValueOfType
+  package:flutter/src/services/message_codecs.dart 477:12                   StandardMessageCodec.readValue
+  package:flutter/src/services/message_codecs.dart 607:41                   StandardMethodCodec.decodeMethodCall
+  package:flutter_test/src/test_default_binary_messenger.dart 312:45        TestDefaultBinaryMessenger.setMockMethodCallHandler.<fn>
+  package:flutter_test/src/test_default_binary_messenger.dart 147:29        TestDefaultBinaryMessenger.send
+  package:flutter/src/services/asset_bundle.dart 329:10                     PlatformAssetBundle.load
+  package:flutter/src/services/asset_bundle.dart 92:33                      AssetBundle.loadString
+  package:flutter/src/services/asset_bundle.dart 193:56                     CachingAssetBundle.loadString.<fn>
+  dart:_compact_hash                                                        _LinkedHashMapMixin.putIfAbsent
+  package:flutter/src/services/asset_bundle.dart 193:27                     CachingAssetBundle.loadString
+  package:universal_notes_flutter/services/autocomplete_service.dart 68:38  AutocompleteService._loadDictionary
+  package:universal_notes_flutter/services/autocomplete_service.dart 56:32  AutocompleteService.getSuggestions
+  
+00:00 +1 -3: Some tests failed.

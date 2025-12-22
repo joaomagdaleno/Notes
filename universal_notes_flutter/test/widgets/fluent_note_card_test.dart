@@ -9,19 +9,24 @@ void main() {
     final noteWithValidContent = Note(
       id: '1',
       title: 'Test Note',
-      content: r'[{"insert":"This is a test note.\n"}]',
-createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
+      content: r'[{"type":"text","spans":[{"text":"This is a test note."}]}]',
+      createdAt: DateTime.now(),
+      lastModified: DateTime.now(),
+      ownerId: 'user1',
     );
 
     final noteWithInvalidContent = Note(
       id: '2',
       title: 'Test Note 2',
-      content: 'invalid json',
-createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
+      content: 'invalid content',
+      createdAt: DateTime.now(),
+      lastModified: DateTime.now(),
+      ownerId: 'user1',
     );
 
-    testWidgets('displays title and content preview for valid content',
-        (WidgetTester tester) async {
+    testWidgets('displays title and content preview for valid content', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         fluent.FluentApp(
           home: Scaffold(
@@ -39,8 +44,9 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       expect(find.text('This is a test note.'), findsOneWidget);
     });
 
-    testWidgets('displays fallback text for invalid content',
-        (WidgetTester tester) async {
+    testWidgets('displays fallback text for invalid content', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         fluent.FluentApp(
           home: Scaffold(
@@ -55,11 +61,12 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       );
 
       expect(find.text('Test Note 2'), findsOneWidget);
-      expect(find.text('...'), findsOneWidget);
+      expect(find.text('invalid content'), findsOneWidget);
     });
 
-    testWidgets('tapping FluentNoteCard calls onTap',
-        (WidgetTester tester) async {
+    testWidgets('tapping FluentNoteCard calls onTap', (
+      WidgetTester tester,
+    ) async {
       var tapped = false;
       await tester.pumpWidget(
         fluent.FluentApp(
@@ -82,8 +89,9 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       expect(tapped, isTrue);
     });
 
-    testWidgets('tapping FluentNoteCard triggers default navigation',
-        (WidgetTester tester) async {
+    testWidgets('tapping FluentNoteCard triggers default navigation', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         fluent.FluentApp(
           home: Builder(

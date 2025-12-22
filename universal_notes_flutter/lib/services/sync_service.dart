@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -14,18 +13,31 @@ class SyncService {
   SyncService._();
 
   /// The singleton instance of [SyncService].
-  static final SyncService instance = SyncService._();
+  static SyncService instance = SyncService._();
+
+  bool _isDisposed = false;
+  Future<void>? _syncUpFuture;
 
   @visibleForTesting
   late NoteRepository noteRepository = NoteRepository.instance;
   @visibleForTesting
-  late FirestoreRepository firestoreRepository = FirestoreRepository();
+  late FirestoreRepository firestoreRepository = FirestoreRepository.instance;
 
   // StreamControllers to broadcast local data changes
   final _notesController = StreamController<List<Note>>.broadcast();
   final _foldersController = StreamController<List<Folder>>.broadcast();
   final _tagsController = StreamController<List<String>>.broadcast();
   final _conflictController = StreamController<SyncConflict>.broadcast();
+
+  List<Note> _lastNotes = [];
+
+  /// The last known list of notes (cached from local DB).
+  List<Note> get currentNotes => _lastNotes;
+
+  List<Note> _lastNotes = [];
+
+  /// The last known list of notes (cached from local DB).
+  List<Note> get currentNotes => _lastNotes;
 
   /// A broadcast stream of all notes.
   Stream<List<Note>> get notesStream => _notesController.stream;
@@ -41,11 +53,23 @@ class SyncService {
 
   /// Initial fetch from local DB to populate streams
   Future<void> init() async {
+    _isDisposed = false;
+    await _remoteSubscription?.cancel();
     await refreshLocalData();
     // Start background sync
     _startBackgroundSync();
     // Try to push local changes
-    unawaited(syncUp());
+    _syncUpFuture = syncUp();
+  }
+
+  /// Cancels subscriptions for testing.
+  @visibleForTesting
+  Future<void> reset() async {
+    _isDisposed = true;
+    await _remoteSubscription?.cancel();
+    _remoteSubscription = null;
+    await _syncUpFuture;
+    _syncUpFuture = null;
   }
 
   /// Re-reads data from SQLite and emits to streams
@@ -61,6 +85,7 @@ class SyncService {
       isFavorite: isFavorite,
       isInTrash: isInTrash,
     );
+    _lastNotes = notes;
     _notesController.add(notes);
 
     final folders = await noteRepository.getAllFolders();
@@ -76,11 +101,17 @@ class SyncService {
 
   void _startBackgroundSync() {
     // Listen to remote changes (Firestore -> SQLite)
-    _remoteSubscription = firestoreRepository.notesStream().listen((
-      remoteNotes,
-    ) async {
-      await _syncDown(remoteNotes);
-    });
+    _remoteSubscription = firestoreRepository.notesStream().listen(
+      (remoteNotes) async {
+        if (_isDisposed) return;
+        await _syncDown(remoteNotes);
+      },
+      onError: (e, stack) {
+        if (kDebugMode) {
+          print('Error in sync stream: $e');
+        }
+      },
+    );
   }
 
   /// Syncs remote changes to local database (Firestore -> SQLite)
@@ -150,9 +181,11 @@ class SyncService {
 
   /// Syncs local changes to Firestore (SQLite -> Firestore)
   Future<void> syncUp() async {
+    if (_isDisposed) return;
     // Dirty Sync strategy: Only push local notes that are modified or local.
     final localNotes = await noteRepository.getUnsyncedNotes();
     for (final note in localNotes) {
+      if (_isDisposed) break;
       await syncUpNote(note);
     }
   }

@@ -1,49 +1,75 @@
+import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-// import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
 
-class MockFirestoreRepository extends Mock implements NoteRepository {}
+import '../mocks/mocks.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // Mock asset bundle
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(const MethodChannel('flutter/assets'), (
-        MethodCall methodCall,
-      ) async {
-        if (methodCall.method == 'loadString') {
-          return 'uma\nduas\ntres'; // Mock dictionary
-        }
-        return null;
-      });
+  late MockNoteRepository mockRepo;
+
+  setUp(() {
+    mockRepo = MockNoteRepository();
+    NoteRepository.instance = mockRepo;
+    AutocompleteService.resetCache();
+
+    // Mock asset loading for dictionaries
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler('flutter/assets', (ByteData? message) async {
+          final Uint8List encoded = message!.buffer.asUint8List();
+          final String key = utf8.decode(encoded);
+          if (key == 'assets/dictionaries/pt_br_common.txt') {
+            return utf8.encoder
+                .convert('trabalho\ntraducao\ntreinar')
+                .buffer
+                .asByteData();
+          }
+          return null;
+        });
+  });
 
   group('AutocompleteService', () {
-    test('returns suggestions from all sources in order', () async {
-      // Arrange
-      final mockRepo = MockFirestoreRepository();
-      NoteRepository.instance = mockRepo; // Simple DI for test
-      when(mockRepo.getFrequentWords('wor')).thenAnswer((_) async => ['work']);
+    test('isWordBoundary should correctly identify boundaries', () {
+      expect(AutocompleteService.isWordBoundary(' '), isTrue);
+      expect(AutocompleteService.isWordBoundary('\n'), isTrue);
+      expect(AutocompleteService.isWordBoundary('.'), isTrue);
+      expect(AutocompleteService.isWordBoundary('a'), isFalse);
+    });
 
-      const text = 'Hello world, this is a worldly test.';
+    test('getSuggestions extracts words from current note', () async {
+      when(mockRepo.getLearnedWords(any)).thenAnswer((_) async => []);
 
-      // Act
-      final suggestions = await AutocompleteService.getSuggestions(
-        text,
-        19,
-      ); // "worldl"
+      const text = 'Flutter is amazing and Flutters strongly.';
+      // Cursor at the end of "Flutt" (index 28)
+      final suggestions = await AutocompleteService.getSuggestions(text, 28);
 
-      // Assert
-      expect(
-        suggestions,
-        contains('World'),
-      ); // From current note (original case)
-      // 'work' from frequent words would not be added as we already have
-      // 'World' and 'worldly'
-      expect(suggestions, contains('worldly'));
+      expect(suggestions, contains('Flutter'));
+      expect(suggestions, contains('Flutters'));
+    });
+
+    test('getSuggestions uses learned words', () async {
+      when(
+        mockRepo.getLearnedWords('wor'),
+      ).thenAnswer((_) async => ['Workplace']);
+
+      const text = 'Hello wor';
+      final suggestions = await AutocompleteService.getSuggestions(text, 9);
+
+      expect(suggestions, contains('Workplace'));
+    });
+
+    test('getSuggestions falls back to dictionary', () async {
+      when(mockRepo.getLearnedWords('tra')).thenAnswer((_) async => []);
+
+      const text = 'Eu tra';
+      final suggestions = await AutocompleteService.getSuggestions(text, 6);
+
+      expect(suggestions, contains('trabalho'));
+      expect(suggestions, contains('traducao'));
     });
   });
 }

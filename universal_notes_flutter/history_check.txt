@@ -1,0 +1,7 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/history_grouper_test.dart
+00:00 +0: HistoryGrouper groupEvents should return empty list for empty input
+00:00 +1: HistoryGrouper groupEvents should group recent events by session (10m gap)
+00:00 +2: HistoryGrouper groupEvents should handle old events with daily compression
+00:00 +3: HistoryGrouper groupEvents should handle mixed recent and old events
+00:00 +4: HistoryGrouper groupEvents should group events by day for old events
+00:00 +5: All tests passed!

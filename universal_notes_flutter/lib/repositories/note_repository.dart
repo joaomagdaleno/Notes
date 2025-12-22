@@ -51,15 +51,21 @@ class NoteRepository {
   /// Initializes the database.
   @visibleForTesting
   Future<Database> initDB() async {
-    final dir = await getApplicationSupportDirectory();
-    await dir.create(recursive: true);
-    final path = join(dir.path, _dbName);
-    return openDatabase(
+    final String path;
+    if (dbPath != null) {
+      path = dbPath!;
+    } else {
+      final dir = await getApplicationSupportDirectory();
+      await dir.create(recursive: true);
+      path = join(dir.path, _dbName);
+    }
+    _database = await openDatabase(
       path,
-      version: 11,
+      version: 12,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
+    return _database!;
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -113,7 +119,17 @@ class NoteRepository {
         type TEXT,
         payload TEXT,
         timestamp INTEGER,
+        syncStatus TEXT,
+        deviceId TEXT,
         FOREIGN KEY (noteId) REFERENCES $_notesTable(id) ON DELETE CASCADE
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE $_userDictionaryTable(
+        word TEXT PRIMARY KEY,
+        frequency INTEGER DEFAULT 1,
+        lastUsed INTEGER,
+        isSynced INTEGER DEFAULT 0
       )
     ''');
 
@@ -206,6 +222,14 @@ class NoteRepository {
       );
       await db.execute('ALTER TABLE $_foldersTable ADD COLUMN query TEXT');
       await db.execute('ALTER TABLE $_notesTable ADD COLUMN thumbnail BLOB');
+    }
+    if (oldVersion < 12) {
+      await db.execute(
+        'ALTER TABLE $_noteEventsTable ADD COLUMN syncStatus TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE $_noteEventsTable ADD COLUMN deviceId TEXT',
+      );
     }
   }
 
@@ -755,10 +779,10 @@ class NoteRepository {
 
   /// Closes the database connection.
   Future<void> close() async {
-    final db = await database;
-    await db.close();
-    _database = null;
-    firebaseService.dispose();
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
+    }
   }
 
   // --- Event Sourcing Methods ---

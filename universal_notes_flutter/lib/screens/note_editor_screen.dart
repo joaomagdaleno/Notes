@@ -36,6 +36,7 @@ class NoteEditorScreen extends StatefulWidget {
     this.note,
     this.isCollaborative = false,
     this.initialPersona,
+    this.firestoreRepository,
     super.key,
   });
 
@@ -50,6 +51,9 @@ class NoteEditorScreen extends StatefulWidget {
 
   /// The persona to start the editor with.
   final EditorPersona? initialPersona;
+
+  /// The repository to use for Firestore operations.
+  final FirestoreRepository? firestoreRepository;
 
   @override
   State<NoteEditorScreen> createState() => _NoteEditorScreenState();
@@ -85,8 +89,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   String _findTerm = '';
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
-  final _firestoreRepository = FirestoreRepository();
-  final StorageService _storageService = StorageService();
+  late final FirestoreRepository _firestoreRepository;
+  final _storageService = StorageService.instance;
   final _imagePicker = ImagePicker();
 
   // --- Collaboration State (Temporarily disabled) ---
@@ -117,6 +121,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   @override
   void initState() {
     super.initState();
+    _firestoreRepository = FirestoreRepository.instance;
     _note = widget.note;
     _currentTags = _note?.tags.toList() ?? [];
     WidgetsBinding.instance.addObserver(this);

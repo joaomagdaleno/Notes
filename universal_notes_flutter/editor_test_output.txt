@@ -1,0 +1,429 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart
+00:00 +0: EditorWidget types text
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test:
+Expected: 'A'
+  Actual: ''
+   Which: is different. Both strings start the same, but the actual value is missing the following
+trailing characters: A
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart:35:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart line 35
+The test description was:
+  EditorWidget types text
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:02 +0 -1: EditorWidget types text [E]
+  Test failed. See exception logs above.
+  The test description was: EditorWidget types text
+  
+00:02 +0 -1: EditorWidget handles backspace
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY WIDGETS LIBRARY Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown building _EditorLine-[GlobalKey#5cbb8](dirty, dependencies:
+[DefaultTextStyle]):
+Cannot get size during build.
+The size of this render object has not yet been determined because the framework is still in the
+process of building widgets, which means the render tree for this frame has not yet been determined.
+The size getter should only be called from paint callbacks or interaction event handlers (e.g.
+gesture callbacks).
+
+If you need some sizing information during build to decide which widgets to build, consider using a
+LayoutBuilder widget, which can tell you the layout constraints at a given location in the tree. See
+<https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html> for more details.
+
+The size getter was called for the following element:
+  _EditorLine-[GlobalKey#5cbb8]
+
+The relevant error-causing widget was:
+  _EditorLine-[GlobalKey#5cbb8]
+  _EditorLine:file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/lib/editor/editor_widget.dart:1050:12
+
+When the exception was thrown, this was the stack:
+#0      Element.size.<anonymous closure> (package:flutter/src/widgets/framework.dart:4936:9)
+#1      Element.size (package:flutter/src/widgets/framework.dart:4958:6)
+#2      _EditorLine._buildText (package:universal_notes_flutter/editor/editor_widget.dart:1360:26)
+#3      _EditorLine.build (package:universal_notes_flutter/editor/editor_widget.dart:1714:14)
+#4      StatelessElement.build (package:flutter/src/widgets/framework.dart:5892:49)
+#5      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5820:15)
+#6      Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#7      ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5802:5)
+#8      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5796:5)
+...     Normal element mounting (41 frames)
+#49     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#50     Element.updateChild (package:flutter/src/widgets/framework.dart:4059:18)
+#51     SliverMultiBoxAdaptorElement.updateChild (package:flutter/src/widgets/sliver.dart:1068:37)
+#52     SliverMultiBoxAdaptorElement.createChild.<anonymous closure> (package:flutter/src/widgets/sliver.dart:1052:20)
+#53     BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3101:19)
+#54     SliverMultiBoxAdaptorElement.createChild (package:flutter/src/widgets/sliver.dart:1042:12)
+#55     RenderSliverMultiBoxAdaptor._createOrObtainChild.<anonymous closure> (package:flutter/src/rendering/sliver_multi_box_adaptor.dart:372:23)
+#56     RenderObject.invokeLayoutCallback.<anonymous closure> (package:flutter/src/rendering/object.dart:2894:17)
+#57     PipelineOwner._enableMutationsToDirtySubtrees (package:flutter/src/rendering/object.dart:1219:15)
+#58     RenderObject.invokeLayoutCallback (package:flutter/src/rendering/object.dart:2893:14)
+#59     RenderSliverMultiBoxAdaptor._createOrObtainChild (package:flutter/src/rendering/sliver_multi_box_adaptor.dart:360:5)
+#60     RenderSliverMultiBoxAdaptor.addInitialChild (package:flutter/src/rendering/sliver_multi_box_adaptor.dart:460:5)
+#61     RenderSliverList.performLayout (package:flutter/src/rendering/sliver_list.dart:79:12)
+#62     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#63     RenderSliverEdgeInsetsPadding.performLayout (package:flutter/src/rendering/sliver_padding.dart:133:12)
+#64     RenderSliverPadding.performLayout (package:flutter/src/rendering/sliver_padding.dart:371:11)
+#65     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#66     RenderViewportBase.layoutChildSequence (package:flutter/src/rendering/viewport.dart:673:13)
+#67     RenderViewport._attemptLayout (package:flutter/src/rendering/viewport.dart:1684:12)
+#68     RenderViewport.performLayout (package:flutter/src/rendering/viewport.dart:1575:20)
+#69     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#70     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#71     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#72     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#73     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#74     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#75     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#76     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#77     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#78     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#79     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#80     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#81     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#82     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#83     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#84     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#85     _RenderCustomClip.performLayout (package:flutter/src/rendering/proxy_box.dart:1481:11)
+#86     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#87     RenderPadding.performLayout (package:flutter/src/rendering/shifted_box.dart:243:12)
+#88     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#89     ChildLayoutHelper.layoutChild (package:flutter/src/rendering/layout_helper.dart:62:11)
+#90     RenderStack._computeSize (package:flutter/src/rendering/stack.dart:645:43)
+#91     RenderStack.performLayout (package:flutter/src/rendering/stack.dart:680:12)
+#92     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#93     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#94     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#95     MultiChildLayoutDelegate.layoutChild (package:flutter/src/rendering/custom_layout.dart:180:12)
+#96     _ScaffoldLayout.performLayout (package:flutter/src/material/scaffold.dart:1112:7)
+#97     MultiChildLayoutDelegate._callPerformLayout (package:flutter/src/rendering/custom_layout.dart:249:7)
+#98     RenderCustomMultiChildLayoutBox.performLayout (package:flutter/src/rendering/custom_layout.dart:420:14)
+#99     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#100    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#101    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#102    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#103    _RenderCustomClip.performLayout (package:flutter/src/rendering/proxy_box.dart:1481:11)
+#104    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#105    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#106    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#107    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#108    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#109    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#110    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#111    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#112    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#113    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#114    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#115    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#116    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#117    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#118    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#119    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#120    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#121    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#122    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#123    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#124    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#125    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#126    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#127    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#128    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#129    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#130    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#131    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#132    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#133    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#134    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#135    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#136    RenderOffstage.performLayout (package:flutter/src/rendering/proxy_box.dart:3848:13)
+#137    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#138    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#139    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#140    _RenderTheaterMixin.layoutChild (package:flutter/src/widgets/overlay.dart:1084:13)
+#141    _RenderTheater.performLayout (package:flutter/src/widgets/overlay.dart:1429:9)
+#142    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#143    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#144    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#145    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#146    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#147    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#148    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#149    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#150    RenderCustomPaint.performLayout (package:flutter/src/rendering/custom_paint.dart:574:11)
+#151    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#152    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#153    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#154    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#155    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#156    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#157    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#158    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#159    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#160    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#161    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#162    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#163    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#164    RenderView.performLayout (package:flutter/src/rendering/view.dart:294:12)
+#165    RenderObject._layoutWithoutResize (package:flutter/src/rendering/object.dart:2623:7)
+#166    PipelineOwner.flushLayout (package:flutter/src/rendering/object.dart:1170:18)
+#167    PipelineOwner.flushLayout (package:flutter/src/rendering/object.dart:1183:15)
+#168    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1508:27)
+#169    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#170    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#171    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#172    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#175    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#176    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#177    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#180    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#181    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#182    main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart:43:18)
+#183    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#184    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test:
+Expected: ''
+  Actual: 'A'
+   Which: is different. Both strings start the same, but the actual value also has the following
+trailing characters: A
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart:62:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart line 62
+The test description was:
+  EditorWidget handles backspace
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:03 +0 -2: EditorWidget handles backspace [E]
+  Test failed. See exception logs above.
+  The test description was: EditorWidget handles backspace
+  
+00:03 +0 -2: EditorWidget triggers bold shortcut
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY WIDGETS LIBRARY Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown building _EditorLine-[GlobalKey#2dc11](dirty, dependencies:
+[DefaultTextStyle]):
+Cannot get size during build.
+The size of this render object has not yet been determined because the framework is still in the
+process of building widgets, which means the render tree for this frame has not yet been determined.
+The size getter should only be called from paint callbacks or interaction event handlers (e.g.
+gesture callbacks).
+
+If you need some sizing information during build to decide which widgets to build, consider using a
+LayoutBuilder widget, which can tell you the layout constraints at a given location in the tree. See
+<https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html> for more details.
+
+The size getter was called for the following element:
+  _EditorLine-[GlobalKey#2dc11]
+
+The relevant error-causing widget was:
+  _EditorLine-[GlobalKey#2dc11]
+  _EditorLine:file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/lib/editor/editor_widget.dart:1050:12
+
+When the exception was thrown, this was the stack:
+#0      Element.size.<anonymous closure> (package:flutter/src/widgets/framework.dart:4936:9)
+#1      Element.size (package:flutter/src/widgets/framework.dart:4958:6)
+#2      _EditorLine._buildText (package:universal_notes_flutter/editor/editor_widget.dart:1360:26)
+#3      _EditorLine.build (package:universal_notes_flutter/editor/editor_widget.dart:1714:14)
+#4      StatelessElement.build (package:flutter/src/widgets/framework.dart:5892:49)
+#5      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5820:15)
+#6      Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#7      ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5802:5)
+#8      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5796:5)
+...     Normal element mounting (41 frames)
+#49     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#50     Element.updateChild (package:flutter/src/widgets/framework.dart:4059:18)
+#51     SliverMultiBoxAdaptorElement.updateChild (package:flutter/src/widgets/sliver.dart:1068:37)
+#52     SliverMultiBoxAdaptorElement.createChild.<anonymous closure> (package:flutter/src/widgets/sliver.dart:1052:20)
+#53     BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3101:19)
+#54     SliverMultiBoxAdaptorElement.createChild (package:flutter/src/widgets/sliver.dart:1042:12)
+#55     RenderSliverMultiBoxAdaptor._createOrObtainChild.<anonymous closure> (package:flutter/src/rendering/sliver_multi_box_adaptor.dart:372:23)
+#56     RenderObject.invokeLayoutCallback.<anonymous closure> (package:flutter/src/rendering/object.dart:2894:17)
+#57     PipelineOwner._enableMutationsToDirtySubtrees (package:flutter/src/rendering/object.dart:1219:15)
+#58     RenderObject.invokeLayoutCallback (package:flutter/src/rendering/object.dart:2893:14)
+#59     RenderSliverMultiBoxAdaptor._createOrObtainChild (package:flutter/src/rendering/sliver_multi_box_adaptor.dart:360:5)
+#60     RenderSliverMultiBoxAdaptor.addInitialChild (package:flutter/src/rendering/sliver_multi_box_adaptor.dart:460:5)
+#61     RenderSliverList.performLayout (package:flutter/src/rendering/sliver_list.dart:79:12)
+#62     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#63     RenderSliverEdgeInsetsPadding.performLayout (package:flutter/src/rendering/sliver_padding.dart:133:12)
+#64     RenderSliverPadding.performLayout (package:flutter/src/rendering/sliver_padding.dart:371:11)
+#65     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#66     RenderViewportBase.layoutChildSequence (package:flutter/src/rendering/viewport.dart:673:13)
+#67     RenderViewport._attemptLayout (package:flutter/src/rendering/viewport.dart:1684:12)
+#68     RenderViewport.performLayout (package:flutter/src/rendering/viewport.dart:1575:20)
+#69     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#70     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#71     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#72     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#73     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#74     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#75     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#76     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#77     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#78     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#79     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#80     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#81     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#82     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#83     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#84     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#85     _RenderCustomClip.performLayout (package:flutter/src/rendering/proxy_box.dart:1481:11)
+#86     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#87     RenderPadding.performLayout (package:flutter/src/rendering/shifted_box.dart:243:12)
+#88     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#89     ChildLayoutHelper.layoutChild (package:flutter/src/rendering/layout_helper.dart:62:11)
+#90     RenderStack._computeSize (package:flutter/src/rendering/stack.dart:645:43)
+#91     RenderStack.performLayout (package:flutter/src/rendering/stack.dart:680:12)
+#92     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#93     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#94     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#95     MultiChildLayoutDelegate.layoutChild (package:flutter/src/rendering/custom_layout.dart:180:12)
+#96     _ScaffoldLayout.performLayout (package:flutter/src/material/scaffold.dart:1112:7)
+#97     MultiChildLayoutDelegate._callPerformLayout (package:flutter/src/rendering/custom_layout.dart:249:7)
+#98     RenderCustomMultiChildLayoutBox.performLayout (package:flutter/src/rendering/custom_layout.dart:420:14)
+#99     RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#100    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#101    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#102    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#103    _RenderCustomClip.performLayout (package:flutter/src/rendering/proxy_box.dart:1481:11)
+#104    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#105    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#106    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#107    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#108    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#109    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#110    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#111    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#112    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#113    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#114    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#115    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#116    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#117    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#118    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#119    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#120    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#121    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#122    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#123    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#124    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#125    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#126    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#127    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#128    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#129    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#130    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#131    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#132    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#133    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#134    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#135    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#136    RenderOffstage.performLayout (package:flutter/src/rendering/proxy_box.dart:3848:13)
+#137    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#138    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#139    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#140    _RenderTheaterMixin.layoutChild (package:flutter/src/widgets/overlay.dart:1084:13)
+#141    _RenderTheater.performLayout (package:flutter/src/widgets/overlay.dart:1429:9)
+#142    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#143    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#144    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#145    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#146    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#147    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#148    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#149    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#150    RenderCustomPaint.performLayout (package:flutter/src/rendering/custom_paint.dart:574:11)
+#151    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#152    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#153    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#154    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#155    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#156    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#157    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#158    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#159    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#160    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#161    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#162    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:115:18)
+#163    RenderObject.layout (package:flutter/src/rendering/object.dart:2775:7)
+#164    RenderView.performLayout (package:flutter/src/rendering/view.dart:294:12)
+#165    RenderObject._layoutWithoutResize (package:flutter/src/rendering/object.dart:2623:7)
+#166    PipelineOwner.flushLayout (package:flutter/src/rendering/object.dart:1170:18)
+#167    PipelineOwner.flushLayout (package:flutter/src/rendering/object.dart:1183:15)
+#168    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1508:27)
+#169    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#170    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#171    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#172    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#175    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#176    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#177    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#180    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#181    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#182    main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart:76:18)
+#183    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#184    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following TestFailure was thrown running a test:
+Expected: StyleAttribute:<StyleAttribute.bold>
+  Actual: <null>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart:99:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_test.dart line 99
+The test description was:
+  EditorWidget triggers bold shortcut
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:03 +0 -3: EditorWidget triggers bold shortcut [E]
+  Test failed. See exception logs above.
+  The test description was: EditorWidget triggers bold shortcut
+  
+00:03 +0 -3: Some tests failed.

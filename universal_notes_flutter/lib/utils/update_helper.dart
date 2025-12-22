@@ -179,7 +179,11 @@ class UpdateHelper {
       final randomFileName = '${const Uuid().v4()}.apk';
       final filePath = '${directory.path}/$randomFileName';
 
-      final response = await httpClient.get(Uri.parse(updateInfo.downloadUrl));
+      // 🛡️ Sentinel: Add a timeout to prevent the request from hanging
+      // indefinitely, which could lead to a denial-of-service (DoS) attack.
+      final response = await httpClient
+          .get(Uri.parse(updateInfo.downloadUrl))
+          .timeout(const Duration(seconds: 600));
 
       if (response.statusCode == 200) {
         final file = File(filePath);

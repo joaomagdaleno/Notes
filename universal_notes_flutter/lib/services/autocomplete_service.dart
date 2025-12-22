@@ -1,9 +1,14 @@
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:meta/meta.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
 /// A service to provide autocomplete suggestions from multiple sources.
 class AutocompleteService {
   static List<String>? _dictionaryCache;
+
+  /// Resets the dictionary cache.
+  @visibleForTesting
+  static void resetCache() => _dictionaryCache = null;
 
   /// Gets suggestions for the word being typed at the cursor position.
   static Future<List<String>> getSuggestions(

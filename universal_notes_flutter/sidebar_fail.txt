@@ -1,0 +1,17 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/sidebar_test.dart
+test/widgets/sidebar_test.dart:27:17: Error: Setter not found: 'instance'.
+    SyncService.instance = mockSyncService;
+                ^^^^^^^^
+test/widgets/sidebar_test.dart:28:19: Error: Setter not found: 'instance'.
+    BackupService.instance = mockBackupService;
+                  ^^^^^^^^
+00:00 +0 -1: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/sidebar_test.dart [E]
+  Failed to load "C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/sidebar_test.dart":
+  Compilation failed for testPath=C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/sidebar_test.dart: test/widgets/sidebar_test.dart:27:17: Error: Setter not found: 'instance'.
+      SyncService.instance = mockSyncService;
+                  ^^^^^^^^
+  test/widgets/sidebar_test.dart:28:19: Error: Setter not found: 'instance'.
+      BackupService.instance = mockBackupService;
+                    ^^^^^^^^
+  .
+00:00 +0 -1: Some tests failed.

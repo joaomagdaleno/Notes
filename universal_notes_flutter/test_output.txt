@@ -1,0 +1,25 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/sync_service_test.dart
+00:00 +0: SyncService refreshLocalData emits notes, folders, and tags
+00:00 +1: SyncService syncUp pushes unsynced notes to Firestore
+00:00 +1 -1: SyncService syncUp pushes unsynced notes to Firestore [E]
+  No matching calls (actually, no calls at all).
+  (If you called `verify(...).called(0);`, please instead use `verifyNever(...);`.)
+  package:matcher                             fail
+  package:mockito/src/mock.dart 852:7         _VerifyCall._checkWith
+  package:mockito/src/mock.dart 1152:18       _makeVerify.<fn>
+  test\services\sync_service_test.dart 99:13  main.<fn>.<fn>
+  
+00:00 +1 -1: SyncService syncDown updates local note if remote is newer
+SyncService initialized
+Remote note added to stream
+Waited for processing
+Checking note: Remote Note with content: Dummy_String_created_while_calling_getNoteContent('1')_on_MockFirestoreRepository.
+00:00 +1 -2: SyncService syncDown updates local note if remote is newer [E]
+  No matching calls. All calls: MockNoteRepository.getAllNotes({folderId: null, tagId: null, isFavorite: null, isInTrash: null}), MockNoteRepository.getAllFolders(), MockNoteRepository.getAllTagNames(), MockNoteRepository.getUnsyncedNotes(), MockNoteRepository.getNoteWithContent('1'), MockNoteRepository.updateNoteContent(Instance of 'Note'), MockNoteRepository.getAllNotes({folderId: null, tagId: null, isFavorite: null, isInTrash: null}), MockNoteRepository.getAllFolders(), MockNoteRepository.getAllTagNames()
+  (If you called `verify(...).called(0);`, please instead use `verifyNever(...);`.)
+  package:matcher                              fail
+  package:mockito/src/mock.dart 852:7          _VerifyCall._checkWith
+  package:mockito/src/mock.dart 1152:18        _makeVerify.<fn>
+  test\services\sync_service_test.dart 166:13  main.<fn>.<fn>
+  
+00:01 +1 -2: Some tests failed.

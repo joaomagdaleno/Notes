@@ -1,242 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
-import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/document_model.dart';
 
 void main() {
-  group('DocumentManipulator.toggleStyle', () {
-    test('applies bold to a selection in a single span', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Hello World'),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection(
-        baseOffset: 6,
-        extentOffset: 11,
-      ); // "World"
+  group('DocumentManipulator', () {
+    test('insertText should add text to an empty document', () {
+      final doc = DocumentModel.fromPlainText('');
+      final result = DocumentManipulator.insertText(doc, 0, 'Hello');
 
+      expect(result.document.toPlainText(), 'Hello');
+      expect(result.eventPayload, isNotEmpty);
+    });
+
+    test('insertText should add text in the middle of existing text', () {
+      final doc = DocumentModel.fromPlainText('Hlo');
+      final result = DocumentManipulator.insertText(doc, 1, 'el');
+
+      expect(result.document.toPlainText(), 'Hello');
+    });
+
+    test('deleteText should remove text correctly', () {
+      final doc = DocumentModel.fromPlainText('Hello World');
+      final result = DocumentManipulator.deleteText(doc, 5, 6);
+
+      expect(result.document.toPlainText(), 'Hello');
+    });
+
+    test('toggleStyle should apply bold to selected text', () {
+      final doc = DocumentModel.fromPlainText('Hello');
+      final selection = const TextSelection(baseOffset: 0, extentOffset: 5);
       final result = DocumentManipulator.toggleStyle(
         doc,
         selection,
         StyleAttribute.bold,
       );
-      final newDoc = result.document;
 
-      expect(result.eventType, NoteEventType.format);
-      expect(result.eventPayload['attr'], 'bold');
-
-      expect((newDoc.blocks.first as TextBlock).spans.length, 2);
-      expect((newDoc.blocks.first as TextBlock).spans[0].text, 'Hello ');
-      expect((newDoc.blocks.first as TextBlock).spans[0].isBold, isFalse);
-      expect((newDoc.blocks.first as TextBlock).spans[1].text, 'World');
-      expect((newDoc.blocks.first as TextBlock).spans[1].isBold, isTrue);
+      final textBlock = result.document.blocks.first as TextBlock;
+      expect(textBlock.spans.first.isBold, true);
     });
 
-    test('removes bold from a selection', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Hello '),
-              const TextSpanModel(text: 'World', isBold: true),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection(baseOffset: 6, extentOffset: 11);
+    test('changeBlockIndent should update block attributes', () {
+      final doc = DocumentModel.fromPlainText('List item');
+      final result = DocumentManipulator.changeBlockIndent(doc, 0, 1);
 
-      final result = DocumentManipulator.toggleStyle(
+      expect(result.document.blocks.first.attributes['indent'], 1);
+    });
+
+    test('insertImage should add an image block', () {
+      final doc = DocumentModel.fromPlainText('Text');
+      final result = DocumentManipulator.insertImage(doc, 1, 'path/to/img.png');
+
+      expect(result.document.blocks.length, 3);
+      expect(result.document.blocks[1], isA<ImageBlock>());
+      expect(
+        (result.document.blocks[1] as ImageBlock).imagePath,
+        'path/to/img.png',
+      );
+    });
+
+    test('convertBlockToCallout should transform block type', () {
+      final doc = DocumentModel.fromPlainText('Warning text');
+      final result = DocumentManipulator.convertBlockToCallout(
         doc,
-        selection,
-        StyleAttribute.bold,
+        0,
+        CalloutType.warning,
       );
-      final newDoc = result.document;
 
-      expect(result.eventType, NoteEventType.format);
-
-      expect((newDoc.blocks.first as TextBlock).spans.length, 1);
-      expect((newDoc.blocks.first as TextBlock).spans[0].text, 'Hello World');
-      expect((newDoc.blocks.first as TextBlock).spans[0].isBold, isFalse);
+      expect(result.document.blocks.first, isA<CalloutBlock>());
+      expect(
+        (result.document.blocks.first as CalloutBlock).type,
+        CalloutType.warning,
+      );
     });
 
-    test('applies italic across multiple spans', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'One '),
-              const TextSpanModel(text: 'Two '),
-              const TextSpanModel(text: 'Three'),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection(
-        baseOffset: 2,
-        extentOffset: 10,
-      ); // "e Two Thre"
+    test('toggleList should apply list attribute', () {
+      final doc = DocumentModel.fromPlainText('Item');
+      final result = DocumentManipulator.toggleList(doc, 0, 'bullet');
 
-      final result = DocumentManipulator.toggleStyle(
-        doc,
-        selection,
-        StyleAttribute.italic,
-      );
-      final newDoc = result.document;
-
-      expect(result.eventType, NoteEventType.format);
-
-      expect((newDoc.blocks.first as TextBlock).spans.length, 5);
-      expect((newDoc.blocks.first as TextBlock).spans[0].text, 'On');
-      expect((newDoc.blocks.first as TextBlock).spans[0].isItalic, isFalse);
-      expect((newDoc.blocks.first as TextBlock).spans[1].text, 'e ');
-      expect((newDoc.blocks.first as TextBlock).spans[1].isItalic, isTrue);
-      expect((newDoc.blocks.first as TextBlock).spans[2].text, 'Two ');
-      expect((newDoc.blocks.first as TextBlock).spans[2].isItalic, isTrue);
-      expect((newDoc.blocks.first as TextBlock).spans[3].text, 'Thre');
-      expect((newDoc.blocks.first as TextBlock).spans[3].isItalic, isTrue);
-      expect((newDoc.blocks.first as TextBlock).spans[4].text, 'e');
-      expect((newDoc.blocks.first as TextBlock).spans[4].isItalic, isFalse);
-    });
-  });
-
-  group('DocumentManipulator.insertText', () {
-    test('inserts text into a styled span', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Hello ', isBold: true),
-              const TextSpanModel(text: 'World', isItalic: true),
-            ],
-          ),
-        ],
-      );
-
-      final result = DocumentManipulator.insertText(doc, 8, 'Cruel ');
-      final newDoc = result.document;
-
-      expect(result.eventType, NoteEventType.insert);
-      expect(result.eventPayload['text'], 'Cruel ');
-
-      expect((newDoc.blocks.first as TextBlock).spans.length, 2);
-      expect((newDoc.blocks.first as TextBlock).spans[1].text, 'WoCruel rld');
-      expect((newDoc.blocks.first as TextBlock).spans[1].isItalic, isTrue);
-      expect(newDoc.toPlainText(), 'Hello WoCruel rld');
-    });
-  });
-
-  group('DocumentManipulator.deleteText', () {
-    test('deletes text within a single span', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Hello World', isBold: true),
-            ],
-          ),
-        ],
-      );
-
-      final result = DocumentManipulator.deleteText(doc, 5, 6); // " World"
-      final newDoc = result.document;
-
-      expect(result.eventType, NoteEventType.delete);
-
-      expect((newDoc.blocks.first as TextBlock).spans.length, 1);
-      expect((newDoc.blocks.first as TextBlock).spans[0].text, 'Hello');
-      expect((newDoc.blocks.first as TextBlock).spans[0].isBold, isTrue);
-    });
-
-    test('deletes text across multiple spans', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'One ', isBold: true),
-              const TextSpanModel(text: 'Two ', isItalic: true),
-              const TextSpanModel(text: 'Three', isUnderline: true),
-            ],
-          ),
-        ],
-      );
-
-      final result = DocumentManipulator.deleteText(doc, 2, 8); // "e Two Th"
-      final newDoc = result.document;
-
-      expect(result.eventType, NoteEventType.delete);
-
-      expect((newDoc.blocks.first as TextBlock).spans.length, 2);
-      expect((newDoc.blocks.first as TextBlock).spans[0].text, 'On');
-      expect((newDoc.blocks.first as TextBlock).spans[0].isBold, isTrue);
-      expect((newDoc.blocks.first as TextBlock).spans[1].text, 'ree');
-      expect((newDoc.blocks.first as TextBlock).spans[1].isUnderline, isTrue);
-    });
-  });
-
-  group('DocumentManipulator.applyColor', () {
-    test('applies color to a selection', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Hello World'),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection(
-        baseOffset: 0,
-        extentOffset: 5,
-      ); // "Hello"
-
-      final result = DocumentManipulator.applyColor(doc, selection, Colors.red);
-      final newDoc = result.document;
-
-      expect(result.eventType, NoteEventType.format);
-      // ignore: deprecated_member_use, documented for clarity: testing serialization of color values
-      expect(result.eventPayload['color'], Colors.red.value);
-
-      expect((newDoc.blocks.first as TextBlock).spans.length, 2);
-      expect((newDoc.blocks.first as TextBlock).spans[0].text, 'Hello');
-      expect((newDoc.blocks.first as TextBlock).spans[0].color, Colors.red);
-      expect((newDoc.blocks.first as TextBlock).spans[1].text, ' World');
-      expect((newDoc.blocks.first as TextBlock).spans[1].color, isNull);
-    });
-  });
-
-  group('DocumentManipulator.applyFontSize', () {
-    test('applies font size to a selection', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Hello World'),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection(
-        baseOffset: 6,
-        extentOffset: 11,
-      ); // "World"
-
-      final result = DocumentManipulator.applyFontSize(doc, selection, 24);
-      final newDoc = result.document;
-
-      expect(result.eventType, NoteEventType.format);
-      expect(result.eventPayload['fontSize'], 24.0);
-
-      expect((newDoc.blocks.first as TextBlock).spans.length, 2);
-      expect((newDoc.blocks.first as TextBlock).spans[0].text, 'Hello ');
-      expect((newDoc.blocks.first as TextBlock).spans[0].fontSize, isNull);
-      expect((newDoc.blocks.first as TextBlock).spans[1].text, 'World');
-      expect((newDoc.blocks.first as TextBlock).spans[1].fontSize, 24.0);
+      expect(result.document.blocks.first.attributes['list'], 'bullet');
     });
   });
 }

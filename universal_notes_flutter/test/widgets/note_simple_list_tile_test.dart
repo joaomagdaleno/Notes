@@ -3,13 +3,39 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/services/storage_service.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
+import 'note_simple_list_tile_test.mocks.dart';
+
+@GenerateMocks([StorageService, NoteRepository, FirestoreRepository])
 void main() {
+  late MockStorageService mockStorageService;
+  late MockNoteRepository mockNoteRepository;
+  late MockFirestoreRepository mockFirestoreRepository;
+
+  setUp(() {
+    mockStorageService = MockStorageService();
+    mockNoteRepository = MockNoteRepository();
+    mockFirestoreRepository = MockFirestoreRepository();
+    StorageService.instance = mockStorageService;
+    NoteRepository.instance = mockNoteRepository;
+    FirestoreRepository.instance = mockFirestoreRepository;
+
+    // Default stubs
+    when(mockNoteRepository.getAllSnippets()).thenAnswer((_) async => []);
+  });
+
   final note = Note(
     id: '1',
     title: 'Test Note',
-    content: 'This is a test note.',
-createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
+    content: r'[{"type":"text","spans":[{"text":"This is a test note."}]}]',
+    createdAt: DateTime.now(),
+    lastModified: DateTime.now(),
+    ownerId: 'user1',
   );
 
   testWidgets('NoteSimpleListTile displays title', (WidgetTester tester) async {
@@ -126,7 +152,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
       // Check if we've navigated to the NoteEditorScreen
       expect(find.byType(NoteEditorScreen), findsOneWidget);
-      // Check for the "Edit Note" text in the AppBar
+      // Check for the note title in the AppBar
       expect(find.text('Edit Note'), findsOneWidget);
     },
   );

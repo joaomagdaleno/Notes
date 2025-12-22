@@ -1,0 +1,6 @@
+  0s mockito:mockBuilder on 56 inputs; test/auth_service_test.dart
+  0s mockito:mockBuilder on 56 inputs: 1 skipped; test/chaos_firestore_repository.dart
+  0s mockito:mockBuilder on 56 inputs: 56 skipped
+E mockito:mockBuilder on test/widgets/note_simple_list_tile_test.dart:
+  Invalid @GenerateMocks annotation: The GenerateMocks "classes" argument is missing, includes an unknown type, or includes an extension
+  Failed to build with build_runner/jit in 10s; wrote 0 outputs.

@@ -1,15 +1,16 @@
+import 'package:alchemist/alchemist.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:golden_toolkit/golden_toolkit.dart';
 
 void main() {
   group('Simple Fluent Golden Test', () {
-    testGoldens('renders a button correctly', (tester) async {
-      final builder = GoldenBuilder.column()
-        ..addScenario(
-          'default button',
-          Directionality(
-            textDirection: TextDirection.ltr,
+    goldenTest(
+      'renders a button correctly',
+      fileName: 'simple_button',
+      builder: () => GoldenTestGroup(
+        children: [
+          GoldenTestScenario(
+            name: 'default button',
             child: FluentTheme(
               data: FluentThemeData(
                 brightness: Brightness.light,
@@ -23,10 +24,8 @@ void main() {
               ),
             ),
           ),
-        );
-
-      await tester.pumpWidgetBuilder(builder.build());
-      await screenMatchesGolden(tester, 'simple_button');
-    });
+        ],
+      ),
+    );
   });
 }

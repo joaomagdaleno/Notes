@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
@@ -75,6 +74,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     // _scrollController.addListener(_onScroll); // Disabled pagination listener
     _updateNotesStream(); // Initial fetch
     _searchController.addListener(_onSearchChanged);
+    print('DEBUG: NotesScreen initState completed');
   }
 
   @override
@@ -319,6 +319,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     return StreamBuilder<List<Note>>(
       stream: _notesStream,
       builder: (context, snapshot) {
+        print(
+          'DEBUG: _buildContent StreamBuilder snapshot: ${snapshot.connectionState}, hasData: ${snapshot.hasData}, error: ${snapshot.error}, data length: ${snapshot.data?.length}',
+        );
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -731,7 +734,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               ),
               const SizedBox(width: 8),
               Flexible(
-                fit: FlexFit.loose,
                 child: fluent.CommandBar(
                   primaryItems: [
                     fluent.CommandBarButton(
@@ -791,8 +793,11 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               content: StreamBuilder<List<Note>>(
                 stream: _notesStream,
                 builder: (context, snapshot) {
+                  print(
+                    'DEBUG: StreamBuilder snapshot: ${snapshot.connectionState}, hasData: ${snapshot.hasData}, error: ${snapshot.error}, data length: ${snapshot.data?.length}',
+                  );
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: fluent.ProgressRing());
+                    return const Center(child: SizedBox(width: 20, height: 20));
                   }
                   if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
@@ -848,20 +853,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    // ⚡ Bolt: The top-level ValueListenableBuilder was removed.
-    // Rebuilds are now handled granularly within the build methods,
-    // preventing the entire screen from rebuilding unnecessarily.
-    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
-      return _buildMaterialUI();
-    } else if (Platform.isWindows) {
+    if (kIsWeb) return _buildMaterialUI();
+
+    final platform = defaultTargetPlatform;
+    if (platform == TargetPlatform.windows ||
+        platform == TargetPlatform.macOS ||
+        platform == TargetPlatform.linux) {
       return _buildFluentUI();
-    } else {
-      return _buildMaterialUI();
     }
+    return _buildMaterialUI();
   }
 }
 
-class _DashboardCard extends StatelessWidget {
+class _DashboardCard extends StatefulWidget {
   const _DashboardCard({
     required this.title,
     required this.subtitle,
@@ -877,35 +881,64 @@ class _DashboardCard extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_DashboardCard> createState() => _DashboardCardState();
+}
+
+class _DashboardCardState extends State<_DashboardCard> {
+  // ⚡ Bolt: Caching the BoxDecoration prevents it from being recreated on
+  // every build, which is a significant performance optimization, especially
+  // for widgets in a list.
+  late BoxDecoration _boxDecoration;
+
+  @override
+  void initState() {
+    super.initState();
+    _boxDecoration = _createDecoration(widget.color);
+  }
+
+  @override
+  void didUpdateWidget(_DashboardCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Only update the decoration if the color has actually changed.
+    if (widget.color != oldWidget.color) {
+      _boxDecoration = _createDecoration(widget.color);
+    }
+  }
+
+  BoxDecoration _createDecoration(Color color) {
+    return BoxDecoration(
+      color: color.withAlpha(25), // ~10% opacity
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: color.withAlpha(51)), // ~20% opacity
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Container(
         width: 160,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
+        decoration: _boxDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color, size: 32),
+            Icon(widget.icon, color: widget.color, size: 32),
             const SizedBox(height: 12),
             Text(
-              title,
+              widget.title,
               style: TextStyle(
-                color: color,
+                color: widget.color,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
             ),
             Text(
-              subtitle,
+              widget.subtitle,
               style: TextStyle(
-                color: color.withValues(alpha: 0.7),
+                color: widget.color.withAlpha(178), // ~70% opacity
                 fontSize: 12,
               ),
             ),

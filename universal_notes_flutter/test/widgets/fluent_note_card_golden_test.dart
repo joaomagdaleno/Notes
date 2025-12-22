@@ -1,17 +1,18 @@
+import 'package:alchemist/alchemist.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 
 void main() {
   group('FluentNoteCard Golden Tests', () {
-    testGoldens('renders correctly', (tester) async {
-      final builder = GoldenBuilder.grid(columns: 2, widthToHeightRatio: 1.5)
-        ..addScenario(
-          'default',
-          Directionality(
-            textDirection: TextDirection.ltr,
+    goldenTest(
+      'renders correctly',
+      fileName: 'fluent_note_card_grid',
+      builder: () => GoldenTestGroup(
+        children: [
+          GoldenTestScenario(
+            name: 'default',
             child: FluentTheme(
               data: FluentThemeData(
                 brightness: Brightness.light,
@@ -40,11 +41,8 @@ void main() {
               ),
             ),
           ),
-        )
-        ..addScenario(
-          'long content',
-          Directionality(
-            textDirection: TextDirection.ltr,
+          GoldenTestScenario(
+            name: 'long content',
             child: FluentTheme(
               data: FluentThemeData(
                 brightness: Brightness.light,
@@ -75,10 +73,8 @@ void main() {
               ),
             ),
           ),
-        );
-
-      await tester.pumpWidgetBuilder(builder.build());
-      await screenMatchesGolden(tester, 'fluent_note_card_grid');
-    });
+        ],
+      ),
+    );
   });
 }

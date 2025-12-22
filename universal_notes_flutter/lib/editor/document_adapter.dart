@@ -20,14 +20,18 @@ class DocumentAdapter {
         if (type == 'image') {
           return ImageBlock(imagePath: itemMap['imagePath'] as String);
         } else {
-          final spans = (itemMap['spans'] as List<dynamic>)
-              .map((s) => TextSpanModel.fromJson(s as Map<String, dynamic>))
-              .toList();
+          final spans =
+              (itemMap['spans'] as List<dynamic>?)
+                  ?.map(
+                    (s) => TextSpanModel.fromJson(s as Map<String, dynamic>),
+                  )
+                  .toList() ??
+              const [TextSpanModel(text: '')];
           return TextBlock(spans: spans);
         }
       }).toList();
       return DocumentModel(blocks: blocks);
-    } on Exception catch (_) {
+    } catch (_) {
       // Fallback for old plain text content or malformed JSON
       return DocumentModel(
         blocks: [

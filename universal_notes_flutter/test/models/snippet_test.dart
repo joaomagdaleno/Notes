@@ -1,46 +1,40 @@
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/models/snippet.dart';
 
 void main() {
   group('Snippet', () {
-    test('should create a Snippet instance', () {
-      const snippet = Snippet(
-        id: 's1',
-        trigger: '/date',
-        content: '2023-10-27',
-      );
+    const snippet = Snippet(
+      id: 's1',
+      trigger: ';email',
+      content: 'test@example.com',
+    );
 
+    test('should create a Snippet instance', () {
       expect(snippet.id, 's1');
-      expect(snippet.trigger, '/date');
-      expect(snippet.content, '2023-10-27');
+      expect(snippet.trigger, ';email');
+      expect(snippet.content, 'test@example.com');
     });
 
     test('fromMap should create a Snippet from a map', () {
       final map = {
         'id': 's2',
-        'trigger': ';email',
-        'content': 'test@example.com',
+        'trigger': ';addr',
+        'content': '123 Main St',
       };
 
-      final snippet = Snippet.fromMap(map);
+      final fromMap = Snippet.fromMap(map);
 
-      expect(snippet.id, 's2');
-      expect(snippet.trigger, ';email');
-      expect(snippet.content, 'test@example.com');
+      expect(fromMap.id, 's2');
+      expect(fromMap.trigger, ';addr');
+      expect(fromMap.content, '123 Main St');
     });
 
     test('toMap should convert a Snippet to a map', () {
-      const snippet = Snippet(
-        id: 's3',
-        trigger: ';sig',
-        content: 'Best regards,\nJohn Doe',
-      );
-
       final map = snippet.toMap();
 
-      expect(map['id'], 's3');
-      expect(map['trigger'], ';sig');
-      expect(map['content'], 'Best regards,\nJohn Doe');
+      expect(map['id'], 's1');
+      expect(map['trigger'], ';email');
+      expect(map['content'], 'test@example.com');
     });
   });
 }

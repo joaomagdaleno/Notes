@@ -289,17 +289,14 @@ class VirtualTextBuffer {
     _lineLengths.clear();
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
+      final isLast = i == lines.length - 1;
+
       if (line is TextLine) {
         final length = line.spans.fold<int>(0, (sum, s) => sum + s.text.length);
-        _lineLengths.add(i == lines.length - 1 ? length : length + 1);
-      } else if (line is TableLine) {
-        _lineLengths.add(1); // Table is 1 unit length
-      } else if (line is MathLine) {
-        _lineLengths.add(1); // Math is 1 unit length
-      } else if (line is TransclusionLine) {
-        _lineLengths.add(1); // Transclusion is 1 unit length
+        _lineLengths.add(isLast ? length : length + 1);
       } else {
-        _lineLengths.add(1); // Treat images as a single character offset.
+        // Table, Image, Math, Transclusion are all 1 unit + optional newline
+        _lineLengths.add(isLast ? 1 : 2);
       }
     }
   }

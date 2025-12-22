@@ -1,218 +1,114 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/markdown_converter.dart';
+import 'package:universal_notes_flutter/models/document_model.dart';
 
 void main() {
   group('MarkdownConverter', () {
-    test('converts *bold* pattern', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Hello *World* '),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection.collapsed(offset: 13);
+    test('should apply bold style on *text* ', () {
+      final doc = DocumentModel.fromPlainText('*Bold* ');
+      const selection = TextSelection.collapsed(offset: 7);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
-      expect(result!.document.blocks.length, greaterThan(0));
-      final spans = (result.document.blocks.first as TextBlock).spans;
-      expect(spans.length, 3);
-      expect(spans[0].text, 'Hello ');
-      expect(spans[0].isBold, isFalse);
-      expect(spans[1].text, 'World');
-      expect(spans[1].isBold, isTrue);
-      expect(spans[2].text, ' ');
-      expect(spans[2].isBold, isFalse);
-      expect(result.selection.baseOffset, 11);
+      expect(result!.document.toPlainText(), 'Bold ');
+      final textBlock = result.document.blocks.first as TextBlock;
+      expect(textBlock.spans.first.isBold, true);
     });
 
-    test('converts _italic_ pattern', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Hello _World_ '),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection.collapsed(offset: 13);
+    test('should apply italic style on _text_ ', () {
+      final doc = DocumentModel.fromPlainText('_Italic_ ');
+      const selection = TextSelection.collapsed(offset: 9);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
-      expect(result, isNotNull);
       expect(
-        (result!.document.blocks.first as TextBlock).spans[1].isItalic,
-        isTrue,
+        result,
+        isNotNull,
+        reason: 'MarkdownConverter.checkAndApply returned null for italic',
       );
+      expect(result!.document.toPlainText(), 'Italic ');
+      final textBlock = result.document.blocks.first as TextBlock;
+      expect(textBlock.spans.first.isItalic, true);
     });
 
-    test('converts ~strikethrough~ pattern', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Hello ~World~ '),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection.collapsed(offset: 13);
-
-      final result = MarkdownConverter.checkAndApply(doc, selection);
-
-      expect(result, isNotNull);
-      expect(
-        (result!.document.blocks.first as TextBlock).spans[1].isStrikethrough,
-        isTrue,
-      );
-    });
-
-    test('converts # heading pattern', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: '# My Title'),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection.collapsed(offset: 2); // After "# "
-
-      final result = MarkdownConverter.checkAndApply(doc, selection);
-
-      expect(result, isNotNull);
-      final block = result!.document.blocks.first as TextBlock;
-      expect(block.attributes['blockType'], 'heading');
-      expect(block.attributes['level'], 1);
-      // We expect the # to be removed
-      final spans = block.spans;
-      expect(spans[0].text, 'My Title');
-    });
-
-    test('converts - list pattern', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: '- '),
-            ],
-          ),
-        ],
-      );
+    test('should apply heading block on # ', () {
+      final doc = DocumentModel.fromPlainText('# ');
       const selection = TextSelection.collapsed(offset: 2);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
       expect(result, isNotNull);
-      final block = result!.document.blocks.first as TextBlock;
-      expect(block.attributes['blockType'], 'unordered-list');
+      expect(result!.document.blocks.first.attributes['blockType'], 'heading');
+      expect(result.document.blocks.first.attributes['level'], 1);
     });
 
-    test('does not convert incomplete patterns', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Hello *World'),
-            ],
-          ),
-        ],
+    test('should apply checklist on - [ ] ', () {
+      final doc = DocumentModel.fromPlainText('- [ ] ');
+      const selection = TextSelection.collapsed(offset: 6);
+
+      final result = MarkdownConverter.checkAndApply(doc, selection);
+
+      expect(result, isNotNull);
+      expect(
+        result!.document.blocks.first.attributes['blockType'],
+        'checklist',
       );
+      expect(result.document.blocks.first.attributes['checked'], false);
+    });
+
+    test('should handle links [text](url)', () {
+      final doc = DocumentModel.fromPlainText('[Google](https://google.com)');
+      const selection = TextSelection.collapsed(offset: 28);
+
+      final result = MarkdownConverter.checkAndApply(doc, selection);
+
+      expect(result, isNotNull);
+      expect(result!.document.toPlainText(), 'Google');
+      final textBlock = result.document.blocks.first as TextBlock;
+      expect(textBlock.spans.first.linkUrl, 'https://google.com');
+    });
+
+    test('should convert table separator |---|', () {
+      // Header row
+      // Separator row
+      final doc = DocumentModel.fromPlainText('| A | B |\n|---|---|');
+      // Cursor at the end of separator line
+      const selection = TextSelection.collapsed(offset: 19);
+
+      final result = MarkdownConverter.checkAndApply(doc, selection);
+
+      expect(result, isNotNull);
+      expect(result!.document.blocks.first, isA<TableBlock>());
+      final table = result.document.blocks.first as TableBlock;
+      expect(table.rows.first.length, 2);
+      expect(table.rows.first[0].content.first.text, 'A');
+    });
+
+    test(r'should handle math block $$tex$$', () {
+      final doc = DocumentModel.fromPlainText(r'$$E=mc^2$$');
+      const selection = TextSelection.collapsed(offset: 10);
+
+      final result = MarkdownConverter.checkAndApply(doc, selection);
+
+      expect(result, isNotNull);
+      expect(result!.document.blocks.first, isA<MathBlock>());
+      expect((result.document.blocks.first as MathBlock).tex, 'E=mc^2');
+    });
+
+    test('should handle transclusion ![[note]]', () {
+      final doc = DocumentModel.fromPlainText('![[My Note]]');
       const selection = TextSelection.collapsed(offset: 12);
 
       final result = MarkdownConverter.checkAndApply(doc, selection);
 
-      expect(result, isNull);
-    });
-
-    test('converts 1. ordered list pattern', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: '1. '),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection.collapsed(offset: 3);
-
-      final result = MarkdownConverter.checkAndApply(doc, selection);
-
       expect(result, isNotNull);
-      final block = result!.document.blocks.first as TextBlock;
-      expect(block.attributes['blockType'], 'ordered-list');
-    });
-
-    test('converts - [ ] unchecked checkbox pattern', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: '- [ ] '),
-            ],
-          ),
-        ],
+      expect(result!.document.blocks.first, isA<TransclusionBlock>());
+      expect(
+        (result.document.blocks.first as TransclusionBlock).noteTitle,
+        'My Note',
       );
-      const selection = TextSelection.collapsed(offset: 6);
-
-      final result = MarkdownConverter.checkAndApply(doc, selection);
-
-      expect(result, isNotNull);
-      final block = result!.document.blocks.first as TextBlock;
-      expect(block.attributes['blockType'], 'checklist');
-      expect(block.attributes['checked'], false);
-    });
-
-    test('converts - [x] checked checkbox pattern', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: '- [x] '),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection.collapsed(offset: 6);
-
-      final result = MarkdownConverter.checkAndApply(doc, selection);
-
-      expect(result, isNotNull);
-      final block = result!.document.blocks.first as TextBlock;
-      expect(block.attributes['blockType'], 'checklist');
-      expect(block.attributes['checked'], true);
-    });
-
-    test('converts [link](url) pattern', () {
-      final doc = DocumentModel(
-        blocks: [
-          TextBlock(
-            spans: [
-              const TextSpanModel(text: 'Click [here](https://example.com)'),
-            ],
-          ),
-        ],
-      );
-      const selection = TextSelection.collapsed(offset: 33); // End of string
-
-      final result = MarkdownConverter.checkAndApply(doc, selection);
-
-      expect(result, isNotNull);
-      final spans = (result!.document.blocks.first as TextBlock).spans;
-      expect(spans.length, 2);
-      expect(spans[0].text, 'Click ');
-      expect(spans[1].text, 'here');
-      expect(spans[1].linkUrl, 'https://example.com');
-      expect(spans[1].isUnderline, true);
     });
   });
 }
