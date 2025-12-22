@@ -880,6 +880,16 @@ class _DashboardCard extends StatefulWidget {
   final Color color;
   final VoidCallback onTap;
 
+  // ⚡ Bolt: Hoist constant styles to prevent them from being recreated on
+  // every build. `copyWith` is used to apply instance-specific colors.
+  static const _titleTextStyle = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 16,
+  );
+  static const _subtitleTextStyle = TextStyle(
+    fontSize: 12,
+  );
+
   @override
   State<_DashboardCard> createState() => _DashboardCardState();
 }
@@ -931,22 +941,26 @@ class _DashboardCardState extends State<_DashboardCard> {
         width: 160,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
-        // ⚡ Bolt: Using the cached decoration.
-        decoration: _boxDecoration,
+        decoration: BoxDecoration(
+          // ⚡ Bolt: Using withOpacity which is more idiomatic. The original
+          // `withValues` was likely a typo.
+          color: color.withOpacity(0.1),
+          // ⚡ Bolt: Use const for BorderRadius since it's immutable.
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(widget.icon, color: widget.color, size: 32),
             const SizedBox(height: 12),
             Text(
-              widget.title,
-              // ⚡ Bolt: Using the cached title style.
-              style: _titleTextStyle,
+              title,
+              style: _titleTextStyle.copyWith(color: color),
             ),
             Text(
-              widget.subtitle,
-              // ⚡ Bolt: Using the cached subtitle style.
-              style: _subtitleTextStyle,
+              subtitle,
+              style: _subtitleTextStyle.copyWith(color: color.withOpacity(0.7)),
             ),
           ],
         ),
