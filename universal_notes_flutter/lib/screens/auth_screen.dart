@@ -16,30 +16,31 @@ class _AuthScreenState extends State<AuthScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authService = AuthService();
-  bool _isLoading = false;
+  bool _isSigningIn = false;
+  bool _isSigningUp = false;
 
   Future<void> _signIn() async {
     if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
+      setState(() => _isSigningIn = true);
       await _authService.signInWithEmailAndPassword(
         _emailController.text,
         _passwordController.text,
       );
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _isSigningIn = false);
       }
     }
   }
 
   Future<void> _signUp() async {
     if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
+      setState(() => _isSigningUp = true);
       await _authService.createUserWithEmailAndPassword(
         _emailController.text,
         _passwordController.text,
       );
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _isSigningUp = false);
       }
     }
   }
@@ -86,22 +87,37 @@ class _AuthScreenState extends State<AuthScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                if (_isLoading)
-                  const CircularProgressIndicator()
-                else
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: _signIn,
-                        child: const Text('Sign In'),
-                      ),
-                      ElevatedButton(
-                        onPressed: _signUp,
-                        child: const Text('Sign Up'),
-                      ),
-                    ],
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed:
+                          _isSigningIn || _isSigningUp ? null : _signIn,
+                      child: _isSigningIn
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text('Sign In'),
+                    ),
+                    ElevatedButton(
+                      onPressed:
+                          _isSigningIn || _isSigningUp ? null : _signUp,
+                      child: _isSigningUp
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text('Sign Up'),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
