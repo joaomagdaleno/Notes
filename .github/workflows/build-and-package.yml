@@ -10,6 +10,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - name: Setup Firebase
+        shell: bash
+        run: |
+          mkdir -p universal_notes_flutter/lib
+          echo "${{ secrets.FIREBASE_OPTIONS_DART }}" > universal_notes_flutter/lib/firebase_options.dart
       - name: Install Flutter
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
@@ -69,6 +74,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - name: Setup Firebase
+        run: |
+          mkdir -p universal_notes_flutter/lib
+          echo "${{ secrets.FIREBASE_OPTIONS_DART }}" > universal_notes_flutter/lib/firebase_options.dart
+          mkdir -p universal_notes_flutter/android/app
+          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > universal_notes_flutter/android/app/google-services.json
+          mkdir -p universal_notes_flutter/ios/Runner
+          echo "${{ secrets.GOOGLE_SERVICE_INFO }}" > universal_notes_flutter/ios/Runner/GoogleService-Info.plist
       - name: Install Flutter
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
