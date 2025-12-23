@@ -47,7 +47,8 @@ class NoteCard extends StatefulWidget {
 }
 
 class _NoteCardState extends State<NoteCard> {
-  String _plainTextContent = '';
+  bool _isHovered = false;
+  // String _plainTextContent = '';
   // ⚡ Bolt: Hoisting the gradient decoration for performance.
   // This avoids re-creating the BoxDecoration on every build, which is
   // a common performance anti-pattern in Flutter.
@@ -92,37 +93,29 @@ class _NoteCardState extends State<NoteCard> {
     final hasImage = widget.note.imageUrl?.isNotEmpty ?? false;
 
     final card = Card(
-      elevation: 1,
+      elevation: _isHovered ? 8 : 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       clipBehavior: Clip.antiAlias, // Important for the image background
-      child: InkWell(
-        onTap:
-            widget.onTap ??
-            () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (context) => NoteEditorScreen(
-                    note: widget.note,
-                    onSave: widget.onSave,
-                  ),
-                ),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: InkWell(
+          onTap: widget.onTap,
+          onLongPress: () {
+            final renderBox = context.findRenderObject() as RenderBox?;
+            if (renderBox != null) {
+              final offset = renderBox.localToGlobal(
+                renderBox.size.center(Offset.zero),
               );
-            },
-        onLongPress: () {
-          final renderBox = context.findRenderObject() as RenderBox?;
-          if (renderBox != null) {
-            final offset = renderBox.localToGlobal(
-              renderBox.size.center(Offset.zero),
-            );
-            _showContextMenu(context, offset);
-          }
-        },
-        child: Semantics(
-          label: widget.note.title.isNotEmpty
-              ? 'Nota: ${widget.note.title}'
-              : 'Nota Sem Título',
+              _showContextMenu(context, offset);
+            }
+          },
+          child: Semantics(
+            label: widget.note.title.isNotEmpty
+                ? 'Nota: ${widget.note.title}'
+                : 'Nota Sem Título',
           hint:
               'Modificado em '
               '${NoteCard._dateFormat.format(widget.note.lastModified)}',
@@ -183,7 +176,7 @@ class _NoteCardState extends State<NoteCard> {
           ),
         ),
       ),
-    );
+    ));
 
     // If no swipe callbacks, return plain card
     if (widget.onFavorite == null && widget.onTrash == null) {

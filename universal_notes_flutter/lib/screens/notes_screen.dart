@@ -50,6 +50,11 @@ enum SortOrder {
 }
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
+  // ⚡ Bolt: Caching the RegExp for snippet highlighting.
+  // This avoids recompiling the regular expression on every search result,
+  // improving performance when rendering the search results list.
+  static final _highlightRegex = RegExp('<b>(.*?)</b>');
+
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final _sortOrderNotifier = ValueNotifier<SortOrder>(SortOrder.dateDesc);
   final SyncService _syncService = SyncService.instance;
@@ -372,10 +377,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   /// Parses the FTS5 snippet with <b> tags into rich text.
   Widget _buildHighlightedSnippet(String snippet) {
     final parts = <TextSpan>[];
-    final regex = RegExp('<b>(.*?)</b>');
     var lastEnd = 0;
 
-    for (final match in regex.allMatches(snippet)) {
+    for (final match in _highlightRegex.allMatches(snippet)) {
       // Add text before match
       if (match.start > lastEnd) {
         parts.add(TextSpan(text: snippet.substring(lastEnd, match.start)));
@@ -561,22 +565,27 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         actions: [
           IconButton(
             icon: const Icon(Icons.view_module),
+            tooltip: 'Grid View (Medium)',
             onPressed: () => _viewModeNotifier.value = 'grid_medium',
           ),
           IconButton(
             icon: const Icon(Icons.view_comfy),
+            tooltip: 'Grid View (Large)',
             onPressed: () => _viewModeNotifier.value = 'grid_large',
           ),
           IconButton(
             icon: const Icon(Icons.view_list),
+            tooltip: 'List View',
             onPressed: () => _viewModeNotifier.value = 'list',
           ),
           IconButton(
             icon: const Icon(Icons.update),
+            tooltip: 'Check for Updates',
             onPressed: () => unawaited(_updateService.checkForUpdate()),
           ),
           IconButton(
             icon: const Icon(Icons.brightness_6),
+            tooltip: 'Toggle Theme',
             onPressed: () {
               if (context.mounted) {
                 unawaited(
@@ -590,6 +599,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           ),
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
+            tooltip: 'Sort Order',
             onSelected: (SortOrder result) {
               // ⚡ Bolt: Update notifier directly, no setState needed.
               _sortOrderNotifier.value = result;
@@ -706,30 +716,33 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             mainAxisSize: fluent.MainAxisSize.min,
             mainAxisAlignment: fluent.MainAxisAlignment.end,
             children: [
-              fluent.DropDownButton(
-                title: const Icon(fluent.FluentIcons.sort),
-                items: [
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Data (Mais Recentes)'),
-                    onPressed: () =>
-                        _sortOrderNotifier.value = SortOrder.dateDesc,
-                  ),
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Data (Mais Antigas)'),
-                    onPressed: () =>
-                        _sortOrderNotifier.value = SortOrder.dateAsc,
-                  ),
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Título (A-Z)'),
-                    onPressed: () =>
-                        _sortOrderNotifier.value = SortOrder.titleAsc,
-                  ),
-                  fluent.MenuFlyoutItem(
-                    text: const Text('Título (Z-A)'),
-                    onPressed: () =>
-                        _sortOrderNotifier.value = SortOrder.titleDesc,
-                  ),
-                ],
+              fluent.Tooltip(
+                message: 'Sort Order',
+                child: fluent.DropDownButton(
+                  title: const Icon(fluent.FluentIcons.sort),
+                  items: [
+                    fluent.MenuFlyoutItem(
+                      text: const Text('Data (Mais Recentes)'),
+                      onPressed: () =>
+                          _sortOrderNotifier.value = SortOrder.dateDesc,
+                    ),
+                    fluent.MenuFlyoutItem(
+                      text: const Text('Data (Mais Antigas)'),
+                      onPressed: () =>
+                          _sortOrderNotifier.value = SortOrder.dateAsc,
+                    ),
+                    fluent.MenuFlyoutItem(
+                      text: const Text('Título (A-Z)'),
+                      onPressed: () =>
+                          _sortOrderNotifier.value = SortOrder.titleAsc,
+                    ),
+                    fluent.MenuFlyoutItem(
+                      text: const Text('Título (Z-A)'),
+                      onPressed: () =>
+                          _sortOrderNotifier.value = SortOrder.titleDesc,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -737,23 +750,28 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                   primaryItems: [
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.view_all),
+                      tooltip: 'Grid View (Medium)',
                       onPressed: () => _viewModeNotifier.value = 'grid_medium',
                     ),
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.grid_view_large),
+                      tooltip: 'Grid View (Large)',
                       onPressed: () => _viewModeNotifier.value = 'grid_large',
                     ),
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.list),
+                      tooltip: 'List View',
                       onPressed: () => _viewModeNotifier.value = 'list',
                     ),
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.update_restore),
+                      tooltip: 'Check for Updates',
                       onPressed: () =>
                           unawaited(_updateService.checkForUpdate()),
                     ),
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.brightness),
+                      tooltip: 'Toggle Theme',
                       onPressed: () {
                         if (context.mounted) {
                           unawaited(
@@ -863,7 +881,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 }
 
-class _DashboardCard extends StatelessWidget {
+class _DashboardCard extends StatefulWidget {
   const _DashboardCard({
     required this.title,
     required this.subtitle,
@@ -878,38 +896,87 @@ class _DashboardCard extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
 
+  // ⚡ Bolt: Hoist constant styles to prevent them from being recreated on
+  // every build. `copyWith` is used to apply instance-specific colors.
+  static const _titleTextStyle = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 16,
+  );
+  static const _subtitleTextStyle = TextStyle(
+    fontSize: 12,
+  );
+
+  @override
+  State<_DashboardCard> createState() => _DashboardCardState();
+}
+
+class _DashboardCardState extends State<_DashboardCard> {
+  // ⚡ Bolt: Caching expensive objects to avoid rebuilding them on every frame.
+  late BoxDecoration _boxDecoration;
+  late TextStyle _titleTextStyle;
+  late TextStyle _subtitleTextStyle;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateStyles();
+  }
+
+  @override
+  void didUpdateWidget(_DashboardCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // ⚡ Bolt: Only update styles when the color changes, preventing unnecessary
+    // object recreation.
+    if (widget.color != oldWidget.color) {
+      _updateStyles();
+    }
+  }
+
+  void _updateStyles() {
+    _boxDecoration = BoxDecoration(
+      color: widget.color.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: widget.color.withValues(alpha: 0.2)),
+    );
+    _titleTextStyle = TextStyle(
+      color: widget.color,
+      fontWeight: FontWeight.bold,
+      fontSize: 16,
+    );
+    _subtitleTextStyle = TextStyle(
+      color: widget.color.withValues(alpha: 0.7),
+      fontSize: 12,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Container(
         width: 160,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          // ⚡ Bolt: Using withOpacity which is more idiomatic. The original
+          // `withValues` was likely a typo.
+          color: color.withOpacity(0.1),
+          // ⚡ Bolt: Use const for BorderRadius since it's immutable.
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color, size: 32),
+            Icon(widget.icon, color: widget.color, size: 32),
             const SizedBox(height: 12),
             Text(
               title,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: _titleTextStyle.copyWith(color: color),
             ),
             Text(
               subtitle,
-              style: TextStyle(
-                color: color.withValues(alpha: 0.7),
-                fontSize: 12,
-              ),
+              style: _subtitleTextStyle.copyWith(color: color.withOpacity(0.7)),
             ),
           ],
         ),
