@@ -304,11 +304,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   /// Builds the main content area - search results or normal notes list.
   Widget _buildContent() {
-    // Show loading spinner while searching
-    if (_isSearching) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     // Show search results if we have a search query
     if (_searchResults != null) {
       if (_searchResults!.isEmpty) {
@@ -635,12 +630,21 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               decoration: InputDecoration(
                 hintText: 'Buscar em todas as notas...',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: _searchController.clear,
+                suffixIcon: _isSearching
+                    ? const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: SizedBox(
+                          height: 12,
+                          width: 12,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
                       )
-                    : null,
+                    : _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: _searchController.clear,
+                          )
+                        : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
