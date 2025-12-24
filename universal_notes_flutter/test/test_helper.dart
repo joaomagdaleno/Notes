@@ -51,26 +51,6 @@ class MockReadingPlanService extends Mock implements ReadingPlanService {}
 
 MockFirestoreRepository createDefaultMockRepository([List<Note>? notes]) {
   final mockRepo = MockFirestoreRepository();
-  final defaultNotes =
-      notes ??
-      [
-        Note(
-          id: '1',
-          title: 'Test Note 1',
-          content: 'Content 1',
-          createdAt: DateTime.now(),
-          lastModified: DateTime.now(),
-          ownerId: 'user1',
-        ),
-        Note(
-          id: '2',
-          title: 'Test Note 2',
-          content: 'Content 2',
-          createdAt: DateTime.now(),
-          lastModified: DateTime.now(),
-          ownerId: 'user1',
-        ),
-      ];
 
   when(
     () => mockRepo.notesStream(

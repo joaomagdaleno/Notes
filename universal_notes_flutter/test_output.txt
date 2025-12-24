@@ -1,15 +1,29 @@
 00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart
-00:00 +0: (setUpAll)
-00:00 +0: NotesScreen Navigation FAB navigates to note editor
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: (setUpAll)
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation FAB navigates to note editor
+DEBUG: NotesScreen initState completed
+00:06 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_grid_logic_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium)
+DEBUG: NotesScreen initState completed
+00:06 +1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation FAB navigates to note editor
+00:09 +2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations displays notes when available
+00:10 +2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation shows correct title for default index
+DEBUG: NotesScreen initState completed
+00:10 +3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations displays notes when available
+00:10 +3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation tapping Favorites in drawer changes view
+DEBUG: NotesScreen initState completed
+00:11 +3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_grid_logic_test.dart: NotesScreen Responsive Layout cycles through view modes
+DEBUG: NotesScreen initState completed
+00:11 +4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations displays notes when available
+00:12 +5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations displays notes when available
 DEBUG: NotesScreen initState completed
 ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 The following TestFailure was thrown running a test:
 Expected: exactly one matching candidate
-  Actual: _TextWidgetFinder:<Found 0 widgets with text "New Note": []>
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Test Note 2": []>
    Which: means none were found but one was expected
 
 When the exception was thrown, this was the stack:
-#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart:21:7)
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart:38:7)
 <asynchronous suspension>
 #5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
 <asynchronous suspension>
@@ -19,13 +33,18 @@ When the exception was thrown, this was the stack:
 (elided one frame from package:stack_trace)
 
 This was caught by the test expectation on the following line:
-  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart line 21
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart line 38
 The test description was:
-  FAB navigates to note editor
+  displays notes when available
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
-00:04 +0 -1: NotesScreen Navigation FAB navigates to note editor [E]
+00:17 +5 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_platform_logic_test.dart: NotesScreen Platform Logic shows navigation view on Windows host
+00:17 +5 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations displays notes when available [E]
   Test failed. See exception logs above.
-  The test description was: FAB navigates to note editor
+  The test description was: displays notes when available
   
-00:04 +0 -1: (tearDownAll)
-00:04 +0 -1: Some tests failed.
+00:17 +5 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_platform_logic_test.dart: NotesScreen Platform Logic shows navigation view on Windows host
+DEBUG: NotesScreen initState completed
+00:19 +6 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_platform_logic_test.dart: NotesScreen Platform Logic renders correctly on Android platform
+DEBUG: NotesScreen initState completed
+00:19 +7 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_platform_logic_test.dart: (tearDownAll)
+00:19 +7 -1: Some tests failed.
