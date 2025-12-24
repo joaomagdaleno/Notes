@@ -13,45 +13,62 @@ void main() async {
   }
 
   final lines = await file.readAsLines();
-  final tests = <Map<String, dynamic>>[];
+  final testDurations = <Map<String, dynamic>>[];
+  final startTimes = <int, int>{};
+  final testNames = <int, String>{};
 
   for (final line in lines) {
     try {
       final json = jsonDecode(line) as Map<String, dynamic>;
-      if (json['type'] == 'testDone' && json['result'] != 'skipped') {
-        tests.add(json);
+      if (json['type'] == 'testStart') {
+        final test = json['test'] as Map<String, dynamic>;
+        final testId = test['id'] as int;
+        startTimes[testId] = json['time'] as int;
+        testNames[testId] = test['name'] as String;
+      } else if (json['type'] == 'testDone' && json['result'] != 'skipped') {
+        final testId = json['testID'] as int;
+        if (startTimes.containsKey(testId)) {
+          final duration = (json['time'] as int) - startTimes[testId]!;
+          testDurations.add({
+            'name': testNames[testId] ?? 'Unknown',
+            'duration': duration,
+            'id': testId,
+          });
+        }
       }
-    } catch (_) {
-      // Skip invalid JSON lines
-    }
+    } catch (_) {}
   }
 
-  if (tests.isEmpty) {
+  if (testDurations.isEmpty) {
     print('No test results found in JSON output');
     return;
   }
 
-  // Sort by time (longest first)
-  tests.sort((a, b) => (b['time'] as int).compareTo(a['time'] as int));
+  // Sort by duration (longest first)
+  testDurations.sort(
+    (a, b) => (b['duration'] as int).compareTo(a['duration'] as int),
+  );
 
-  print('\\n=== TOP 20 SLOWEST TESTS ===\\n');
-  final top20 = tests.take(20).toList();
+  print('\n=== TOP 20 SLOWEST TESTS (TRUE DURATION) ===\n');
+  final top20 = testDurations.take(20).toList();
   for (var i = 0; i < top20.length; i++) {
     final test = top20[i];
-    final timeMs = test['time'] as int;
-    final seconds = (timeMs / 1000).toStringAsFixed(2);
-    print('${i + 1}. ${seconds}s - Test ID: ${test['testID']}');
+    final durationMs = test['duration'] as int;
+    final seconds = (durationMs / 1000).toStringAsFixed(2);
+    print('${i + 1}. ${seconds}s - ${test['name']} (ID ${test['id']})');
   }
 
   // Calculate statistics
-  final totalTime = tests.fold<int>(0, (sum, t) => sum + (t['time'] as int));
-  final avgTime = totalTime / tests.length;
-
-  print('\\n=== STATISTICS ===');
-  print('Total tests: ${tests.length}');
-  print('Total time: ${(totalTime / 1000).toStringAsFixed(2)}s');
-  print('Average per test: ${(avgTime / 1000).toStringAsFixed(2)}s');
-  print(
-    '\\nTop 5 tests account for: ${(tests.take(5).fold<int>(0, (s, t) => s + (t['time'] as int)) / 1000).toStringAsFixed(2)}s',
+  final totalDuration = testDurations.fold<int>(
+    0,
+    (sum, t) => sum + (t['duration'] as int),
   );
+  final avgDuration = totalDuration / testDurations.length;
+
+  print('\n=== STATISTICS ===');
+  print('Total tests: ${testDurations.length}');
+  print(
+    'Total cumulative duration: ${(totalDuration / 1000).toStringAsFixed(2)}s',
+  );
+  print('Average duration: ${(avgDuration / 1000).toStringAsFixed(2)}s');
 }

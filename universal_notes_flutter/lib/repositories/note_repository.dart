@@ -34,10 +34,10 @@ class NoteRepository {
   Database? _database;
   Map<String, int>? _wordFrequencyCache;
 
-  late final ReadingBookmarksService bookmarksService;
-  late final ReadingInteractionService readingInteractionService;
-  late final ReadingStatsService readingStatsService;
-  late final ReadingPlanService readingPlanService;
+  late ReadingBookmarksService bookmarksService;
+  late ReadingInteractionService readingInteractionService;
+  late ReadingStatsService readingStatsService;
+  late ReadingPlanService readingPlanService;
 
   static const String _dbName = 'notes_database.db';
   static const String _notesTable = 'notes';
@@ -76,11 +76,15 @@ class NoteRepository {
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
-    bookmarksService = ReadingBookmarksService(database: _database!);
-    readingInteractionService = ReadingInteractionService(database: _database!);
-    readingStatsService = ReadingStatsService(database: _database!);
-    readingPlanService = ReadingPlanService(database: _database!);
+    _initServices(_database!);
     return _database!;
+  }
+
+  void _initServices(Database db) {
+    bookmarksService = ReadingBookmarksService(database: db);
+    readingInteractionService = ReadingInteractionService(database: db);
+    readingStatsService = ReadingStatsService(database: db);
+    readingPlanService = ReadingPlanService(database: db);
   }
 
   Future<void> _createDB(Database db, int version) async {
