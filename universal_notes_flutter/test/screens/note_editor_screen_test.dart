@@ -1,4 +1,4 @@
-@Tags(['widget'])
+@Tags(['unit'])
 library;
 
 // Placeholder test - NoteEditorScreen requires Firebase/Firestore initialization

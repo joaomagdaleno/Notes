@@ -1,4 +1,4 @@
-@Tags(['unit'])
+@Tags(['widget'])
 library;
 
 import 'package:flutter/material.dart';
