@@ -1,8 +1,9 @@
-@Tags(['widget'])
-library;
-
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'test_helper.dart';
@@ -46,7 +47,7 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
 
       final favoriteNote = Note(
-        id: '1',
+        id: 'fav-1',
         title: 'Favorite Note',
         content: 'Content',
         createdAt: DateTime.now(),
@@ -54,26 +55,46 @@ void main() {
         ownerId: 'user1',
         isFavorite: true,
       );
-      SyncService.instance.firestoreRepository = createDefaultMockRepository([
-        favoriteNote,
-      ]);
-      await SyncService.instance.init();
+
+      // Stub NoteRepository to return this note when filtering by favorite
+      when(
+        () => NoteRepository.instance.getAllNotes(
+          isFavorite: true,
+          folderId: any(named: 'folderId'),
+          tagId: any(named: 'tagId'),
+          isInTrash: any(named: 'isInTrash'),
+        ),
+      ).thenAnswer((_) async => [favoriteNote]);
+
+      // Re-initialize SyncService with the favorite note
+      final mockFirestore = createDefaultMockRepository([favoriteNote]);
+      FirestoreRepository.instance = mockFirestore;
+      SyncService.instance.firestoreRepository = mockFirestore;
+
+      // We don't call SyncService.init() here as setupTest already did it.
+      // But we need to refresh local data to see the new notes if any.
+      await SyncService.instance.refreshLocalData();
 
       await pumpNotesScreen(tester);
 
+      // The Favorites button in Sidebar is a ListTile with text 'Favorites'
+      final favoritesBtn = find.widgetWithText(ListTile, 'Favorites');
+      expect(favoritesBtn, findsOneWidget);
+
       await tester.runAsync(() async {
-        final favoritesBtn = find.text('Favorites');
-        if (favoritesBtn.evaluate().isNotEmpty) {
-          await tester.tap(favoritesBtn);
-        }
+        await tester.tap(favoritesBtn);
         await Future<void>.delayed(const Duration(milliseconds: 200));
       });
 
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
 
+      // Check title change
       expect(find.text('Favorites'), findsAtLeastNWidgets(1));
+
+      // Check content (NoteCard)
       expect(find.text('Favorite Note'), findsOneWidget);
+
       debugDefaultTargetPlatformOverride = null;
     });
   });

@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart'; // Switching to mocktail for easier setup without code gen
+import 'package:mocktail/mocktail.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
@@ -17,9 +15,13 @@ import 'package:universal_notes_flutter/services/firebase_service.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:window_manager/window_manager.dart';
-
 import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/services/media_service.dart';
+import 'package:universal_notes_flutter/services/reading_bookmarks_service.dart';
+import 'package:universal_notes_flutter/services/reading_interaction_service.dart';
+import 'package:universal_notes_flutter/services/reading_plan_service.dart';
+import 'package:universal_notes_flutter/services/reading_stats_service.dart';
+import 'package:universal_notes_flutter/models/reading_stats.dart';
 
 class MockSyncService extends Mock implements SyncService {}
 
@@ -36,6 +38,16 @@ class MockWindowManager extends Mock implements WindowManager {}
 class MockStorageService extends Mock implements StorageService {}
 
 class MockMediaService extends Mock implements MediaService {}
+
+class MockReadingBookmarksService extends Mock
+    implements ReadingBookmarksService {}
+
+class MockReadingInteractionService extends Mock
+    implements ReadingInteractionService {}
+
+class MockReadingStatsService extends Mock implements ReadingStatsService {}
+
+class MockReadingPlanService extends Mock implements ReadingPlanService {}
 
 MockFirestoreRepository createDefaultMockRepository([List<Note>? notes]) {
   final mockRepo = MockFirestoreRepository();
@@ -81,7 +93,6 @@ MockFirestoreRepository createDefaultMockRepository([List<Note>? notes]) {
       content: any(named: 'content'),
     ),
   ).thenAnswer((_) async {
-    print('DEBUG: MockFirestoreRepository.addNote called');
     return Note(
       id: 'new-id',
       title: 'New Note',
@@ -105,9 +116,6 @@ MockFirestoreRepository createDefaultMockRepository([List<Note>? notes]) {
 }
 
 Future<void> setupTestEnvironment() async {
-  sqfliteFfiInit();
-  databaseFactory = databaseFactoryFfi;
-  NoteRepository.instance.dbPath = inMemoryDatabasePath;
   PackageInfo.setMockInitialValues(
     appName: 'Universal Notes',
     packageName: 'com.example',
@@ -117,7 +125,6 @@ Future<void> setupTestEnvironment() async {
   );
   SharedPreferences.setMockInitialValues({});
 
-  // Register fallback values for mocktail
   registerFallbackValue(
     Note(
       id: '',
@@ -137,27 +144,82 @@ Future<void> setupTestEnvironment() async {
       timestamp: DateTime(0),
     ),
   );
-
-  await NoteRepository.instance.initDB();
 }
 
 Future<void> setupTest() async {
-  await SyncService.instance.reset();
-  final db = await NoteRepository.instance.database;
-  await db.transaction((txn) async {
-    await txn.delete('notes');
-    await txn.delete('folders');
-    await txn.delete('tags');
-    // Insert a dummy note to ensure GridView is rendered instead of EmptyState
-    await txn.insert('notes', {
-      'id': 'default-1',
-      'title': 'Default Note',
-      'content': 'Default Content',
-      'date': DateTime.now().millisecondsSinceEpoch,
-      'isFavorite': 0,
-      'isInTrash': 0,
-    });
-  });
+  final mockNoteRepo = MockNoteRepository();
+  final defaultNotes = [
+    Note(
+      id: 'default-1',
+      title: 'Default Note',
+      content: 'Default Content',
+      createdAt: DateTime.now(),
+      lastModified: DateTime.now(),
+      ownerId: 'user1',
+    ),
+  ];
+
+  when(
+    () => mockNoteRepo.getAllNotes(
+      folderId: any(named: 'folderId'),
+      tagId: any(named: 'tagId'),
+      isFavorite: any(named: 'isFavorite'),
+      isInTrash: any(named: 'isInTrash'),
+    ),
+  ).thenAnswer((_) async => defaultNotes);
+
+  when(() => mockNoteRepo.getAllFolders()).thenAnswer((_) async => []);
+  when(() => mockNoteRepo.getAllTagNames()).thenAnswer((_) async => []);
+  when(() => mockNoteRepo.getAllSnippets()).thenAnswer((_) async => []);
+  when(() => mockNoteRepo.getUnsyncedNotes()).thenAnswer((_) async => []);
+  when(() => mockNoteRepo.getUnsyncedWords()).thenAnswer((_) async => []);
+  when(
+    () => mockNoteRepo.getNoteWithContent(any()),
+  ).thenAnswer((_) async => defaultNotes.first);
+
+  when(() => mockNoteRepo.insertNote(any())).thenAnswer((_) async => 'new-id');
+  when(() => mockNoteRepo.updateNote(any())).thenAnswer((_) async {});
+  when(() => mockNoteRepo.updateNoteContent(any())).thenAnswer((_) async {});
+  when(() => mockNoteRepo.deleteNote(any())).thenAnswer((_) async {});
+  when(
+    () => mockNoteRepo.deleteNotePermanently(any()),
+  ).thenAnswer((_) async {});
+  when(() => mockNoteRepo.addNoteEvent(any())).thenAnswer((_) async {});
+  when(() => mockNoteRepo.getNoteEvents(any())).thenAnswer((_) async => []);
+  when(() => mockNoteRepo.updateNoteEvent(any())).thenAnswer((_) async {});
+
+  // Stub reading services
+  final mockBookmarks = MockReadingBookmarksService();
+  final mockInteraction = MockReadingInteractionService();
+  final mockStats = MockReadingStatsService();
+  final mockPlan = MockReadingPlanService();
+
+  when(() => mockNoteRepo.bookmarksService).thenReturn(mockBookmarks);
+  when(
+    () => mockNoteRepo.readingInteractionService,
+  ).thenReturn(mockInteraction);
+  when(() => mockNoteRepo.readingStatsService).thenReturn(mockStats);
+  when(() => mockNoteRepo.readingPlanService).thenReturn(mockPlan);
+
+  // Stub stats service listeners/session
+  when(() => mockStats.addListener(any())).thenReturn(null);
+  when(() => mockStats.removeListener(any())).thenReturn(null);
+  when(() => mockStats.stopSession()).thenAnswer((_) async {});
+  when(
+    () => mockStats.getStatsForNote(any()),
+  ).thenAnswer((_) async => ReadingStats(noteId: 'test'));
+  when(() => mockStats.startSession(any())).thenAnswer((_) async {});
+
+  // Stub interaction service
+  when(
+    () => mockInteraction.getAnnotationsForNote(any()),
+  ).thenAnswer((_) async => []);
+
+  // Stub plan service
+  when(() => mockPlan.findPlanForNote(any())).thenAnswer((_) async => null);
+
+  // Replace the static singleton
+  NoteRepository.instance = mockNoteRepo;
 
   StorageService.instance = MockStorageService();
   MediaService.instance = MockMediaService();
@@ -165,18 +227,13 @@ Future<void> setupTest() async {
   final mockFirestore = createDefaultMockRepository();
   FirestoreRepository.instance = mockFirestore;
   SyncService.instance.firestoreRepository = mockFirestore;
-  NoteRepository.instance.firebaseService = MockFirebaseService();
-
-  // Also stub currentNotes to avoid empty states in StreamBuilder
-  // Assuming SyncService has a way to set currentNotes or we need to mock SyncService too.
-  // Wait, SyncService is a singleton. I can't easily mock it if it's already initialized.
+  SyncService.instance.noteRepository = mockNoteRepo;
 
   await SyncService.instance.init();
 }
 
 Future<void> tearDownTest() async {
   debugDefaultTargetPlatformOverride = null;
-  await SyncService.instance.reset();
 }
 
 Future<void> pumpNotesScreen(
