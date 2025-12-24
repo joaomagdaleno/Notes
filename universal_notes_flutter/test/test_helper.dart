@@ -81,11 +81,11 @@ MockFirestoreRepository createDefaultMockRepository([List<Note>? notes]) {
       limit: any(named: 'limit'),
       lastDocument: any(named: 'lastDocument'),
     ),
-  ).thenAnswer((_) => Stream.value(defaultNotes));
+  ).thenAnswer((_) => const Stream.empty());
 
   when(
     () => mockRepo.notesStream(),
-  ).thenAnswer((_) => Stream.value(defaultNotes));
+  ).thenAnswer((_) => const Stream.empty());
 
   when(
     () => mockRepo.addNote(

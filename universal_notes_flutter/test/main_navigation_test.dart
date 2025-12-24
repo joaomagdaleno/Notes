@@ -87,7 +87,8 @@ void main() {
       });
 
       // Process microtasks and animations
-      await tester.pumpAndSettle(const Duration(milliseconds: 200));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
 
       // The Favorite Note should now be visible in the list
       expect(find.text('Favorite Note'), findsOneWidget);
