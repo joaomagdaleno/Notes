@@ -4,23 +4,29 @@ library;
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
 
-import 'sidebar_test.mocks.dart';
+class MockSyncService extends Mock implements SyncService {}
 
-@GenerateMocks([SyncService, BackupService, NoteRepository])
+class MockBackupService extends Mock implements BackupService {}
+
+class MockNoteRepository extends Mock implements NoteRepository {}
+
 void main() {
   late MockSyncService mockSyncService;
   late MockBackupService mockBackupService;
   late MockNoteRepository mockNoteRepository;
   late StreamController<List<Folder>> foldersController;
   late StreamController<List<String>> tagsController;
+
+  setUpAll(() {
+    registerFallbackValue(const SidebarSelection(SidebarItemType.all));
+  });
 
   setUp(() {
     mockSyncService = MockSyncService();
@@ -35,9 +41,21 @@ void main() {
     tagsController = StreamController<List<String>>.broadcast();
 
     when(
-      mockSyncService.foldersStream,
+      () => mockSyncService.foldersStream,
     ).thenAnswer((_) => foldersController.stream);
-    when(mockSyncService.tagsStream).thenAnswer((_) => tagsController.stream);
+    when(
+      () => mockSyncService.tagsStream,
+    ).thenAnswer((_) => tagsController.stream);
+
+    // Default stubs
+    when(
+      () => mockSyncService.refreshLocalData(
+        folderId: any(named: 'folderId'),
+        tagId: any(named: 'tagId'),
+        isFavorite: any(named: 'isFavorite'),
+        isInTrash: any(named: 'isInTrash'),
+      ),
+    ).thenAnswer((_) async {});
   });
 
   tearDown(() {
