@@ -897,7 +897,8 @@ class NoteRepository {
     if (sanitizedQuery.isEmpty) return [];
 
     // Query FTS5 with ranking - Title has higher weight (10.0 vs 1.0)
-    final results = await db.rawQuery('''
+    final results = await db.rawQuery(
+      '''
       SELECT 
         n.*,
         snippet($_notesFtsTable, 0, '<b>', '</b>', '...', 16) as title_snippet,
@@ -905,12 +906,14 @@ class NoteRepository {
         bm25($_notesFtsTable, 10.0, 1.0) as rank
       FROM $_notesFtsTable fts
       JOIN $_notesTable n ON fts.rowid = n.rowid
-      WHERE $_notesFtsTable MATCH '$sanitizedQuery'
+      WHERE $_notesFtsTable MATCH ?
         AND n.isInTrash = 0
         AND n.isDeleted = 0
       ORDER BY rank
       LIMIT 100
-    ''');
+    ''',
+      [sanitizedQuery],
+    );
 
     return results.map((row) {
       final titleSnippet = row['title_snippet'] as String? ?? '';
