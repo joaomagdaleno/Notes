@@ -66,34 +66,34 @@ void main() {
         ),
       ).thenAnswer((_) async => [favoriteNote]);
 
-      // Re-initialize SyncService with the favorite note
-      final mockFirestore = createDefaultMockRepository([favoriteNote]);
-      FirestoreRepository.instance = mockFirestore;
-      SyncService.instance.firestoreRepository = mockFirestore;
-
-      // We don't call SyncService.init() here as setupTest already did it.
-      // But we need to refresh local data to see the new notes if any.
-      await SyncService.instance.refreshLocalData();
+      // Ensure SyncService has the correct firestore repository for background ops
+      SyncService.instance.firestoreRepository = createDefaultMockRepository([
+        favoriteNote,
+      ]);
 
       await pumpNotesScreen(tester);
+      await tester.pump(const Duration(milliseconds: 200));
 
-      // The Favorites button in Sidebar is a ListTile with text 'Favorites'
-      final favoritesBtn = find.widgetWithText(ListTile, 'Favorites');
+      // Initial state: should show Default Note
+      expect(find.text('Default Note'), findsOneWidget);
+
+      final favoritesBtn = find.byKey(const ValueKey('favorites'));
       expect(favoritesBtn, findsOneWidget);
 
       await tester.runAsync(() async {
         await tester.tap(favoritesBtn);
-        await Future<void>.delayed(const Duration(milliseconds: 200));
+        // Larger delay for async state updates
+        await Future<void>.delayed(const Duration(milliseconds: 800));
       });
 
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 100));
+      // Process microtasks and animations
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
-      // Check title change
-      expect(find.text('Favorites'), findsAtLeastNWidgets(1));
-
-      // Check content (NoteCard)
+      // The Favorite Note should now be visible in the list
       expect(find.text('Favorite Note'), findsOneWidget);
+
+      // Default Note should no longer be visible
+      expect(find.text('Default Note'), findsNothing);
 
       debugDefaultTargetPlatformOverride = null;
     });

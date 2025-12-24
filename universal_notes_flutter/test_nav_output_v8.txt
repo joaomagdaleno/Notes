@@ -5,3 +5,9 @@ DEBUG: NotesScreen initState completed
 00:05 +1: NotesScreen Navigation shows correct title for default index
 DEBUG: NotesScreen initState completed
 00:07 +2: NotesScreen Navigation tapping Favorites in drawer changes view
+10:08 +2 -1: NotesScreen Navigation tapping Favorites in drawer changes view [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+10:08 +2 -1: (tearDownAll)
+10:08 +2 -1: Some tests failed.

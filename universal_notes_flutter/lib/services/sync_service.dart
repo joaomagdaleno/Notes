@@ -15,6 +15,13 @@ class SyncService {
   /// The singleton instance of [SyncService].
   static SyncService instance = SyncService._();
 
+  /// Re-sets the singleton instance for testing.
+  @visibleForTesting
+  static void resetInstance() {
+    instance.dispose();
+    instance = SyncService._();
+  }
+
   bool _isDisposed = false;
   Future<void>? _syncUpFuture;
 

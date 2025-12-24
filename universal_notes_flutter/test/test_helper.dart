@@ -147,6 +147,8 @@ Future<void> setupTestEnvironment() async {
 }
 
 Future<void> setupTest() async {
+  SyncService.resetInstance();
+
   final mockNoteRepo = MockNoteRepository();
   final defaultNotes = [
     Note(

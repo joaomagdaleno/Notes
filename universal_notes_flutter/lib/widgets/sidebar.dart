@@ -178,6 +178,7 @@ class _SidebarState extends State<Sidebar> {
             ),
           ),
           ListTile(
+            key: const ValueKey('all_notes'),
             leading: const Icon(Icons.notes),
             title: const Text('All Notes'),
             selected: _selection.type == SidebarItemType.all,
@@ -188,6 +189,7 @@ class _SidebarState extends State<Sidebar> {
             },
           ),
           ListTile(
+            key: const ValueKey('favorites'),
             leading: const Icon(Icons.favorite_border),
             title: const Text('Favorites'),
             selected: _selection.type == SidebarItemType.favorites,
@@ -198,6 +200,7 @@ class _SidebarState extends State<Sidebar> {
             },
           ),
           ListTile(
+            key: const ValueKey('trash'),
             leading: const Icon(Icons.delete_outline),
             title: const Text('Trash'),
             selected: _selection.type == SidebarItemType.trash,

@@ -27,6 +27,7 @@ void main() {
       await pumpNotesScreen(tester);
       await tester.pump(const Duration(milliseconds: 200));
 
+      // Default should be grid_medium (200.0)
       final grid = tester.widget<GridView>(find.byType(GridView));
       expect(
         grid.gridDelegate,
@@ -45,11 +46,20 @@ void main() {
       await pumpNotesScreen(tester);
       await tester.pump(const Duration(milliseconds: 200));
 
-      final viewModeButton = find.byIcon(fluent.FluentIcons.view_all);
-      if (viewModeButton.evaluate().isNotEmpty) {
-        await tester.tap(viewModeButton);
-        await tester.pump();
-        expect(find.byType(fluent.NavigationView), findsOneWidget);
+      // Tap Large Grid button
+      final largeGridBtn = find.byIcon(fluent.FluentIcons.grid_view_large);
+      if (largeGridBtn.evaluate().isNotEmpty) {
+        await tester.runAsync(() async {
+          await tester.tap(largeGridBtn);
+          await Future<void>.delayed(const Duration(milliseconds: 200));
+        });
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        final grid = tester.widget<GridView>(find.byType(GridView));
+        final delegate =
+            grid.gridDelegate as SliverGridDelegateWithMaxCrossAxisExtent;
+        expect(delegate.maxCrossAxisExtent, 300.0);
       }
 
       debugDefaultTargetPlatformOverride = null;
