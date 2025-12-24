@@ -27,11 +27,11 @@ void main() {
       // On 800px width with rail (~50px), content is ~750px. 750/200 ~ 3.
       expect(
         grid.gridDelegate,
-        isA<SliverGridDelegateWithFixedCrossAxisCount>(),
+        isA<SliverGridDelegateWithMaxCrossAxisExtent>(),
       );
       final delegate =
-          grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
-      expect(delegate.crossAxisCount, greaterThanOrEqualTo(2));
+          grid.gridDelegate as SliverGridDelegateWithMaxCrossAxisExtent;
+      expect(delegate.maxCrossAxisExtent, 200.0);
     });
 
     testWidgets('cycles through view modes', (tester) async {

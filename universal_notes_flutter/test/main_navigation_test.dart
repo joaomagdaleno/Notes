@@ -17,10 +17,10 @@ void main() {
   group('NotesScreen Navigation', () {
     testWidgets('FAB navigates to note editor', (tester) async {
       await pumpNotesScreen(tester);
-      final fab = find.byType(fluent.FilledButton);
-      expect(fab, findsWidgets); // Standard Fluent filled button
-      await tester.tap(fab.first);
-      await tester.pump(const Duration(milliseconds: 50));
+      final newNoteBtn = find.text('New Note');
+      expect(newNoteBtn, findsOneWidget);
+      await tester.tap(newNoteBtn);
+      await tester.pump(const Duration(milliseconds: 500));
     });
 
     testWidgets('shows correct title for default index', (tester) async {
