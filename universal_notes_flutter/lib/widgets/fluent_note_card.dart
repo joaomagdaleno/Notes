@@ -151,43 +151,46 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.note.title,
-                      style: fluent.FluentTheme.of(
-                        context,
-                      ).typography.bodyLarge,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Expanded(
-                      child: Text(
-                        _plainTextContent,
-                        style: fluent.FluentTheme.of(context).typography.body,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.note.title,
+                        style: fluent.FluentTheme.of(
+                          context,
+                        ).typography.bodyLarge,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        maxLines: 5,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      FluentNoteCard._dateFormat.format(widget.note.date),
-                      style: fluent.FluentTheme.of(context).typography.caption,
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: Text(
+                          _plainTextContent,
+                          style: fluent.FluentTheme.of(context).typography.body,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        FluentNoteCard._dateFormat.format(widget.note.date),
+                        style: fluent.FluentTheme.of(
+                          context,
+                        ).typography.caption,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Positioned(
-                top: 4,
-                right: 4,
-                child: fluent.IconButton(
-                  icon: const fluent.Icon(fluent.FluentIcons.view),
-                  onPressed: () => unawaited(_showPreview(context)),
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: fluent.IconButton(
+                    icon: const fluent.Icon(fluent.FluentIcons.view),
+                    onPressed: () => unawaited(_showPreview(context)),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
