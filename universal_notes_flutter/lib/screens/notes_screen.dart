@@ -665,6 +665,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               children: [
                 FloatingActionButton(
                   onPressed: _createNewNote,
+                  tooltip: 'Nova Nota',
                   heroTag: 'add_note',
                   child: const Icon(Icons.add),
                 ),
