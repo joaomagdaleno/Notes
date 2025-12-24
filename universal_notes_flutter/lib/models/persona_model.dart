@@ -9,6 +9,6 @@ enum EditorPersona {
   /// Free-form canvas focus (Samsung Notes/Whiteboard-style).
   brainstorm,
 
-  /// Reading and focus mode (Zen-style).
-  zen,
+  /// Reading mode (Adobe Acrobat/Google Play Books-style).
+  reading,
 }

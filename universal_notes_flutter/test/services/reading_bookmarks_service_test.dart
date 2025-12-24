@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:universal_notes_flutter/models/reading_bookmark.dart';
 import 'package:universal_notes_flutter/services/reading_bookmarks_service.dart';
 
 void main() {

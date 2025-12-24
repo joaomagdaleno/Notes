@@ -137,6 +137,23 @@ class EditorWidget extends StatefulWidget {
   /// Callback when toggle lock shortcut is pressed (Ctrl+E).
   final VoidCallback? onToggleLock;
 
+  // --- Reading Mode (Zen/Liquid) ---
+
+  /// Settings for the reading mode.
+  final ReadingSettings? readingSettings;
+
+  /// Callback when reading settings button is pressed.
+  final VoidCallback? onOpenReadingSettings;
+
+  /// Callback when outline button is pressed.
+  final VoidCallback? onOpenOutline;
+
+  /// Callback when scroll to top is pressed.
+  final VoidCallback? onScrollToTop;
+
+  /// Character range to highlight during read aloud (start, end).
+  final (int, int)? readAloudHighlightRange;
+
   @override
   State<EditorWidget> createState() => EditorWidgetState();
 }
@@ -265,11 +282,11 @@ class EditorWidgetState extends State<EditorWidget> {
                 setState(() => _activePersona = EditorPersona.brainstorm),
           ),
           _PersonaButton(
-            persona: EditorPersona.zen,
+            persona: EditorPersona.reading,
             activePersona: _activePersona,
-            icon: Icons.self_improvement,
-            label: 'Zen',
-            onTap: () => setState(() => _activePersona = EditorPersona.zen),
+            icon: Icons.auto_stories,
+            label: 'Reading',
+            onTap: () => setState(() => _activePersona = EditorPersona.reading),
           ),
         ],
       ),
@@ -779,8 +796,8 @@ class EditorWidgetState extends State<EditorWidget> {
         return _buildWriterView();
       case EditorPersona.brainstorm:
         return _buildBrainstormView();
-      case EditorPersona.zen:
-        return _buildZenView();
+      case EditorPersona.reading:
+        return _buildReadingView();
     }
   }
 
@@ -979,46 +996,156 @@ class EditorWidgetState extends State<EditorWidget> {
     );
   }
 
-  /// Zen mode: Distraction-free reading.
-  Widget _buildZenView() {
+  /// Reading mode: Distraction-free reading with Liquid Mode features.
+  Widget _buildReadingView() {
+    final settings = widget.readingSettings ?? const ReadingSettings();
+    final theme = settings.theme;
+
+    // Apply night light filter
+    Widget content = _buildReadingContent(settings);
+    if (settings.nightLightEnabled) {
+      content = ColorFiltered(
+        colorFilter: ColorFilter.mode(
+          Colors.orange.withValues(alpha: settings.nightLightIntensity * 0.3),
+          BlendMode.multiply,
+        ),
+        child: content,
+      );
+    }
+
     return Container(
-      color: Theme.of(context).colorScheme.surface,
-      padding: const EdgeInsets.only(top: 60),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 650),
-          child: IgnorePointer(
-            child: ListView.builder(
-              controller: widget.scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              itemCount: _buffer.lines.length,
-              itemBuilder: (context, index) {
-                final line = _buffer.lines[index];
-                if (line is TextLine) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text.rich(
-                      TextSpan(
-                        children: line.spans
-                            .map(
-                              (s) => s.toTextSpan(onLinkTap: widget.onLinkTap),
-                            )
-                            .toList(),
-                      ),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        height: 1.8,
-                        fontSize: 18,
-                      ),
-                    ),
-                  );
-                }
-                return _buildEditorLine(index);
-              },
+      color: theme.backgroundColor,
+      child: Stack(
+        children: [
+          // Main content
+          content,
+
+          // FAB menu for reading controls
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: _ReadingFabMenu(
+              onSettingsTap: widget.onOpenReadingSettings,
+              onOutlineTap: widget.onOpenOutline,
+              onScrollToTopTap: widget.onScrollToTop,
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReadingContent(ReadingSettings settings) {
+    final textStyle = TextStyle(
+      fontSize: settings.fontSize,
+      height: settings.lineHeight,
+      letterSpacing: settings.letterSpacing,
+      color: settings.theme.textColor,
+    );
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 650),
+        child: ListView.builder(
+          controller: widget.scrollController,
+          padding: const EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 80,
+            bottom: 100,
+          ),
+          itemCount: _buffer.lines.length,
+          itemBuilder: (context, index) {
+            final line = _buffer.lines[index];
+            if (line is TextLine) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text.rich(
+                  TextSpan(
+                    children: _buildReadingTextSpans(
+                      line,
+                      settings,
+                      widget.readAloudHighlightRange,
+                    ),
+                  ),
+                  style: textStyle,
+                  textAlign: settings.textAlign,
+                ),
+              );
+            }
+            // For images, wrap in InteractiveViewer for zoom
+            if (line is ImageLine) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: InteractiveViewer(
+                  minScale: 1.0,
+                  maxScale: 4.0,
+                  child: _buildEditorLine(index),
+                ),
+              );
+            }
+            return _buildEditorLine(index);
+          },
         ),
       ),
     );
+  }
+
+  List<InlineSpan> _buildReadingTextSpans(
+    TextLine line,
+    ReadingSettings settings,
+    (int, int)? highlightRange,
+  ) {
+    final spans = <InlineSpan>[];
+    var currentOffset = 0;
+
+    for (final span in line.spans) {
+      final spanText = span.text;
+      final spanEnd = currentOffset + spanText.length;
+
+      // Check if this span overlaps with highlight range
+      if (highlightRange != null) {
+        final (hlStart, hlEnd) = highlightRange;
+        if (currentOffset < hlEnd && spanEnd > hlStart) {
+          // This span has highlighted portion
+          final localStart = math.max(0, hlStart - currentOffset);
+          final localEnd = math.min(spanText.length, hlEnd - currentOffset);
+
+          // Before highlight
+          if (localStart > 0) {
+            spans.add(
+              span.toTextSpan(
+                    onLinkTap: widget.onLinkTap,
+                  )
+                  as InlineSpan,
+            );
+          }
+
+          // Highlighted portion
+          if (localStart < localEnd) {
+            spans.add(
+              TextSpan(
+                text: spanText.substring(localStart, localEnd),
+                style: TextStyle(
+                  backgroundColor: settings.theme.accentColor.withValues(
+                    alpha: 0.3,
+                  ),
+                  color: settings.theme.textColor,
+                ),
+              ),
+            );
+          }
+
+          currentOffset = spanEnd;
+          continue;
+        }
+      }
+
+      spans.add(span.toTextSpan(onLinkTap: widget.onLinkTap) as InlineSpan);
+      currentOffset = spanEnd;
+    }
+
+    return spans;
   }
 
   /// Builds a single editor line widget.
@@ -1960,4 +2087,107 @@ class _LineWithIndex {
   _LineWithIndex(this.line, this.index);
   final Line line;
   final int index;
+}
+
+/// FAB menu for Zen mode reading controls.
+class _ReadingFabMenu extends StatefulWidget {
+  const _ReadingFabMenu({
+    this.onSettingsTap,
+    this.onOutlineTap,
+    this.onScrollToTopTap,
+  });
+
+  final VoidCallback? onSettingsTap;
+  final VoidCallback? onOutlineTap;
+  final VoidCallback? onScrollToTopTap;
+
+  @override
+  State<_ReadingFabMenu> createState() => _ReadingFabMenuState();
+}
+
+class _ReadingFabMenuState extends State<_ReadingFabMenu>
+    with SingleTickerProviderStateMixin {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Menu items (visible when expanded)
+        if (_isExpanded) ...[
+          _buildMenuItem(
+            icon: Icons.vertical_align_top,
+            label: 'Top',
+            onTap: widget.onScrollToTopTap,
+          ),
+          const SizedBox(height: 8),
+          _buildMenuItem(
+            icon: Icons.list,
+            label: 'Outline',
+            onTap: widget.onOutlineTap,
+          ),
+          const SizedBox(height: 8),
+          _buildMenuItem(
+            icon: Icons.settings,
+            label: 'Settings',
+            onTap: widget.onSettingsTap,
+          ),
+          const SizedBox(height: 12),
+        ],
+
+        // Main FAB
+        FloatingActionButton.small(
+          onPressed: () => setState(() => _isExpanded = !_isExpanded),
+          backgroundColor: colorScheme.primaryContainer,
+          foregroundColor: colorScheme.onPrimaryContainer,
+          child: AnimatedRotation(
+            turns: _isExpanded ? 0.125 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: const Icon(Icons.add),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String label,
+    VoidCallback? onTap,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: colorScheme.onSurfaceVariant,
+              fontSize: 12,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        FloatingActionButton.small(
+          heroTag: 'zen_reading_$label',
+          onPressed: onTap,
+          backgroundColor: colorScheme.surface,
+          foregroundColor: colorScheme.primary,
+          elevation: 2,
+          child: Icon(icon, size: 20),
+        ),
+      ],
+    );
+  }
 }

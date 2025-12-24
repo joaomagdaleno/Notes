@@ -89,7 +89,7 @@ void main() {
       expect(EditorPersona.architect, isNotNull);
       expect(EditorPersona.writer, isNotNull);
       expect(EditorPersona.brainstorm, isNotNull);
-      expect(EditorPersona.zen, isNotNull);
+      expect(EditorPersona.reading, isNotNull);
     });
   });
 }
