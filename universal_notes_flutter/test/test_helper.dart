@@ -12,6 +12,9 @@ import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/services/firebase_service.dart';
+import 'package:universal_notes_flutter/services/storage_service.dart';
+import 'package:universal_notes_flutter/services/media_service.dart';
+import 'package:universal_notes_flutter/services/encryption_service.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:window_manager/window_manager.dart';
@@ -212,6 +215,15 @@ Future<void> setupTest() async {
   SyncService.instance.noteRepository = mockNoteRepo;
 
   await SyncService.instance.init();
+}
+
+Future<void> setupNotesTest() async {
+  // Reset all core singletons to REAL internal state
+  NoteRepository.instance = NoteRepository();
+  EncryptionService.iterations = 1;
+  SyncService.instance.reset(); // Existing reset method
+  SyncService.instance.noteRepository = NoteRepository.instance;
+  SyncService.instance.firestoreRepository = FirestoreRepository.instance;
 }
 
 Future<void> tearDownTest() async {

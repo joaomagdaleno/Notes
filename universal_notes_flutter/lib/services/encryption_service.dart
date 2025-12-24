@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:meta/meta.dart';
 
 /// A service for encrypting and decrypting note content using AES-256-GCM.
 ///
@@ -15,7 +16,10 @@ class EncryptionService {
   static const _saltLength = 16;
   static const _nonceLength = 12;
   static const _macLength = 16;
-  static const _pbkdf2Iterations = 100000;
+  static int _pbkdf2Iterations = 100000;
+
+  @visibleForTesting
+  static set iterations(int value) => _pbkdf2Iterations = value;
 
   // === Criptografia Principal ===
 
