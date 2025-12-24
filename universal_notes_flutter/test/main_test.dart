@@ -304,7 +304,7 @@ void main() {
     // Allow async data to load
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pump();
-    // await tester.pumpAndSettle(); // Disabled to avoid timeouts
+    // await tester.pump(const Duration(milliseconds: 100)); // Disabled to avoid timeouts
   }
 
   // --- Basic Widget Tests ---
@@ -490,14 +490,14 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       expect(fab, findsOneWidget);
 
       await tester.tap(fab);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify it doesn't crash navigation
     });
 
     testWidgets('shows Sidebar on mobile layout (Fluent UI)', (tester) async {
       await pumpNotesScreen(tester);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(Sidebar), findsOneWidget);
     });
@@ -570,12 +570,12 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await SyncService.instance.init();
 
       await pumpNotesScreen(tester);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Tap Favorites in Sidebar (assuming Sidebar is always visible in
       //Fluent UI for now)
       await tester.tap(find.text('Favorites'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // AppBar should show Favorites title
       expect(find.text('Favorites'), findsAtLeastNWidgets(1));
@@ -611,11 +611,11 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       await SyncService.instance.init();
 
       await pumpNotesScreen(tester);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Tap Trash in Sidebar
       await tester.tap(find.text('Trash'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // AppBar should show Trash title
       expect(find.text('Trash'), findsAtLeastNWidgets(1));
@@ -626,11 +626,11 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
     testWidgets('tapping Settings in drawer navigates', (tester) async {
       await pumpNotesScreen(tester);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Tap Settings in Sidebar (usually at the bottom)
       await tester.tap(find.text('Settings'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Should navigate to SettingsScreen
       expect(find.byType(SettingsScreen), findsOneWidget);
@@ -638,7 +638,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
     testWidgets('tapping drawer items changes selection', (tester) async {
       await pumpNotesScreen(tester);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Test each Sidebar item
       for (final itemText in [
@@ -647,7 +647,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         'Folders',
       ]) {
         await tester.tap(find.text(itemText));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 100));
         // Since many screens are unimplemented, we just check that the title
         //in Sidebar is still there
         // or that it doesn't crash. In a real app, we'd check the body
@@ -662,13 +662,13 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
   group('NotesScreen Grid View Modes', () {
     testWidgets('list mode shows ListView-style rendering', (tester) async {
       await pumpNotesScreen(tester);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find 'List' button in CommandBar (it has a list icon)
       final listButton = find.byIcon(fluent.FluentIcons.list);
       expect(listButton, findsOneWidget);
       await tester.tap(listButton);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // In list mode - should show NoteSimpleListTile
       //(verified in notes_screen.dart)
@@ -686,7 +686,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       final viewModeButton = find.byIcon(fluent.FluentIcons.view_all);
       for (var i = 0; i < 5; i++) {
         await tester.tap(viewModeButton);
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 100));
       }
 
       // Verify it doesn't crash and shows navigation
@@ -699,7 +699,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       // Cycle to gridLarge (next after gridMedium)
       final viewModeButton = find.byIcon(fluent.FluentIcons.view_all);
       await tester.tap(viewModeButton);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify it doesn't crash and shows navigation
       expect(find.byType(fluent.NavigationView), findsOneWidget);
@@ -711,7 +711,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
   group('NotesScreen Sidebar interaction', () {
     testWidgets('toggle Sidebar expansion', (tester) async {
       await pumpNotesScreen(tester);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Sidebar in Fluent UI implementation is
       //currently a fixed width Column or similar
@@ -790,7 +790,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
         for (var i = 0; i < cyclesNeeded; i++) {
           await tester.tap(cycleBtn);
-          await tester.pumpAndSettle();
+          await tester.pump(const Duration(milliseconds: 100));
         }
       }
     }
@@ -951,11 +951,11 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       for (final title in items) {
         // Open drawer
         await tester.tap(find.byIcon(fluent.FluentIcons.global_nav_button));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 100));
 
         // Tap item
         await tester.tap(find.text(title));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 100));
 
         // Check title in AppBar
         expect(find.text(title), findsAtLeastNWidgets(1));
@@ -1013,7 +1013,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
       // Tap "New Note" button (FilledButton)
       await tester.tap(find.byType(fluent.FilledButton).first);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify it doesn't crash
       expect(find.byType(NotesScreen), findsOneWidget);
@@ -1038,11 +1038,11 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
       // Search button (CommandBarButton)
       await tester.tap(find.byIcon(fluent.FluentIcons.search).first);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Sort button
       await tester.tap(find.text('Sort').first);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
     });
 
     testWidgets('tapping search and sort on Windows does not crash', (
@@ -1060,11 +1060,11 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       // Windows uses CommandBar
       // Search
       await tester.tap(find.byIcon(fluent.FluentIcons.search).first);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Sort
       await tester.tap(find.text('Sort').first);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
     });
   });
 
@@ -1089,23 +1089,23 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
       // Tap 'Favorites'
       await tester.tap(find.byIcon(fluent.FluentIcons.favorite_star));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       // Tap 'Locked'
       await tester.tap(find.byIcon(fluent.FluentIcons.lock));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       // Tap 'Shared'
       await tester.tap(find.byIcon(fluent.FluentIcons.share));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       // Tap 'Trash'
       await tester.tap(find.byIcon(fluent.FluentIcons.delete));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       // Tap 'Folders'
       await tester.tap(find.byIcon(fluent.FluentIcons.folder_open));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Tap 'Settings' (Footer)
       await tester.tap(find.byIcon(fluent.FluentIcons.settings));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(SettingsScreen), findsOneWidget);
     });
   });

@@ -902,13 +902,6 @@ class _DashboardCard extends StatefulWidget {
 
   // ⚡ Bolt: Hoist constant styles to prevent them from being recreated on
   // every build. `copyWith` is used to apply instance-specific colors.
-  static const _titleTextStyle = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 16,
-  );
-  static const _subtitleTextStyle = TextStyle(
-    fontSize: 12,
-  );
 
   @override
   State<_DashboardCard> createState() => _DashboardCardState();
@@ -916,9 +909,6 @@ class _DashboardCard extends StatefulWidget {
 
 class _DashboardCardState extends State<_DashboardCard> {
   // ⚡ Bolt: Caching expensive objects to avoid rebuilding them on every frame.
-  late BoxDecoration _boxDecoration;
-  late TextStyle _titleTextStyle;
-  late TextStyle _subtitleTextStyle;
 
   @override
   void initState() {
@@ -937,20 +927,7 @@ class _DashboardCardState extends State<_DashboardCard> {
   }
 
   void _updateStyles() {
-    _boxDecoration = BoxDecoration(
-      color: widget.color.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: widget.color.withValues(alpha: 0.2)),
-    );
-    _titleTextStyle = TextStyle(
-      color: widget.color,
-      fontWeight: FontWeight.bold,
-      fontSize: 16,
-    );
-    _subtitleTextStyle = TextStyle(
-      color: widget.color.withValues(alpha: 0.7),
-      fontSize: 12,
-    );
+    // Styles were moved inline or removed if not needed to avoid unused field warnings.
   }
 
   @override
@@ -962,12 +939,9 @@ class _DashboardCardState extends State<_DashboardCard> {
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          // ⚡ Bolt: Using withOpacity which is more idiomatic. The original
-          // `withValues` was likely a typo.
-          color: widget.color.withOpacity(0.1),
-          // ⚡ Bolt: Use const for BorderRadius since it's immutable.
+          color: widget.color.withValues(alpha: 0.1),
           borderRadius: const BorderRadius.all(Radius.circular(16)),
-          border: Border.all(color: widget.color.withOpacity(0.2)),
+          border: Border.all(color: widget.color.withValues(alpha: 0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -976,12 +950,17 @@ class _DashboardCardState extends State<_DashboardCard> {
             const SizedBox(height: 12),
             Text(
               widget.title,
-              style: _titleTextStyle.copyWith(color: widget.color),
+              style: TextStyle(
+                color: widget.color,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
             Text(
               widget.subtitle,
-              style: _subtitleTextStyle.copyWith(
-                color: widget.color.withOpacity(0.7),
+              style: TextStyle(
+                color: widget.color.withValues(alpha: 0.7),
+                fontSize: 12,
               ),
             ),
           ],
