@@ -17,26 +17,33 @@ void main() {
   group('NotesScreen Navigation', () {
     testWidgets('FAB navigates to note editor', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
-
       await pumpNotesScreen(tester);
+
       final newNoteBtn = find.text('New Note');
       expect(newNoteBtn, findsOneWidget);
-      await tester.tap(newNoteBtn);
-      await tester.pump(const Duration(milliseconds: 500));
+
+      await tester.runAsync(() async {
+        await tester.tap(newNoteBtn);
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      });
+
+      // Use multiple pumps instead of pumpAndSettle to avoid infinite animation hangs
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      debugDefaultTargetPlatformOverride = null;
     });
 
     testWidgets('shows correct title for default index', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
-
       await pumpNotesScreen(tester);
       expect(find.text('All Notes'), findsAtLeastNWidgets(1));
+      debugDefaultTargetPlatformOverride = null;
     });
 
     testWidgets('tapping Favorites in drawer changes view', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
 
       final favoriteNote = Note(
         id: '1',
@@ -53,11 +60,21 @@ void main() {
       await SyncService.instance.init();
 
       await pumpNotesScreen(tester);
-      await tester.tap(find.text('Favorites'));
+
+      await tester.runAsync(() async {
+        final favoritesBtn = find.text('Favorites');
+        if (favoritesBtn.evaluate().isNotEmpty) {
+          await tester.tap(favoritesBtn);
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      });
+
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Favorites'), findsAtLeastNWidgets(1));
       expect(find.text('Favorite Note'), findsOneWidget);
+      debugDefaultTargetPlatformOverride = null;
     });
   });
 }

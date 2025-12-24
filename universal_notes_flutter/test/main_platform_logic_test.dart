@@ -19,12 +19,14 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
       await pumpNotesScreen(tester);
       expect(find.byType(fluent.NavigationView), findsOneWidget);
+      debugDefaultTargetPlatformOverride = null;
     });
 
     testWidgets('renders correctly on Android platform', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
       await pumpNotesScreen(tester);
       expect(find.byType(Scaffold), findsOneWidget);
+      debugDefaultTargetPlatformOverride = null;
     });
   });
 }

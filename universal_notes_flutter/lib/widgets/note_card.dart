@@ -130,67 +130,80 @@ class _NoteCardState extends State<NoteCard> {
             label: widget.note.title.isNotEmpty
                 ? 'Nota: ${widget.note.title}'
                 : 'Nota Sem Título',
-          hint:
-              'Modificado em '
-              '${NoteCard._dateFormat.format(widget.note.lastModified)}',
-          button: true,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (hasImage)
-                Image.network(
-                  widget.note.imageUrl!,
-                  fit: BoxFit.cover,
+            hint:
+                'Modificado em '
+                '${NoteCard._dateFormat.format(widget.note.lastModified)}',
+            button: true,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (hasImage)
+                  Image.network(
+                    widget.note.imageUrl!,
+                    fit: BoxFit.cover,
+                  ),
+                // Gradient overlay for text readability
+                Container(
+                  decoration: _gradientDecoration,
                 ),
-              // Gradient overlay for text readability
-              Container(
-                decoration: _gradientDecoration,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    // Favorite indicator
-                    if (widget.note.isFavorite)
-                      const Align(
-                        alignment: Alignment.topRight,
-                        child: Icon(Icons.star, color: Colors.amber, size: 20),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // Favorite indicator
+                      if (widget.note.isFavorite)
+                        const Align(
+                          alignment: Alignment.topRight,
+                          child: Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                            size: 20,
+                          ),
+                        ),
+                      Text(
+                        widget.note.title,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14, // Slightly smaller
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    Text(
-                      widget.note.title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(height: 2),
+                      if (_plainTextContent.isNotEmpty)
+                        Flexible(
+                          child: Text(
+                            _plainTextContent,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Colors.white70,
+                                  fontSize: 11,
+                                ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      const SizedBox(height: 2),
+                      Text(
+                        NoteCard._dateFormat.format(widget.note.lastModified),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white70,
+                          fontSize: 10,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _plainTextContent,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      NoteCard._dateFormat.format(widget.note.lastModified),
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
 
     // If no swipe callbacks, return plain card
     if (widget.onFavorite == null && widget.onTrash == null) {

@@ -10,7 +10,7 @@ class MediaService {
   MediaService._();
 
   /// The singleton instance of [MediaService].
-  static final MediaService instance = MediaService._();
+  static MediaService instance = MediaService._();
 
   /// Compresses an image file locally.
   /// Returns a new File pointing to the compressed image.

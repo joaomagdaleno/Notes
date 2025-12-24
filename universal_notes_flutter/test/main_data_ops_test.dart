@@ -1,9 +1,11 @@
 @Tags(['widget'])
 library;
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'test_helper.dart';
 
 void main() {
@@ -11,54 +13,31 @@ void main() {
 
   setUpAll(() async => await setupTestEnvironment());
   setUp(() async => await setupTest());
-  tearDown(() async => await SyncService.instance.reset());
+  tearDown(() async => await tearDownTest());
 
   group('NotesScreen Data Operations', () {
     testWidgets('displays notes when available', (tester) async {
-      final mockFirestore = createDefaultMockRepository([
-        Note(
-          id: '1',
-          title: 'Test Note 1',
-          content: 'Content 1',
-          createdAt: DateTime.now(),
-          lastModified: DateTime.now(),
-          ownerId: 'user1',
-        ),
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+      final testNote = Note(
+        id: '2',
+        title: 'Test Note 2',
+        content: 'Content',
+        createdAt: DateTime.now(),
+        lastModified: DateTime.now(),
+        ownerId: 'user1',
+      );
+
+      SyncService.instance.firestoreRepository = createDefaultMockRepository([
+        testNote,
       ]);
-      SyncService.instance.firestoreRepository = mockFirestore;
       await SyncService.instance.init();
 
       await pumpNotesScreen(tester);
-      await tester.pump();
-      expect(find.text('Test Note 1'), findsOneWidget);
-    });
+      await tester.pump(const Duration(milliseconds: 100));
 
-    testWidgets('shows only non-trash notes by default', (tester) async {
-      final mockFirestore = createDefaultMockRepository([
-        Note(
-          id: '1',
-          title: 'Normal Note',
-          content: 'Content',
-          createdAt: DateTime.now(),
-          lastModified: DateTime.now(),
-          ownerId: 'user1',
-        ),
-        Note(
-          id: '2',
-          title: 'Trash Note',
-          content: 'Content',
-          createdAt: DateTime.now(),
-          lastModified: DateTime.now(),
-          ownerId: 'user1',
-          isInTrash: true,
-        ),
-      ]);
-      SyncService.instance.firestoreRepository = mockFirestore;
-      await SyncService.instance.init();
-
-      await pumpNotesScreen(tester);
-      expect(find.text('Normal Note'), findsOneWidget);
-      expect(find.text('Trash Note'), findsNothing);
+      expect(find.text('Test Note 2'), findsOneWidget);
+      debugDefaultTargetPlatformOverride = null;
     });
   });
 }

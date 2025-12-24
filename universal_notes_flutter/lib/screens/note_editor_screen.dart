@@ -156,7 +156,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   @override
   void initState() {
     super.initState();
-    _firestoreRepository = FirestoreRepository.instance;
+    _firestoreRepository =
+        widget.firestoreRepository ?? FirestoreRepository.instance;
     _note = widget.note;
     _currentTags = _note?.tags.toList() ?? [];
     WidgetsBinding.instance.addObserver(this);

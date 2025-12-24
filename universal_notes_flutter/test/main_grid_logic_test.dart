@@ -19,16 +19,13 @@ void main() {
       tester,
     ) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
 
       tester.view.physicalSize = const Size(800, 600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
       await pumpNotesScreen(tester);
-      await tester.pump(
-        const Duration(milliseconds: 100),
-      ); // Ensure StreamBuilder has data
+      await tester.pump(const Duration(milliseconds: 200));
 
       final grid = tester.widget<GridView>(find.byType(GridView));
       expect(
@@ -38,14 +35,15 @@ void main() {
       final delegate =
           grid.gridDelegate as SliverGridDelegateWithMaxCrossAxisExtent;
       expect(delegate.maxCrossAxisExtent, 200.0);
+
+      debugDefaultTargetPlatformOverride = null;
     });
 
     testWidgets('cycles through view modes', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
 
       await pumpNotesScreen(tester);
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 200));
 
       final viewModeButton = find.byIcon(fluent.FluentIcons.view_all);
       if (viewModeButton.evaluate().isNotEmpty) {
@@ -53,6 +51,8 @@ void main() {
         await tester.pump();
         expect(find.byType(fluent.NavigationView), findsOneWidget);
       }
+
+      debugDefaultTargetPlatformOverride = null;
     });
   });
 }

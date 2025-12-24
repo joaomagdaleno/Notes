@@ -181,3 +181,9 @@ unexpected.
   dart:isolate  _RawReceivePort._handleMessage
   
 10:19 +1 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations shows only non-trash notes by default
+20:19 +1 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations shows only non-trash notes by default [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+20:19 +1 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: (tearDownAll)
+20:19 +1 -8: Some tests failed.

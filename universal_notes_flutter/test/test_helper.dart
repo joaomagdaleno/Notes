@@ -18,13 +18,24 @@ import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:window_manager/window_manager.dart';
 
-class MockUpdateService extends Mock implements UpdateService {}
+import 'package:universal_notes_flutter/services/storage_service.dart';
+import 'package:universal_notes_flutter/services/media_service.dart';
+
+class MockSyncService extends Mock implements SyncService {}
+
+class MockNoteRepository extends Mock implements NoteRepository {}
 
 class MockFirestoreRepository extends Mock implements FirestoreRepository {}
 
+class MockFirebaseService extends Mock implements FirebaseService {}
+
+class MockUpdateService extends Mock implements UpdateService {}
+
 class MockWindowManager extends Mock implements WindowManager {}
 
-class MockFirebaseService extends Mock implements FirebaseService {}
+class MockStorageService extends Mock implements StorageService {}
+
+class MockMediaService extends Mock implements MediaService {}
 
 MockFirestoreRepository createDefaultMockRepository([List<Note>? notes]) {
   final mockRepo = MockFirestoreRepository();
@@ -142,15 +153,17 @@ Future<void> setupTest() async {
       'id': 'default-1',
       'title': 'Default Note',
       'content': 'Default Content',
-      'createdAt': DateTime.now().millisecondsSinceEpoch,
-      'lastModified': DateTime.now().millisecondsSinceEpoch,
+      'date': DateTime.now().millisecondsSinceEpoch,
       'isFavorite': 0,
       'isInTrash': 0,
-      'ownerId': 'user1',
     });
   });
 
+  StorageService.instance = MockStorageService();
+  MediaService.instance = MockMediaService();
+
   final mockFirestore = createDefaultMockRepository();
+  FirestoreRepository.instance = mockFirestore;
   SyncService.instance.firestoreRepository = mockFirestore;
   NoteRepository.instance.firebaseService = MockFirebaseService();
 
