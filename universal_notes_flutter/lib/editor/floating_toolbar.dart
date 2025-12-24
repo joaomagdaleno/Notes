@@ -11,6 +11,8 @@ class FloatingToolbar extends StatelessWidget {
     this.onStrikethrough,
     this.onColor,
     this.onLink,
+    this.onHighlight,
+    this.onAddNote,
   });
 
   /// Callback when the bold button is pressed.
@@ -30,6 +32,12 @@ class FloatingToolbar extends StatelessWidget {
 
   /// Callback when the link button is pressed.
   final VoidCallback? onLink;
+
+  /// Callback when the highlight button is pressed.
+  final VoidCallback? onHighlight;
+
+  /// Callback when the note button is pressed.
+  final VoidCallback? onAddNote;
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +61,8 @@ class FloatingToolbar extends StatelessWidget {
             const VerticalDivider(width: 8, indent: 4, endIndent: 4),
             _buildButton(Icons.format_color_text, onColor, 'Text Color'),
             _buildButton(Icons.link, onLink, 'Insert Link'),
+            _buildButton(Icons.border_color, onHighlight, 'Highlight'),
+            _buildButton(Icons.sticky_note_2, onAddNote, 'Add Note'),
           ],
         ),
       ),

@@ -263,6 +263,10 @@ void main() {
     await db.delete('note_versions');
     await db.delete('note_events');
     await db.delete('user_dictionary');
+    await db.delete('reading_plans');
+    await db.delete('reading_stats');
+    await db.delete('reading_annotations');
+    await db.delete('reading_bookmarks');
 
     // Fresh mocks for each test
     SyncService.instance.firestoreRepository = createDefaultMockRepository();

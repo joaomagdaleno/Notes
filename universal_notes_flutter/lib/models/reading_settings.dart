@@ -12,6 +12,7 @@ class ReadingSettings {
     this.textAlign = TextAlign.left,
     this.theme = ReadingTheme.light,
     this.fontFamily = 'Default',
+    this.paragraphSpacing = 16.0,
     this.nightLightEnabled = false,
     this.nightLightIntensity = 0.3,
   });
@@ -31,6 +32,7 @@ class ReadingSettings {
         orElse: () => ReadingTheme.light,
       ),
       fontFamily: json['fontFamily'] as String? ?? 'Default',
+      paragraphSpacing: (json['paragraphSpacing'] as num?)?.toDouble() ?? 16.0,
       nightLightEnabled: json['nightLightEnabled'] as bool? ?? false,
       nightLightIntensity:
           (json['nightLightIntensity'] as num?)?.toDouble() ?? 0.3,
@@ -58,6 +60,9 @@ class ReadingSettings {
   /// Font family name.
   final String fontFamily;
 
+  /// Paragraph spacing in logical pixels.
+  final double paragraphSpacing;
+
   /// Whether night light filter is enabled.
   final bool nightLightEnabled;
 
@@ -73,6 +78,7 @@ class ReadingSettings {
       'textAlign': textAlign.name,
       'theme': theme.name,
       'fontFamily': fontFamily,
+      'paragraphSpacing': paragraphSpacing,
       'nightLightEnabled': nightLightEnabled,
       'nightLightIntensity': nightLightIntensity,
     };
@@ -86,6 +92,7 @@ class ReadingSettings {
     TextAlign? textAlign,
     ReadingTheme? theme,
     String? fontFamily,
+    double? paragraphSpacing,
     bool? nightLightEnabled,
     double? nightLightIntensity,
   }) {
@@ -96,6 +103,7 @@ class ReadingSettings {
       textAlign: textAlign ?? this.textAlign,
       theme: theme ?? this.theme,
       fontFamily: fontFamily ?? this.fontFamily,
+      paragraphSpacing: paragraphSpacing ?? this.paragraphSpacing,
       nightLightEnabled: nightLightEnabled ?? this.nightLightEnabled,
       nightLightIntensity: nightLightIntensity ?? this.nightLightIntensity,
     );
@@ -122,6 +130,7 @@ class ReadingSettings {
         other.textAlign == textAlign &&
         other.theme == theme &&
         other.fontFamily == fontFamily &&
+        other.paragraphSpacing == paragraphSpacing &&
         other.nightLightEnabled == nightLightEnabled &&
         other.nightLightIntensity == nightLightIntensity;
   }
@@ -135,6 +144,7 @@ class ReadingSettings {
       textAlign,
       theme,
       fontFamily,
+      paragraphSpacing,
       nightLightEnabled,
       nightLightIntensity,
     );

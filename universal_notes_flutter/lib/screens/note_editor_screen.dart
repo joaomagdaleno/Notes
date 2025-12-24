@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,6 +14,7 @@ import 'package:universal_notes_flutter/editor/floating_toolbar.dart';
 import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/models/reading_plan_model.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
@@ -27,6 +30,21 @@ import 'package:universal_notes_flutter/widgets/command_palette.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_notes_flutter/models/reading_settings.dart';
+import 'package:universal_notes_flutter/models/reading_bookmark.dart';
+import 'package:universal_notes_flutter/models/reading_annotation.dart';
+import 'package:universal_notes_flutter/models/reading_stats.dart';
+import 'package:universal_notes_flutter/services/read_aloud_service.dart';
+import 'package:universal_notes_flutter/services/reading_bookmarks_service.dart';
+import 'package:universal_notes_flutter/services/reading_interaction_service.dart';
+import 'package:universal_notes_flutter/services/reading_plan_service.dart';
+import 'package:universal_notes_flutter/services/reading_stats_service.dart';
+import 'package:universal_notes_flutter/widgets/read_aloud_controls.dart';
+import 'package:universal_notes_flutter/widgets/reading_bookmarks_list.dart';
+import 'package:universal_notes_flutter/widgets/reading_mode_settings.dart';
+import 'package:universal_notes_flutter/widgets/reading_outline_navigator.dart';
+import 'package:collection/collection.dart';
 
 /// A screen for editing a note.
 class NoteEditorScreen extends StatefulWidget {
@@ -104,6 +122,24 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   List<String> _currentTags = [];
   final _tagController = TextEditingController();
 
+  // --- Reading Mode State ---
+  ReadingSettings _readingSettings = const ReadingSettings();
+  final ReadAloudService _readAloudService = ReadAloudService();
+  final ReadingBookmarksService _bookmarksService =
+      NoteRepository.instance.bookmarksService;
+  final ReadingInteractionService _readingInteractionService =
+      NoteRepository.instance.readingInteractionService;
+  final ReadingStatsService _statsService =
+      NoteRepository.instance.readingStatsService;
+  final ReadingPlanService _planService =
+      NoteRepository.instance.readingPlanService;
+  ReadingStats? _readingStats;
+  ReadingPlan? _currentPlan;
+  List<ReadingAnnotation> _annotations = [];
+  (int, int)? _readAloudHighlightRange;
+  bool _isReadAloudControlsVisible = false;
+  late SharedPreferences _prefs;
+
   //   static const List<Color> _predefinedColors = [
   //     Colors.black,
   //     Colors.red,
@@ -140,6 +176,49 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     }
 
     unawaited(SnippetConverter.precacheSnippets());
+    unawaited(_loadReadingSettings());
+    unawaited(_loadReadingData());
+
+    // Listen to read aloud position for highlighting
+    _readAloudService.positionStream.listen((pos) {
+      if (mounted) {
+        setState(() {
+          _readAloudHighlightRange = (pos.startOffset, pos.endOffset);
+        });
+      }
+    });
+
+    _statsService.addListener(_onReadingStatsChanged);
+  }
+
+  void _onReadingStatsChanged() {
+    if (_note == null) return;
+    _statsService.getStatsForNote(_note!.id).then((stats) {
+      if (mounted) {
+        setState(() {
+          _readingStats = stats;
+        });
+      }
+    });
+  }
+
+  Future<void> _loadReadingSettings() async {
+    _prefs = await SharedPreferences.getInstance();
+    final settingsJson = _prefs.getString('reading_settings');
+    if (settingsJson != null && mounted) {
+      setState(() {
+        _readingSettings = ReadingSettings.fromJson(
+          jsonDecode(settingsJson) as Map<String, dynamic>,
+        );
+      });
+    }
+  }
+
+  Future<void> _saveReadingSettings(ReadingSettings settings) async {
+    setState(() {
+      _readingSettings = settings;
+    });
+    await _prefs.setString('reading_settings', jsonEncode(settings.toJson()));
   }
 
   Future<void> _fetchContent() async {
@@ -180,6 +259,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   @override
   void dispose() {
+    _statsService.removeListener(_onReadingStatsChanged);
+    _statsService.stopSession();
     WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     _tagController.dispose();
@@ -197,6 +278,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     }
     unawaited(_cursorSubscription?.cancel());
     unawaited(_remoteEventsSubscription?.cancel());
+    _readAloudService.dispose();
     if (_isCollaborative && _note != null) {
       unawaited(_firestoreRepository.removeCursor(_note!.id));
     }
@@ -914,6 +996,400 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     }
   }
 
+  void _showReadingSettings() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) {
+        return ReadingModeSettings(
+          settings: _readingSettings,
+          onSettingsChanged: _saveReadingSettings,
+          currentGoalMinutes: _readingStats?.readingGoalMinutes ?? 0,
+          onGoalChanged: (minutes) {
+            unawaited(_statsService.setReadingGoal(_note!.id, minutes));
+          },
+          onReadAloudToggle: () {
+            setState(() {
+              _isReadAloudControlsVisible = !_isReadAloudControlsVisible;
+            });
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+
+  void _showOutline() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) {
+        // Extract headings for outline
+        final headings = _extractHeadings();
+        return ReadingOutlineNavigator(
+          headings: headings,
+          onHeadingTap: (heading) {
+            // Scroll to heading position
+            _scrollController.animateTo(
+              heading.position * 1.0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+            Navigator.pop(context);
+          },
+          progressPercent: _scrollController.hasClients
+              ? _scrollController.offset /
+                    _scrollController.position.maxScrollExtent
+              : 0.0,
+        );
+      },
+    );
+  }
+
+  List<OutlineHeading> _extractHeadings() {
+    final headings = <OutlineHeading>[];
+    var currentOffset = 0;
+    for (var i = 0; i < _document.blocks.length; i++) {
+      final block = _document.blocks[i];
+      if (block is TextBlock && block.attributes.containsKey('header')) {
+        final level = block.attributes['header'] as int? ?? 1;
+        headings.add(
+          OutlineHeading(
+            text: block.toPlainText(),
+            level: level,
+            position: currentOffset,
+          ),
+        );
+      }
+      if (block is TextBlock) {
+        currentOffset += block.toPlainText().length + 1;
+      } else {
+        currentOffset += 2;
+      }
+    }
+    return headings;
+  }
+
+  void _showBookmarks() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) {
+        return FutureBuilder<List<ReadingBookmark>>(
+          future: _bookmarksService.getBookmarksForNote(_note?.id ?? ''),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return ReadingBookmarksList(
+              bookmarks: snapshot.data!,
+              onBookmarkTap: (bookmark) {
+                _scrollController.animateTo(
+                  bookmark.position * 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+                Navigator.pop(context);
+              },
+              onBookmarkDelete: (bookmark) async {
+                await _bookmarksService.deleteBookmark(bookmark.id);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  _showBookmarks(); // Refresh
+                }
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _addBookmark() async {
+    if (_note == null) return;
+    final position = _scrollController.offset.toInt();
+
+    // Get excerpt from current scroll position
+    String? excerpt;
+    final headings = _extractHeadings();
+    if (headings.isNotEmpty) {
+      // Find closest heading
+      final closest = headings.reduce(
+        (a, b) => (a.position - position).abs() < (b.position - position).abs()
+            ? a
+            : b,
+      );
+      excerpt = closest.text;
+    }
+
+    await _bookmarksService.addBookmark(
+      noteId: _note!.id,
+      position: position,
+      excerpt: excerpt,
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Marcador adicionado!')),
+      );
+    }
+  }
+
+  void _showReadingPlans() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) {
+        return FutureBuilder<List<ReadingPlan>>(
+          future: _planService.getAllPlans(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final plans = snapshot.data!;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppBar(
+                  title: const Text('Reading Plans'),
+                  automaticallyImplyLeading: false,
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () => _createNewReadingPlan(context),
+                    ),
+                  ],
+                ),
+                if (plans.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text('No reading plans yet.'),
+                  ),
+                ...plans.map((plan) {
+                  final isAlreadyInPlan = plan.noteIds.contains(
+                    _note?.id ?? '',
+                  );
+                  return ListTile(
+                    title: Text(plan.title),
+                    subtitle: Text('${plan.noteIds.length} notes'),
+                    trailing: isAlreadyInPlan
+                        ? const Icon(Icons.check_circle, color: Colors.green)
+                        : const Icon(Icons.add_circle_outline),
+                    onTap: () async {
+                      if (!isAlreadyInPlan && _note != null) {
+                        final updatedPlan = plan.copyWith(
+                          noteIds: [...plan.noteIds, _note!.id],
+                        );
+                        await _planService.updatePlan(updatedPlan);
+                        if (context.mounted) Navigator.pop(context);
+                      }
+                    },
+                  );
+                }),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _createNewReadingPlan(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('New Reading Plan'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Plan Title'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (controller.text.isNotEmpty && _note != null) {
+                await _planService.createPlan(
+                  title: controller.text,
+                  noteIds: [_note!.id],
+                );
+                if (context.mounted) {
+                  Navigator.pop(context); // Dialog
+                  Navigator.pop(context); // Bottom Sheet
+                  _showReadingPlans(); // Re-open to refresh
+                }
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _addHighlight() async {
+    if (_note == null || _selection.isCollapsed) return;
+
+    final annotation = ReadingAnnotation(
+      id: const Uuid().v4(),
+      noteId: _note!.id,
+      startOffset: _selection.start,
+      endOffset: _selection.end,
+      color: Colors.yellow.toARGB32(), // Yellow highlighter
+      createdAt: DateTime.now(),
+      textExcerpt: _document.toPlainText().substring(
+        _selection.start,
+        math.min(_selection.end, _document.toPlainText().length),
+      ),
+    );
+
+    await _readingInteractionService.addAnnotation(annotation);
+    await _loadReadingData();
+  }
+
+  Future<void> _addAnnotationNote() async {
+    if (_note == null || _selection.isCollapsed) return;
+
+    final commentController = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Note'),
+        content: TextField(
+          controller: commentController,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Enter your note...'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, commentController.text),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty) {
+      final annotation = ReadingAnnotation(
+        id: const Uuid().v4(),
+        noteId: _note!.id,
+        startOffset: _selection.start,
+        endOffset: _selection.end,
+        color: Colors.blue.toARGB32(), // Blue for notes
+        comment: result,
+        createdAt: DateTime.now(),
+        textExcerpt: _document.toPlainText().substring(
+          _selection.start,
+          math.min(_selection.end, _document.toPlainText().length),
+        ),
+      );
+
+      await _readingInteractionService.addAnnotation(annotation);
+      await _loadReadingData();
+    }
+  }
+
+  Future<void> _loadReadingData() async {
+    if (_note == null) return;
+    final stats = await _statsService.getStatsForNote(_note!.id);
+    final annotations = await _readingInteractionService.getAnnotationsForNote(
+      _note!.id,
+    );
+    final plans = await _planService.getAllPlans();
+    final currentPlan = plans.firstWhereOrNull(
+      (p) => p.noteIds.contains(_note!.id),
+    );
+
+    if (mounted) {
+      setState(() {
+        _readingStats = stats;
+        _annotations = annotations;
+        _currentPlan = currentPlan;
+      });
+    }
+    _statsService.startSession(_note!.id);
+  }
+
+  void _onNextPlanNote() {
+    if (_currentPlan == null || _note == null) return;
+    final index = _currentPlan!.noteIds.indexOf(_note!.id);
+    if (index != -1 && index < _currentPlan!.noteIds.length - 1) {
+      final nextNoteId = _currentPlan!.noteIds[index + 1];
+      _navigateToNote(nextNoteId);
+    }
+  }
+
+  void _onPrevPlanNote() {
+    if (_currentPlan == null || _note == null) return;
+    final index = _currentPlan!.noteIds.indexOf(_note!.id);
+    if (index > 0) {
+      final prevNoteId = _currentPlan!.noteIds[index - 1];
+      _navigateToNote(prevNoteId);
+    }
+  }
+
+  void _navigateToNote(String id) {
+    NoteRepository.instance.getNoteWithContent(id).then((Note? note) {
+      if (note != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute<void>(
+            builder: (context) => NoteEditorScreen(
+              onSave: widget.onSave,
+              note: note,
+            ),
+          ),
+        );
+      }
+    });
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Future<void> _navigateSmart(bool forward) async {
+    if (_note == null || !_scrollController.hasClients) return;
+
+    final currentPos = _scrollController.offset;
+    final headings = _extractHeadings();
+    final bookmarks = await _bookmarksService.getBookmarksForNote(_note!.id);
+
+    final targets = [
+      ...headings.map((h) => h.position.toDouble()),
+      ...bookmarks.map((b) => b.position.toDouble()),
+    ]..sort();
+
+    if (targets.isEmpty) return;
+
+    double? target;
+    if (forward) {
+      target = targets.firstWhere(
+        (t) => t > currentPos + 20,
+        orElse: () => targets.first,
+      );
+    } else {
+      target = targets.lastWhere(
+        (t) => t < currentPos - 20,
+        orElse: () => targets.last,
+      );
+    }
+
+    await _scrollController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Add the remote cursors to the editor widget
@@ -952,6 +1428,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       isDrawingMode: _isDrawingMode,
       softWrap: _softWrap,
       initialPersona: widget.initialPersona ?? EditorPersona.architect,
+      readingSettings: _readingSettings,
+      onOpenReadingSettings: _showReadingSettings,
+      onOpenOutline: _showOutline,
+      onOpenBookmarks: _showBookmarks,
+      onAddBookmark: _addBookmark,
+      onScrollToTop: _scrollToTop,
+      readAloudHighlightRange: _readAloudHighlightRange,
+      annotations: _annotations,
+      readingStats: _readingStats,
+      onSetReadingGoal: (minutes) =>
+          _statsService.setReadingGoal(_note!.id, minutes),
+      onNextSmart: () => _navigateSmart(true),
+      onPrevSmart: () => _navigateSmart(false),
+      onNextPlanNote: _onNextPlanNote,
+      onPrevPlanNote: _onPrevPlanNote,
     );
 
     // Define the keyboard shortcuts
@@ -1201,6 +1692,23 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                               _toggleStyle(StyleAttribute.strikethrough),
                           onColor: _showColorPicker,
                           onLink: _showLinkDialog,
+                          onHighlight: _addHighlight,
+                          onAddNote: _addAnnotationNote,
+                        ),
+                      ),
+                    if (_isReadAloudControlsVisible)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: ReadAloudControls(
+                          service: _readAloudService,
+                          text: _document.toPlainText(),
+                          onClose: () {
+                            setState(() {
+                              _isReadAloudControlsVisible = false;
+                            });
+                          },
                         ),
                       ),
                   ],

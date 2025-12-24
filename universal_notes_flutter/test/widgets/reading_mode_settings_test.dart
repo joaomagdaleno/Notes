@@ -72,7 +72,9 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Reset'));
+      final resetBtn = find.text('Reset');
+      await tester.ensureVisible(resetBtn);
+      await tester.tap(resetBtn);
       expect(resetCalled, true);
     });
 
@@ -111,6 +113,7 @@ void main() {
       final sliders = find.byType(Slider);
       expect(sliders, findsWidgets);
 
+      await tester.ensureVisible(sliders.first);
       await tester.drag(sliders.first, const Offset(50, 0));
       await tester.pump();
 
@@ -161,7 +164,9 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byType(Switch));
+      final switchFinder = find.byType(Switch);
+      await tester.ensureVisible(switchFinder);
+      await tester.tap(switchFinder);
       await tester.pump();
 
       expect(changedSettings?.nightLightEnabled, true);
@@ -192,17 +197,17 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: ReadingModeSettings(
-                settings: const ReadingSettings(theme: ReadingTheme.light),
-                onSettingsChanged: (s) => changedSettings = s,
-              ),
+            body: ReadingModeSettings(
+              settings: const ReadingSettings(theme: ReadingTheme.light),
+              onSettingsChanged: (s) => changedSettings = s,
             ),
           ),
         ),
       );
 
-      await tester.tap(find.text('Sepia'));
+      final sepiaFinder = find.text('Sepia');
+      await tester.ensureVisible(sepiaFinder);
+      await tester.tap(sepiaFinder);
       await tester.pump();
 
       expect(changedSettings?.theme, ReadingTheme.sepia);

@@ -11,6 +11,9 @@ class ReadingModeSettings extends StatelessWidget {
     required this.settings,
     required this.onSettingsChanged,
     this.onReset,
+    this.onReadAloudToggle,
+    this.currentGoalMinutes = 0,
+    this.onGoalChanged,
     super.key,
   });
 
@@ -23,6 +26,15 @@ class ReadingModeSettings extends StatelessWidget {
   /// Callback when reset is pressed.
   final VoidCallback? onReset;
 
+  /// Callback when Read Aloud is toggled.
+  final VoidCallback? onReadAloudToggle;
+
+  /// Current reading goal in minutes.
+  final int currentGoalMinutes;
+
+  /// Callback when the reading goal is changed.
+  final ValueChanged<int>? onGoalChanged;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -33,128 +45,200 @@ class ReadingModeSettings extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Reading Settings',
-                style: theme.textTheme.titleLarge,
-              ),
-              if (onReset != null)
-                TextButton.icon(
-                  onPressed: onReset,
-                  icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text('Reset'),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Reading Settings',
+                  style: theme.textTheme.titleLarge,
                 ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // Font Size
-          _SettingRow(
-            label: 'Font Size',
-            value: '${settings.fontSize.toInt()}',
-            child: Slider(
-              value: settings.fontSize,
-              min: 14,
-              max: 28,
-              divisions: 14,
-              onChanged: (value) {
-                onSettingsChanged(settings.copyWith(fontSize: value));
-              },
+                if (onReset != null)
+                  TextButton.icon(
+                    onPressed: onReset,
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('Reset'),
+                  ),
+              ],
             ),
-          ),
+            const SizedBox(height: 24),
 
-          // Line Height
-          _SettingRow(
-            label: 'Line Height',
-            value: settings.lineHeight.toStringAsFixed(1),
-            child: Slider(
-              value: settings.lineHeight,
-              min: 1.2,
-              max: 2.5,
-              divisions: 13,
-              onChanged: (value) {
-                onSettingsChanged(settings.copyWith(lineHeight: value));
-              },
-            ),
-          ),
-
-          // Letter Spacing
-          _SettingRow(
-            label: 'Letter Spacing',
-            value: settings.letterSpacing.toStringAsFixed(1),
-            child: Slider(
-              value: settings.letterSpacing,
-              min: -1,
-              max: 3,
-              divisions: 8,
-              onChanged: (value) {
-                onSettingsChanged(settings.copyWith(letterSpacing: value));
-              },
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Text Alignment
-          Text('Text Alignment', style: theme.textTheme.titleSmall),
-          const SizedBox(height: 8),
-          _AlignmentSelector(
-            selected: settings.textAlign,
-            onChanged: (align) {
-              onSettingsChanged(settings.copyWith(textAlign: align));
-            },
-          ),
-
-          const SizedBox(height: 20),
-
-          // Theme Selection
-          Text('Theme', style: theme.textTheme.titleSmall),
-          const SizedBox(height: 8),
-          _ThemeSelector(
-            selected: settings.theme,
-            onChanged: (newTheme) {
-              onSettingsChanged(settings.copyWith(theme: newTheme));
-            },
-          ),
-
-          const SizedBox(height: 20),
-
-          // Night Light
-          SwitchListTile(
-            title: const Text('Night Light'),
-            subtitle: const Text('Reduce blue light'),
-            value: settings.nightLightEnabled,
-            onChanged: (value) {
-              onSettingsChanged(settings.copyWith(nightLightEnabled: value));
-            },
-          ),
-
-          if (settings.nightLightEnabled)
+            // Font Size
             _SettingRow(
-              label: 'Intensity',
-              value: '${(settings.nightLightIntensity * 100).toInt()}%',
+              label: 'Font Size',
+              value: '${settings.fontSize.toInt()}',
               child: Slider(
-                value: settings.nightLightIntensity,
-                min: 0.1,
-                max: 0.8,
-                divisions: 7,
+                value: settings.fontSize,
+                min: 14,
+                max: 28,
+                divisions: 14,
                 onChanged: (value) {
-                  onSettingsChanged(
-                    settings.copyWith(nightLightIntensity: value),
-                  );
+                  onSettingsChanged(settings.copyWith(fontSize: value));
                 },
               ),
             ),
 
-          const SizedBox(height: 20),
-        ],
+            // Line Height
+            _SettingRow(
+              label: 'Line Height',
+              value: settings.lineHeight.toStringAsFixed(1),
+              child: Slider(
+                value: settings.lineHeight,
+                min: 1.2,
+                max: 2.5,
+                divisions: 13,
+                onChanged: (value) {
+                  onSettingsChanged(settings.copyWith(lineHeight: value));
+                },
+              ),
+            ),
+
+            // Letter Spacing
+            _SettingRow(
+              label: 'Letter Spacing',
+              value: settings.letterSpacing.toStringAsFixed(1),
+              child: Slider(
+                value: settings.letterSpacing,
+                min: -1,
+                max: 3,
+                divisions: 8,
+                onChanged: (value) {
+                  onSettingsChanged(settings.copyWith(letterSpacing: value));
+                },
+              ),
+            ),
+
+            // Font Family
+            _SettingRow(
+              label: 'Font Family',
+              value: settings.fontFamily,
+              child: DropdownButton<String>(
+                value: settings.fontFamily,
+                isExpanded: true,
+                items:
+                    [
+                          'Default',
+                          'Serif',
+                          'Sans-Serif',
+                          'Monospace',
+                          'Roboto',
+                          'Lora',
+                          'Merriweather',
+                        ]
+                        .map((f) => DropdownMenuItem(value: f, child: Text(f)))
+                        .toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    onSettingsChanged(settings.copyWith(fontFamily: value));
+                  }
+                },
+              ),
+            ),
+
+            // Paragraph Spacing
+            _SettingRow(
+              label: 'Paragraph Spacing',
+              value: '${settings.paragraphSpacing.toInt()}',
+              child: Slider(
+                value: settings.paragraphSpacing,
+                min: 0,
+                max: 48,
+                divisions: 12,
+                onChanged: (value) {
+                  onSettingsChanged(settings.copyWith(paragraphSpacing: value));
+                },
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Text Alignment
+            Text('Text Alignment', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            _AlignmentSelector(
+              selected: settings.textAlign,
+              onChanged: (align) {
+                onSettingsChanged(settings.copyWith(textAlign: align));
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            // Theme Selection
+            Text('Theme', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            _ThemeSelector(
+              selected: settings.theme,
+              onChanged: (newTheme) {
+                onSettingsChanged(settings.copyWith(theme: newTheme));
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            // Night Light
+            SwitchListTile(
+              title: const Text('Night Light'),
+              subtitle: const Text('Reduce blue light'),
+              value: settings.nightLightEnabled,
+              onChanged: (value) {
+                onSettingsChanged(settings.copyWith(nightLightEnabled: value));
+              },
+            ),
+
+            if (settings.nightLightEnabled)
+              _SettingRow(
+                label: 'Intensity',
+                value: '${(settings.nightLightIntensity * 100).toInt()}%',
+                child: Slider(
+                  value: settings.nightLightIntensity,
+                  min: 0.1,
+                  max: 0.8,
+                  divisions: 7,
+                  onChanged: (value) {
+                    onSettingsChanged(
+                      settings.copyWith(nightLightIntensity: value),
+                    );
+                  },
+                ),
+              ),
+
+            const SizedBox(height: 16),
+
+            if (onReadAloudToggle != null)
+              ListTile(
+                title: const Text('Read Aloud'),
+                subtitle: const Text('Text-to-Speech controls'),
+                leading: const Icon(Icons.record_voice_over),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: onReadAloudToggle,
+              ),
+
+            const Divider(height: 32),
+
+            // Reading Goal
+            _SettingRow(
+              label: 'Daily Goal',
+              value: '$currentGoalMinutes min',
+              child: Slider(
+                value: currentGoalMinutes.toDouble(),
+                min: 0,
+                max: 120,
+                divisions: 12,
+                onChanged: onGoalChanged != null
+                    ? (value) => onGoalChanged!(value.toInt())
+                    : null,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }

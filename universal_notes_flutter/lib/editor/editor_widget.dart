@@ -22,7 +22,10 @@ import 'package:universal_notes_flutter/models/reading_settings.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
+import 'package:universal_notes_flutter/models/reading_annotation.dart';
+import 'package:universal_notes_flutter/models/reading_stats.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
+import 'package:universal_notes_flutter/widgets/reading_search_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// A widget that provides a text editor with rich text capabilities.
@@ -56,8 +59,17 @@ class EditorWidget extends StatefulWidget {
     this.readingSettings,
     this.onOpenReadingSettings,
     this.onOpenOutline,
+    this.onOpenBookmarks,
+    this.onAddBookmark,
     this.onScrollToTop,
     this.readAloudHighlightRange,
+    this.annotations = const [],
+    this.readingStats,
+    this.onSetReadingGoal,
+    this.onNextSmart,
+    this.onPrevSmart,
+    this.onNextPlanNote,
+    this.onPrevPlanNote,
     super.key,
   });
 
@@ -148,11 +160,34 @@ class EditorWidget extends StatefulWidget {
   /// Callback when outline button is pressed.
   final VoidCallback? onOpenOutline;
 
+  /// Callback when bookmarks button is pressed.
+  final VoidCallback? onOpenBookmarks;
+
+  /// Callback when add bookmark button is pressed.
+  final VoidCallback? onAddBookmark;
+
   /// Callback when scroll to top is pressed.
   final VoidCallback? onScrollToTop;
 
+  /// Callback for smart navigation (next/prev).
+  final VoidCallback? onNextSmart;
+  final VoidCallback? onPrevSmart;
+
+  /// Callback for plan navigation (next/prev note).
+  final VoidCallback? onNextPlanNote;
+  final VoidCallback? onPrevPlanNote;
+
   /// Character range to highlight during read aloud (start, end).
   final (int, int)? readAloudHighlightRange;
+
+  /// Current reading annotations for the note.
+  final List<ReadingAnnotation> annotations;
+
+  /// Current reading stats for the note.
+  final ReadingStats? readingStats;
+
+  /// Callback to set a reading goal.
+  final ValueChanged<int>? onSetReadingGoal;
 
   @override
   State<EditorWidget> createState() => EditorWidgetState();
@@ -176,6 +211,12 @@ class EditorWidgetState extends State<EditorWidget> {
   // Cursor state
   bool _showCursor = true;
   Timer? _cursorTimer;
+
+  // Reading Mode Search State
+  bool _isReadingSearchVisible = false;
+  String _readingSearchQuery = '';
+  List<int> _readingSearchMatchOffsets = [];
+  int _currentReadingSearchMatchIndex = 0;
 
   @override
   void initState() {
@@ -1018,7 +1059,23 @@ class EditorWidgetState extends State<EditorWidget> {
       child: Stack(
         children: [
           // Main content
-          content,
+          Column(
+            children: [
+              if (widget.readingStats != null &&
+                  widget.readingStats!.readingGoalMinutes > 0)
+                _buildReadingGoalProgress(),
+              if (_isReadingSearchVisible)
+                ReadingSearchBar(
+                  onFindChanged: _onReadingSearchChanged,
+                  onFindNext: _onReadingSearchNext,
+                  onFindPrevious: _onReadingSearchPrev,
+                  onClose: _onReadingSearchClose,
+                  resultsCount: _readingSearchMatchOffsets.length,
+                  currentIndex: _currentReadingSearchMatchIndex,
+                ),
+              Expanded(child: content),
+            ],
+          ),
 
           // FAB menu for reading controls
           Positioned(
@@ -1027,7 +1084,18 @@ class EditorWidgetState extends State<EditorWidget> {
             child: _ReadingFabMenu(
               onSettingsTap: widget.onOpenReadingSettings,
               onOutlineTap: widget.onOpenOutline,
+              onBookmarksTap: widget.onOpenBookmarks,
+              onAddBookmarkTap: widget.onAddBookmark,
               onScrollToTopTap: widget.onScrollToTop,
+              onNextTap: widget.onNextSmart,
+              onPrevTap: widget.onPrevSmart,
+              onNextPlanTap: widget.onNextPlanNote,
+              onPrevPlanTap: widget.onPrevPlanNote,
+              onSearchTap: () {
+                setState(() {
+                  _isReadingSearchVisible = !_isReadingSearchVisible;
+                });
+              },
             ),
           ),
         ],
@@ -1041,6 +1109,7 @@ class EditorWidgetState extends State<EditorWidget> {
       height: settings.lineHeight,
       letterSpacing: settings.letterSpacing,
       color: settings.theme.textColor,
+      fontFamily: settings.fontFamily == 'Default' ? null : settings.fontFamily,
     );
 
     return Center(
@@ -1057,13 +1126,33 @@ class EditorWidgetState extends State<EditorWidget> {
           itemCount: _buffer.lines.length,
           itemBuilder: (context, index) {
             final line = _buffer.lines[index];
+            final lineStartGlobal = _buffer.getOffsetForLineTextPosition(
+              LineTextPosition(line: index, character: 0),
+            );
+            final lineLength = line is TextLine ? line.toPlainText().length : 1;
+            final lineEndGlobal = lineStartGlobal + lineLength;
+
+            // Check if this range has a note (comment)
+            final noteAnnotations = widget.annotations
+                .where(
+                  (a) =>
+                      a.comment != null &&
+                      a.startOffset < lineEndGlobal &&
+                      a.endOffset > lineStartGlobal,
+                )
+                .toList();
+
+            Widget content;
             if (line is TextLine) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+              content = Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: settings.paragraphSpacing / 2,
+                ),
                 child: Text.rich(
                   TextSpan(
                     children: _buildReadingTextSpans(
                       line,
+                      index,
                       settings,
                       widget.readAloudHighlightRange,
                     ),
@@ -1072,10 +1161,8 @@ class EditorWidgetState extends State<EditorWidget> {
                   textAlign: settings.textAlign,
                 ),
               );
-            }
-            // For images, wrap in InteractiveViewer for zoom
-            if (line is ImageLine) {
-              return Padding(
+            } else if (line is ImageLine) {
+              content = Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: InteractiveViewer(
                   minScale: 1.0,
@@ -1083,41 +1170,188 @@ class EditorWidgetState extends State<EditorWidget> {
                   child: _buildEditorLine(index),
                 ),
               );
+            } else {
+              content = _buildEditorLine(index);
             }
-            return _buildEditorLine(index);
+
+            if (noteAnnotations.isEmpty) return content;
+
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                content,
+                Positioned(
+                  right: -32,
+                  top: 8,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.note,
+                      size: 20,
+                      color: settings.theme.accentColor,
+                    ),
+                    onPressed: () {
+                      _showNoteDetails(context, noteAnnotations);
+                    },
+                  ),
+                ),
+              ],
+            );
           },
         ),
       ),
     );
   }
 
+  Widget _buildReadingGoalProgress() {
+    final stats = widget.readingStats!;
+    final goalMinutes = stats.readingGoalMinutes;
+    final currentTimeSeconds = stats.totalReadingTimeSeconds;
+    final currentMinutes = currentTimeSeconds / 60;
+    final progress = math.min(1.0, currentMinutes / goalMinutes);
+    final remaining = math.max(0, goalMinutes - currentMinutes.toInt());
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      color: widget.readingSettings?.theme.backgroundColor,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Reading Goal: ${currentMinutes.toInt()}/${goalMinutes} min',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: widget.readingSettings?.theme.textColor.withValues(
+                    alpha: 0.7,
+                  ),
+                ),
+              ),
+              if (remaining > 0)
+                Text(
+                  '$remaining min remaining',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: widget.readingSettings?.theme.textColor.withValues(
+                      alpha: 0.7,
+                    ),
+                  ),
+                )
+              else
+                const Icon(Icons.check_circle, color: Colors.green, size: 16),
+            ],
+          ),
+          const SizedBox(height: 4),
+          LinearProgressIndicator(
+            value: progress,
+            backgroundColor: widget.readingSettings?.theme.textColor.withValues(
+              alpha: 0.1,
+            ),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              widget.readingSettings?.theme.accentColor ?? Colors.blue,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showNoteDetails(
+    BuildContext context,
+    List<ReadingAnnotation> annotations,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Margin Notes',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 16),
+              ...annotations.map(
+                (a) => ListTile(
+                  leading: const Icon(Icons.sticky_note_2),
+                  title: Text(a.comment ?? ''),
+                  subtitle: Text(
+                    'Ref: "${a.textExcerpt ?? "..."}"',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: () {
+                      // We need a callback to NoteEditorScreen to delete
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   List<InlineSpan> _buildReadingTextSpans(
     TextLine line,
+    int lineIndex,
     ReadingSettings settings,
     (int, int)? highlightRange,
   ) {
     final spans = <InlineSpan>[];
+    final lineStartGlobal = _buffer.getOffsetForLineTextPosition(
+      LineTextPosition(line: lineIndex, character: 0),
+    );
     var currentOffset = 0;
 
     for (final span in line.spans) {
       final spanText = span.text;
       final spanEnd = currentOffset + spanText.length;
+      final spanStartGlobal = lineStartGlobal + currentOffset;
+      final spanEndGlobal = lineStartGlobal + spanEnd;
 
-      // Check if this span overlaps with highlight range
+      // Check for reading annotations
+      final annotation = widget.annotations.firstWhere(
+        (a) => a.startOffset < spanEndGlobal && a.endOffset > spanStartGlobal,
+        orElse: () => ReadingAnnotation(
+          id: '',
+          noteId: '',
+          startOffset: 0,
+          endOffset: 0,
+          createdAt: DateTime.now(),
+        ),
+      );
+
+      final hasAnnotation = annotation.id.isNotEmpty;
+      final annotationColor = hasAnnotation
+          ? Color(annotation.color ?? Colors.yellow.toARGB32()).withValues(
+              alpha: 0.3,
+            )
+          : null;
+
+      // Check for read aloud highlight
       if (highlightRange != null) {
         final (hlStart, hlEnd) = highlightRange;
-        if (currentOffset < hlEnd && spanEnd > hlStart) {
-          // This span has highlighted portion
-          final localStart = math.max(0, hlStart - currentOffset);
-          final localEnd = math.min(spanText.length, hlEnd - currentOffset);
+        if (spanStartGlobal < hlEnd && spanEndGlobal > hlStart) {
+          final localStart = math.max(0, hlStart - spanStartGlobal);
+          final localEnd = math.min(spanText.length, hlEnd - spanStartGlobal);
 
           // Before highlight
           if (localStart > 0) {
             spans.add(
-              span.toTextSpan(
-                    onLinkTap: widget.onLinkTap,
-                  )
-                  as InlineSpan,
+              TextSpan(
+                text: spanText.substring(0, localStart),
+                style: span.toTextSpan().style?.copyWith(
+                  backgroundColor: annotationColor,
+                ),
+              ),
             );
           }
 
@@ -1126,11 +1360,22 @@ class EditorWidgetState extends State<EditorWidget> {
             spans.add(
               TextSpan(
                 text: spanText.substring(localStart, localEnd),
-                style: TextStyle(
+                style: span.toTextSpan().style?.copyWith(
                   backgroundColor: settings.theme.accentColor.withValues(
-                    alpha: 0.3,
+                    alpha: 0.5,
                   ),
-                  color: settings.theme.textColor,
+                ),
+              ),
+            );
+          }
+
+          // After highlight
+          if (localEnd < spanText.length) {
+            spans.add(
+              TextSpan(
+                text: spanText.substring(localEnd),
+                style: span.toTextSpan().style?.copyWith(
+                  backgroundColor: annotationColor,
                 ),
               ),
             );
@@ -1141,11 +1386,157 @@ class EditorWidgetState extends State<EditorWidget> {
         }
       }
 
-      spans.add(span.toTextSpan(onLinkTap: widget.onLinkTap) as InlineSpan);
+      // No read aloud highlight, check for annotation and search highlights
+      final matchStart = _readingSearchMatchOffsets.firstWhere(
+        (offset) =>
+            offset < spanEndGlobal &&
+            offset + _readingSearchQuery.length > spanStartGlobal,
+        orElse: () => -1,
+      );
+
+      if (matchStart != -1) {
+        final localStart = math.max(0, matchStart - spanStartGlobal);
+        final localEnd = math.min(
+          spanText.length,
+          matchStart + _readingSearchQuery.length - spanStartGlobal,
+        );
+        final isCurrentMatch =
+            matchStart ==
+            (_readingSearchMatchOffsets.isNotEmpty
+                ? _readingSearchMatchOffsets[_currentReadingSearchMatchIndex]
+                : -1);
+
+        final highlightColor = isCurrentMatch
+            ? Colors.orange.withValues(alpha: 0.6)
+            : Colors.yellow.withValues(alpha: 0.4);
+
+        if (localStart > 0) {
+          spans.add(
+            TextSpan(
+              text: spanText.substring(0, localStart),
+              style: span.toTextSpan().style?.copyWith(
+                backgroundColor: annotationColor,
+              ),
+            ),
+          );
+        }
+
+        spans.add(
+          TextSpan(
+            text: spanText.substring(localStart, localEnd),
+            style: span.toTextSpan().style?.copyWith(
+              backgroundColor: highlightColor,
+            ),
+          ),
+        );
+
+        if (localEnd < spanText.length) {
+          spans.add(
+            TextSpan(
+              text: spanText.substring(localEnd),
+              style: span.toTextSpan().style?.copyWith(
+                backgroundColor: annotationColor,
+              ),
+            ),
+          );
+        }
+      } else if (hasAnnotation) {
+        spans.add(
+          TextSpan(
+            text: spanText,
+            style: span.toTextSpan().style?.copyWith(
+              backgroundColor: annotationColor,
+            ),
+          ),
+        );
+      } else {
+        spans.add(span.toTextSpan(onLinkTap: widget.onLinkTap) as InlineSpan);
+      }
+
       currentOffset = spanEnd;
     }
 
     return spans;
+  }
+
+  // Reading Mode Search Logic
+  void _onReadingSearchChanged(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        _readingSearchQuery = '';
+        _readingSearchMatchOffsets = [];
+        _currentReadingSearchMatchIndex = 0;
+      });
+      return;
+    }
+
+    final text = widget.document.toPlainText().toLowerCase();
+    final lowerQuery = query.toLowerCase();
+    final matches = <int>[];
+    var index = text.indexOf(lowerQuery);
+    while (index != -1) {
+      matches.add(index);
+      index = text.indexOf(lowerQuery, index + lowerQuery.length);
+    }
+
+    setState(() {
+      _readingSearchQuery = query;
+      _readingSearchMatchOffsets = matches;
+      _currentReadingSearchMatchIndex = 0;
+    });
+
+    if (matches.isNotEmpty) {
+      _scrollToReadingMatch(matches[0]);
+    }
+  }
+
+  void _onReadingSearchNext() {
+    if (_readingSearchMatchOffsets.isEmpty) return;
+    setState(() {
+      _currentReadingSearchMatchIndex =
+          (_currentReadingSearchMatchIndex + 1) %
+          _readingSearchMatchOffsets.length;
+    });
+    _scrollToReadingMatch(
+      _readingSearchMatchOffsets[_currentReadingSearchMatchIndex],
+    );
+  }
+
+  void _onReadingSearchPrev() {
+    if (_readingSearchMatchOffsets.isEmpty) return;
+    setState(() {
+      _currentReadingSearchMatchIndex =
+          (_currentReadingSearchMatchIndex -
+              1 +
+              _readingSearchMatchOffsets.length) %
+          _readingSearchMatchOffsets.length;
+    });
+    _scrollToReadingMatch(
+      _readingSearchMatchOffsets[_currentReadingSearchMatchIndex],
+    );
+  }
+
+  void _onReadingSearchClose() {
+    setState(() {
+      _isReadingSearchVisible = false;
+      _readingSearchQuery = '';
+      _readingSearchMatchOffsets = [];
+      _currentReadingSearchMatchIndex = 0;
+    });
+  }
+
+  void _scrollToReadingMatch(int offset) {
+    final targetLineIndex = _buffer.getLineTextPositionForOffset(offset).line;
+    final scrollOffset =
+        targetLineIndex *
+        (widget.readingSettings?.fontSize ?? 18) *
+        (widget.readingSettings?.lineHeight ?? 1.6);
+
+    widget.scrollController?.animateTo(
+      scrollOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   /// Builds a single editor line widget.
@@ -2094,12 +2485,26 @@ class _ReadingFabMenu extends StatefulWidget {
   const _ReadingFabMenu({
     this.onSettingsTap,
     this.onOutlineTap,
+    this.onBookmarksTap,
+    this.onAddBookmarkTap,
     this.onScrollToTopTap,
+    this.onNextTap,
+    this.onPrevTap,
+    this.onSearchTap,
+    this.onNextPlanTap,
+    this.onPrevPlanTap,
   });
 
   final VoidCallback? onSettingsTap;
   final VoidCallback? onOutlineTap;
+  final VoidCallback? onBookmarksTap;
+  final VoidCallback? onAddBookmarkTap;
   final VoidCallback? onScrollToTopTap;
+  final VoidCallback? onNextTap;
+  final VoidCallback? onPrevTap;
+  final VoidCallback? onSearchTap;
+  final VoidCallback? onNextPlanTap;
+  final VoidCallback? onPrevPlanTap;
 
   @override
   State<_ReadingFabMenu> createState() => _ReadingFabMenuState();
@@ -2120,9 +2525,59 @@ class _ReadingFabMenuState extends State<_ReadingFabMenu>
         // Menu items (visible when expanded)
         if (_isExpanded) ...[
           _buildMenuItem(
+            icon: Icons.search,
+            label: 'Search',
+            onTap: widget.onSearchTap,
+          ),
+          const SizedBox(height: 8),
+          _buildMenuItem(
             icon: Icons.vertical_align_top,
             label: 'Top',
             onTap: widget.onScrollToTopTap,
+          ),
+          const SizedBox(height: 8),
+          if (widget.onPrevTap != null) ...[
+            _buildMenuItem(
+              icon: Icons.navigate_before,
+              label: 'Prev Section',
+              onTap: widget.onPrevTap,
+            ),
+            const SizedBox(height: 8),
+          ],
+          if (widget.onNextTap != null) ...[
+            _buildMenuItem(
+              icon: Icons.navigate_next,
+              label: 'Next Section',
+              onTap: widget.onNextTap,
+            ),
+            const SizedBox(height: 8),
+          ],
+          if (widget.onPrevPlanTap != null) ...[
+            _buildMenuItem(
+              icon: Icons.skip_previous,
+              label: 'Prev Note in Plan',
+              onTap: widget.onPrevPlanTap,
+            ),
+            const SizedBox(height: 8),
+          ],
+          if (widget.onNextPlanTap != null) ...[
+            _buildMenuItem(
+              icon: Icons.skip_next,
+              label: 'Next Note in Plan',
+              onTap: widget.onNextPlanTap,
+            ),
+            const SizedBox(height: 8),
+          ],
+          _buildMenuItem(
+            icon: Icons.bookmark_add,
+            label: 'Bookmark',
+            onTap: widget.onAddBookmarkTap,
+          ),
+          const SizedBox(height: 8),
+          _buildMenuItem(
+            icon: Icons.bookmarks,
+            label: 'All Bookmarks',
+            onTap: widget.onBookmarksTap,
           ),
           const SizedBox(height: 8),
           _buildMenuItem(

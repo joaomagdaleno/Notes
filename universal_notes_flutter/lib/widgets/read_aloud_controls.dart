@@ -1,46 +1,67 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/services/read_aloud_service.dart';
 
 /// Widget for controlling text-to-speech read aloud functionality.
 ///
 /// Provides play/pause/stop controls and speed adjustment.
-class ReadAloudControls extends StatelessWidget {
+class ReadAloudControls extends StatefulWidget {
   /// Creates a new [ReadAloudControls].
   const ReadAloudControls({
-    required this.state,
-    required this.speechRate,
-    required this.onPlay,
-    required this.onPause,
-    required this.onStop,
-    required this.onSpeedChanged,
+    required this.service,
+    required this.text,
+    this.onClose,
     this.compact = false,
     super.key,
   });
 
-  /// Current playback state.
-  final ReadAloudState state;
+  /// The TTS service to use.
+  final ReadAloudService service;
 
-  /// Current speech rate.
-  final double speechRate;
+  /// The text to read.
+  final String text;
 
-  /// Callback when play is pressed.
-  final VoidCallback onPlay;
-
-  /// Callback when pause is pressed.
-  final VoidCallback onPause;
-
-  /// Callback when stop is pressed.
-  final VoidCallback onStop;
-
-  /// Callback when speed is changed.
-  final ValueChanged<double> onSpeedChanged;
+  /// Callback when the controls are closed.
+  final VoidCallback? onClose;
 
   /// Whether to show compact version.
   final bool compact;
 
   @override
+  State<ReadAloudControls> createState() => _ReadAloudControlsState();
+}
+
+class _ReadAloudControlsState extends State<ReadAloudControls> {
+  late StreamSubscription<ReadAloudState> _stateSub;
+  late StreamSubscription<double> _speedSub;
+
+  ReadAloudState _state = ReadAloudState.stopped;
+  double _speed = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _state = widget.service.currentState;
+    _speed = widget.service.currentSpeed;
+
+    _stateSub = widget.service.stateStream.listen((state) {
+      if (mounted) setState(() => _state = state);
+    });
+    _speedSub = widget.service.speedStream.listen((speed) {
+      if (mounted) setState(() => _speed = speed);
+    });
+  }
+
+  @override
+  void dispose() {
+    _stateSub.cancel();
+    _speedSub.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (compact) {
+    if (widget.compact) {
       return _buildCompact(context);
     }
     return _buildFull(context);
@@ -60,18 +81,24 @@ class ReadAloudControls extends StatelessWidget {
         children: [
           IconButton(
             icon: Icon(
-              state == ReadAloudState.playing ? Icons.pause : Icons.play_arrow,
+              _state == ReadAloudState.playing ? Icons.pause : Icons.play_arrow,
             ),
-            onPressed: state == ReadAloudState.playing ? onPause : onPlay,
+            onPressed: () {
+              if (_state == ReadAloudState.playing) {
+                widget.service.pause();
+              } else {
+                widget.service.speak(widget.text);
+              }
+            },
           ),
-          if (state != ReadAloudState.stopped)
+          if (_state != ReadAloudState.stopped)
             IconButton(
               icon: const Icon(Icons.stop),
-              onPressed: onStop,
+              onPressed: () => widget.service.stop(),
             ),
           _SpeedButton(
-            rate: speechRate,
-            onChanged: onSpeedChanged,
+            rate: _speed,
+            onChanged: (val) => widget.service.setSpeechRate(val),
             compact: true,
           ),
         ],
@@ -98,21 +125,26 @@ class ReadAloudControls extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-
-          // Title
-          Text(
-            'Read Aloud',
-            style: theme.textTheme.titleMedium,
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(width: 48), // Spacer
+              Text(
+                'Read Aloud',
+                style: theme.textTheme.titleMedium,
+              ),
+              if (widget.onClose != null)
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    widget.service.stop();
+                    widget.onClose?.call();
+                  },
+                )
+              else
+                const SizedBox(width: 48),
+            ],
           ),
           const SizedBox(height: 16),
 
@@ -122,7 +154,9 @@ class ReadAloudControls extends StatelessWidget {
             children: [
               // Stop
               IconButton.filled(
-                onPressed: state == ReadAloudState.stopped ? null : onStop,
+                onPressed: _state == ReadAloudState.stopped
+                    ? null
+                    : () => widget.service.stop(),
                 icon: const Icon(Icons.stop),
                 style: IconButton.styleFrom(
                   backgroundColor: theme.colorScheme.surfaceContainerHighest,
@@ -133,9 +167,15 @@ class ReadAloudControls extends StatelessWidget {
 
               // Play/Pause (larger)
               IconButton.filled(
-                onPressed: state == ReadAloudState.playing ? onPause : onPlay,
+                onPressed: () {
+                  if (_state == ReadAloudState.playing) {
+                    widget.service.pause();
+                  } else {
+                    widget.service.speak(widget.text);
+                  }
+                },
                 icon: Icon(
-                  state == ReadAloudState.playing
+                  _state == ReadAloudState.playing
                       ? Icons.pause
                       : Icons.play_arrow,
                   size: 32,
@@ -150,8 +190,8 @@ class ReadAloudControls extends StatelessWidget {
 
               // Speed
               _SpeedButton(
-                rate: speechRate,
-                onChanged: onSpeedChanged,
+                rate: _speed,
+                onChanged: (val) => widget.service.setSpeechRate(val),
                 compact: false,
               ),
             ],
@@ -165,12 +205,12 @@ class ReadAloudControls extends StatelessWidget {
               const Icon(Icons.slow_motion_video, size: 20),
               Expanded(
                 child: Slider(
-                  value: speechRate,
+                  value: _speed,
                   min: 0.5,
                   max: 2.0,
                   divisions: 6,
-                  label: '${speechRate.toStringAsFixed(1)}x',
-                  onChanged: onSpeedChanged,
+                  label: '${_speed.toStringAsFixed(1)}x',
+                  onChanged: (val) => widget.service.setSpeechRate(val),
                 ),
               ),
               const Icon(Icons.speed, size: 20),

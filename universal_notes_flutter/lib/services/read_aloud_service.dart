@@ -19,16 +19,22 @@ class ReadAloudService {
   Stream<ReadAloudState> get stateStream => _stateController.stream;
 
   /// Current playback state.
-  ReadAloudState get state => _state;
+  ReadAloudState get currentState => _state;
 
   /// Current speech rate (0.0 to 2.0).
-  double get speechRate => _speechRate;
+  double get currentSpeed => _speechRate;
+
+  /// Stream of speed changes.
+  Stream<double> get speedStream => _speedController.stream;
 
   final StreamController<ReadAloudPosition> _positionController =
       StreamController<ReadAloudPosition>.broadcast();
 
   final StreamController<ReadAloudState> _stateController =
       StreamController<ReadAloudState>.broadcast();
+
+  final StreamController<double> _speedController =
+      StreamController<double>.broadcast();
 
   ReadAloudState _state = ReadAloudState.stopped;
   double _speechRate = 1.0;
@@ -110,6 +116,7 @@ class ReadAloudService {
   /// Sets the speech rate (0.0 to 2.0).
   Future<void> setSpeechRate(double rate) async {
     _speechRate = rate.clamp(0.0, 2.0);
+    _speedController.add(_speechRate);
     await _tts.setSpeechRate(_speechRate);
   }
 
@@ -133,6 +140,7 @@ class ReadAloudService {
     await stop();
     await _positionController.close();
     await _stateController.close();
+    await _speedController.close();
   }
 
   void _handleProgress(String text, int start, int end, String word) {

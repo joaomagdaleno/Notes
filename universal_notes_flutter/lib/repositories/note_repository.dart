@@ -13,6 +13,10 @@ import 'package:universal_notes_flutter/models/snippet.dart';
 import 'package:universal_notes_flutter/models/sync_status.dart';
 import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/services/firebase_service.dart';
+import 'package:universal_notes_flutter/services/reading_bookmarks_service.dart';
+import 'package:universal_notes_flutter/services/reading_interaction_service.dart';
+import 'package:universal_notes_flutter/services/reading_plan_service.dart';
+import 'package:universal_notes_flutter/services/reading_stats_service.dart';
 import 'package:uuid/uuid.dart';
 
 /// A repository for managing all app data in a local database.
@@ -30,6 +34,11 @@ class NoteRepository {
   Database? _database;
   Map<String, int>? _wordFrequencyCache;
 
+  late final ReadingBookmarksService bookmarksService;
+  late final ReadingInteractionService readingInteractionService;
+  late final ReadingStatsService readingStatsService;
+  late final ReadingPlanService readingPlanService;
+
   static const String _dbName = 'notes_database.db';
   static const String _notesTable = 'notes';
   static const String _foldersTable = 'folders';
@@ -40,6 +49,8 @@ class NoteRepository {
   static const String _noteEventsTable = 'note_events';
   static const String _notesFtsTable = 'notes_fts';
   static const String _userDictionaryTable = 'user_dictionary';
+  static const String _readingAnnotationsTable = 'reading_annotations';
+  static const String _readingStatsTable = 'reading_stats';
 
   /// Returns the database instance, initializing it if necessary.
   Future<Database> get database async {
@@ -61,10 +72,14 @@ class NoteRepository {
     }
     _database = await openDatabase(
       path,
-      version: 12,
+      version: 15,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
+    bookmarksService = ReadingBookmarksService(database: _database!);
+    readingInteractionService = ReadingInteractionService(database: _database!);
+    readingStatsService = ReadingStatsService(database: _database!);
+    readingPlanService = ReadingPlanService(database: _database!);
     return _database!;
   }
 
@@ -135,6 +150,12 @@ class NoteRepository {
 
     // FTS5 Virtual Table for full-text search
     await _createFtsTable(db);
+
+    // Reading Bookmarks
+    await ReadingBookmarksService.createTable(db);
+    await ReadingPlanService.createTable(db);
+
+    await _createReadingTables(db);
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -231,6 +252,15 @@ class NoteRepository {
         'ALTER TABLE $_noteEventsTable ADD COLUMN deviceId TEXT',
       );
     }
+    if (oldVersion < 13) {
+      await ReadingBookmarksService.createTable(db);
+    }
+    if (oldVersion < 14) {
+      await _createReadingTables(db);
+    }
+    if (oldVersion < 15) {
+      await ReadingPlanService.createTable(db);
+    }
   }
 
   /// Creates the FTS5 virtual table for full-text search.
@@ -266,6 +296,34 @@ class NoteRepository {
         INSERT INTO $_notesFtsTable(rowid, title, content)
         VALUES (new.rowid, new.title, new.content);
       END
+    ''');
+  }
+
+  Future<void> _createReadingTables(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $_readingAnnotationsTable (
+        id TEXT PRIMARY KEY,
+        noteId TEXT NOT NULL,
+        startOffset INTEGER NOT NULL,
+        endOffset INTEGER NOT NULL,
+        createdAt TEXT NOT NULL,
+        color INTEGER,
+        comment TEXT,
+        textExcerpt TEXT
+      )
+    ''');
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_annotations_noteId ON $_readingAnnotationsTable (noteId)
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $_readingStatsTable (
+        noteId TEXT PRIMARY KEY,
+        totalReadingTimeSeconds INTEGER DEFAULT 0,
+        lastReadPosition INTEGER DEFAULT 0,
+        readingGoalMinutes INTEGER DEFAULT 0,
+        lastOpenedAt TEXT
+      )
     ''');
   }
 
