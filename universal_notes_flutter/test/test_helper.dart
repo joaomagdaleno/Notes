@@ -120,9 +120,9 @@ Future<void> setupTestEnvironment() async {
     NoteEvent(
       id: '',
       noteId: '',
-      type: NoteEventType.added,
-      timestamp: DateTime.now(),
-      data: {},
+      type: NoteEventType.unknown,
+      payload: const {},
+      timestamp: DateTime(0),
     ),
   );
 
