@@ -1,24 +1,29 @@
-# dart_test.yaml - Test Configuration for Notes Project
-# Enables parallel execution and test tagging for faster test runs
+# dart_test.yaml - Optimized Test Configuration for Notes Project
+# Run unit tests fast: flutter test --tags unit
+# Run widget tests: flutter test --tags widget
 
-# Parallel execution (default is 1)
-concurrency: 4
+# Maximum parallelism for fast execution
+concurrency: 8
 
-# Test timeout
-timeout: 30s
+# Aggressive timeout to catch hanging tests early
+timeout: 15s
 
 # Define custom tags for categorizing tests
 tags:
   unit:
-    # Fast unit tests that don't need widget framework
+    # Fast unit tests - no widget framework needed
+    timeout: 5s
   widget:
     # Widget tests with UI rendering
+    timeout: 15s
   slow:
-    # Tests that require animations or long timeouts
+    # Tests requiring animations or external resources
+    timeout: 30s
   golden:
-    # Golden (screenshot) tests - run separately
+    # Screenshot comparison tests - run separately
   integration:
-    # Full integration tests
+    # Full integration tests - run in CI only
 
-# Exclude slow tests by default during development
-# Run with: flutter test --exclude-tags slow,golden
+# Presets will be added when golden/integration tests are created
+# flutter test --preset ci
+# flutter test --preset fast
