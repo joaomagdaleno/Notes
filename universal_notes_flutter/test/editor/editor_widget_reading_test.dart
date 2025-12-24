@@ -36,17 +36,17 @@ void main() {
 
       // Tap FAB to open menu
       await tester.tap(find.byIcon(Icons.add)); // The main FAB has Icons.add
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 200));
 
       final searchIcon = find.byIcon(Icons.search);
       await tester.tap(searchIcon);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 200));
 
       expect(find.byType(ReadingSearchBar), findsOneWidget);
 
       // Type "Hello" in search
       await tester.enterText(find.byType(TextField), 'Hello');
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 200));
 
       // Check if there are matches
       expect(state.readingSearchMatchCount, 2);

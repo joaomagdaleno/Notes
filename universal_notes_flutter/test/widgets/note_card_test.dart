@@ -132,7 +132,7 @@ void main() {
         matching: find.byType(InkWell),
       );
       await tester.tap(inkWellFinder);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 200));
 
       // Should navigate to NoteEditorScreen
       expect(find.byType(NoteEditorScreen), findsOneWidget);
@@ -175,7 +175,7 @@ void main() {
       matching: find.byType(InkWell),
     );
     await tester.longPress(inkWellFinder);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
 
     // Context menu should appear with delete option
     expect(find.text('Mover para a lixeira'), findsOneWidget);

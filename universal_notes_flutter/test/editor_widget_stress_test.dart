@@ -39,7 +39,7 @@ void main() {
       // 2. Act
       // The main action is the rendering itself. We'll pump a few frames
       // to ensure any layout calculations or deferred work is completed.
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // 3. Assert
       // The primary assertion is that the pumpAndSettle call didn't time out

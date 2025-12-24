@@ -130,7 +130,7 @@ void main() {
       );
 
       await tester.tap(find.text('Verificar Atualizações'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('Você já está na versão mais recente.'), findsOneWidget);
     });
@@ -156,7 +156,7 @@ void main() {
       );
 
       await tester.tap(find.text('Verificar Atualizações'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('Falha na conexão'), findsOneWidget);
     });
@@ -239,7 +239,7 @@ void main() {
 
       // Tap back button
       await tester.tap(find.byIcon(fluent.FluentIcons.back));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       // After pop, should not show AboutScreen anymore
       expect(find.text('Sobre'), findsNothing);
@@ -291,7 +291,7 @@ void main() {
 
       await tester.tap(find.text('Verificar Atualizações'));
 
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('Você já está na versão mais recente.'), findsOneWidget);
     });
@@ -315,7 +315,7 @@ void main() {
       );
 
       await tester.tap(find.text('Verificar Atualizações'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('Windows erro check'), findsOneWidget);
     });

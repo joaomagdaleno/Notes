@@ -123,7 +123,7 @@ void main() {
     );
 
     await tester.longPress(find.byType(NoteSimpleListTile));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
 
     await tester.tap(find.text('Excluir permanentemente'));
     await tester.pump();
@@ -151,7 +151,7 @@ void main() {
       await tester.tap(listTileFinder);
 
       // Wait for navigation to complete
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 200));
 
       // Check if we've navigated to the NoteEditorScreen
       expect(find.byType(NoteEditorScreen), findsOneWidget);

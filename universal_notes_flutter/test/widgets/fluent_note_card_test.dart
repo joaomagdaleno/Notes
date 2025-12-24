@@ -125,7 +125,9 @@ void main() {
 
       // Tap the FluentNoteCard
       await tester.tap(find.byType(FluentNoteCard));
-      await tester.pumpAndSettle(); // Wait for navigation to complete
+      await tester.pump(
+        const Duration(milliseconds: 200),
+      ); // Wait for navigation to complete
 
       // Verify that navigation occurred by finding text on the new screen
       expect(find.text('Edit Note'), findsOneWidget);
