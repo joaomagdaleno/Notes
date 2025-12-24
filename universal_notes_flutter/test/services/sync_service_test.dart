@@ -178,5 +178,58 @@ void main() {
       await syncService.reset();
       await remoteStreamController.close();
     });
+
+    group('Error Handling', () {
+      test('syncUp handles Firestore errors gracefully', () async {
+        final unsyncedNote = Note(
+          id: '1',
+          title: 'Fail Note',
+          content: 'Content',
+          createdAt: DateTime.now(),
+          lastModified: DateTime.now(),
+          ownerId: 'u1',
+          syncStatus: SyncStatus.local,
+        );
+
+        when(
+          mockNoteRepository.getUnsyncedNotes(),
+        ).thenAnswer((_) async => [unsyncedNote]);
+        when(
+          mockFirestoreRepository.addNote(
+            title: anyNamed('title'),
+            content: anyNamed('content'),
+          ),
+        ).thenThrow(Exception('Network Error'));
+
+        // Should not throw
+        await syncService.syncUp();
+
+        // Should NOT delete local note if sync failed
+        verifyNever(mockNoteRepository.deleteNotePermanently(any));
+        // Should NOT insert new synced note
+        verifyNever(mockNoteRepository.insertNote(any));
+      });
+
+      test('syncDown handles stream errors gracefully', () async {
+        final remoteStreamController = StreamController<List<Note>>();
+        when(
+          mockFirestoreRepository.notesStream(),
+        ).thenAnswer((_) => remoteStreamController.stream);
+
+        await syncService.init();
+
+        // Simulate stream error
+        remoteStreamController.addError(Exception('Stream Error'));
+
+        // Wait for potential crash (should catch inside listen onError)
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+
+        // Ensure service is still running/listening (basic check)
+        // verify(mockFirestoreRepository.notesStream()).called(1); // Already called in init
+
+        await syncService.reset();
+        await remoteStreamController.close();
+      });
+    });
   });
 }

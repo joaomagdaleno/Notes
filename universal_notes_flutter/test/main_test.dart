@@ -329,13 +329,22 @@ void main() {
         ),
       ).thenAnswer((_) => Stream.error(Exception('Fetch failed')));
 
-      // Inject mock firestore into sync service
       SyncService.instance.firestoreRepository = mockFirestore;
       await SyncService.instance.init();
 
-      await pumpNotesScreen(tester);
+      // Manually pump to control timing avoiding the helper's long duration
+      await tester.pumpWidget(
+        fluent.FluentApp(
+          home: fluent.FluentTheme(
+            data: fluent.FluentThemeData.light(),
+            child: const NotesScreen(),
+          ),
+        ),
+      );
 
-      // With fetch failure/empty notes, should show empty state
+      await tester.pump(); // trigger initState
+      await tester.pump(); // stream error should propagate
+
       expect(find.text('No notes yet. Create one!'), findsOneWidget);
     });
 

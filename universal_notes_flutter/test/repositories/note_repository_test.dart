@@ -147,6 +147,45 @@ void main() {
       expect(db, isA<Database>());
       await db.close();
     });
+
+    group('Edge Cases', () {
+      test('getAllNotes returns empty list on empty database', () async {
+        final notes = await noteRepository.getAllNotes();
+        expect(notes, isEmpty);
+      });
+
+      test('getNoteWithContent throws for non-existent note', () async {
+        expect(
+          () async => await noteRepository.getNoteWithContent('non-existent'),
+          throwsException,
+        );
+      });
+
+      test('updateNote on non-existent note does not throw', () async {
+        final fakeNote = Note(
+          id: 'fake-id',
+          title: 'Fake',
+          content: '',
+          createdAt: DateTime.now(),
+          lastModified: DateTime.now(),
+          ownerId: 'u1',
+        );
+        // Should not throw, just no-op or upsert depending on implementation
+        await noteRepository.updateNote(fakeNote);
+      });
+
+      test('searchAllNotes returns matching notes', () async {
+        await noteRepository.insertNote(note);
+        final results = await noteRepository.searchAllNotes('Test');
+        expect(results.any((n) => n.title.contains('Test')), true);
+      });
+
+      test('searchAllNotes is case insensitive', () async {
+        await noteRepository.insertNote(note);
+        final results = await noteRepository.searchAllNotes('test');
+        expect(results.any((n) => n.title.contains('Test')), true);
+      });
+    });
   });
 }
 

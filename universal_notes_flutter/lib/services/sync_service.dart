@@ -187,25 +187,32 @@ class SyncService {
 
   /// Uploads a local note to Firestore
   Future<void> syncUpNote(Note note) async {
-    // This uses the split content logic we implemented in
-    // FirestoreRepository.
-    if (note.syncStatus == SyncStatus.local) {
-      // Create
-      final newNote = await firestoreRepository.addNote(
-        title: note.title,
-        content: note.content,
-      );
-      // Update local note with Firestore ID and synced status
-      await noteRepository.deleteNotePermanently(note.id); // Remove temp ID
-      await noteRepository.insertNote(
-        newNote.copyWith(syncStatus: SyncStatus.synced),
-      );
-    } else {
-      // Update
-      await firestoreRepository.updateNote(note);
-      await noteRepository.updateNoteContent(
-        note.copyWith(syncStatus: SyncStatus.synced),
-      );
+    try {
+      // This uses the split content logic we implemented in
+      // FirestoreRepository.
+      if (note.syncStatus == SyncStatus.local) {
+        // Create
+        final newNote = await firestoreRepository.addNote(
+          title: note.title,
+          content: note.content,
+        );
+        // Update local note with Firestore ID and synced status
+        await noteRepository.deleteNotePermanently(note.id); // Remove temp ID
+        await noteRepository.insertNote(
+          newNote.copyWith(syncStatus: SyncStatus.synced),
+        );
+      } else {
+        // Update
+        await firestoreRepository.updateNote(note);
+        await noteRepository.updateNoteContent(
+          note.copyWith(syncStatus: SyncStatus.synced),
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error syncing note ${note.id}: $e');
+      }
+      // Note stays local/modified, will retry on next sync
     }
   }
 

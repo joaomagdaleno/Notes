@@ -18,6 +18,7 @@ import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
+import 'package:universal_notes_flutter/models/reading_settings.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/autocomplete_service.dart';
@@ -52,6 +53,11 @@ class EditorWidget extends StatefulWidget {
     this.currentColor = Colors.black,
     this.currentStrokeWidth = 2.0,
     this.softWrap = true,
+    this.readingSettings,
+    this.onOpenReadingSettings,
+    this.onOpenOutline,
+    this.onScrollToTop,
+    this.readAloudHighlightRange,
     super.key,
   });
 
