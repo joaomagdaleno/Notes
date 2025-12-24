@@ -25,8 +25,8 @@ void main() {
 
   TestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('EditorWidget types text', (WidgetTester tester) async {
-    DocumentModel currentDoc = DocumentModel.fromPlainText('');
-    TextSelection currentSelection = const TextSelection.collapsed(offset: 0);
+    var currentDoc = DocumentModel.fromPlainText('');
+    var currentSelection = const TextSelection.collapsed(offset: 0);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -55,8 +55,8 @@ void main() {
   });
 
   testWidgets('EditorWidget handles backspace', (WidgetTester tester) async {
-    DocumentModel currentDoc = DocumentModel.fromPlainText('A');
-    TextSelection currentSelection = const TextSelection.collapsed(offset: 1);
+    var currentDoc = DocumentModel.fromPlainText('A');
+    var currentSelection = const TextSelection.collapsed(offset: 1);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -85,7 +85,7 @@ void main() {
   testWidgets('EditorWidget triggers bold shortcut', (
     WidgetTester tester,
   ) async {
-    DocumentModel currentDoc = DocumentModel.fromPlainText('Text');
+    var currentDoc = DocumentModel.fromPlainText('Text');
     TextSelection? currentSelection = const TextSelection(
       baseOffset: 0,
       extentOffset: 4,

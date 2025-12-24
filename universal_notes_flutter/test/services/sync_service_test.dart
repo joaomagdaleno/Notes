@@ -95,7 +95,7 @@ void main() {
       // Need to mock these for internal calls in syncUpNote
       when(
         mockNoteRepository.deleteNotePermanently(any),
-      ).thenAnswer((_) async => null);
+      ).thenAnswer((_) async {});
       when(
         mockNoteRepository.insertNote(any),
       ).thenAnswer((_) async => 'remote-id');
@@ -128,7 +128,6 @@ void main() {
         createdAt: now,
         lastModified: now,
         ownerId: 'u1',
-        syncStatus: SyncStatus.synced,
       );
 
       when(
@@ -136,7 +135,7 @@ void main() {
       ).thenAnswer((_) async => localNote);
       when(
         mockNoteRepository.updateNoteContent(any),
-      ).thenAnswer((_) async => null);
+      ).thenAnswer((_) async {});
 
       // Also needed for refreshLocalData inside syncDown
       when(

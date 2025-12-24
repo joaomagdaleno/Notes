@@ -4,7 +4,7 @@ import 'package:universal_notes_flutter/models/sync_status.dart';
 
 void main() {
   group('NoteEvent', () {
-    final timestamp = DateTime(2023, 1, 1, 12, 0, 0);
+    final timestamp = DateTime(2023, 1, 1, 12, 0);
     const payload = {'text': 'Hello', 'pos': 0};
 
     test('toMap/fromMap symmetry', () {
@@ -14,7 +14,6 @@ void main() {
         type: NoteEventType.insert,
         payload: payload,
         timestamp: timestamp,
-        syncStatus: SyncStatus.local,
         deviceId: 'd1',
       );
 

@@ -5,7 +5,7 @@ import 'package:universal_notes_flutter/models/stroke.dart';
 void main() {
   group('Point', () {
     test('should create a Point instance', () {
-      const point = Point(10.0, 20.0, 0.5);
+      const point = Point(10, 20, 0.5);
       expect(point.x, 10.0);
       expect(point.y, 20.0);
       expect(point.pressure, 0.5);
@@ -26,7 +26,7 @@ void main() {
     });
 
     test('toJson should convert a Point to json', () {
-      const point = Point(10.0, 20.0, 0.5);
+      const point = Point(10, 20, 0.5);
       final json = point.toJson();
       expect(json['x'], 10.0);
       expect(json['y'], 20.0);
@@ -34,7 +34,7 @@ void main() {
     });
 
     test('toJson should skip pressure if it is 1.0', () {
-      const point = Point(10.0, 20.0, 1.0);
+      const point = Point(10, 20);
       final json = point.toJson();
       expect(json.containsKey('p'), isFalse);
     });
@@ -45,7 +45,7 @@ void main() {
     const stroke = Stroke(
       points: points,
       color: Colors.black,
-      width: 2.0,
+      width: 2,
     );
 
     test('should create a Stroke instance', () {

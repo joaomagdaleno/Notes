@@ -25,7 +25,7 @@ void main() {
       await SnippetConverter.precacheSnippets();
 
       final doc = DocumentModel.fromPlainText(';test ');
-      final selection = const TextSelection.collapsed(offset: 6);
+      const selection = TextSelection.collapsed(offset: 6);
 
       final result = SnippetConverter.checkAndApply(doc, selection);
       expect(result, isNull);
@@ -35,7 +35,7 @@ void main() {
       'checkAndApply should expand snippet when trigger + space is typed',
       () async {
         final snippets = [
-          Snippet(
+          const Snippet(
             id: '1',
             trigger: ';gm',
             content: 'Good Morning!',
@@ -47,7 +47,7 @@ void main() {
         await SnippetConverter.precacheSnippets();
 
         final doc = DocumentModel.fromPlainText('Hello ;gm ');
-        final selection = const TextSelection.collapsed(offset: 10);
+        const selection = TextSelection.collapsed(offset: 10);
 
         final result = SnippetConverter.checkAndApply(doc, selection);
 
@@ -71,7 +71,7 @@ void main() {
       await SnippetConverter.precacheSnippets();
 
       final doc = DocumentModel.fromPlainText(';gm');
-      final selection = const TextSelection.collapsed(offset: 3);
+      const selection = TextSelection.collapsed(offset: 3);
 
       final result = SnippetConverter.checkAndApply(doc, selection);
       expect(result, isNull);

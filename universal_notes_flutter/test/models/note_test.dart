@@ -13,14 +13,12 @@ void main() {
       createdAt: now,
       lastModified: now,
       ownerId: 'user1',
-      collaborators: {'user2': 'editor'},
-      tags: ['tag1', 'tag2'],
-      memberIds: ['user1', 'user2'],
+      collaborators: const {'user2': 'editor'},
+      tags: const ['tag1', 'tag2'],
+      memberIds: const ['user1', 'user2'],
       isFavorite: true,
-      isInTrash: false,
       imageUrl: 'http://example.com/image.png',
       folderId: 'folder1',
-      syncStatus: SyncStatus.synced,
     );
 
     test('Note can be created and properties are correct', () {
@@ -75,7 +73,7 @@ void main() {
     });
 
     test('Note.fromMap handles defaults', () {
-      final fromMapNote = Note.fromMap({});
+      final fromMapNote = Note.fromMap(const {});
       expect(fromMapNote.id, '');
       expect(fromMapNote.title, 'Untitled');
       expect(fromMapNote.content, '');

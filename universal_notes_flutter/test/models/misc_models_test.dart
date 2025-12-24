@@ -10,7 +10,7 @@ import 'package:universal_notes_flutter/models/persona_model.dart';
 void main() {
   group('Stroke and Point', () {
     test('Point toJson/fromJson symmetry', () {
-      const p = Point(10.0, 20.0, 0.5);
+      const p = Point(10, 20, 0.5);
       final json = p.toJson();
       final fromJson = Point.fromJson(json);
 
@@ -23,7 +23,7 @@ void main() {
       const s = Stroke(
         points: [Point(0, 0), Point(1, 1)],
         color: Colors.red,
-        width: 2.0,
+        width: 2,
       );
       final json = s.toJson();
       final fromJson = Stroke.fromJson(json);

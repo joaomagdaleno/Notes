@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 
 /// A widget that displays a note as a card.

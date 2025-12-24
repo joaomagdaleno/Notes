@@ -19,7 +19,7 @@ void main() {
         blocks: [
           CalloutBlock(
             type: CalloutType.note,
-            spans: [TextSpanModel(text: 'C1\nC2')],
+            spans: [const TextSpanModel(text: 'C1\nC2')],
           ),
         ],
       );
@@ -86,9 +86,9 @@ void main() {
     test('should handle non-text blocks as length 1', () {
       final doc = DocumentModel(
         blocks: [
-          TextBlock(spans: [TextSpanModel(text: 'A')]),
+          TextBlock(spans: [const TextSpanModel(text: 'A')]),
           ImageBlock(imagePath: 'path/to/img'),
-          TextBlock(spans: [TextSpanModel(text: 'B')]),
+          TextBlock(spans: [const TextSpanModel(text: 'B')]),
         ],
       );
       final buffer = VirtualTextBuffer(doc);

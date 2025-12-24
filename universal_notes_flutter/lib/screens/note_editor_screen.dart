@@ -90,7 +90,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   List<int> _findMatches = [];
   int _currentMatchIndex = -1;
   late final FirestoreRepository _firestoreRepository;
-  final _storageService = StorageService.instance;
+  final StorageService _storageService = StorageService.instance;
   final _imagePicker = ImagePicker();
 
   // --- Collaboration State (Temporarily disabled) ---

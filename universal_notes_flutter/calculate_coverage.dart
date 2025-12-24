@@ -13,10 +13,10 @@ void main() async {
   }
 
   final lines = await file.readAsLines();
-  var totalLF = 0;
-  var totalLH = 0;
+  int totalLF = 0;
+  int totalLH = 0;
 
-  for (final line in lines) {
+  void void for (final line in lines) {
     if (line.startsWith('LF:')) {
       totalLF += int.parse(line.substring(3));
     } else if (line.startsWith('LH:')) {
@@ -24,9 +24,9 @@ void main() async {
     }
   }
 
-  if (totalLF == 0) {
+  void void if (totalLF == 0) {
     print('No lines found in coverage report.');
-  } else {
+  } void void else {
     final coverage = (totalLH / totalLF) * 100;
     print('Total Lines Found (LF): $totalLF');
     print('Total Lines Hit (LH): $totalLH');

@@ -277,7 +277,7 @@ void main() {
   });
 
   // --- Helpers ---
-  Future<void> _pumpNotesScreen(
+  Future<void> pumpNotesScreen(
     WidgetTester tester, {
     UpdateService? updateService,
   }) async {
@@ -310,7 +310,7 @@ void main() {
   // --- Basic Widget Tests ---
 
   testWidgets('NotesScreen displays notes', (WidgetTester tester) async {
-    await _pumpNotesScreen(tester);
+    await pumpNotesScreen(tester);
 
     // Verify that the "No notes found" message is displayed.
     expect(find.text('No notes yet. Create one!'), findsOneWidget);
@@ -333,14 +333,14 @@ void main() {
       SyncService.instance.firestoreRepository = mockFirestore;
       await SyncService.instance.init();
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // With fetch failure/empty notes, should show empty state
       expect(find.text('No notes yet. Create one!'), findsOneWidget);
     });
 
     testWidgets('shows empty state when no notes exist', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       expect(find.text('No notes yet. Create one!'), findsOneWidget);
     });
@@ -351,7 +351,7 @@ void main() {
       await SyncService.instance.init();
       await SyncService.instance.init();
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
       await tester.pump();
       await tester.pump();
       expect(find.text('Test Note 1'), findsOneWidget);
@@ -365,7 +365,7 @@ void main() {
     testWidgets('cycles through view modes when button is tapped', (
       tester,
     ) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Find and tap the view mode button (view_all icon in CommandBar)
       final viewModeButton = find.byIcon(fluent.FluentIcons.view_all);
@@ -425,7 +425,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       ];
       */
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       expect(find.text('Normal Note'), findsOneWidget);
       expect(find.text('Trash Note'), findsNothing);
@@ -471,7 +471,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       ];
       */
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Both notes should be visible in "All notes" (default)
       expect(find.text('Normal Note'), findsOneWidget);
@@ -483,7 +483,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
   group('NotesScreen Navigation', () {
     testWidgets('FAB navigates to note editor', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Find and tap FAB (Fluent FloatingActionButton)
       final fab = find.byType(fluent.FilledButton);
@@ -496,7 +496,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     });
 
     testWidgets('shows Sidebar on mobile layout (Fluent UI)', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
       await tester.pumpAndSettle();
 
       expect(find.byType(Sidebar), findsOneWidget);
@@ -507,7 +507,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
   group('NotesScreen AppBar', () {
     testWidgets('shows correct title for default index', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Title appears in AppBar
       expect(find.text('All Notes'), findsAtLeastNWidgets(1));
@@ -531,7 +531,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       SyncService.instance.firestoreRepository = mockFirestore;
       await SyncService.instance.init();
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
       await tester.pump(); // Start stream
       await tester.pump(); // Receive error
 
@@ -569,7 +569,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       SyncService.instance.firestoreRepository = mockFirestore;
       await SyncService.instance.init();
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
       await tester.pumpAndSettle();
 
       // Tap Favorites in Sidebar (assuming Sidebar is always visible in
@@ -610,7 +610,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       SyncService.instance.firestoreRepository = mockFirestore;
       await SyncService.instance.init();
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
       await tester.pumpAndSettle();
 
       // Tap Trash in Sidebar
@@ -625,7 +625,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     });
 
     testWidgets('tapping Settings in drawer navigates', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
       await tester.pumpAndSettle();
 
       // Tap Settings in Sidebar (usually at the bottom)
@@ -637,7 +637,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     });
 
     testWidgets('tapping drawer items changes selection', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
       await tester.pumpAndSettle();
 
       // Test each Sidebar item
@@ -661,7 +661,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
   group('NotesScreen Grid View Modes', () {
     testWidgets('list mode shows ListView-style rendering', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
       await tester.pumpAndSettle();
 
       // Find 'List' button in CommandBar (it has a list icon)
@@ -680,7 +680,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     });
 
     testWidgets('grid small mode renders correctly', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Cycle to gridSmall
       final viewModeButton = find.byIcon(fluent.FluentIcons.view_all);
@@ -694,7 +694,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     });
 
     testWidgets('grid large mode renders correctly', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Cycle to gridLarge (next after gridMedium)
       final viewModeButton = find.byIcon(fluent.FluentIcons.view_all);
@@ -710,7 +710,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
   group('NotesScreen Sidebar interaction', () {
     testWidgets('toggle Sidebar expansion', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
       await tester.pumpAndSettle();
 
       // Sidebar in Fluent UI implementation is
@@ -936,7 +936,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       tester.view.physicalSize = const Size(400, 800);
       tester.view.devicePixelRatio = 1.0;
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Define map of index to expected title
       final items = [
@@ -973,7 +973,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1.0;
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       final expectedLabels = [
         'All Notes',
@@ -1009,7 +1009,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       SyncService.instance.firestoreRepository = mockFirestore;
       await SyncService.instance.init();
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Tap "New Note" button (FilledButton)
       await tester.tap(find.byType(fluent.FilledButton).first);
@@ -1024,7 +1024,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
       SyncService.instance.firestoreRepository = mockFirestore;
       await SyncService.instance.init();
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Verify it doesn't crash on delete
     });
@@ -1034,7 +1034,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
     testWidgets('tapping search and sort on Android does not crash', (
       tester,
     ) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Search button (CommandBarButton)
       await tester.tap(find.byIcon(fluent.FluentIcons.search).first);
@@ -1055,7 +1055,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         tester.view.resetDevicePixelRatio();
       });
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Windows uses CommandBar
       // Search
@@ -1070,7 +1070,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
 
   group('NotesScreen Windows Interaction', () {
     testWidgets('tapping a note card on Windows navigates', (tester) async {
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Verify it doesn't crash on note tap
     });
@@ -1085,7 +1085,7 @@ createdAt: DateTime.now(), lastModified: DateTime.now(), ownerId: 'user1',
         tester.view.resetDevicePixelRatio();
       });
 
-      await _pumpNotesScreen(tester);
+      await pumpNotesScreen(tester);
 
       // Tap 'Favorites'
       await tester.tap(find.byIcon(fluent.FluentIcons.favorite_star));

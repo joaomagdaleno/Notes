@@ -32,7 +32,7 @@ void main() {
   final note = Note(
     id: '1',
     title: 'Test Note',
-    content: r'[{"type":"text","spans":[{"text":"This is a test note."}]}]',
+    content: '[{"type":"text","spans":[{"text":"This is a test note."}]}]',
     createdAt: DateTime.now(),
     lastModified: DateTime.now(),
     ownerId: 'user1',

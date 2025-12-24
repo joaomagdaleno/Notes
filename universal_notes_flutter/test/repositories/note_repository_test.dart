@@ -70,7 +70,7 @@ void main() {
     });
 
     test('Tag operations', () async {
-      final tag = Tag(
+      const tag = Tag(
         id: 't1',
         name: 'Test Tag',
         color: const Color(0xFF00FF00),

@@ -1669,9 +1669,9 @@ class _EditorLine extends StatelessWidget {
 
             // Adjust local position for block padding
             var effectiveOffset = localTapOffset;
-            if (blockType == 'quote')
+            if (blockType == 'quote') {
               effectiveOffset -= const Offset(16, 4);
-            else if (blockType == 'code-block')
+            } else if (blockType == 'code-block')
               effectiveOffset -= const Offset(8, 8);
             else if (blockType == 'unordered-list')
               effectiveOffset -= const Offset(24, 0);

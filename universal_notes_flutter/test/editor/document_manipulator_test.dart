@@ -29,7 +29,7 @@ void main() {
 
     test('toggleStyle should apply bold to selected text', () {
       final doc = DocumentModel.fromPlainText('Hello');
-      final selection = const TextSelection(baseOffset: 0, extentOffset: 5);
+      const selection = TextSelection(baseOffset: 0, extentOffset: 5);
       final result = DocumentManipulator.toggleStyle(
         doc,
         selection,

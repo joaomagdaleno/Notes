@@ -7,8 +7,6 @@ import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/services/tracing_service.dart';
 
 class FirestoreRepository {
-  /// The singleton instance of [FirestoreRepository].
-  static FirestoreRepository instance = FirestoreRepository._();
 
   FirestoreRepository._() {
     _initCollections();
@@ -20,6 +18,8 @@ class FirestoreRepository {
   FirestoreRepository() {
     _initCollections();
   }
+  /// The singleton instance of [FirestoreRepository].
+  static FirestoreRepository instance = FirestoreRepository._();
 
   @visibleForTesting
   late FirebaseFirestore firestore = FirebaseFirestore.instance;

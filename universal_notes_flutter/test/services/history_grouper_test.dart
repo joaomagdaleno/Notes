@@ -5,9 +5,9 @@ import 'package:universal_notes_flutter/services/history_grouper.dart';
 void main() {
   group('HistoryGrouper', () {
     final now = DateTime.now();
-    final oneHourAgo = now.subtract(Duration(hours: 1));
-    final twoHoursAgo = now.subtract(Duration(hours: 2));
-    final twoDaysAgo = now.subtract(Duration(days: 2));
+    final oneHourAgo = now.subtract(const Duration(hours: 1));
+    final twoHoursAgo = now.subtract(const Duration(hours: 2));
+    final twoDaysAgo = now.subtract(const Duration(days: 2));
 
     test('groupEvents should return empty list for empty input', () {
       final result = HistoryGrouper.groupEvents([]);

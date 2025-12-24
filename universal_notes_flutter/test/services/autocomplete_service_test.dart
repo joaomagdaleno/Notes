@@ -20,8 +20,8 @@ void main() {
     // Mock asset loading for dictionaries
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMessageHandler('flutter/assets', (ByteData? message) async {
-          final Uint8List encoded = message!.buffer.asUint8List();
-          final String key = utf8.decode(encoded);
+          final encoded = message!.buffer.asUint8List();
+          final key = utf8.decode(encoded);
           if (key == 'assets/dictionaries/pt_br_common.txt') {
             return utf8.encoder
                 .convert('trabalho\ntraducao\ntreinar')

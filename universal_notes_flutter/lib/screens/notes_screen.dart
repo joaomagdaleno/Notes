@@ -640,11 +640,11 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                         ),
                       )
                     : _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: _searchController.clear,
-                          )
-                        : null,
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: _searchController.clear,
+                      )
+                    : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -964,10 +964,10 @@ class _DashboardCardState extends State<_DashboardCard> {
         decoration: BoxDecoration(
           // ⚡ Bolt: Using withOpacity which is more idiomatic. The original
           // `withValues` was likely a typo.
-          color: color.withOpacity(0.1),
+          color: widget.color.withOpacity(0.1),
           // ⚡ Bolt: Use const for BorderRadius since it's immutable.
           borderRadius: const BorderRadius.all(Radius.circular(16)),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: widget.color.withOpacity(0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -975,12 +975,14 @@ class _DashboardCardState extends State<_DashboardCard> {
             Icon(widget.icon, color: widget.color, size: 32),
             const SizedBox(height: 12),
             Text(
-              title,
-              style: _titleTextStyle.copyWith(color: color),
+              widget.title,
+              style: _titleTextStyle.copyWith(color: widget.color),
             ),
             Text(
-              subtitle,
-              style: _subtitleTextStyle.copyWith(color: color.withOpacity(0.7)),
+              widget.subtitle,
+              style: _subtitleTextStyle.copyWith(
+                color: widget.color.withOpacity(0.7),
+              ),
             ),
           ],
         ),
