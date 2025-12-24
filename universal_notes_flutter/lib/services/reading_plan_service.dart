@@ -76,4 +76,15 @@ class ReadingPlanService {
       whereArgs: [id],
     );
   }
+
+  /// Finds the first plan containing the given note ID.
+  Future<ReadingPlan?> findPlanForNote(String noteId) async {
+    final plans = await getAllPlans();
+    for (final plan in plans) {
+      if (plan.noteIds.contains(noteId)) {
+        return plan;
+      }
+    }
+    return null;
+  }
 }

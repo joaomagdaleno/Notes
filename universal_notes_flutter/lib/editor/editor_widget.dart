@@ -218,6 +218,9 @@ class EditorWidgetState extends State<EditorWidget> {
   List<int> _readingSearchMatchOffsets = [];
   int _currentReadingSearchMatchIndex = 0;
 
+  /// Gets the number of search matches found in reading mode.
+  int get readingSearchMatchCount => _readingSearchMatchOffsets.length;
+
   @override
   void initState() {
     super.initState();

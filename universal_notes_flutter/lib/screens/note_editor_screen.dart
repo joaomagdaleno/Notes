@@ -44,7 +44,6 @@ import 'package:universal_notes_flutter/widgets/read_aloud_controls.dart';
 import 'package:universal_notes_flutter/widgets/reading_bookmarks_list.dart';
 import 'package:universal_notes_flutter/widgets/reading_mode_settings.dart';
 import 'package:universal_notes_flutter/widgets/reading_outline_navigator.dart';
-import 'package:collection/collection.dart';
 
 /// A screen for editing a note.
 class NoteEditorScreen extends StatefulWidget {
@@ -1295,23 +1294,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   Future<void> _loadReadingData() async {
     if (_note == null) return;
+
     final stats = await _statsService.getStatsForNote(_note!.id);
     final annotations = await _readingInteractionService.getAnnotationsForNote(
       _note!.id,
     );
-    final plans = await _planService.getAllPlans();
-    final currentPlan = plans.firstWhereOrNull(
-      (p) => p.noteIds.contains(_note!.id),
-    );
+    final plan = await _planService.findPlanForNote(_note!.id);
 
     if (mounted) {
       setState(() {
         _readingStats = stats;
         _annotations = annotations;
-        _currentPlan = currentPlan;
+        _currentPlan = plan;
       });
+      _statsService.startSession(_note!.id);
     }
-    _statsService.startSession(_note!.id);
   }
 
   void _onNextPlanNote() {
