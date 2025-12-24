@@ -27,7 +27,11 @@ import 'services/tracing_service_test.dart' as tracing;
 import 'services/update_service_test.dart' as update_svc;
 import 'services/word_lookup_service_test.dart' as word_lookup;
 
+import 'test_helper.dart';
+
 void main() {
+  setUp(() async => await setupNotesTest());
+
   // Run all service tests in a single process
   autocomplete.main();
   backup.main();
