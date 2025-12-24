@@ -1,3 +1,6 @@
+@Tags(['unit'])
+library;
+
 import 'dart:convert';
 import 'package:test/test.dart';
 import 'package:universal_notes_flutter/utils/text_helpers.dart';

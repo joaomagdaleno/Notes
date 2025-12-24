@@ -1,3 +1,6 @@
+@Tags(['widget'])
+library;
+
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +29,7 @@ void main() {
 
       try {
         await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
         expect(find.byType(Scaffold), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = original;
@@ -41,13 +44,15 @@ void main() {
 
       try {
         await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
-        await tester.pumpAndSettle(); // Wait for initial build and _packageInfo
+        await tester.pump(
+          const Duration(milliseconds: 400),
+        ); // Wait for initial build and _packageInfo
 
         // Tap the ListTile itself, not just the text
         final listTileFinder = find.byType(ListTile);
         expect(listTileFinder, findsOneWidget);
         await tester.tap(listTileFinder);
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
 
         // Now we can safely look for the AboutScreen by its type
         expect(find.byType(AboutScreen), findsOneWidget);
@@ -62,7 +67,7 @@ void main() {
 
       try {
         await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
         expect(find.byType(fluent.ScaffoldPage), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = original;
@@ -77,13 +82,15 @@ void main() {
 
       try {
         await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
-        await tester.pumpAndSettle(); // Wait for initial build and _packageInfo
+        await tester.pump(
+          const Duration(milliseconds: 400),
+        ); // Wait for initial build and _packageInfo
 
         // Tap the ListTile itself, not just the text
         final listTileFinder = find.byType(fluent.ListTile);
         expect(listTileFinder, findsOneWidget);
         await tester.tap(listTileFinder);
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
 
         // Now we can safely look for the AboutScreen by its type
         expect(find.byType(AboutScreen), findsOneWidget);
@@ -100,16 +107,16 @@ void main() {
 
       try {
         await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
 
         // Navigate to AboutScreen
         await tester.tap(find.byType(ListTile));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
         expect(find.byType(AboutScreen), findsOneWidget);
 
         // Navigate back
         await tester.tap(find.byType(BackButton));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
 
         // Should be back at SettingsScreen with loading reset
         expect(find.byType(SettingsScreen), findsOneWidget);
@@ -127,16 +134,16 @@ void main() {
 
       try {
         await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
 
         // Navigate to AboutScreen
         await tester.tap(find.byType(fluent.ListTile));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
         expect(find.byType(AboutScreen), findsOneWidget);
 
         // Navigate back
         await tester.tap(find.byIcon(fluent.FluentIcons.back));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
 
         // Check if AboutScreen is gone
         expect(find.byType(AboutScreen), findsNothing);

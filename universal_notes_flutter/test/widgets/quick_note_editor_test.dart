@@ -1,3 +1,6 @@
+@Tags(['widget'])
+library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/widgets/quick_note_editor.dart';
@@ -22,7 +25,7 @@ void main() {
 
       await tester.enterText(find.byType(TextField), 'Hello World');
       await tester.tap(find.text('Salvar'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 200));
 
       expect(savedText, 'Hello World');
       expect(find.byType(QuickNoteEditor), findsNothing);
@@ -38,7 +41,7 @@ void main() {
 
       await tester.enterText(find.byType(TextField), 'Hello World');
       await tester.tap(find.text('Cancelar'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 200));
 
       expect(savedText, isNull);
       expect(find.byType(QuickNoteEditor), findsNothing);

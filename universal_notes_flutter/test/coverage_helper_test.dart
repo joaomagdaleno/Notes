@@ -1,3 +1,6 @@
+@Tags(['unit'])
+library;
+
 // The purpose of this file is to import all other files, so the coverage
 // tool can generate a complete report.
 // ignore_for_file: unused_import

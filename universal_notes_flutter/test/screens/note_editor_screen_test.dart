@@ -1,3 +1,6 @@
+@Tags(['widget'])
+library;
+
 // Placeholder test - NoteEditorScreen requires Firebase/Firestore initialization
 // which cannot be easily mocked in unit tests. This screen should be tested
 // via integration tests instead.

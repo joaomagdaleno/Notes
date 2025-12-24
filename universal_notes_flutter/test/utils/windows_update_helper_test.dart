@@ -1,3 +1,6 @@
+@Tags(['unit'])
+library;
+
 // test/utils/windows_update_helper_test.dart
 
 import 'dart:io';

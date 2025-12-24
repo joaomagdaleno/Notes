@@ -1,3 +1,6 @@
+@Tags(['unit'])
+library;
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/models/paper_config.dart';

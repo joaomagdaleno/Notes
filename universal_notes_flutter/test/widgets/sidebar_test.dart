@@ -1,3 +1,6 @@
+@Tags(['widget'])
+library;
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -63,7 +66,7 @@ void main() {
 
       final scaffoldState = tester.state<ScaffoldState>(find.byType(Scaffold));
       scaffoldState.openDrawer();
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('All Notes'), findsOneWidget);
       expect(find.text('Favorites'), findsOneWidget);
@@ -77,10 +80,10 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest((s) => selected = s));
 
       tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       await tester.tap(find.text('Favorites'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(selected?.type, SidebarItemType.favorites);
     });
@@ -88,13 +91,13 @@ void main() {
     testWidgets('displays folders from stream', (WidgetTester tester) async {
       await tester.pumpWidget(createWidgetUnderTest((_) {}));
       tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       final folders = <Folder>[
         const Folder(id: '1', name: 'Work'),
       ];
       foldersController.add(folders);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('Work'), findsOneWidget);
     });
@@ -107,11 +110,11 @@ void main() {
 
       await tester.pumpWidget(createWidgetUnderTest((_) {}));
       tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       final tags = ['Flutter', 'Dart'];
       tagsController.add(tags);
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('Flutter'), findsOneWidget);
       expect(find.text('Dart'), findsOneWidget);

@@ -1,3 +1,6 @@
+@Tags(['widget'])
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';

@@ -1,3 +1,6 @@
+@Tags(['widget'])
+library;
+
 // test/utils/update_helper_test.dart
 
 import 'dart:io';
@@ -128,13 +131,13 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Atualização Disponível'), findsOneWidget);
 
       // Tap "Agora não"
       await tester.tap(find.text('Agora não'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Atualização Disponível'), findsNothing);
       // Verify no download initiated (no http calls)
@@ -158,7 +161,7 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Você já está na versão mais recente.'), findsOneWidget);
     });
@@ -183,7 +186,7 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Check failed'), findsOneWidget);
     });
@@ -220,7 +223,7 @@ void main() {
 
       // Open Dialog
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Confirm update
       await tester.tap(find.text('Sim, atualizar'));
@@ -268,7 +271,7 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.text('Sim, atualizar'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
@@ -301,9 +304,9 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.text('Sim, atualizar'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(
         find.textContaining('Permissão para instalar pacotes é necessária'),
@@ -334,7 +337,7 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(onNoUpdateCalled, isTrue);
     });
@@ -361,7 +364,7 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(errorMessage, equals('Test error message'));
     });
@@ -395,7 +398,7 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.text('Sim, atualizar'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
@@ -436,7 +439,7 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.text('Sim, atualizar'));
       await tester.pump();
 
@@ -474,9 +477,9 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.text('Sim, atualizar'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       // await tester.pump();
       // await tester.pump(const Duration(milliseconds: 100));
 
@@ -509,9 +512,9 @@ void main() {
       );
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.text('Sim, atualizar'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // On Windows (non-Android), it typically stops or behaves differently?
       // update_helper.dart: _handleUpdate checks 'if (isAndroid)'.
