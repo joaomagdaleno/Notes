@@ -54,12 +54,11 @@ class UpdateService {
       final url = _getUpdateUrl(currentVersionStr);
 
       // 🛡️ Sentinel: Add a timeout to prevent the request from hanging
-      // indefinitely.
-      final response = await _client
-          .get(url)
-          .timeout(
-            const Duration(seconds: 600),
-          );
+      // indefinitely. This is a critical defense against network-related
+      // Denial-of-Service (DoS) attacks.
+      final response = await _client.get(url).timeout(
+        const Duration(seconds: 30),
+      );
 
       if (response.statusCode == 200) {
         // 🛡️ Sentinel: Safely decode JSON to prevent crashes from invalid

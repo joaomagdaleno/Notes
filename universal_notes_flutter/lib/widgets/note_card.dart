@@ -48,6 +48,7 @@ class NoteCard extends StatefulWidget {
 
 class _NoteCardState extends State<NoteCard> {
   bool _isHovered = false;
+  late String _plainTextContent;
   // String _plainTextContent = '';
   // ⚡ Bolt: Hoisting the gradient decoration for performance.
   // This avoids re-creating the BoxDecoration on every build, which is
@@ -62,6 +63,20 @@ class _NoteCardState extends State<NoteCard> {
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     ),
+  );
+
+  // ⚡ Bolt: Hoist the favorite background decoration for performance.
+  // This avoids re-creating the BoxDecoration on every build.
+  static final _favoriteBackgroundDecoration = BoxDecoration(
+    color: Colors.amber,
+    borderRadius: BorderRadius.circular(12),
+  );
+
+  // ⚡ Bolt: Hoist the delete background decoration for performance.
+  // This avoids re-creating the BoxDecoration on every build.
+  static final _deleteBackgroundDecoration = BoxDecoration(
+    color: Colors.red,
+    borderRadius: BorderRadius.circular(12),
   );
 
   @override
@@ -199,10 +214,7 @@ class _NoteCardState extends State<NoteCard> {
         return false;
       },
       background: Container(
-        decoration: BoxDecoration(
-          color: Colors.amber,
-          borderRadius: BorderRadius.circular(12),
-        ),
+        decoration: _favoriteBackgroundDecoration,
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: 20),
         child: Icon(
@@ -212,10 +224,7 @@ class _NoteCardState extends State<NoteCard> {
         ),
       ),
       secondaryBackground: Container(
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(12),
-        ),
+        decoration: _deleteBackgroundDecoration,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         child: const Icon(Icons.delete, color: Colors.white, size: 32),
