@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart'; // Switching to mocktail for easier setup without code gen
 import 'package:package_info_plus/package_info_plus.dart';
@@ -104,6 +105,7 @@ Future<void> setupTestEnvironment() async {
     buildSignature: '',
   );
   SharedPreferences.setMockInitialValues({});
+  debugDefaultTargetPlatformOverride = TargetPlatform.windows;
 
   // Register fallback values for mocktail
   registerFallbackValue(
@@ -137,9 +139,21 @@ Future<void> setupTest() async {
     await txn.delete('folders');
     await txn.delete('tags');
   });
-  SyncService.instance.firestoreRepository = createDefaultMockRepository();
+
+  final mockFirestore = createDefaultMockRepository();
+  SyncService.instance.firestoreRepository = mockFirestore;
   NoteRepository.instance.firebaseService = MockFirebaseService();
+
+  // Also stub currentNotes to avoid empty states in StreamBuilder
+  // Assuming SyncService has a way to set currentNotes or we need to mock SyncService too.
+  // Wait, SyncService is a singleton. I can't easily mock it if it's already initialized.
+
   await SyncService.instance.init();
+}
+
+Future<void> tearDownTest() async {
+  debugDefaultTargetPlatformOverride = null;
+  await SyncService.instance.reset();
 }
 
 Future<void> pumpNotesScreen(

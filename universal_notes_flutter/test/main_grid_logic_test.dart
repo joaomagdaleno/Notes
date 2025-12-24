@@ -12,7 +12,7 @@ void main() {
 
   setUpAll(() async => await setupTestEnvironment());
   setUp(() async => await setupTest());
-  tearDown(() async => await SyncService.instance.reset());
+  tearDown(() async => await tearDownTest());
 
   group('NotesScreen Responsive Layout', () {
     testWidgets('calculates crossAxisCount correctly on Windows (gridMedium)', (
