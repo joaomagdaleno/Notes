@@ -105,7 +105,6 @@ Future<void> setupTestEnvironment() async {
     buildSignature: '',
   );
   SharedPreferences.setMockInitialValues({});
-  debugDefaultTargetPlatformOverride = TargetPlatform.windows;
 
   // Register fallback values for mocktail
   registerFallbackValue(
@@ -138,6 +137,17 @@ Future<void> setupTest() async {
     await txn.delete('notes');
     await txn.delete('folders');
     await txn.delete('tags');
+    // Insert a dummy note to ensure GridView is rendered instead of EmptyState
+    await txn.insert('notes', {
+      'id': 'default-1',
+      'title': 'Default Note',
+      'content': 'Default Content',
+      'createdAt': DateTime.now().millisecondsSinceEpoch,
+      'lastModified': DateTime.now().millisecondsSinceEpoch,
+      'isFavorite': 0,
+      'isInTrash': 0,
+      'ownerId': 'user1',
+    });
   });
 
   final mockFirestore = createDefaultMockRepository();
