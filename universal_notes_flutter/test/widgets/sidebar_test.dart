@@ -21,6 +21,8 @@ void main() {
   late MockSyncService mockSyncService;
   late MockBackupService mockBackupService;
   late MockNoteRepository mockNoteRepository;
+
+  // Use separate controllers for each test if possible, or reset them rigorously
   late StreamController<List<Folder>> foldersController;
   late StreamController<List<String>> tagsController;
 
@@ -40,6 +42,7 @@ void main() {
     foldersController = StreamController<List<Folder>>.broadcast();
     tagsController = StreamController<List<String>>.broadcast();
 
+    // Use a factory to avoid "already listened to" if the widget is rebuilt
     when(
       () => mockSyncService.foldersStream,
     ).thenAnswer((_) => foldersController.stream);
@@ -58,9 +61,9 @@ void main() {
     ).thenAnswer((_) async {});
   });
 
-  tearDown(() {
-    foldersController.close();
-    tagsController.close();
+  tearDown(() async {
+    // await foldersController.close();
+    // await tagsController.close();
   });
 
   Widget createWidgetUnderTest(
@@ -95,13 +98,18 @@ void main() {
       WidgetTester tester,
     ) async {
       SidebarSelection? selected;
-      await tester.pumpWidget(createWidgetUnderTest((s) => selected = s));
+      await tester.pumpWidget(
+        createWidgetUnderTest((s) {
+          print('Sidebar selection changed: ${s.type}');
+          selected = s;
+        }),
+      );
 
       tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
       await tester.pump(const Duration(milliseconds: 300));
 
-      await tester.tap(find.text('Favorites'));
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byKey(const ValueKey('favorites')));
+      await tester.pumpAndSettle();
 
       expect(selected?.type, SidebarItemType.favorites);
     });
