@@ -13,9 +13,9 @@ class TestFixtures {
   static final sampleNote = Note(
     id: 'test-note-1',
     title: 'Test Note',
-    content: '{"ops":[{"insert":"Test content\\n"}]}',
-    createdAt: DateTime(2024, 1, 1),
-    lastModified: DateTime(2024, 1, 1),
+    content: r'{"ops":[{"insert":"Test content\n"}]}',
+    createdAt: DateTime(2024, 1),
+    lastModified: DateTime(2024, 1),
     ownerId: 'test-user-1',
   );
 
@@ -23,9 +23,9 @@ class TestFixtures {
   static final favoriteNote = Note(
     id: 'fav-note-1',
     title: 'Favorite Note',
-    content: '{"ops":[{"insert":"Favorite content\\n"}]}',
-    createdAt: DateTime(2024, 1, 1),
-    lastModified: DateTime(2024, 1, 1),
+    content: r'{"ops":[{"insert":"Favorite content\n"}]}',
+    createdAt: DateTime(2024, 1),
+    lastModified: DateTime(2024, 1),
     ownerId: 'test-user-1',
     isFavorite: true,
   );
@@ -34,20 +34,20 @@ class TestFixtures {
   static final trashedNote = Note(
     id: 'trash-note-1',
     title: 'Trashed Note',
-    content: '{"ops":[{"insert":"Trashed content\\n"}]}',
-    createdAt: DateTime(2024, 1, 1),
-    lastModified: DateTime(2024, 1, 1),
+    content: r'{"ops":[{"insert":"Trashed content\n"}]}',
+    createdAt: DateTime(2024, 1),
+    lastModified: DateTime(2024, 1),
     ownerId: 'test-user-1',
     isInTrash: true,
   );
 
   /// List of sample notes for list tests
-  static final sampleNotes = [
+  static final List<Note> sampleNotes = [
     sampleNote,
     Note(
       id: 'test-note-2',
       title: 'Second Note',
-      content: '{"ops":[{"insert":"Second content\\n"}]}',
+      content: r'{"ops":[{"insert":"Second content\n"}]}',
       createdAt: DateTime(2024, 1, 2),
       lastModified: DateTime(2024, 1, 2),
       ownerId: 'test-user-1',
@@ -55,7 +55,7 @@ class TestFixtures {
     Note(
       id: 'test-note-3',
       title: 'Third Note',
-      content: '{"ops":[{"insert":"Third content\\n"}]}',
+      content: r'{"ops":[{"insert":"Third content\n"}]}',
       createdAt: DateTime(2024, 1, 3),
       lastModified: DateTime(2024, 1, 3),
       ownerId: 'test-user-1',
@@ -68,7 +68,7 @@ class TestFixtures {
     noteId: 'test-note-1',
     type: NoteEventType.insert,
     payload: const {'title': 'Test Note'},
-    timestamp: DateTime(2024, 1, 1),
+    timestamp: DateTime(2024, 1),
   );
 
   /// Empty note for edge case tests
@@ -76,8 +76,8 @@ class TestFixtures {
     id: 'empty-note',
     title: '',
     content: '',
-    createdAt: DateTime(2024, 1, 1),
-    lastModified: DateTime(2024, 1, 1),
+    createdAt: DateTime(2024, 1),
+    lastModified: DateTime(2024, 1),
     ownerId: 'test-user-1',
   );
 }

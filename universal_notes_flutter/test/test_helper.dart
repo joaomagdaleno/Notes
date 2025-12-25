@@ -67,7 +67,7 @@ MockFirestoreRepository createDefaultMockRepository([List<Note>? notes]) {
   ).thenAnswer((_) => const Stream.empty());
 
   when(
-    () => mockRepo.notesStream(),
+    mockRepo.notesStream,
   ).thenAnswer((_) => const Stream.empty());
 
   when(
@@ -153,11 +153,11 @@ Future<void> setupTest() async {
     ),
   ).thenAnswer((_) async => defaultNotes);
 
-  when(() => mockNoteRepo.getAllFolders()).thenAnswer((_) async => []);
-  when(() => mockNoteRepo.getAllTagNames()).thenAnswer((_) async => []);
-  when(() => mockNoteRepo.getAllSnippets()).thenAnswer((_) async => []);
-  when(() => mockNoteRepo.getUnsyncedNotes()).thenAnswer((_) async => []);
-  when(() => mockNoteRepo.getUnsyncedWords()).thenAnswer((_) async => []);
+  when(mockNoteRepo.getAllFolders).thenAnswer((_) async => []);
+  when(mockNoteRepo.getAllTagNames).thenAnswer((_) async => []);
+  when(mockNoteRepo.getAllSnippets).thenAnswer((_) async => []);
+  when(mockNoteRepo.getUnsyncedNotes).thenAnswer((_) async => []);
+  when(mockNoteRepo.getUnsyncedWords).thenAnswer((_) async => []);
   when(
     () => mockNoteRepo.getNoteWithContent(any()),
   ).thenAnswer((_) async => defaultNotes.first);
@@ -189,10 +189,10 @@ Future<void> setupTest() async {
   // Stub stats service listeners/session
   when(() => mockStats.addListener(any())).thenReturn(null);
   when(() => mockStats.removeListener(any())).thenReturn(null);
-  when(() => mockStats.stopSession()).thenAnswer((_) async {});
+  when(mockStats.stopSession).thenAnswer((_) async {});
   when(
     () => mockStats.getStatsForNote(any()),
-  ).thenAnswer((_) async => ReadingStats(noteId: 'test'));
+  ).thenAnswer((_) async => const ReadingStats(noteId: 'test'));
   when(() => mockStats.startSession(any())).thenAnswer((_) async {});
 
   // Stub interaction service
@@ -245,7 +245,7 @@ Future<void> pumpNotesScreen(
   final mockUpdate = updateService ?? MockUpdateService();
   if (updateService == null) {
     when(
-      () => mockUpdate.checkForUpdate(),
+      mockUpdate.checkForUpdate,
     ).thenAnswer((_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate));
   }
 

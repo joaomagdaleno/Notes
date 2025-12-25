@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-library;
 
 import 'dart:io';
 
@@ -15,7 +13,7 @@ void main() {
         continue;
       }
 
-      String tag = 'unit';
+      var tag = 'unit';
       if (content.contains('testWidgets')) {
         tag = 'widget';
       }
@@ -24,14 +22,14 @@ void main() {
       }
 
       // Replace or Add @Tags
-      final tagRegex = RegExp(r"@Tags\(\[.*?\]\)");
+      final tagRegex = RegExp(r'@Tags\(\[.*?\]\)');
       final newTag = "@Tags(['$tag'])";
 
       String newContent;
       if (tagRegex.hasMatch(content)) {
         newContent = content.replaceFirst(tagRegex, newTag);
       } else {
-        newContent = "$newTag\nlibrary;\n\n$content";
+        newContent = '$newTag\nlibrary;\n\n$content';
       }
 
       file.writeAsStringSync(newContent);

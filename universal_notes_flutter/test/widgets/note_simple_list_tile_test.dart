@@ -3,14 +3,14 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
-import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/services/storage_service.dart';
+import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 
 import 'note_simple_list_tile_test.mocks.dart';
 

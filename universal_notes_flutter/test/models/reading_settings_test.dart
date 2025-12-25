@@ -22,8 +22,8 @@ void main() {
 
     test('creates with custom values', () {
       const settings = ReadingSettings(
-        fontSize: 24.0,
-        lineHeight: 2.0,
+        fontSize: 24,
+        lineHeight: 2,
         letterSpacing: 1.5,
         textAlign: TextAlign.justify,
         theme: ReadingTheme.sepia,
@@ -51,7 +51,7 @@ void main() {
     group('JSON serialization', () {
       test('toJson converts to map', () {
         const settings = ReadingSettings(
-          fontSize: 20.0,
+          fontSize: 20,
           lineHeight: 1.8,
           letterSpacing: 0.5,
           textAlign: TextAlign.center,
@@ -123,9 +123,9 @@ void main() {
 
       test('roundtrip serialization', () {
         const original = ReadingSettings(
-          fontSize: 16.0,
+          fontSize: 16,
           lineHeight: 2.2,
-          letterSpacing: 1.0,
+          letterSpacing: 1,
           textAlign: TextAlign.right,
           theme: ReadingTheme.dark,
           fontFamily: 'Monospace',
@@ -145,7 +145,7 @@ void main() {
         const original = ReadingSettings();
 
         final copied = original.copyWith(
-          fontSize: 24.0,
+          fontSize: 24,
           theme: ReadingTheme.dark,
         );
 
@@ -158,7 +158,7 @@ void main() {
         const original = ReadingSettings();
 
         final copied = original.copyWith(
-          fontSize: 14.0,
+          fontSize: 14,
           lineHeight: 1.4,
           letterSpacing: 0.1,
           textAlign: TextAlign.right,
@@ -182,7 +182,7 @@ void main() {
     group('getTextStyle', () {
       testWidgets('returns correct text style', (tester) async {
         const settings = ReadingSettings(
-          fontSize: 20.0,
+          fontSize: 20,
           lineHeight: 1.8,
           letterSpacing: 0.5,
           theme: ReadingTheme.dark,
@@ -207,7 +207,7 @@ void main() {
       });
 
       testWidgets('uses null fontFamily for Default', (tester) async {
-        const settings = ReadingSettings(fontFamily: 'Default');
+        const settings = ReadingSettings();
 
         await tester.pumpWidget(
           MaterialApp(
@@ -241,16 +241,16 @@ void main() {
 
     group('equality', () {
       test('equals with same values', () {
-        const settings1 = ReadingSettings(fontSize: 20.0);
-        const settings2 = ReadingSettings(fontSize: 20.0);
+        const settings1 = ReadingSettings(fontSize: 20);
+        const settings2 = ReadingSettings(fontSize: 20);
 
         expect(settings1, equals(settings2));
         expect(settings1.hashCode, equals(settings2.hashCode));
       });
 
       test('not equals with different values', () {
-        const settings1 = ReadingSettings(fontSize: 18.0);
-        const settings2 = ReadingSettings(fontSize: 20.0);
+        const settings1 = ReadingSettings();
+        const settings2 = ReadingSettings(fontSize: 20);
 
         expect(settings1, isNot(equals(settings2)));
       });

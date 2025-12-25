@@ -8,9 +8,9 @@ import 'test_helper.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() async => await setupTestEnvironment());
-  setUp(() async => await setupTest());
-  tearDown(() async => await SyncService.instance.reset());
+  setUpAll(() async => setupTestEnvironment());
+  setUp(() async => setupTest());
+  tearDown(() async => SyncService.instance.reset());
 
   testWidgets('NotesScreen sanity check', (WidgetTester tester) async {
     await pumpNotesScreen(tester);

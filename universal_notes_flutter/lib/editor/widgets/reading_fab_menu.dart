@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 /// FAB menu for Zen mode reading controls.
 class ReadingFabMenu extends StatefulWidget {
+  /// Creates a new [ReadingFabMenu].
   const ReadingFabMenu({
     required this.onSettingsTap,
     required this.onOutlineTap,

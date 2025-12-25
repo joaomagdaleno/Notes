@@ -105,7 +105,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(fontSize: 18),
+              settings: const ReadingSettings(),
               onSettingsChanged: (s) => changedSettings = s,
             ),
           ),
@@ -143,7 +143,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(nightLightEnabled: false),
+              settings: const ReadingSettings(),
               onSettingsChanged: (_) {},
             ),
           ),
@@ -160,7 +160,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(nightLightEnabled: false),
+              settings: const ReadingSettings(),
               onSettingsChanged: (s) => changedSettings = s,
             ),
           ),
@@ -201,7 +201,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(theme: ReadingTheme.light),
+              settings: const ReadingSettings(),
               onSettingsChanged: (s) => changedSettings = s,
             ),
           ),

@@ -5,6 +5,7 @@ import 'package:universal_notes_flutter/models/reading_stats.dart';
 
 /// Service for tracking reading statistics (time, position, goals).
 class ReadingStatsService extends ChangeNotifier {
+  /// Creates a new [ReadingStatsService].
   ReadingStatsService({required Database database}) : _database = database;
 
   final Database _database;

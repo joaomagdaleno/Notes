@@ -28,7 +28,7 @@ class TracingService {
 
     try {
       registerGlobalTracerProvider(_tracerProvider);
-    } catch (_) {
+    } on Exception catch (_) {
       // Global provider might already be registered
     }
     _tracer = _tracerProvider.getTracer('universal-notes-flutter');

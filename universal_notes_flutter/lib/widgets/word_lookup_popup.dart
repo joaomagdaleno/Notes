@@ -40,8 +40,8 @@ class _WordLookupPopupState extends State<WordLookupPopup>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadDefinition();
-    _loadWikipedia();
+    unawaited(_loadDefinition());
+    unawaited(_loadWikipedia());
   }
 
   @override
@@ -269,7 +269,7 @@ class _WordLookupPopupState extends State<WordLookupPopup>
                 height: 120,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                errorBuilder: (a, b, c) => const SizedBox.shrink(),
               ),
             ),
             const SizedBox(height: 12),

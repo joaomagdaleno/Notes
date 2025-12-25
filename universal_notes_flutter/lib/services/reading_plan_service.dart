@@ -30,7 +30,7 @@ class ReadingPlanService {
       _tableName,
       orderBy: 'createdAt DESC',
     );
-    return results.map((row) => ReadingPlan.fromMap(row)).toList();
+    return results.map(ReadingPlan.fromMap).toList();
   }
 
   /// Gets a plan by ID.

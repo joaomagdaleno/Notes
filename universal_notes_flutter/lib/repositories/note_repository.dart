@@ -811,7 +811,7 @@ class NoteRepository {
       whereArgs: [note.id],
     );
 
-    for (var tag in note.tags) {
+    for (final tag in note.tags) {
       await txn.insert(
         _noteTagsTable,
         {'note_id': note.id, 'tag_id': tag},
@@ -911,7 +911,7 @@ class NoteRepository {
       await db.update(
         _userDictionaryTable,
         {
-          'frequency': (existing.first['frequency'] as int) + 1,
+          'frequency': (existing.first['frequency']! as int) + 1,
           'lastUsed': DateTime.now().millisecondsSinceEpoch,
           'isSynced': 0, // Local change
         },

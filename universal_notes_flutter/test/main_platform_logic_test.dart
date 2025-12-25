@@ -10,9 +10,9 @@ import 'test_helper.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() async => await setupTestEnvironment());
-  setUp(() async => await setupTest());
-  tearDown(() async => await tearDownTest());
+  setUpAll(() async => setupTestEnvironment());
+  setUp(() async => setupTest());
+  tearDown(() async => tearDownTest());
 
   group('NotesScreen Platform Logic', () {
     testWidgets('shows navigation view on Windows host', (tester) async {

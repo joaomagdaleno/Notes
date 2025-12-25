@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
 
+/// A button widget for switching between editor personas.
 class PersonaButton extends StatelessWidget {
+  /// Creates a new [PersonaButton].
   const PersonaButton({
     required this.persona,
     required this.activePersona,

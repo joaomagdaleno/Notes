@@ -7,7 +7,7 @@ import 'package:universal_notes_flutter/models/sync_status.dart';
 
 void main() {
   group('NoteEvent', () {
-    final timestamp = DateTime(2023, 1, 1, 12, 0);
+    final timestamp = DateTime(2023, 1, 1, 12);
     const payload = {'text': 'Hello', 'pos': 0};
 
     test('toMap/fromMap symmetry', () {

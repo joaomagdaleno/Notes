@@ -1,5 +1,5 @@
+// This script is intended to be run from the command line, so printing is appropriate.
 // ignore_for_file: avoid_print
-library;
 
 /// Script to analyze test timing from JSON reporter output
 /// Identifies the slowest tests for optimization
@@ -10,7 +10,8 @@ void main() async {
   final file = File('test_timing.json');
   if (!file.existsSync()) {
     print(
-      'No test_timing.json found. Run: flutter test --reporter json > test_timing.json',
+      'No test_timing.json found. Run: '
+      'flutter test --reporter json > test_timing.json',
     );
     return;
   }
@@ -39,7 +40,7 @@ void main() async {
           });
         }
       }
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   if (testDurations.isEmpty) {

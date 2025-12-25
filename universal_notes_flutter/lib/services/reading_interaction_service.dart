@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 /// Service for managing reading annotations (highlights and notes).
 class ReadingInteractionService {
+  /// Creates a new [ReadingInteractionService].
   ReadingInteractionService({required Database database})
     : _database = database;
 
@@ -20,7 +21,7 @@ class ReadingInteractionService {
       orderBy: 'startOffset ASC',
     );
 
-    return results.map((row) => ReadingAnnotation.fromMap(row)).toList();
+    return results.map(ReadingAnnotation.fromMap).toList();
   }
 
   /// Adds a new annotation (highlight or note).

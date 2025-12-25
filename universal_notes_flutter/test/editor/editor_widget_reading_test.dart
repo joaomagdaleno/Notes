@@ -54,7 +54,7 @@ void main() {
 
     testWidgets('Advanced formatting is applied', (WidgetTester tester) async {
       final doc = DocumentModel.fromPlainText('Some content for formatting.');
-      final settings = const ReadingSettings(
+      const settings = ReadingSettings(
         fontSize: 24,
         fontFamily: 'Serif',
         paragraphSpacing: 20,
@@ -77,7 +77,7 @@ void main() {
 
       // Verify text style (we can search for the text and check style)
       final textWidget = find.byType(RichText).first;
-      final RichText richText = tester.widget<RichText>(textWidget);
+      final richText = tester.widget<RichText>(textWidget);
       final textSpan = richText.text as TextSpan;
 
       // The style should have fontSize 24 and fontFamily 'Serif'

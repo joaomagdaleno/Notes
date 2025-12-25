@@ -3,12 +3,12 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:universal_notes_flutter/models/stroke.dart';
-import 'package:universal_notes_flutter/models/tag.dart';
-import 'package:universal_notes_flutter/models/sync_status.dart';
-import 'package:universal_notes_flutter/models/sync_conflict.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
+import 'package:universal_notes_flutter/models/stroke.dart';
+import 'package:universal_notes_flutter/models/sync_conflict.dart';
+import 'package:universal_notes_flutter/models/sync_status.dart';
+import 'package:universal_notes_flutter/models/tag.dart';
 
 void main() {
   group('Stroke and Point', () {

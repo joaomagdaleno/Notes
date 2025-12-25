@@ -36,7 +36,7 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
   late StreamSubscription<double> _speedSub;
 
   ReadAloudState _state = ReadAloudState.stopped;
-  double _speed = 1.0;
+  double _speed = 1;
 
   @override
   void initState() {
@@ -54,8 +54,8 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
 
   @override
   void dispose() {
-    _stateSub.cancel();
-    _speedSub.cancel();
+    unawaited(_stateSub.cancel());
+    unawaited(_speedSub.cancel());
     super.dispose();
   }
 
@@ -138,7 +138,7 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () {
-                    widget.service.stop();
+                    unawaited(widget.service.stop());
                     widget.onClose?.call();
                   },
                 )

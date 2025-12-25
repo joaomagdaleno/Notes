@@ -51,9 +51,8 @@ class ReadAloudService {
     await _tts.setVolume(1);
     await _tts.setPitch(1);
 
-    _tts.setProgressHandler(_handleProgress);
-
     _tts
+      ..setProgressHandler(_handleProgress)
       ..setCompletionHandler(() {
         _updateState(ReadAloudState.stopped);
         _currentWordIndex = 0;

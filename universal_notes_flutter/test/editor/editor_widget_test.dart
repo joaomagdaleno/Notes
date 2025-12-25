@@ -4,14 +4,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:universal_notes_flutter/editor/editor_widget.dart';
-import 'package:universal_notes_flutter/editor/document_manipulator.dart';
-import 'package:universal_notes_flutter/models/document_model.dart';
-import 'package:universal_notes_flutter/editor/document.dart';
-
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:universal_notes_flutter/editor/document.dart';
+import 'package:universal_notes_flutter/editor/document_manipulator.dart';
+import 'package:universal_notes_flutter/editor/editor_widget.dart';
+import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
 void main() {

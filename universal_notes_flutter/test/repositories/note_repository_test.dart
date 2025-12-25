@@ -76,7 +76,7 @@ void main() {
       const tag = Tag(
         id: 't1',
         name: 'Test Tag',
-        color: const Color(0xFF00FF00),
+        color: Color(0xFF00FF00),
       );
       await noteRepository.createTag(tag);
       final allTags = await noteRepository.getAllTags();

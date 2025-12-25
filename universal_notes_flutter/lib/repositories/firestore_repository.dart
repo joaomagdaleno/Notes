@@ -8,14 +8,14 @@ import 'package:universal_notes_flutter/services/tracing_service.dart';
 
 /// A repository for interacting with Firestore.
 class FirestoreRepository {
-  FirestoreRepository._() {
-    _initCollections();
-  }
 
   /// Creates a [FirestoreRepository] (for migration or specific needs, but
   /// [instance] should be preferred).
   @visibleForTesting
   FirestoreRepository() {
+    _initCollections();
+  }
+  FirestoreRepository._() {
     _initCollections();
   }
 

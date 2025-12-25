@@ -1,5 +1,5 @@
+// This script is intended to be run from the command line, so printing is appropriate.
 // ignore_for_file: avoid_print
-library;
 
 import 'dart:io';
 
@@ -16,7 +16,7 @@ void main() async {
     String? content;
     try {
       content = await file.readAsString();
-    } catch (_) {
+    } on Exception catch (_) {
       continue;
     }
 

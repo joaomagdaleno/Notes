@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print
-library;
 
 import 'dart:io';
 
@@ -12,9 +11,9 @@ void main() async {
 
   final lines = await file.readAsLines();
   final fileCoverage = <String, Map<String, int>>{};
-  String currentFile = '';
+  var currentFile = '';
 
-  for (var line in lines) {
+  for (final line in lines) {
     if (line.startsWith('SF:')) {
       currentFile = line.substring(3);
       fileCoverage[currentFile] = {'total': 0, 'covered': 0};

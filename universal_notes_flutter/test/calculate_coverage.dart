@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print
-library;
 
 import 'dart:io';
 
@@ -11,10 +10,10 @@ void main() async {
   }
 
   final lines = await file.readAsLines();
-  int totalLines = 0;
-  int coveredLines = 0;
+  var totalLines = 0;
+  var coveredLines = 0;
 
-  for (var line in lines) {
+  for (final line in lines) {
     if (line.startsWith('DA:')) {
       totalLines++;
       final parts = line.split(',');

@@ -23,7 +23,7 @@ void main() {
     speedController = StreamController<double>.broadcast();
 
     when(mockService.currentState).thenReturn(ReadAloudState.stopped);
-    when(mockService.currentSpeed).thenReturn(1.0);
+    when(mockService.currentSpeed).thenReturn(1);
     when(mockService.stateStream).thenAnswer((_) => stateController.stream);
     when(mockService.speedStream).thenAnswer((_) => speedController.stream);
   });
@@ -96,7 +96,7 @@ void main() {
     });
 
     testWidgets('calls onClose when close button pressed', (tester) async {
-      bool closed = false;
+      var closed = false;
       await tester.pumpWidget(createWidget(onClose: () => closed = true));
 
       await tester.tap(find.byIcon(Icons.close));

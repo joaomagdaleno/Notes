@@ -39,7 +39,7 @@ class ReadingBookmarksService {
       orderBy: 'position ASC',
     );
 
-    return results.map((row) => _fromRow(row)).toList();
+    return results.map(_fromRow).toList();
   }
 
   /// Gets a bookmark by ID.

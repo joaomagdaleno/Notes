@@ -1,5 +1,5 @@
+// This script is intended to be run from the command line, so printing is appropriate.
 // ignore_for_file: avoid_print
-library;
 
 import 'dart:convert';
 import 'dart:io';
@@ -19,7 +19,7 @@ void main() async {
         final test = json['test'] as Map<String, dynamic>;
         idToName[test['id'] as int] = test['name'] as String;
       }
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   print('=== SLOW TESTS MAPPING ===');

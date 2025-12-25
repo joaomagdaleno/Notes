@@ -170,8 +170,10 @@ class EditorWidget extends StatefulWidget {
   /// Callback when scroll to top is pressed.
   final VoidCallback? onScrollToTop;
 
-  /// Callback for smart navigation (next/prev).
+  /// Callback for smart navigation to next section.
   final VoidCallback? onNextSmart;
+
+  /// Callback for smart navigation to previous section.
   final VoidCallback? onPrevSmart;
 
   /// Callback for next plan note.
@@ -200,6 +202,8 @@ class EditorWidget extends StatefulWidget {
 class EditorWidgetState extends State<EditorWidget> {
   late EditorPersona _activePersona;
   final FocusNode _focusNode = FocusNode();
+
+  /// The focus node for the editor widget.
   FocusNode get focusNode => _focusNode;
   late TextSelection _selection;
   late VirtualTextBuffer _buffer;
@@ -1041,8 +1045,28 @@ class EditorWidgetState extends State<EditorWidget> {
                               onTapDown: _handleTapDown,
                               onPanStart: _handlePanStart,
                               onPanUpdate: _handlePanUpdate,
-                              remoteCursors:
-                                  const [], // TODO(user): Filter for block
+                              remoteCursors: widget.remoteCursors.values.where((
+                                c,
+                              ) {
+                                final sel =
+                                    c['selection'] as Map<String, dynamic>;
+                                final base = sel['base'] as int;
+                                final extent = sel['extent'] as int;
+                                final lineStart = _buffer
+                                    .getOffsetForLineTextPosition(
+                                      LineTextPosition(
+                                        line: index,
+                                        character: 0,
+                                      ),
+                                    );
+                                final lineEnd =
+                                    lineStart +
+                                    (line is TextLine
+                                        ? line.toPlainText().length
+                                        : 1);
+                                return (base >= lineStart && base <= lineEnd) ||
+                                    (extent >= lineStart && extent <= lineEnd);
+                              }).toList(),
                               currentColor: widget.currentColor,
                               currentStrokeWidth: widget.currentStrokeWidth,
                               isDrawingMode: widget.isDrawingMode,
@@ -1064,7 +1088,7 @@ class EditorWidgetState extends State<EditorWidget> {
     final theme = settings.theme;
 
     // Apply night light filter
-    Widget content = _buildReadingContent(settings);
+    var content = _buildReadingContent(settings);
     if (settings.nightLightEnabled) {
       content = ColorFiltered(
         colorFilter: ColorFilter.mode(
@@ -1186,8 +1210,8 @@ class EditorWidgetState extends State<EditorWidget> {
               content = Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: InteractiveViewer(
-                  minScale: 1.0,
-                  maxScale: 4.0,
+                  minScale: 1,
+                  maxScale: 4,
                   child: EditorLine(
                     key: ValueKey('reading_line_$index'),
                     line: line,
@@ -1195,9 +1219,9 @@ class EditorWidgetState extends State<EditorWidget> {
                     selection: const TextSelection.collapsed(offset: 0),
                     buffer: _buffer,
                     showCursor: false,
-                    onTapDown: (_, __, ___) {},
-                    onPanStart: (_, __, ___) {},
-                    onPanUpdate: (_, __, ___) {},
+                    onTapDown: (a, b, c) {},
+                    onPanStart: (a, b, c) {},
+                    onPanUpdate: (a, b, c) {},
                     remoteCursors: const [],
                     currentColor: Colors.black,
                     currentStrokeWidth: 2,
@@ -1212,9 +1236,9 @@ class EditorWidgetState extends State<EditorWidget> {
                 selection: const TextSelection.collapsed(offset: 0),
                 buffer: _buffer,
                 showCursor: false,
-                onTapDown: (_, __, ___) {},
-                onPanStart: (_, __, ___) {},
-                onPanUpdate: (_, __, ___) {},
+                onTapDown: (a, b, c) {},
+                onPanStart: (a, b, c) {},
+                onPanUpdate: (a, b, c) {},
                 remoteCursors: const [],
                 currentColor: Colors.black,
                 currentStrokeWidth: 2,
@@ -1254,7 +1278,7 @@ class EditorWidgetState extends State<EditorWidget> {
     final goalMinutes = stats.readingGoalMinutes;
     final currentTimeSeconds = stats.totalReadingTimeSeconds;
     final currentMinutes = currentTimeSeconds / 60;
-    final progress = math.min(1.0, currentMinutes / goalMinutes);
+    final progress = math.min<double>(1, currentMinutes / goalMinutes);
     final remaining = math.max(0, goalMinutes - currentMinutes.toInt());
 
     return Container(
@@ -1266,7 +1290,7 @@ class EditorWidgetState extends State<EditorWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Reading Goal: ${currentMinutes.toInt()}/${goalMinutes} min',
+                'Reading Goal: ${currentMinutes.toInt()}/$goalMinutes min',
                 style: TextStyle(
                   fontSize: 12,
                   color: widget.readingSettings?.theme.textColor.withValues(

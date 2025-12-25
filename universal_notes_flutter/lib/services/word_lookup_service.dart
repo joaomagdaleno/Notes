@@ -36,15 +36,17 @@ class WordLookupService {
 
       final definitions = <DefinitionEntry>[];
       for (final meaning in meanings) {
-        final partOfSpeech = meaning['partOfSpeech'] as String? ?? '';
-        final defs = meaning['definitions'] as List<dynamic>? ?? [];
+        final meaningMap = meaning as Map<String, dynamic>;
+        final partOfSpeech = meaningMap['partOfSpeech'] as String? ?? '';
+        final defs = meaningMap['definitions'] as List<dynamic>? ?? [];
 
         for (final def in defs) {
+          final defMap = def as Map<String, dynamic>;
           definitions.add(
             DefinitionEntry(
               partOfSpeech: partOfSpeech,
-              definition: def['definition'] as String? ?? '',
-              example: def['example'] as String?,
+              definition: defMap['definition'] as String? ?? '',
+              example: defMap['example'] as String?,
             ),
           );
         }
@@ -55,8 +57,9 @@ class WordLookupService {
       String? audioUrl;
 
       for (final phonetic in phonetics) {
-        phoneticText ??= phonetic['text'] as String?;
-        audioUrl ??= phonetic['audio'] as String?;
+        final phoneticMap = phonetic as Map<String, dynamic>;
+        phoneticText ??= phoneticMap['text'] as String?;
+        audioUrl ??= phoneticMap['audio'] as String?;
         if (phoneticText != null && audioUrl != null) break;
       }
 
@@ -84,11 +87,15 @@ class WordLookupService {
 
       final data = json.decode(response.body) as Map<String, dynamic>;
 
+      final contentUrls = data['content_urls'] as Map<String, dynamic>?;
+      final desktop = contentUrls?['desktop'] as Map<String, dynamic>?;
+      final thumbnail = data['thumbnail'] as Map<String, dynamic>?;
+
       return WikipediaSummary(
         title: data['title'] as String? ?? term,
         extract: data['extract'] as String? ?? '',
-        pageUrl: data['content_urls']?['desktop']?['page'] as String?,
-        thumbnailUrl: data['thumbnail']?['source'] as String?,
+        pageUrl: desktop?['page'] as String?,
+        thumbnailUrl: thumbnail?['source'] as String?,
       );
     } on Exception {
       return null;

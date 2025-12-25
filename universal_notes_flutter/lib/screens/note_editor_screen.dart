@@ -246,8 +246,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   @override
   void dispose() {
-    _statsService.removeListener(_onReadingStatsChanged);
-    _statsService.stopSession();
+    _statsService
+      ..removeListener(_onReadingStatsChanged)
+      ..stopSession();
     WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     _tagController.dispose();
@@ -265,7 +266,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     }
     unawaited(_cursorSubscription?.cancel());
     unawaited(_remoteEventsSubscription?.cancel());
-    _readAloudService.dispose();
+    unawaited(_readAloudService.dispose());
     if (_isCollaborative && _note != null) {
       unawaited(_firestoreRepository.removeCursor(_note!.id));
     }
@@ -984,24 +985,26 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _showReadingSettings() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) {
-        return ReadingModeSettings(
-          settings: _readingSettings,
-          onSettingsChanged: _saveReadingSettings,
-          currentGoalMinutes: _readingStats?.readingGoalMinutes ?? 0,
-          onGoalChanged: (minutes) {
-            unawaited(_statsService.setReadingGoal(_note!.id, minutes));
-          },
-          onReadAloudToggle: () {
-            setState(() {
-              _isReadAloudControlsVisible = !_isReadAloudControlsVisible;
-            });
-            Navigator.pop(context);
-          },
-        );
-      },
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (context) {
+          return ReadingModeSettings(
+            settings: _readingSettings,
+            onSettingsChanged: _saveReadingSettings,
+            currentGoalMinutes: _readingStats?.readingGoalMinutes ?? 0,
+            onGoalChanged: (minutes) {
+              unawaited(_statsService.setReadingGoal(_note!.id, minutes));
+            },
+            onReadAloudToggle: () {
+              setState(() {
+                _isReadAloudControlsVisible = !_isReadAloudControlsVisible;
+              });
+              Navigator.pop(context);
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -1016,10 +1019,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
             headings: headings,
             onHeadingTap: (heading) {
               // Scroll to heading position
-              _scrollController.animateTo(
-                heading.position * 1.0,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
+              unawaited(
+                _scrollController.animateTo(
+                  heading.position * 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                ),
               );
               Navigator.pop(context);
             },
@@ -1071,10 +1076,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
               return ReadingBookmarksList(
                 bookmarks: snapshot.data!,
                 onBookmarkTap: (bookmark) {
-                  _scrollController.animateTo(
-                    bookmark.position * 1.0,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
+                  unawaited(
+                    _scrollController.animateTo(
+                      bookmark.position * 1.0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    ),
                   );
                   Navigator.pop(context);
                 },
@@ -1185,37 +1192,39 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   void _createNewReadingPlan(BuildContext context) {
     final controller = TextEditingController();
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('New Reading Plan'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'Plan Title'),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('New Reading Plan'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(hintText: 'Plan Title'),
+            autofocus: true,
           ),
-          TextButton(
-            onPressed: () async {
-              if (controller.text.isNotEmpty && _note != null) {
-                await _planService.createPlan(
-                  title: controller.text,
-                  noteIds: [_note!.id],
-                );
-                if (context.mounted) {
-                  Navigator.pop(context); // Dialog
-                  Navigator.pop(context); // Bottom Sheet
-                  _showReadingPlans(); // Re-open to refresh
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (controller.text.isNotEmpty && _note != null) {
+                  await _planService.createPlan(
+                    title: controller.text,
+                    noteIds: [_note!.id],
+                  );
+                  if (context.mounted) {
+                    Navigator.pop(context); // Dialog
+                    Navigator.pop(context); // Bottom Sheet
+                    _showReadingPlans(); // Re-open to refresh
+                  }
                 }
-              }
-            },
-            child: const Text('Create'),
-          ),
-        ],
+              },
+              child: const Text('Create'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1327,12 +1336,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     unawaited(
       NoteRepository.instance.getNoteWithContent(id).then((Note? note) {
         if (note != null && mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute<void>(
-              builder: (context) => NoteEditorScreen(
-                onSave: widget.onSave,
-                note: note,
+          unawaited(
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
+                builder: (context) => NoteEditorScreen(
+                  onSave: widget.onSave,
+                  note: note,
+                ),
               ),
             ),
           );
@@ -1342,10 +1353,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _scrollToTop() {
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
+    unawaited(
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      ),
     );
   }
 

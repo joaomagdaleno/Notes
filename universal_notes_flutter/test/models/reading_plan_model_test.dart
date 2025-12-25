@@ -34,7 +34,6 @@ void main() {
         id: 'plan-123',
         title: 'My Reading Plan',
         noteIds: ['note1'],
-        currentIndex: 0,
         createdAt: DateTime.now(),
       );
 
