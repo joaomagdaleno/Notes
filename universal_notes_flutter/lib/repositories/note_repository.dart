@@ -21,7 +21,12 @@ import 'package:uuid/uuid.dart';
 
 /// A repository for managing all app data in a local database.
 class NoteRepository {
+  @visibleForTesting
   NoteRepository._();
+
+  static void resetInstance() {
+    instance = NoteRepository._();
+  }
 
   /// The singleton instance of [NoteRepository].
   static NoteRepository instance = NoteRepository._();
@@ -34,10 +39,67 @@ class NoteRepository {
   Database? _database;
   Map<String, int>? _wordFrequencyCache;
 
-  late ReadingBookmarksService bookmarksService;
-  late ReadingInteractionService readingInteractionService;
-  late ReadingStatsService readingStatsService;
-  late ReadingPlanService readingPlanService;
+  ReadingBookmarksService? _bookmarksService;
+  ReadingBookmarksService get bookmarksService {
+    if (_bookmarksService == null) {
+      if (_database == null)
+        throw StateError(
+          'Database must be initialized before accessing services',
+        );
+      _bookmarksService = ReadingBookmarksService(database: _database!);
+    }
+    return _bookmarksService!;
+  }
+
+  set bookmarksService(ReadingBookmarksService service) =>
+      _bookmarksService = service;
+
+  ReadingInteractionService? _readingInteractionService;
+  ReadingInteractionService get readingInteractionService {
+    if (_readingInteractionService == null) {
+      if (_database == null)
+        throw StateError(
+          'Database must be initialized before accessing services',
+        );
+      _readingInteractionService = ReadingInteractionService(
+        database: _database!,
+      );
+    }
+    return _readingInteractionService!;
+  }
+
+  set readingInteractionService(ReadingInteractionService service) =>
+      _readingInteractionService = service;
+
+  ReadingStatsService? _readingStatsService;
+  ReadingStatsService get readingStatsService {
+    if (_readingStatsService == null) {
+      if (_database == null)
+        throw StateError(
+          'Database must be initialized before accessing services',
+        );
+      _readingStatsService = ReadingStatsService(database: _database!);
+    }
+    return _readingStatsService!;
+  }
+
+  set readingStatsService(ReadingStatsService service) =>
+      _readingStatsService = service;
+
+  ReadingPlanService? _readingPlanService;
+  ReadingPlanService get readingPlanService {
+    if (_readingPlanService == null) {
+      if (_database == null)
+        throw StateError(
+          'Database must be initialized before accessing services',
+        );
+      _readingPlanService = ReadingPlanService(database: _database!);
+    }
+    return _readingPlanService!;
+  }
+
+  set readingPlanService(ReadingPlanService service) =>
+      _readingPlanService = service;
 
   static const String _dbName = 'notes_database.db';
   static const String _notesTable = 'notes';
@@ -81,10 +143,10 @@ class NoteRepository {
   }
 
   void _initServices(Database db) {
-    bookmarksService = ReadingBookmarksService(database: db);
-    readingInteractionService = ReadingInteractionService(database: db);
-    readingStatsService = ReadingStatsService(database: db);
-    readingPlanService = ReadingPlanService(database: db);
+    _bookmarksService = ReadingBookmarksService(database: db);
+    _readingInteractionService = ReadingInteractionService(database: db);
+    _readingStatsService = ReadingStatsService(database: db);
+    _readingPlanService = ReadingPlanService(database: db);
   }
 
   Future<void> _createDB(Database db, int version) async {

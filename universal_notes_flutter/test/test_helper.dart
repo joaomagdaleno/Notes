@@ -26,6 +26,8 @@ import 'package:universal_notes_flutter/services/reading_plan_service.dart';
 import 'package:universal_notes_flutter/services/reading_stats_service.dart';
 import 'package:universal_notes_flutter/models/reading_stats.dart';
 
+const String inMemoryDatabasePath = ':memory:';
+
 class MockSyncService extends Mock implements SyncService {}
 
 class MockNoteRepository extends Mock implements NoteRepository {}
@@ -219,8 +221,13 @@ Future<void> setupTest() async {
 
 Future<void> setupNotesTest() async {
   // Reset all core singletons to REAL internal state
-  NoteRepository.instance = NoteRepository();
+  NoteRepository.resetInstance();
   EncryptionService.iterations = 1;
+
+  // Initialize database early to prevent late initialization errors in services
+  NoteRepository.instance.dbPath = inMemoryDatabasePath;
+  await NoteRepository.instance.database;
+
   SyncService.instance.reset(); // Existing reset method
   SyncService.instance.noteRepository = NoteRepository.instance;
   SyncService.instance.firestoreRepository = FirestoreRepository.instance;

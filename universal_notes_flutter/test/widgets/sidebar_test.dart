@@ -62,8 +62,8 @@ void main() {
   });
 
   tearDown(() async {
-    // await foldersController.close();
-    // await tagsController.close();
+    await foldersController.close();
+    await tagsController.close();
   });
 
   Widget createWidgetUnderTest(
@@ -105,10 +105,12 @@ void main() {
         }),
       );
 
+      // Open drawer and wait for animation
       tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const ValueKey('favorites')));
+      // Tap favorites and wait for state change
+      await tester.tap(find.text('Favorites'));
       await tester.pumpAndSettle();
 
       expect(selected?.type, SidebarItemType.favorites);
