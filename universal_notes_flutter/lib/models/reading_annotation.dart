@@ -1,5 +1,9 @@
+import 'package:meta/meta.dart';
+
 /// Model for a reading annotation (highlight or margin note).
+@immutable
 class ReadingAnnotation {
+  /// Creates a new [ReadingAnnotation].
   const ReadingAnnotation({
     required this.id,
     required this.noteId,
@@ -11,6 +15,7 @@ class ReadingAnnotation {
     this.textExcerpt,
   });
 
+  /// Creates a [ReadingAnnotation] from a Map.
   factory ReadingAnnotation.fromMap(Map<String, dynamic> map) {
     return ReadingAnnotation(
       id: map['id'] as String,
@@ -24,15 +29,31 @@ class ReadingAnnotation {
     );
   }
 
+  /// Unique identifier for this annotation.
   final String id;
+
+  /// The ID of the note this annotation belongs to.
   final String noteId;
+
+  /// The start character position of the annotation.
   final int startOffset;
+
+  /// The end character position of the annotation.
   final int endOffset;
+
+  /// When this annotation was created.
   final DateTime createdAt;
-  final int? color; // ARGB
+
+  /// The color of the annotation in ARGB format.
+  final int? color;
+
+  /// Optional comment or note attached to this annotation.
   final String? comment;
+
+  /// The text excerpt associated with this annotation.
   final String? textExcerpt;
 
+  /// Converts this annotation to a Map.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -46,6 +67,7 @@ class ReadingAnnotation {
     };
   }
 
+  /// Creates a copy of this annotation with optional new values.
   ReadingAnnotation copyWith({
     String? id,
     String? noteId,
@@ -65,6 +87,34 @@ class ReadingAnnotation {
       color: color ?? this.color,
       comment: comment ?? this.comment,
       textExcerpt: textExcerpt ?? this.textExcerpt,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ReadingAnnotation &&
+        other.id == id &&
+        other.noteId == noteId &&
+        other.startOffset == startOffset &&
+        other.endOffset == endOffset &&
+        other.createdAt == createdAt &&
+        other.color == color &&
+        other.comment == comment &&
+        other.textExcerpt == textExcerpt;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      noteId,
+      startOffset,
+      endOffset,
+      createdAt,
+      color,
+      comment,
+      textExcerpt,
     );
   }
 }

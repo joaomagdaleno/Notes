@@ -62,7 +62,8 @@ void main() {
       final textSpan = span.toTextSpan();
       expect(textSpan.text, 'Styled');
       expect(textSpan.style?.fontWeight, FontWeight.bold);
-      // Combinations are harder to test directly but we check if it doesn't crash
+      // Combinations are harder to test directly but we check if it doesn't
+      // crash
       expect(textSpan.style?.decoration, isNotNull);
     });
 
@@ -241,7 +242,7 @@ void main() {
     });
 
     test('fromJson should handle legacy list format', () {
-      final fromJson = DocumentModel.fromJson([]);
+      final fromJson = DocumentModel.fromJson(<dynamic>[]);
       expect(fromJson.blocks, isEmpty);
     });
   });

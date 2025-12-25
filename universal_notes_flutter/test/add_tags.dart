@@ -1,5 +1,5 @@
-// Script to add @Tags annotations to test files
-// Run with: dart run test/add_tags.dart
+// ignore_for_file: avoid_print
+library;
 
 import 'dart:io';
 
@@ -13,7 +13,12 @@ void main() async {
       );
 
   for (final file in files) {
-    final content = await file.readAsString();
+    String? content;
+    try {
+      content = await file.readAsString();
+    } catch (_) {
+      continue;
+    }
 
     // Skip if already has @Tags
     if (content.contains('@Tags(')) continue;

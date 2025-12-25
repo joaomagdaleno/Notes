@@ -1,0 +1,302 @@
+Analyzing universal_notes_flutter...                            
+
+   info - Missing documentation explaining why the diagnostic is ignored - calculate_coverage.dart:6:5 - document_ignores
+   info - Missing documentation explaining why the diagnostic is ignored - calculate_coverage.dart:24:5 - document_ignores
+   info - Missing documentation explaining why the diagnostic is ignored - calculate_coverage.dart:28:5 - document_ignores
+   info - Missing documentation explaining why the diagnostic is ignored - calculate_coverage.dart:30:5 - document_ignores
+   info - Missing documentation explaining why the diagnostic is ignored - calculate_coverage.dart:32:5 - document_ignores
+   info - Sort directive sections alphabetically - lib\editor\editor_widget.dart:25:1 - directives_ordering
+   info - Missing documentation for a public member - lib\editor\editor_widget.dart:174:23 - public_member_api_docs
+   info - Missing documentation for a public member - lib\editor\editor_widget.dart:178:23 - public_member_api_docs
+   info - Missing documentation for a public member - lib\editor\editor_widget.dart:200:17 - public_member_api_docs
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - lib\editor\editor_widget.dart:1045:48 - use_named_constants
+   info - Unnecessary type annotation on a local variable - lib\editor\editor_widget.dart:1049:5 - omit_local_variable_types
+   info - Use a 'ColoredBox' rather than a 'Container' with only a 'Color' - lib\editor\editor_widget.dart:1060:12 - use_colored_box
+   info - Unnecessary use of a 'double' literal - lib\editor\editor_widget.dart:1171:29 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\editor\editor_widget.dart:1172:29 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\editor\editor_widget.dart:1213:31 - prefer_int_literals
+   info - Unnecessary braces in a string interpolation - lib\editor\editor_widget.dart:1225:58 - unnecessary_brace_in_string_interps
+   info - 'Future'-returning calls in a non-'async' function - lib\editor\editor_widget.dart:1266:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\editor\editor_widget.dart:1538:30 - discarded_futures
+   info - Statements in an if should be enclosed in a block - lib\editor\editor_widget.dart:2202:15 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\editor\editor_widget.dart:2204:15 - curly_braces_in_flow_control_structures
+   info - The line length exceeds the 80-character limit - lib\editor\editor_widget.dart:2210:81 - lines_longer_than_80_chars
+   info - The line length exceeds the 80-character limit - lib\editor\editor_widget.dart:2214:81 - lines_longer_than_80_chars
+   info - The line length exceeds the 80-character limit - lib\main.dart:67:81 - lines_longer_than_80_chars
+   info - The line length exceeds the 80-character limit - lib\main.dart:68:81 - lines_longer_than_80_chars
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:3:9 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:14:29 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:27:16 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:28:16 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:29:13 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:30:13 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:31:18 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:32:14 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:33:17 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:34:17 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:36:24 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_annotation.dart:49:21 - public_member_api_docs
+   info - The method '==' should not be overridden in classes not annotated with '@immutable' - lib\models\reading_bookmark.dart:77:3 - avoid_equals_and_hash_code_on_mutable_classes
+   info - The method 'hashCode' should not be overridden in classes not annotated with '@immutable' - lib\models\reading_bookmark.dart:89:3 - avoid_equals_and_hash_code_on_mutable_classes
+   info - The method '==' should not be overridden in classes not annotated with '@immutable' - lib\models\reading_highlight.dart:101:3 - avoid_equals_and_hash_code_on_mutable_classes
+   info - The method 'hashCode' should not be overridden in classes not annotated with '@immutable' - lib\models\reading_highlight.dart:115:3 - avoid_equals_and_hash_code_on_mutable_classes
+   info - Constructor declarations should be before non-constructor declarations - lib\models\reading_plan_model.dart:28:11 - sort_constructors_first
+   info - The method '==' should not be overridden in classes not annotated with '@immutable' - lib\models\reading_settings.dart:124:3 - avoid_equals_and_hash_code_on_mutable_classes
+   info - The method 'hashCode' should not be overridden in classes not annotated with '@immutable' - lib\models\reading_settings.dart:139:3 - avoid_equals_and_hash_code_on_mutable_classes
+   info - Missing documentation for a public member - lib\models\reading_stats.dart:3:9 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_stats.dart:11:24 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_stats.dart:23:16 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_stats.dart:24:13 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_stats.dart:25:13 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_stats.dart:26:13 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_stats.dart:27:19 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_stats.dart:29:24 - public_member_api_docs
+   info - Missing documentation for a public member - lib\models\reading_stats.dart:39:16 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\firestore_repository.dart:9:7 - public_member_api_docs
+   info - Invalid location for the unnamed constructor - lib\repositories\firestore_repository.dart:18:3 - sort_unnamed_constructors_first
+   info - Missing documentation for a public member - lib\repositories\firestore_repository.dart:25:26 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\firestore_repository.dart:27:21 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:26:15 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:34:19 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:42:31 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:54:7 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:58:33 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:72:7 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:76:27 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:88:7 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:92:26 - public_member_api_docs
+   info - Missing documentation for a public member - lib\repositories\note_repository.dart:104:7 - public_member_api_docs
+   info - Sort directive sections alphabetically - lib\screens\note_editor_screen.dart:18:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\screens\note_editor_screen.dart:33:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\screens\note_editor_screen.dart:35:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\screens\note_editor_screen.dart:36:1 - directives_ordering
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - lib\screens\note_editor_screen.dart:125:38 - use_named_constants
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:196:46 - discarded_futures
+   info - Unnecessary duplication of receiver - lib\screens\note_editor_screen.dart:263:5 - cascade_invocations
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:281:23 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:1000:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:1022:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:1031:31 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:1072:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:1084:35 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:1136:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:1195:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:1334:52 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:1336:19 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\screens\note_editor_screen.dart:1350:23 - discarded_futures
+   info - Don't invoke 'print' in production code - lib\screens\notes_screen.dart:82:5 - avoid_print
+   info - The line length exceeds the 80-character limit - lib\screens\notes_screen.dart:931:81 - lines_longer_than_80_chars
+   info - Missing documentation for a public member - lib\services\auth_service.dart:9:21 - public_member_api_docs
+   info - Missing documentation for a public member - lib\services\auth_service.dart:12:23 - public_member_api_docs
+   info - Setter has no corresponding getter - lib\services\encryption_service.dart:22:14 - avoid_setters_without_getters
+   info - Unnecessary duplication of receiver - lib\services\read_aloud_service.dart:56:5 - cascade_invocations
+   info - Closure should be a tearoff - lib\services\reading_bookmarks_service.dart:42:24 - unnecessary_lambdas
+   info - Missing documentation for a public member - lib\services\reading_interaction_service.dart:7:3 - public_member_api_docs
+   info - Closure should be a tearoff - lib\services\reading_interaction_service.dart:23:24 - unnecessary_lambdas
+   info - Closure should be a tearoff - lib\services\reading_plan_service.dart:33:24 - unnecessary_lambdas
+   info - Missing documentation for a public member - lib\services\reading_stats_service.dart:8:3 - public_member_api_docs
+   info - 'Future'-returning calls in a non-'async' function - lib\services\reading_stats_service.dart:38:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\services\reading_stats_service.dart:41:7 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\services\reading_stats_service.dart:49:7 - discarded_futures
+   info - Catch clause should use 'on' to specify the type of exception being caught - lib\services\tracing_service.dart:31:7 - avoid_catches_without_on_clauses
+   info - Method invocation or property access on a 'dynamic' target - lib\services\word_lookup_service.dart:39:30 - avoid_dynamic_calls
+   info - Method invocation or property access on a 'dynamic' target - lib\services\word_lookup_service.dart:40:22 - avoid_dynamic_calls
+   info - Method invocation or property access on a 'dynamic' target - lib\services\word_lookup_service.dart:46:27 - avoid_dynamic_calls
+   info - Method invocation or property access on a 'dynamic' target - lib\services\word_lookup_service.dart:47:24 - avoid_dynamic_calls
+   info - Method invocation or property access on a 'dynamic' target - lib\services\word_lookup_service.dart:58:26 - avoid_dynamic_calls
+   info - Method invocation or property access on a 'dynamic' target - lib\services\word_lookup_service.dart:59:22 - avoid_dynamic_calls
+   info - Method invocation or property access on a 'dynamic' target - lib\services\word_lookup_service.dart:90:18 - avoid_dynamic_calls
+   info - Method invocation or property access on a 'dynamic' target - lib\services\word_lookup_service.dart:90:18 - avoid_dynamic_calls
+   info - Method invocation or property access on a 'dynamic' target - lib\services\word_lookup_service.dart:91:23 - avoid_dynamic_calls
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\fluent_note_card.dart:148:40 - deprecated_member_use
+   info - Unnecessary use of a 'double' literal - lib\widgets\read_aloud_controls.dart:39:19 - prefer_int_literals
+   info - 'Future'-returning calls in a non-'async' function - lib\widgets\read_aloud_controls.dart:57:15 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\widgets\read_aloud_controls.dart:58:15 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\widgets\read_aloud_controls.dart:88:32 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\widgets\read_aloud_controls.dart:90:32 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\widgets\read_aloud_controls.dart:141:36 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\widgets\read_aloud_controls.dart:172:36 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\widgets\read_aloud_controls.dart:174:36 - discarded_futures
+   info - Unnecessary use of a 'double' literal - lib\widgets\read_aloud_controls.dart:210:24 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\widgets\read_aloud_controls.dart:265:36 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - lib\widgets\read_aloud_controls.dart:269:36 - prefer_int_literals
+   info - Sort directive sections alphabetically - lib\widgets\reading_bookmarks_list.dart:3:1 - directives_ordering
+   info - The value of the argument is redundant because it matches the default value - lib\widgets\reading_mode_settings.dart:149:22 - avoid_redundant_argument_values
+   info - The value of the argument is redundant because it matches the default value - lib\widgets\reading_mode_settings.dart:230:22 - avoid_redundant_argument_values
+   info - The method '==' should not be overridden in classes not annotated with '@immutable' - lib\widgets\reading_outline_navigator.dart:259:3 - avoid_equals_and_hash_code_on_mutable_classes
+   info - The method 'hashCode' should not be overridden in classes not annotated with '@immutable' - lib\widgets\reading_outline_navigator.dart:268:3 - avoid_equals_and_hash_code_on_mutable_classes
+   info - 'Future'-returning calls in a non-'async' function - lib\widgets\word_lookup_popup.dart:42:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - lib\widgets\word_lookup_popup.dart:43:5 - discarded_futures
+   info - Unnecessary use of multiple underscores - lib\widgets\word_lookup_popup.dart:271:35 - unnecessary_underscores
+   info - Unnecessary use of multiple underscores - lib\widgets\word_lookup_popup.dart:271:39 - unnecessary_underscores
+   info - Dependencies not sorted alphabetically - pubspec.yaml:67:3 - sort_pub_dependencies
+   info - Don't invoke 'print' in production code - test\add_tags.dart:41:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\add_tags.dart:44:3 - avoid_print
+   info - Sort directive sections alphabetically - test\all_services_test.dart:11:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\all_services_test.dart:13:1 - directives_ordering
+   info - Dangling library doc comment - test\analyze_timing.dart:1:1 - dangling_library_doc_comments
+   info - Don't invoke 'print' in production code - test\analyze_timing.dart:9:5 - avoid_print
+   info - The line length exceeds the 80-character limit - test\analyze_timing.dart:10:81 - lines_longer_than_80_chars
+   info - Catch clause should use 'on' to specify the type of exception being caught - test\analyze_timing.dart:39:7 - avoid_catches_without_on_clauses
+   info - Don't invoke 'print' in production code - test\analyze_timing.dart:43:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\analyze_timing.dart:52:3 - avoid_print
+   info - Don't invoke 'print' in production code - test\analyze_timing.dart:58:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\analyze_timing.dart:68:3 - avoid_print
+   info - Don't invoke 'print' in production code - test\analyze_timing.dart:69:3 - avoid_print
+   info - Don't invoke 'print' in production code - test\analyze_timing.dart:70:3 - avoid_print
+   info - Don't invoke 'print' in production code - test\analyze_timing.dart:73:3 - avoid_print
+   info - Unreachable member 'MockUserCredential' in an executable library - test\auth_service_test.dart:15:7 - unreachable_from_main
+   info - Unreachable member 'MockUser' in an executable library - test\auth_service_test.dart:17:7 - unreachable_from_main
+   info - Unnecessary duplication of receiver - test\auth_service_test.dart:40:5 - cascade_invocations
+   info - Unnecessary duplication of receiver - test\auth_service_test.dart:41:5 - cascade_invocations
+   info - Use of an async 'dart:io' method - test\calculate_coverage.dart:5:14 - avoid_slow_async_io
+   info - Don't invoke 'print' in production code - test\calculate_coverage.dart:6:5 - avoid_print
+   info - Unnecessary type annotation on a local variable - test\calculate_coverage.dart:11:3 - omit_local_variable_types
+   info - Unnecessary type annotation on a local variable - test\calculate_coverage.dart:12:3 - omit_local_variable_types
+   info - The variable 'line' should be final - test\calculate_coverage.dart:14:12 - prefer_final_in_for_each
+   info - Don't invoke 'print' in production code - test\calculate_coverage.dart:25:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\calculate_coverage.dart:28:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\calculate_coverage.dart:29:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\calculate_coverage.dart:30:5 - avoid_print
+   info - Use of an async 'dart:io' method - test\coverage_report.dart:5:14 - avoid_slow_async_io
+   info - Don't invoke 'print' in production code - test\coverage_report.dart:6:5 - avoid_print
+   info - Unnecessary type annotation on a local variable - test\coverage_report.dart:12:3 - omit_local_variable_types
+   info - The variable 'line' should be final - test\coverage_report.dart:14:12 - prefer_final_in_for_each
+   info - Don't invoke 'print' in production code - test\coverage_report.dart:41:3 - avoid_print
+   info - Don't invoke 'print' in production code - test\coverage_report.dart:47:7 - avoid_print
+   info - Sort directive sections alphabetically - test\editor\editor_widget_reading_test.dart:10:1 - directives_ordering
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\editor\editor_widget_reading_test.dart:26:32 - use_named_constants
+   info - Use 'const' for final variables initialized to a constant value - test\editor\editor_widget_reading_test.dart:57:7 - prefer_const_declarations
+   info - Unnecessary type annotation on a local variable - test\editor\editor_widget_reading_test.dart:80:13 - omit_local_variable_types
+   info - Sort directive sections alphabetically - test\editor\editor_widget_test.dart:8:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\editor\editor_widget_test.dart:10:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\editor\editor_widget_test.dart:12:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\editor\editor_widget_test.dart:14:1 - directives_ordering
+   info - The import of 'package:sqflite/sqflite.dart' is unnecessary because all of the used elements are also provided by the import of 'package:sqflite_common_ffi/sqflite_ffi.dart' - test\editor\editor_widget_test.dart:14:8 - unnecessary_import
+   info - The line length exceeds the 80-character limit - test\editor\virtual_text_buffer_test.dart:100:81 - lines_longer_than_80_chars
+   info - Use a raw string to avoid using escapes - test\fixtures\test_fixtures.dart:16:14 - use_raw_strings
+   info - The value of the argument is redundant because it matches the default value - test\fixtures\test_fixtures.dart:17:34 - avoid_redundant_argument_values
+   info - The value of the argument is redundant because it matches the default value - test\fixtures\test_fixtures.dart:18:37 - avoid_redundant_argument_values
+   info - Use a raw string to avoid using escapes - test\fixtures\test_fixtures.dart:26:14 - use_raw_strings
+   info - The value of the argument is redundant because it matches the default value - test\fixtures\test_fixtures.dart:27:34 - avoid_redundant_argument_values
+   info - The value of the argument is redundant because it matches the default value - test\fixtures\test_fixtures.dart:28:37 - avoid_redundant_argument_values
+   info - Use a raw string to avoid using escapes - test\fixtures\test_fixtures.dart:37:14 - use_raw_strings
+   info - The value of the argument is redundant because it matches the default value - test\fixtures\test_fixtures.dart:38:34 - avoid_redundant_argument_values
+   info - The value of the argument is redundant because it matches the default value - test\fixtures\test_fixtures.dart:39:37 - avoid_redundant_argument_values
+   info - A type annotation is needed because it isn't obvious - test\fixtures\test_fixtures.dart:45:10 - specify_nonobvious_property_types
+   info - Use a raw string to avoid using escapes - test\fixtures\test_fixtures.dart:50:16 - use_raw_strings
+   info - Use a raw string to avoid using escapes - test\fixtures\test_fixtures.dart:58:16 - use_raw_strings
+   info - The value of the argument is redundant because it matches the default value - test\fixtures\test_fixtures.dart:71:34 - avoid_redundant_argument_values
+   info - The value of the argument is redundant because it matches the default value - test\fixtures\test_fixtures.dart:79:34 - avoid_redundant_argument_values
+   info - The value of the argument is redundant because it matches the default value - test\fixtures\test_fixtures.dart:80:37 - avoid_redundant_argument_values
+   info - The import of 'package:flutter/material.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart' - test\main_data_ops_test.dart:5:8 - unnecessary_import
+   info - Sort directive sections alphabetically - test\main_data_ops_test.dart:9:1 - directives_ordering
+   info - Unnecessary 'await' - test\main_data_ops_test.dart:16:24 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_data_ops_test.dart:17:21 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_data_ops_test.dart:18:24 - unnecessary_await_in_return
+   info - Sort directive sections alphabetically - test\main_grid_logic_test.dart:6:1 - directives_ordering
+   info - Unnecessary 'await' - test\main_grid_logic_test.dart:13:24 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_grid_logic_test.dart:14:21 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_grid_logic_test.dart:15:24 - unnecessary_await_in_return
+   info - The import of 'package:flutter/material.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart' - test\main_navigation_test.dart:5:8 - unnecessary_import
+   info - Sort directive sections alphabetically - test\main_navigation_test.dart:10:1 - directives_ordering
+   info - Unnecessary 'await' - test\main_navigation_test.dart:16:24 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_navigation_test.dart:17:21 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_navigation_test.dart:18:24 - unnecessary_await_in_return
+   info - The line length exceeds the 80-character limit - test\main_navigation_test.dart:33:81 - lines_longer_than_80_chars
+   info - The line length exceeds the 80-character limit - test\main_navigation_test.dart:71:81 - lines_longer_than_80_chars
+   info - Sort directive sections alphabetically - test\main_platform_logic_test.dart:6:1 - directives_ordering
+   info - Unnecessary 'await' - test\main_platform_logic_test.dart:13:24 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_platform_logic_test.dart:14:21 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_platform_logic_test.dart:15:24 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_test.dart:11:24 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_test.dart:12:21 - unnecessary_await_in_return
+   info - Unnecessary 'await' - test\main_test.dart:13:24 - unnecessary_await_in_return
+   info - Catch clause should use 'on' to specify the type of exception being caught - test\map_ids.dart:19:7 - avoid_catches_without_on_clauses
+   info - Don't invoke 'print' in production code - test\map_ids.dart:22:3 - avoid_print
+   info - Don't invoke 'print' in production code - test\map_ids.dart:24:5 - avoid_print
+   info - The line length exceeds the 80-character limit - test\models\document_model_test.dart:65:81 - lines_longer_than_80_chars
+warning - The type argument(s) of 'List' can't be inferred - test\models\document_model_test.dart:244:47 - inference_failure_on_collection_literal
+   info - Sort directive sections alphabetically - test\models\misc_models_test.dart:8:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\models\misc_models_test.dart:9:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\models\misc_models_test.dart:10:1 - directives_ordering
+   info - The value of the argument is redundant because it matches the default value - test\models\note_event_test.dart:10:48 - avoid_redundant_argument_values
+   info - The line length exceeds the 80-character limit - test\models\reading_plan_model_test.dart:25:81 - lines_longer_than_80_chars
+   info - The value of the argument is redundant because it matches the default value - test\models\reading_plan_model_test.dart:37:23 - avoid_redundant_argument_values
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\models\reading_settings_test.dart:11:24 - use_named_constants
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:25:19 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:26:21 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:54:21 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:126:21 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:128:26 - prefer_int_literals
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\models\reading_settings_test.dart:145:26 - use_named_constants
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:148:21 - prefer_int_literals
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\models\reading_settings_test.dart:158:26 - use_named_constants
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:161:21 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:185:21 - prefer_int_literals
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\models\reading_settings_test.dart:210:26 - use_named_constants
+   info - The value of the argument is redundant because it matches the default value - test\models\reading_settings_test.dart:210:54 - avoid_redundant_argument_values
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:244:53 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:245:53 - prefer_int_literals
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\models\reading_settings_test.dart:252:27 - use_named_constants
+   info - The value of the argument is redundant because it matches the default value - test\models\reading_settings_test.dart:252:53 - avoid_redundant_argument_values
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:252:53 - prefer_int_literals
+   info - Unnecessary use of a 'double' literal - test\models\reading_settings_test.dart:253:53 - prefer_int_literals
+   info - Method invocation or property access on a 'dynamic' target - test\models\stroke_test.dart:81:14 - avoid_dynamic_calls
+   info - Sort directive sections alphabetically - test\repositories\note_repository_test.dart:10:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\repositories\note_repository_test.dart:12:1 - directives_ordering
+   info - The import of 'package:sqflite/sqflite.dart' is unnecessary because all of the used elements are also provided by the import of 'package:sqflite_common_ffi/sqflite_ffi.dart' - test\repositories\note_repository_test.dart:12:8 - unnecessary_import
+   info - Unnecessary 'const' keyword - test\repositories\note_repository_test.dart:79:16 - unnecessary_const
+   info - Unnecessary 'await' - test\repositories\note_repository_test.dart:162:23 - unnecessary_await_in_return
+   info - Unnecessary type annotation on a local variable - test\retag.dart:15:7 - omit_local_variable_types
+   info - Unnecessary use of double quotes - test\retag.dart:24:31 - prefer_single_quotes
+   info - Unnecessary use of double quotes - test\retag.dart:31:22 - prefer_single_quotes
+   info - The line length exceeds the 80-character limit - test\services\reading_bookmarks_service_test.dart:36:81 - lines_longer_than_80_chars
+   info - The line length exceeds the 80-character limit - test\services\reading_bookmarks_service_test.dart:43:81 - lines_longer_than_80_chars
+warning - Unused import: 'package:universal_notes_flutter/models/reading_annotation.dart' - test\services\reading_interaction_service_test.dart:8:8 - unused_import
+   info - The line length exceeds the 80-character limit - test\services\reading_plan_service_test.dart:35:81 - lines_longer_than_80_chars
+   info - Unnecessary duplication of receiver - test\services\sync_service_test.dart:19:5 - cascade_invocations
+   info - Sort directive sections alphabetically - test\test_helper.dart:4:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\test_helper.dart:16:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\test_helper.dart:17:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\test_helper.dart:21:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\test_helper.dart:25:1 - directives_ordering
+   info - Closure should be a tearoff - test\test_helper.dart:70:5 - unnecessary_lambdas
+   info - Closure should be a tearoff - test\test_helper.dart:156:8 - unnecessary_lambdas
+   info - Closure should be a tearoff - test\test_helper.dart:157:8 - unnecessary_lambdas
+   info - Closure should be a tearoff - test\test_helper.dart:158:8 - unnecessary_lambdas
+   info - Closure should be a tearoff - test\test_helper.dart:159:8 - unnecessary_lambdas
+   info - Closure should be a tearoff - test\test_helper.dart:160:8 - unnecessary_lambdas
+   info - Closure should be a tearoff - test\test_helper.dart:192:8 - unnecessary_lambdas
+   info - Use 'const' with the constructor to improve performance - test\test_helper.dart:195:29 - prefer_const_constructors
+   info - Missing an 'await' for the 'Future' computed by this expression - test\test_helper.dart:229:24 - unawaited_futures
+   info - Closure should be a tearoff - test\test_helper.dart:248:7 - unnecessary_lambdas
+   info - 'Future'-returning calls in a non-'async' function - test\widgets\fluent_note_card_golden_test.dart:12:5 - discarded_futures
+   info - Sort directive sections alphabetically - test\widgets\note_card_test.dart:8:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\widgets\note_card_test.dart:12:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\widgets\note_simple_list_tile_test.dart:9:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\widgets\note_simple_list_tile_test.dart:12:1 - directives_ordering
+   info - Unnecessary use of a 'double' literal - test\widgets\read_aloud_controls_test.dart:26:47 - prefer_int_literals
+   info - 'Future'-returning calls in a non-'async' function - test\widgets\read_aloud_controls_test.dart:32:21 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - test\widgets\read_aloud_controls_test.dart:33:21 - discarded_futures
+   info - Unnecessary type annotation on a local variable - test\widgets\read_aloud_controls_test.dart:99:7 - omit_local_variable_types
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\widgets\reading_mode_settings_test.dart:16:25 - use_named_constants
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\widgets\reading_mode_settings_test.dart:37:25 - use_named_constants
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\widgets\reading_mode_settings_test.dart:53:25 - use_named_constants
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\widgets\reading_mode_settings_test.dart:70:25 - use_named_constants
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\widgets\reading_mode_settings_test.dart:108:25 - use_named_constants
+   info - The value of the argument is redundant because it matches the default value - test\widgets\reading_mode_settings_test.dart:108:57 - avoid_redundant_argument_values
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\widgets\reading_mode_settings_test.dart:146:25 - use_named_constants
+   info - The value of the argument is redundant because it matches the default value - test\widgets\reading_mode_settings_test.dart:146:66 - avoid_redundant_argument_values
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\widgets\reading_mode_settings_test.dart:163:25 - use_named_constants
+   info - The value of the argument is redundant because it matches the default value - test\widgets\reading_mode_settings_test.dart:163:66 - avoid_redundant_argument_values
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\widgets\reading_mode_settings_test.dart:184:27 - use_named_constants
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\widgets\reading_mode_settings_test.dart:204:25 - use_named_constants
+   info - The value of the argument is redundant because it matches the default value - test\widgets\reading_mode_settings_test.dart:204:54 - avoid_redundant_argument_values
+   info - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object - test\widgets\reading_mode_settings_test.dart:225:27 - use_named_constants
+   info - The line length exceeds the 80-character limit - test\widgets\sidebar_test.dart:25:81 - lines_longer_than_80_chars
+   info - Unnecessary duplication of receiver - test\widgets\sidebar_test.dart:89:7 - cascade_invocations
+   info - Don't invoke 'print' in production code - test\widgets\sidebar_test.dart:103:11 - avoid_print
+   info - 'Future'-returning calls in a non-'async' function - test\widgets\simple_fluent_golden_test.dart:10:5 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - test\widgets\standard_golden_test.dart:10:5 - discarded_futures
+

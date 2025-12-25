@@ -1,6 +1,9 @@
+import 'package:meta/meta.dart';
+
 /// Model for a reading bookmark in the Zen reading mode.
 ///
 /// Represents a saved position in a note for later reading.
+@immutable
 class ReadingBookmark {
   /// Creates a new [ReadingBookmark].
   const ReadingBookmark({

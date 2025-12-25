@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:universal_notes_flutter/models/reading_annotation.dart';
 import 'package:universal_notes_flutter/services/reading_interaction_service.dart';
 
 import 'reading_interaction_service_test.mocks.dart';

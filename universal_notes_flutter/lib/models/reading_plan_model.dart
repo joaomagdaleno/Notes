@@ -9,6 +9,17 @@ class ReadingPlan {
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
+  /// Creates [ReadingPlan] from a map.
+  factory ReadingPlan.fromMap(Map<String, dynamic> map) {
+    return ReadingPlan(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      noteIds: (map['noteIds'] as String).split(','),
+      currentIndex: map['currentIndex'] as int? ?? 0,
+      createdAt: DateTime.parse(map['createdAt'] as String),
+    );
+  }
+
   /// Unique identifier of the plan.
   final String id;
 
@@ -23,17 +34,6 @@ class ReadingPlan {
 
   /// When this plan was created.
   final DateTime createdAt;
-
-  /// Creates [ReadingPlan] from a map.
-  factory ReadingPlan.fromMap(Map<String, dynamic> map) {
-    return ReadingPlan(
-      id: map['id'] as String,
-      title: map['title'] as String,
-      noteIds: (map['noteIds'] as String).split(','),
-      currentIndex: map['currentIndex'] as int? ?? 0,
-      createdAt: DateTime.parse(map['createdAt'] as String),
-    );
-  }
 
   /// Converts this to a map for SQL.
   Map<String, dynamic> toMap() {
