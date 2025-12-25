@@ -26,6 +26,10 @@ import 'package:universal_notes_flutter/models/reading_annotation.dart';
 import 'package:universal_notes_flutter/models/reading_stats.dart';
 import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
 import 'package:universal_notes_flutter/widgets/reading_search_bar.dart';
+import 'package:universal_notes_flutter/editor/widgets/line_with_index.dart';
+import 'package:universal_notes_flutter/editor/widgets/grid_painter.dart';
+import 'package:universal_notes_flutter/editor/widgets/persona_button.dart';
+import 'package:universal_notes_flutter/editor/widgets/reading_fab_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// A widget that provides a text editor with rich text capabilities.
@@ -303,7 +307,7 @@ class EditorWidgetState extends State<EditorWidget> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _PersonaButton(
+          PersonaButton(
             persona: EditorPersona.architect,
             activePersona: _activePersona,
             icon: Icons.architecture,
@@ -311,14 +315,14 @@ class EditorWidgetState extends State<EditorWidget> {
             onTap: () =>
                 setState(() => _activePersona = EditorPersona.architect),
           ),
-          _PersonaButton(
+          PersonaButton(
             persona: EditorPersona.writer,
             activePersona: _activePersona,
             icon: Icons.description,
             label: 'Writer',
             onTap: () => setState(() => _activePersona = EditorPersona.writer),
           ),
-          _PersonaButton(
+          PersonaButton(
             persona: EditorPersona.brainstorm,
             activePersona: _activePersona,
             icon: Icons.gesture,
@@ -326,7 +330,7 @@ class EditorWidgetState extends State<EditorWidget> {
             onTap: () =>
                 setState(() => _activePersona = EditorPersona.brainstorm),
           ),
-          _PersonaButton(
+          PersonaButton(
             persona: EditorPersona.reading,
             activePersona: _activePersona,
             icon: Icons.auto_stories,
@@ -904,9 +908,9 @@ class EditorWidgetState extends State<EditorWidget> {
   }
 
   /// Groups lines into pages based on estimated height.
-  List<List<_LineWithIndex>> _splitLinesIntoPages(double maxHeight) {
-    final pages = <List<_LineWithIndex>>[];
-    var currentPage = <_LineWithIndex>[];
+  List<List<LineWithIndex>> _splitLinesIntoPages(double maxHeight) {
+    final pages = <List<LineWithIndex>>[];
+    var currentPage = <LineWithIndex>[];
     var currentHeight = 0.0;
 
     for (var i = 0; i < _buffer.lines.length; i++) {
@@ -927,7 +931,7 @@ class EditorWidgetState extends State<EditorWidget> {
         currentHeight = 0.0;
       }
 
-      currentPage.add(_LineWithIndex(line, i));
+      currentPage.add(LineWithIndex(line, i));
       currentHeight += lineHeight;
     }
 
@@ -956,7 +960,7 @@ class EditorWidgetState extends State<EditorWidget> {
               // Grid background
               Positioned.fill(
                 child: CustomPaint(
-                  painter: _GridPainter(
+                  painter: GridPainter(
                     color: Colors.grey.shade400,
                   ),
                 ),
@@ -1085,7 +1089,7 @@ class EditorWidgetState extends State<EditorWidget> {
           Positioned(
             right: 16,
             bottom: 16,
-            child: _ReadingFabMenu(
+            child: ReadingFabMenu(
               onSettingsTap: widget.onOpenReadingSettings,
               onOutlineTap: widget.onOpenOutline,
               onBookmarksTap: widget.onOpenBookmarks,
@@ -2395,258 +2399,4 @@ class _EditorLine extends StatelessWidget {
   }
 }
 
-class _PersonaButton extends StatelessWidget {
-  const _PersonaButton({
-    required this.persona,
-    required this.activePersona,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-  final EditorPersona persona;
-  final EditorPersona activePersona;
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final isActive = persona == activePersona;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Tooltip(
-      message: label,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: isActive ? colorScheme.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                size: 18,
-                color: isActive
-                    ? colorScheme.onPrimary
-                    : colorScheme.onSurfaceVariant,
-              ),
-              if (isActive) ...[
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: isActive
-                        ? colorScheme.onPrimary
-                        : colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GridPainter extends CustomPainter {
-  _GridPainter({required this.color});
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.3)
-      ..strokeWidth = 0.5;
-
-    const spacing = 30.0;
-    for (double x = 0; x < size.width; x += spacing) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = 0; y < size.height; y += spacing) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _LineWithIndex {
-  _LineWithIndex(this.line, this.index);
-  final Line line;
-  final int index;
-}
-
-/// FAB menu for Zen mode reading controls.
-class _ReadingFabMenu extends StatefulWidget {
-  const _ReadingFabMenu({
-    this.onSettingsTap,
-    this.onOutlineTap,
-    this.onBookmarksTap,
-    this.onAddBookmarkTap,
-    this.onScrollToTopTap,
-    this.onNextTap,
-    this.onPrevTap,
-    this.onSearchTap,
-    this.onNextPlanTap,
-    this.onPrevPlanTap,
-  });
-
-  final VoidCallback? onSettingsTap;
-  final VoidCallback? onOutlineTap;
-  final VoidCallback? onBookmarksTap;
-  final VoidCallback? onAddBookmarkTap;
-  final VoidCallback? onScrollToTopTap;
-  final VoidCallback? onNextTap;
-  final VoidCallback? onPrevTap;
-  final VoidCallback? onSearchTap;
-  final VoidCallback? onNextPlanTap;
-  final VoidCallback? onPrevPlanTap;
-
-  @override
-  State<_ReadingFabMenu> createState() => _ReadingFabMenuState();
-}
-
-class _ReadingFabMenuState extends State<_ReadingFabMenu>
-    with SingleTickerProviderStateMixin {
-  bool _isExpanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        // Menu items (visible when expanded)
-        if (_isExpanded) ...[
-          _buildMenuItem(
-            icon: Icons.search,
-            label: 'Search',
-            onTap: widget.onSearchTap,
-          ),
-          const SizedBox(height: 8),
-          _buildMenuItem(
-            icon: Icons.vertical_align_top,
-            label: 'Top',
-            onTap: widget.onScrollToTopTap,
-          ),
-          const SizedBox(height: 8),
-          if (widget.onPrevTap != null) ...[
-            _buildMenuItem(
-              icon: Icons.navigate_before,
-              label: 'Prev Section',
-              onTap: widget.onPrevTap,
-            ),
-            const SizedBox(height: 8),
-          ],
-          if (widget.onNextTap != null) ...[
-            _buildMenuItem(
-              icon: Icons.navigate_next,
-              label: 'Next Section',
-              onTap: widget.onNextTap,
-            ),
-            const SizedBox(height: 8),
-          ],
-          if (widget.onPrevPlanTap != null) ...[
-            _buildMenuItem(
-              icon: Icons.skip_previous,
-              label: 'Prev Note in Plan',
-              onTap: widget.onPrevPlanTap,
-            ),
-            const SizedBox(height: 8),
-          ],
-          if (widget.onNextPlanTap != null) ...[
-            _buildMenuItem(
-              icon: Icons.skip_next,
-              label: 'Next Note in Plan',
-              onTap: widget.onNextPlanTap,
-            ),
-            const SizedBox(height: 8),
-          ],
-          _buildMenuItem(
-            icon: Icons.bookmark_add,
-            label: 'Bookmark',
-            onTap: widget.onAddBookmarkTap,
-          ),
-          const SizedBox(height: 8),
-          _buildMenuItem(
-            icon: Icons.bookmarks,
-            label: 'All Bookmarks',
-            onTap: widget.onBookmarksTap,
-          ),
-          const SizedBox(height: 8),
-          _buildMenuItem(
-            icon: Icons.list,
-            label: 'Outline',
-            onTap: widget.onOutlineTap,
-          ),
-          const SizedBox(height: 8),
-          _buildMenuItem(
-            icon: Icons.settings,
-            label: 'Settings',
-            onTap: widget.onSettingsTap,
-          ),
-          const SizedBox(height: 12),
-        ],
-
-        // Main FAB
-        FloatingActionButton.small(
-          onPressed: () => setState(() => _isExpanded = !_isExpanded),
-          backgroundColor: colorScheme.primaryContainer,
-          foregroundColor: colorScheme.onPrimaryContainer,
-          child: AnimatedRotation(
-            turns: _isExpanded ? 0.125 : 0,
-            duration: const Duration(milliseconds: 200),
-            child: const Icon(Icons.add),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMenuItem({
-    required IconData icon,
-    required String label,
-    VoidCallback? onTap,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: colorScheme.onSurfaceVariant,
-              fontSize: 12,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        FloatingActionButton.small(
-          heroTag: 'zen_reading_$label',
-          onPressed: onTap,
-          backgroundColor: colorScheme.surface,
-          foregroundColor: colorScheme.primary,
-          elevation: 2,
-          child: Icon(icon, size: 20),
-        ),
-      ],
-    );
-  }
-}
+// Classes extracted to lib/editor/widgets/

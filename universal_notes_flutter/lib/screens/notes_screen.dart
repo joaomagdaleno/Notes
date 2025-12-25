@@ -79,7 +79,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     // _scrollController.addListener(_onScroll); // Disabled pagination listener
     _updateNotesStream(); // Initial fetch
     _searchController.addListener(_onSearchChanged);
-    print('DEBUG: NotesScreen initState completed');
   }
 
   @override
