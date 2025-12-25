@@ -11,10 +11,19 @@ class PersonaButton extends StatelessWidget {
     super.key,
   });
 
+  /// The persona represented by this button.
   final EditorPersona persona;
+
+  /// The currently active persona in the editor.
   final EditorPersona activePersona;
+
+  /// The icon to display.
   final IconData icon;
+
+  /// The label to display.
   final String label;
+
+  /// Callback when the button is tapped.
   final VoidCallback onTap;
 
   @override

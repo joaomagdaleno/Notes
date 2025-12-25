@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
@@ -14,36 +16,35 @@ import 'package:universal_notes_flutter/editor/floating_toolbar.dart';
 import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/models/reading_plan_model.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
+import 'package:universal_notes_flutter/models/reading_annotation.dart';
+import 'package:universal_notes_flutter/models/reading_bookmark.dart';
+import 'package:universal_notes_flutter/models/reading_plan_model.dart';
+import 'package:universal_notes_flutter/models/reading_settings.dart';
+import 'package:universal_notes_flutter/models/reading_stats.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/services/event_replayer.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
 import 'package:universal_notes_flutter/services/history_grouper.dart';
-import 'package:universal_notes_flutter/services/storage_service.dart';
-import 'package:universal_notes_flutter/services/template_service.dart';
-import 'package:universal_notes_flutter/widgets/command_palette.dart';
-import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:uuid/uuid.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universal_notes_flutter/models/reading_settings.dart';
-import 'package:universal_notes_flutter/models/reading_bookmark.dart';
-import 'package:universal_notes_flutter/models/reading_annotation.dart';
-import 'package:universal_notes_flutter/models/reading_stats.dart';
 import 'package:universal_notes_flutter/services/read_aloud_service.dart';
 import 'package:universal_notes_flutter/services/reading_bookmarks_service.dart';
 import 'package:universal_notes_flutter/services/reading_interaction_service.dart';
 import 'package:universal_notes_flutter/services/reading_plan_service.dart';
 import 'package:universal_notes_flutter/services/reading_stats_service.dart';
+import 'package:universal_notes_flutter/services/storage_service.dart';
+import 'package:universal_notes_flutter/services/template_service.dart';
+import 'package:universal_notes_flutter/widgets/command_palette.dart';
+import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:universal_notes_flutter/widgets/read_aloud_controls.dart';
 import 'package:universal_notes_flutter/widgets/reading_bookmarks_list.dart';
 import 'package:universal_notes_flutter/widgets/reading_mode_settings.dart';
 import 'package:universal_notes_flutter/widgets/reading_outline_navigator.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 /// A screen for editing a note.
 class NoteEditorScreen extends StatefulWidget {
@@ -177,13 +178,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   void _onReadingStatsChanged() {
     if (_note == null) return;
-    _statsService.getStatsForNote(_note!.id).then((stats) {
-      if (mounted) {
-        setState(() {
-          _readingStats = stats;
-        });
-      }
-    });
+    unawaited(
+      _statsService.getStatsForNote(_note!.id).then((stats) {
+        if (mounted) {
+          setState(() {
+            _readingStats = stats;
+          });
+        }
+      }),
+    );
   }
 
   Future<void> _loadReadingSettings() async {
@@ -1200,7 +1203,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                 if (context.mounted) {
                   Navigator.pop(context); // Dialog
                   Navigator.pop(context); // Bottom Sheet
-                  _showReadingPlans(); // Re-open to refresh
+                  unawaited(_showReadingPlans()); // Re-open to refresh
                 }
               }
             },
@@ -1392,7 +1395,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       onFind: () => setState(() => _isFindBarVisible = true),
       onEscape: () {
         if (_isFocusMode) {
-          _toggleFocusMode();
+          unawaited(_toggleFocusMode());
         } else if (_isFindBarVisible) {
           setState(() => _isFindBarVisible = false);
         }

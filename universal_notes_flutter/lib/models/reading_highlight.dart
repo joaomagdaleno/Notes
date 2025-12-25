@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 
 /// Model for a text highlight in the Zen reading mode.
 ///

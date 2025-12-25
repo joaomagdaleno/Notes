@@ -11,20 +11,39 @@ class ReadingFabMenu extends StatefulWidget {
     required this.onSearchTap,
     this.onNextTap,
     this.onPrevTap,
-    this.onNextPlanTap,
-    this.onPrevPlanTap,
+    this.onNextPlanNote,
+    this.onPrevPlanNote,
     super.key,
   });
 
+  /// Callback when settings button is tapped.
   final VoidCallback? onSettingsTap;
+
+  /// Callback when outline button is tapped.
   final VoidCallback? onOutlineTap;
+
+  /// Callback when bookmarks button is tapped.
   final VoidCallback? onBookmarksTap;
+
+  /// Callback when add bookmark button is tapped.
   final VoidCallback? onAddBookmarkTap;
+
+  /// Callback when scroll to top button is tapped.
   final VoidCallback? onScrollToTopTap;
+
+  /// Callback when next button is tapped (Smart Nav).
   final VoidCallback? onNextTap;
+
+  /// Callback when previous button is tapped (Smart Nav).
   final VoidCallback? onPrevTap;
-  final VoidCallback? onNextPlanTap;
-  final VoidCallback? onPrevPlanTap;
+
+  /// Callback when next plan note button is tapped.
+  final VoidCallback? onNextPlanNote;
+
+  /// Callback when previous plan note button is tapped.
+  final VoidCallback? onPrevPlanNote;
+
+  /// Callback when search button is tapped.
   final VoidCallback onSearchTap;
 
   @override
@@ -51,7 +70,7 @@ class _ReadingFabMenuState extends State<ReadingFabMenu> {
       mainAxisSize: MainAxisSize.min,
       children: [
         // Navigation Controls
-        if (widget.onPrevPlanTap != null || widget.onNextPlanTap != null) ...[
+        if (widget.onPrevPlanNote != null || widget.onNextPlanNote != null) ...[
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -61,17 +80,17 @@ class _ReadingFabMenuState extends State<ReadingFabMenu> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (widget.onPrevPlanTap != null)
+                if (widget.onPrevPlanNote != null)
                   IconButton(
                     icon: const Icon(Icons.skip_previous),
-                    onPressed: widget.onPrevPlanTap,
+                    onPressed: widget.onPrevPlanNote,
                     tooltip: 'Previous Note in Plan',
                     iconSize: 20,
                   ),
-                if (widget.onNextPlanTap != null)
+                if (widget.onNextPlanNote != null)
                   IconButton(
                     icon: const Icon(Icons.skip_next),
-                    onPressed: widget.onNextPlanTap,
+                    onPressed: widget.onNextPlanNote,
                     tooltip: 'Next Note in Plan',
                     iconSize: 20,
                   ),
@@ -208,7 +227,7 @@ class _ReadingFabMenuState extends State<ReadingFabMenu> {
         ),
         const SizedBox(width: 8),
         FloatingActionButton.small(
-          heroTag: 'zen_reading_\$label',
+          heroTag: 'zen_reading_$label',
           onPressed: onTap,
           backgroundColor: colorScheme.surface,
           foregroundColor: colorScheme.primary,

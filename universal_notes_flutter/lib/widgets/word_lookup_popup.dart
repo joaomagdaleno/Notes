@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/services/word_lookup_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -282,7 +283,7 @@ class _WordLookupPopupState extends State<WordLookupPopup>
           if (_wikipedia!.pageUrl != null) ...[
             const SizedBox(height: 12),
             TextButton.icon(
-              onPressed: () => _openUrl(_wikipedia!.pageUrl!),
+              onPressed: () => unawaited(_openUrl(_wikipedia!.pageUrl!)),
               icon: const Icon(Icons.open_in_new, size: 16),
               label: const Text('Read more on Wikipedia'),
             ),

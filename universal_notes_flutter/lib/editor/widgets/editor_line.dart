@@ -5,18 +5,18 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import 'package:universal_notes_flutter/editor/interactive_drawing_block.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// A widget that renders a single line in the editor.
 ///
-/// Handles rendering of text, images, tables, math equations, and transclusions.
+/// Handles rendering of text, images, tables, math equations, and
+/// transclusions.
 /// Supports user interaction via tap and pan gestures.
 class EditorLine extends StatelessWidget {
   /// Creates an [EditorLine].
@@ -101,7 +101,9 @@ class EditorLine extends StatelessWidget {
     Offset localPosition,
     double maxWidth,
   ) {
-    if (line is! TextLine) return 0;
+    if (line is! TextLine) {
+      return 0;
+    }
 
     final textLine = line as TextLine;
     final painter = TextPainter(
@@ -388,12 +390,12 @@ class EditorLine extends StatelessWidget {
         } else {
           final currentLine = line;
 
-          // Use a text stack for better performance with large blocks of text
-          // This `textStack` is the one defined earlier, so we don't redefine it here.
-          // The instruction seems to imply a new textStack, but the context suggests
-          // it's about how `content` is assigned based on `currentLine` type.
-          // I will assume the instruction meant to replace the `else if (blockType == 'checklist') { ... } else if (line is CalloutLine) { ... } else if (line is TableLine) { ... } else { content = textStack; }`
-          // block with the new structure, and the `textStack` variable should be the one already defined.
+          // Use a text stack for better performance with large
+          // blocks of text. This `textStack` is the one defined earlier,
+          // so we don't redefine it here.
+          // The instruction seems to imply a new textStack, but the
+          // context suggests it's about how `content` is assigned based
+          // on `currentLine` type.
 
           if (blockType == 'checklist') {
             // This was previously `else if (blockType == 'checklist')`
@@ -575,10 +577,11 @@ class EditorLine extends StatelessWidget {
             var effectiveOffset = localTapOffset;
             if (blockType == 'quote') {
               effectiveOffset -= const Offset(16, 4);
-            } else if (blockType == 'code-block')
+            } else if (blockType == 'code-block') {
               effectiveOffset -= const Offset(8, 8);
-            else if (blockType == 'unordered-list')
+            } else if (blockType == 'unordered-list') {
               effectiveOffset -= const Offset(24, 0);
+            }
 
             // Find text position from offset
             final textPosition = painter.getPositionForOffset(effectiveOffset);

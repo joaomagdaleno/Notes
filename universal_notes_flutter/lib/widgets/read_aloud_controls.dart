@@ -85,16 +85,16 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
             ),
             onPressed: () {
               if (_state == ReadAloudState.playing) {
-                widget.service.pause();
+                unawaited(widget.service.pause());
               } else {
-                widget.service.speak(widget.text);
+                unawaited(widget.service.speak(widget.text));
               }
             },
           ),
           if (_state != ReadAloudState.stopped)
             IconButton(
               icon: const Icon(Icons.stop),
-              onPressed: () => widget.service.stop(),
+              onPressed: () => unawaited(widget.service.stop()),
             ),
           _SpeedButton(
             rate: _speed,
@@ -156,7 +156,7 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
               IconButton.filled(
                 onPressed: _state == ReadAloudState.stopped
                     ? null
-                    : () => widget.service.stop(),
+                    : () => unawaited(widget.service.stop()),
                 icon: const Icon(Icons.stop),
                 style: IconButton.styleFrom(
                   backgroundColor: theme.colorScheme.surfaceContainerHighest,
@@ -169,9 +169,9 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
               IconButton.filled(
                 onPressed: () {
                   if (_state == ReadAloudState.playing) {
-                    widget.service.pause();
+                    unawaited(widget.service.pause());
                   } else {
-                    widget.service.speak(widget.text);
+                    unawaited(widget.service.speak(widget.text));
                   }
                 },
                 icon: Icon(

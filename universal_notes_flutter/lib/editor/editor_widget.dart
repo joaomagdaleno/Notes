@@ -54,7 +54,7 @@ class EditorWidget extends StatefulWidget {
     this.onToggleLock,
     this.isDrawingMode = false,
     this.currentColor = Colors.black,
-    this.currentStrokeWidth = 2.0,
+    this.currentStrokeWidth = 2,
     this.softWrap = true,
     this.readingSettings,
     this.onOpenReadingSettings,
@@ -174,8 +174,10 @@ class EditorWidget extends StatefulWidget {
   final VoidCallback? onNextSmart;
   final VoidCallback? onPrevSmart;
 
-  /// Callback for plan navigation (next/prev note).
+  /// Callback for next plan note.
   final VoidCallback? onNextPlanNote;
+
+  /// Callback for previous plan note.
   final VoidCallback? onPrevPlanNote;
 
   /// Character range to highlight during read aloud (start, end).
@@ -1039,7 +1041,8 @@ class EditorWidgetState extends State<EditorWidget> {
                               onTapDown: _handleTapDown,
                               onPanStart: _handlePanStart,
                               onPanUpdate: _handlePanUpdate,
-                              remoteCursors: const [], // TODO: Filter for block
+                              remoteCursors:
+                                  const [], // TODO(user): Filter for block
                               currentColor: widget.currentColor,
                               currentStrokeWidth: widget.currentStrokeWidth,
                               isDrawingMode: widget.isDrawingMode,
@@ -1057,7 +1060,7 @@ class EditorWidgetState extends State<EditorWidget> {
 
   /// Reading mode: Distraction-free reading with Liquid Mode features.
   Widget _buildReadingView() {
-    final settings = widget.readingSettings ?? const ReadingSettings();
+    final settings = widget.readingSettings ?? ReadingSettings.defaults;
     final theme = settings.theme;
 
     // Apply night light filter
@@ -1072,7 +1075,7 @@ class EditorWidgetState extends State<EditorWidget> {
       );
     }
 
-    return Container(
+    return ColoredBox(
       color: theme.backgroundColor,
       child: Stack(
         children: [
@@ -1107,8 +1110,8 @@ class EditorWidgetState extends State<EditorWidget> {
               onScrollToTopTap: widget.onScrollToTop,
               onNextTap: widget.onNextSmart,
               onPrevTap: widget.onPrevSmart,
-              onNextPlanTap: widget.onNextPlanNote,
-              onPrevPlanTap: widget.onPrevPlanNote,
+              onNextPlanNote: widget.onNextPlanNote,
+              onPrevPlanNote: widget.onPrevPlanNote,
               onSearchTap: () {
                 setState(() {
                   _isReadingSearchVisible = !_isReadingSearchVisible;
@@ -1197,7 +1200,7 @@ class EditorWidgetState extends State<EditorWidget> {
                     onPanUpdate: (_, __, ___) {},
                     remoteCursors: const [],
                     currentColor: Colors.black,
-                    currentStrokeWidth: 2.0,
+                    currentStrokeWidth: 2,
                   ),
                 ),
               );
@@ -1214,7 +1217,7 @@ class EditorWidgetState extends State<EditorWidget> {
                 onPanUpdate: (_, __, ___) {},
                 remoteCursors: const [],
                 currentColor: Colors.black,
-                currentStrokeWidth: 2.0,
+                currentStrokeWidth: 2,
               );
             }
 
@@ -1304,42 +1307,44 @@ class EditorWidgetState extends State<EditorWidget> {
     BuildContext context,
     List<ReadingAnnotation> annotations,
   ) {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Margin Notes',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              ...annotations.map(
-                (a) => ListTile(
-                  leading: const Icon(Icons.sticky_note_2),
-                  title: Text(a.comment ?? ''),
-                  subtitle: Text(
-                    'Ref: "${a.textExcerpt ?? "..."}"',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () {
-                      // We need a callback to NoteEditorScreen to delete
-                      Navigator.pop(context);
-                    },
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (context) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Margin Notes',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 16),
+                ...annotations.map(
+                  (a) => ListTile(
+                    leading: const Icon(Icons.sticky_note_2),
+                    title: Text(a.comment ?? ''),
+                    subtitle: Text(
+                      'Ref: "${a.textExcerpt ?? "..."}"',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () {
+                        // We need a callback to NoteEditorScreen to delete
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -1576,10 +1581,12 @@ class EditorWidgetState extends State<EditorWidget> {
         (widget.readingSettings?.fontSize ?? 18) *
         (widget.readingSettings?.lineHeight ?? 1.6);
 
-    widget.scrollController?.animateTo(
-      scrollOffset,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+    unawaited(
+      widget.scrollController?.animateTo(
+        scrollOffset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      ),
     );
   }
 

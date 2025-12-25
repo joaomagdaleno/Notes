@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+/// Paints a grid background for the brainstorm view.
 class GridPainter extends CustomPainter {
+  /// Creates a [GridPainter].
   GridPainter({required this.color});
 
+  /// The color of the grid lines.
   final Color color;
 
   @override

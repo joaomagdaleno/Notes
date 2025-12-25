@@ -35,10 +35,10 @@ class ReadingStatsService extends ChangeNotifier {
 
     _currentNoteId = noteId;
     _sessionStartTime = DateTime.now();
-    _saveLastOpened(noteId);
+    unawaited(_saveLastOpened(noteId));
 
     _readingTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      _incrementTime(noteId, 60);
+      unawaited(_incrementTime(noteId, 60));
     });
   }
 
@@ -46,7 +46,7 @@ class ReadingStatsService extends ChangeNotifier {
   void stopSession() {
     if (_currentNoteId != null && _sessionStartTime != null) {
       final duration = DateTime.now().difference(_sessionStartTime!);
-      _incrementTime(_currentNoteId!, duration.inSeconds % 60);
+      unawaited(_incrementTime(_currentNoteId!, duration.inSeconds % 60));
     }
     _readingTimer?.cancel();
     _currentNoteId = null;
