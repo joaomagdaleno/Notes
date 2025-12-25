@@ -1,0 +1,6 @@
+Analyzing universal_notes_flutter...
+
+   info - test\all_editor_test.dart:10:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test\all_models_test.dart:13:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+
+2 issues found.
