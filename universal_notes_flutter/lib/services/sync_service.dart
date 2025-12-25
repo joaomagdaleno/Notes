@@ -305,7 +305,8 @@ class SyncService {
 
   Future<void> _syncDownDictionary(String userId) async {
     final cloudWords = await firestoreRepository.getDictionaryWords(userId);
-    await noteRepository.importWords(cloudWords);
+    final words = cloudWords.map((w) => w['word'] as String).toList();
+    await noteRepository.importWords(words);
   }
 
   /// Disposes of the controllers and subscriptions.

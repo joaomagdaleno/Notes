@@ -66,7 +66,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final ScrollController _scrollController = ScrollController();
 
   // Full-text search state
-  List<SearchResult>? _searchResults;
+  List<Note>? _searchResults;
   bool _isSearching = false;
 
   @override

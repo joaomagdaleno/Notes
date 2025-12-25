@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
@@ -714,7 +713,7 @@ class NoteRepository {
   }
 
   /// Searches all notes for the given term.
-  Future<List<Note>> searchAllNotes(String searchTerm) async {
+  Future<List<Note>> searchNotes(String searchTerm) async {
     final db = await database;
 
     if (searchTerm.length > 256) {
@@ -793,6 +792,17 @@ class NoteRepository {
     });
   }
 
+  /// Moves a note to the trash.
+  Future<void> deleteNote(String id) async {
+    final db = await database;
+    await db.update(
+      _notesTable,
+      {'isInTrash': 1},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   /// Helper to update relational tag tables.
   Future<void> _updateTagsForNote(Transaction txn, Note note) async {
     await txn.delete(
@@ -819,5 +829,167 @@ class NoteRepository {
       orderBy: 'date DESC',
     );
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
+  }
+
+  /// Deletes a note permanently.
+  Future<void> deleteNotePermanently(String noteId) async {
+    final db = await database;
+    await db.delete(
+      _notesTable,
+      where: 'id = ?',
+      whereArgs: [noteId],
+    );
+    _wordFrequencyCache = null;
+  }
+
+  // --- Note Event Methods ---
+
+  /// Adds a note event.
+  Future<void> addNoteEvent(NoteEvent event) async {
+    final db = await database;
+    await db.insert(
+      _noteEventsTable,
+      event.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Retrieves events for a note.
+  Future<List<NoteEvent>> getNoteEvents(String noteId) async {
+    final db = await database;
+    final maps = await db.query(
+      _noteEventsTable,
+      where: 'noteId = ?',
+      whereArgs: [noteId],
+      orderBy: 'timestamp ASC',
+    );
+    return List.generate(maps.length, (i) => NoteEvent.fromMap(maps[i]));
+  }
+
+  /// Updates a note event.
+  Future<void> updateNoteEvent(NoteEvent event) async {
+    final db = await database;
+    await db.update(
+      _noteEventsTable,
+      event.toMap(),
+      where: 'id = ?',
+      whereArgs: [event.id],
+    );
+  }
+
+  // --- Dictionary Methods ---
+
+  /// Gets learned words starting with prefix.
+  Future<List<String>> getLearnedWords(String prefix) async {
+    final db = await database;
+    final maps = await db.query(
+      _userDictionaryTable,
+      where: 'word LIKE ?',
+      whereArgs: ['$prefix%'],
+      orderBy: 'frequency DESC',
+      limit: 10,
+    );
+    return List.generate(maps.length, (i) => maps[i]['word'] as String);
+  }
+
+  /// Learns a word (increments frequency).
+  Future<void> learnWord(String word) async {
+    final db = await database;
+    final existing = await db.query(
+      _userDictionaryTable,
+      where: 'word = ?',
+      whereArgs: [word],
+    );
+
+    if (existing.isNotEmpty) {
+      await db.update(
+        _userDictionaryTable,
+        {
+          'frequency': (existing.first['frequency'] as int) + 1,
+          'lastUsed': DateTime.now().millisecondsSinceEpoch,
+          'isSynced': 0, // Local change
+        },
+        where: 'word = ?',
+        whereArgs: [word],
+      );
+    } else {
+      await db.insert(
+        _userDictionaryTable,
+        {
+          'word': word,
+          'frequency': 1,
+          'lastUsed': DateTime.now().millisecondsSinceEpoch,
+          'isSynced': 0, // Local change
+        },
+      );
+    }
+  }
+
+  /// Gets unsynced words.
+  Future<List<Map<String, Object?>>> getUnsyncedWords() async {
+    final db = await database;
+    return db.query(
+      _userDictionaryTable,
+      where: 'isSynced = 0',
+    );
+  }
+
+  /// Marks words as synced.
+  Future<void> markWordsSynced(List<String> words) async {
+    final db = await database;
+    final batch = db.batch();
+    for (final word in words) {
+      batch.update(
+        _userDictionaryTable,
+        {'isSynced': 1},
+        where: 'word = ?',
+        whereArgs: [word],
+      );
+    }
+    await batch.commit();
+  }
+
+  /// Imports words from cloud.
+  Future<void> importWords(List<String> words) async {
+    final db = await database;
+    final batch = db.batch();
+    for (final word in words) {
+      batch.insert(
+        _userDictionaryTable,
+        {
+          'word': word,
+          'frequency': 1,
+          'lastUsed': DateTime.now().millisecondsSinceEpoch,
+          'isSynced': 1,
+        },
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+    await batch.commit();
+  }
+
+  // --- Sync Helpers ---
+
+  /// Gets all tag names.
+  Future<List<String>> getAllTagNames() async {
+    final tags = await getAllTags();
+    return tags.map((t) => t.name).toList();
+  }
+
+  /// Gets unsynced notes.
+  Future<List<Note>> getUnsyncedNotes() async {
+    final db = await database;
+    final maps = await db.query(
+      _notesTable,
+      where: 'syncStatus != ?',
+      whereArgs: [SyncStatus.synced.index], // Stored as integer
+    );
+    return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
+  }
+
+  /// Closes the database.
+  Future<void> close() async {
+    final db = await database;
+    await db.close();
   }
 }
