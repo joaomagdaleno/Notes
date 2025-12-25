@@ -149,6 +149,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const Icon(Icons.lock, size: 48),
+              const SizedBox(height: 16),
               const Text('App Locked'),
               const SizedBox(height: 16),
               ElevatedButton(
