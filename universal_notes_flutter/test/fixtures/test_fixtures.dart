@@ -1,5 +1,5 @@
-/// Shared test fixtures for Notes project
 /// Use these pre-built objects instead of creating new ones in each test
+// ignore_for_file: avoid_redundant_argument_values
 library;
 
 import 'package:universal_notes_flutter/models/note.dart';

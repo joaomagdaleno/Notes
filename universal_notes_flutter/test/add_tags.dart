@@ -1,4 +1,5 @@
-// This script is intended to be run from the command line, so printing is appropriate.
+// This script is intended to be run from the command line,
+// so printing is appropriate.
 // ignore_for_file: avoid_print
 
 import 'dart:io';

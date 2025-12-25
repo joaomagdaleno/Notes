@@ -33,14 +33,16 @@ void main() {
     group('createTable', () {
       test('creates bookmarks table', () async {
         final tables = await database.rawQuery(
-          "SELECT name FROM sqlite_master WHERE type='table' AND name='reading_bookmarks'",
+          "SELECT name FROM sqlite_master WHERE type='table' AND "
+          "name='reading_bookmarks'",
         );
         expect(tables, isNotEmpty);
       });
 
       test('creates noteId index', () async {
         final indexes = await database.rawQuery(
-          "SELECT name FROM sqlite_master WHERE type='index' AND name='idx_bookmarks_noteId'",
+          "SELECT name FROM sqlite_master WHERE type='index' AND "
+          "name='idx_bookmarks_noteId'",
         );
         expect(indexes, isNotEmpty);
       });

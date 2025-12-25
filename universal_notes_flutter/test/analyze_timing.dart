@@ -1,8 +1,11 @@
-// This script is intended to be run from the command line, so printing is appropriate.
+// This script is intended to be run from the command line,
+// so printing is appropriate.
 // ignore_for_file: avoid_print
 
 /// Script to analyze test timing from JSON reporter output
 /// Identifies the slowest tests for optimization
+library;
+
 import 'dart:convert';
 import 'dart:io';
 

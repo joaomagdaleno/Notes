@@ -8,7 +8,7 @@ import 'package:universal_notes_flutter/models/reading_settings.dart';
 void main() {
   group('ReadingSettings', () {
     test('creates with default values', () {
-      const settings = ReadingSettings();
+      const settings = ReadingSettings.defaults;
 
       expect(settings.fontSize, 18.0);
       expect(settings.lineHeight, 1.6);
@@ -142,7 +142,7 @@ void main() {
 
     group('copyWith', () {
       test('copies with new values', () {
-        const original = ReadingSettings();
+        const original = ReadingSettings.defaults;
 
         final copied = original.copyWith(
           fontSize: 24,
@@ -155,7 +155,7 @@ void main() {
       });
 
       test('copies with all new values', () {
-        const original = ReadingSettings();
+        const original = ReadingSettings.defaults;
 
         final copied = original.copyWith(
           fontSize: 14,
@@ -207,7 +207,7 @@ void main() {
       });
 
       testWidgets('uses null fontFamily for Default', (tester) async {
-        const settings = ReadingSettings();
+        const settings = ReadingSettings.defaults;
 
         await tester.pumpWidget(
           MaterialApp(
@@ -249,7 +249,7 @@ void main() {
       });
 
       test('not equals with different values', () {
-        const settings1 = ReadingSettings();
+        const settings1 = ReadingSettings.defaults;
         const settings2 = ReadingSettings(fontSize: 20);
 
         expect(settings1, isNot(equals(settings2)));

@@ -1,28 +1,28 @@
 import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/reading_stats.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/notes_screen.dart';
-import 'package:universal_notes_flutter/services/firebase_service.dart';
-import 'package:universal_notes_flutter/services/storage_service.dart';
-import 'package:universal_notes_flutter/services/media_service.dart';
 import 'package:universal_notes_flutter/services/encryption_service.dart';
-import 'package:universal_notes_flutter/services/sync_service.dart';
-import 'package:universal_notes_flutter/services/update_service.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:universal_notes_flutter/services/firebase_service.dart';
+import 'package:universal_notes_flutter/services/media_service.dart';
 import 'package:universal_notes_flutter/services/reading_bookmarks_service.dart';
 import 'package:universal_notes_flutter/services/reading_interaction_service.dart';
 import 'package:universal_notes_flutter/services/reading_plan_service.dart';
 import 'package:universal_notes_flutter/services/reading_stats_service.dart';
-import 'package:universal_notes_flutter/models/reading_stats.dart';
+import 'package:universal_notes_flutter/services/storage_service.dart';
+import 'package:universal_notes_flutter/services/sync_service.dart';
+import 'package:universal_notes_flutter/services/update_service.dart';
+import 'package:window_manager/window_manager.dart';
 
 const String inMemoryDatabasePath = ':memory:';
 
@@ -226,7 +226,7 @@ Future<void> setupNotesTest() async {
   NoteRepository.instance.dbPath = inMemoryDatabasePath;
   await NoteRepository.instance.database;
 
-  SyncService.instance.reset(); // Existing reset method
+  unawaited(SyncService.instance.reset()); // Existing reset method
   SyncService.instance.noteRepository = NoteRepository.instance;
   SyncService.instance.firestoreRepository = FirestoreRepository.instance;
 }

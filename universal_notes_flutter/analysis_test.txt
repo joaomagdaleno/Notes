@@ -1,1 +1,58 @@
 Analyzing test...
+
+  error - auth_service_test.dart:88:46 - The argument type 'Null' can't be assigned to the parameter type 'User'.  - argument_type_not_assignable
+   info - add_tags.dart:1:81 - The line length exceeds the 80-character limit. Try breaking the line across multiple lines. - lines_longer_than_80_chars
+   info - analyze_timing.dart:1:81 - The line length exceeds the 80-character limit. Try breaking the line across multiple lines. - lines_longer_than_80_chars
+   info - analyze_timing.dart:4:1 - Dangling library doc comment. Add a 'library' directive after the library comment. - dangling_library_doc_comments
+   info - auth_service_test.dart:46:7 - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const'. - prefer_const_declarations
+   info - auth_service_test.dart:47:7 - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const'. - prefer_const_declarations
+   info - auth_service_test.dart:68:9 - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const'. - prefer_const_declarations
+   info - auth_service_test.dart:69:9 - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const'. - prefer_const_declarations
+   info - calculate_coverage.dart:1:81 - The line length exceeds the 80-character limit. Try breaking the line across multiple lines. - lines_longer_than_80_chars
+   info - coverage_report.dart:1:81 - The line length exceeds the 80-character limit. Try breaking the line across multiple lines. - lines_longer_than_80_chars
+   info - fixtures\test_fixtures.dart:17:31 - The value of the argument is redundant because it matches the default value. Try removing the argument. - avoid_redundant_argument_values
+   info - fixtures\test_fixtures.dart:18:34 - The value of the argument is redundant because it matches the default value. Try removing the argument. - avoid_redundant_argument_values
+   info - fixtures\test_fixtures.dart:27:31 - The value of the argument is redundant because it matches the default value. Try removing the argument. - avoid_redundant_argument_values
+   info - fixtures\test_fixtures.dart:28:34 - The value of the argument is redundant because it matches the default value. Try removing the argument. - avoid_redundant_argument_values
+   info - fixtures\test_fixtures.dart:38:31 - The value of the argument is redundant because it matches the default value. Try removing the argument. - avoid_redundant_argument_values
+   info - fixtures\test_fixtures.dart:39:34 - The value of the argument is redundant because it matches the default value. Try removing the argument. - avoid_redundant_argument_values
+   info - fixtures\test_fixtures.dart:71:31 - The value of the argument is redundant because it matches the default value. Try removing the argument. - avoid_redundant_argument_values
+   info - fixtures\test_fixtures.dart:79:31 - The value of the argument is redundant because it matches the default value. Try removing the argument. - avoid_redundant_argument_values
+   info - fixtures\test_fixtures.dart:80:34 - The value of the argument is redundant because it matches the default value. Try removing the argument. - avoid_redundant_argument_values
+   info - map_ids.dart:1:81 - The line length exceeds the 80-character limit. Try breaking the line across multiple lines. - lines_longer_than_80_chars
+   info - models\reading_settings_test.dart:11:24 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - models\reading_settings_test.dart:145:26 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - models\reading_settings_test.dart:158:26 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - models\reading_settings_test.dart:210:26 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - models\reading_settings_test.dart:252:27 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - repositories\note_repository_test.dart:7:8 - The import of 'package:sqflite/sqflite.dart' is unnecessary because all of the used elements are also provided by the import of 'package:sqflite_common_ffi/sqflite_ffi.dart'. Try removing the import directive. - unnecessary_import
+   info - services\reading_bookmarks_service_test.dart:36:81 - The line length exceeds the 80-character limit. Try breaking the line across multiple lines. - lines_longer_than_80_chars
+   info - services\reading_bookmarks_service_test.dart:43:81 - The line length exceeds the 80-character limit. Try breaking the line across multiple lines. - lines_longer_than_80_chars
+   info - services\reading_plan_service_test.dart:35:81 - The line length exceeds the 80-character limit. Try breaking the line across multiple lines. - lines_longer_than_80_chars
+   info - services\sync_service_test.dart:19:5 - Unnecessary duplication of receiver. Try using a cascade to avoid the duplication. - cascade_invocations
+   info - test_helper.dart:4:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test_helper.dart:16:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test_helper.dart:17:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test_helper.dart:21:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test_helper.dart:25:1 - Sort directive sections alphabetically. Try sorting the directives. - directives_ordering
+   info - test_helper.dart:229:24 - Missing an 'await' for the 'Future' computed by this expression. Try adding an 'await' or wrapping the expression with 'unawaited'. - unawaited_futures
+   info - widgets\fluent_note_card_golden_test.dart:12:5 - 'Future'-returning calls in a non-'async' function. Try converting the enclosing function to be 'async' and then 'await' the future, or wrap the expression in 'unawaited'. - discarded_futures
+   info - widgets\read_aloud_controls_test.dart:32:21 - 'Future'-returning calls in a non-'async' function. Try converting the enclosing function to be 'async' and then 'await' the future, or wrap the expression in 'unawaited'. - discarded_futures
+   info - widgets\read_aloud_controls_test.dart:33:21 - 'Future'-returning calls in a non-'async' function. Try converting the enclosing function to be 'async' and then 'await' the future, or wrap the expression in 'unawaited'. - discarded_futures
+   info - widgets\reading_mode_settings_test.dart:16:25 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - widgets\reading_mode_settings_test.dart:37:25 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - widgets\reading_mode_settings_test.dart:53:25 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - widgets\reading_mode_settings_test.dart:70:25 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - widgets\reading_mode_settings_test.dart:108:25 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - widgets\reading_mode_settings_test.dart:146:25 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - widgets\reading_mode_settings_test.dart:163:25 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - widgets\reading_mode_settings_test.dart:184:27 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - widgets\reading_mode_settings_test.dart:204:25 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - widgets\reading_mode_settings_test.dart:225:27 - Use the constant 'ReadingSettings.defaults' rather than a constructor returning the same object. Try using 'ReadingSettings.defaults'. - use_named_constants
+   info - widgets\sidebar_test.dart:25:81 - The line length exceeds the 80-character limit. Try breaking the line across multiple lines. - lines_longer_than_80_chars
+   info - widgets\sidebar_test.dart:89:7 - Unnecessary duplication of receiver. Try using a cascade to avoid the duplication. - cascade_invocations
+   info - widgets\sidebar_test.dart:103:11 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - widgets\simple_fluent_golden_test.dart:10:5 - 'Future'-returning calls in a non-'async' function. Try converting the enclosing function to be 'async' and then 'await' the future, or wrap the expression in 'unawaited'. - discarded_futures
+   info - widgets\standard_golden_test.dart:10:5 - 'Future'-returning calls in a non-'async' function. Try converting the enclosing function to be 'async' and then 'await' the future, or wrap the expression in 'unawaited'. - discarded_futures
+
+54 issues found.

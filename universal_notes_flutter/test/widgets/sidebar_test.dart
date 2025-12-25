@@ -22,7 +22,8 @@ void main() {
   late MockBackupService mockBackupService;
   late MockNoteRepository mockNoteRepository;
 
-  // Use separate controllers for each test if possible, or reset them rigorously
+  // Use separate controllers for each test if possible, or reset them
+  // rigorously
   late StreamController<List<Folder>> foldersController;
   late StreamController<List<String>> tagsController;
 
@@ -85,8 +86,7 @@ void main() {
 
       await tester.pumpWidget(createWidgetUnderTest((_) {}));
 
-      final scaffoldState = tester.state<ScaffoldState>(find.byType(Scaffold));
-      scaffoldState.openDrawer();
+      tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('All Notes'), findsOneWidget);
@@ -100,7 +100,6 @@ void main() {
       SidebarSelection? selected;
       await tester.pumpWidget(
         createWidgetUnderTest((s) {
-          print('Sidebar selection changed: ${s.type}');
           selected = s;
         }),
       );

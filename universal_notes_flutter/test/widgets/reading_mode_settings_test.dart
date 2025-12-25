@@ -13,7 +13,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(),
+              settings: ReadingSettings.defaults,
               onSettingsChanged: (_) {},
             ),
           ),
@@ -34,7 +34,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(),
+              settings: ReadingSettings.defaults,
               onSettingsChanged: (_) {},
               onReset: () {},
             ),
@@ -50,7 +50,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(),
+              settings: ReadingSettings.defaults,
               onSettingsChanged: (_) {},
             ),
           ),
@@ -67,7 +67,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(),
+              settings: ReadingSettings.defaults,
               onSettingsChanged: (_) {},
               onReset: () => resetCalled = true,
             ),
@@ -105,7 +105,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(),
+              settings: ReadingSettings.defaults,
               onSettingsChanged: (s) => changedSettings = s,
             ),
           ),
@@ -143,7 +143,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(),
+              settings: ReadingSettings.defaults,
               onSettingsChanged: (_) {},
             ),
           ),
@@ -160,7 +160,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(),
+              settings: ReadingSettings.defaults,
               onSettingsChanged: (s) => changedSettings = s,
             ),
           ),
@@ -181,7 +181,7 @@ void main() {
           home: Scaffold(
             body: SingleChildScrollView(
               child: ReadingModeSettings(
-                settings: const ReadingSettings(),
+                settings: ReadingSettings.defaults,
                 onSettingsChanged: (_) {},
               ),
             ),
@@ -201,7 +201,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReadingModeSettings(
-              settings: const ReadingSettings(),
+              settings: ReadingSettings.defaults,
               onSettingsChanged: (s) => changedSettings = s,
             ),
           ),
@@ -222,7 +222,7 @@ void main() {
           home: Scaffold(
             body: SingleChildScrollView(
               child: ReadingModeSettings(
-                settings: const ReadingSettings(),
+                settings: ReadingSettings.defaults,
                 onSettingsChanged: (_) {},
               ),
             ),

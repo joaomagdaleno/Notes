@@ -15,8 +15,9 @@ void main() {
     mockFirestoreRepository = MockFirestoreRepository();
     syncService = SyncService.instance;
     await syncService.reset(); // Ensure clean state
-    syncService.noteRepository = mockNoteRepository;
-    syncService.firestoreRepository = mockFirestoreRepository;
+    syncService
+      ..noteRepository = mockNoteRepository
+      ..firestoreRepository = mockFirestoreRepository;
     await syncService.init();
 
     // Default stubs

@@ -32,7 +32,8 @@ void main() {
   group('ReadingPlanService', () {
     test('createTable should create the table', () async {
       final tables = await database.rawQuery(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='reading_plans'",
+        "SELECT name FROM sqlite_master WHERE type='table' AND "
+        "name='reading_plans'",
       );
       expect(tables, isNotEmpty);
     });

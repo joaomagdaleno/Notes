@@ -18,7 +18,7 @@ class MockUser extends Mock implements User {}
 
 class MockFirestoreRepository extends Mock implements FirestoreRepository {
   @override
-  Future<void> createUser(User user) {
+  Future<void> createUser(User? user) {
     return super.noSuchMethod(
           Invocation.method(#createUser, [user]),
           returnValue: Future<void>.value(),
@@ -43,8 +43,8 @@ void main() {
 
   group('AuthService', () {
     test('signInWithEmailAndPassword calls firebaseAuth', () async {
-      final email = 'test@example.com';
-      final password = 'password';
+      const email = 'test@example.com';
+      const password = 'password';
       final mockCredential = MockUserCredential();
 
       when(
@@ -65,8 +65,8 @@ void main() {
     test(
       'createUserWithEmailAndPassword calls firestoreRepository on success',
       () async {
-        final email = 'test@example.com';
-        final password = 'password';
+        const email = 'test@example.com';
+        const password = 'password';
         final mockCredential = MockUserCredential();
         final mockUser = MockUser();
 
@@ -84,9 +84,7 @@ void main() {
         );
 
         expect(result, mockCredential);
-        verify(
-          mockFirestoreRepository.createUser(argThat(isA<User>())),
-        ).called(1);
+        verify(mockFirestoreRepository.createUser(any)).called(1);
       },
     );
 

@@ -28,9 +28,9 @@ void main() {
     when(mockService.speedStream).thenAnswer((_) => speedController.stream);
   });
 
-  tearDown(() {
-    stateController.close();
-    speedController.close();
+  tearDown(() async {
+    await stateController.close();
+    await speedController.close();
   });
 
   Widget createWidget({bool compact = false, VoidCallback? onClose}) {
