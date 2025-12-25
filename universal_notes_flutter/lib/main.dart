@@ -64,8 +64,10 @@ class MyApp extends StatelessWidget {
     // ⚡ Bolt: By passing the theme-independent widgets to the `child` parameter
     // of the Consumer, we ensure that they are built only once. The `builder`
     // will be called again on theme changes, but the `child` widget instance
-    // will be reused, preventing unnecessary rebuilds of a large widget subtree.
-    // Impact: Reduces widget rebuilds in the main tree significantly on theme change.
+    // will be reused, preventing unnecessary rebuilds of a large widget
+    // subtree.
+    // Impact: Reduces widget rebuilds in the main tree significantly on theme
+    // change.
     // Measurement: Verified with Flutter DevTools' "Highlight Repaints".
     return Consumer<ThemeService>(
       child: const SyncConflictListener(

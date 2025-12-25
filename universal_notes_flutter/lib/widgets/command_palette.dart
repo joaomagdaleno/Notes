@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
+import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/graph_view_screen.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
@@ -43,7 +44,7 @@ class CommandPalette extends StatefulWidget {
 
 class _CommandPaletteState extends State<CommandPalette> {
   final TextEditingController _searchController = TextEditingController();
-  List<SearchResult> _results = [];
+  List<Note> _results = [];
   bool _isLoading = false;
 
   Future<void> _onSearch(String query) async {
@@ -137,35 +138,40 @@ class _CommandPaletteState extends State<CommandPalette> {
                             ),
                       ] else ...[
                         ..._results.map(
-                          (result) => ListTile(
-                            title: Text(result.note.title),
-                            subtitle: Text(
-                              result.snippet,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              unawaited(
-                                Navigator.of(context).push(
-                                  fluent.FluentPageRoute<void>(
-                                    builder: (context) => NoteEditorScreen(
-                                      note: result.note,
-                                      onSave: (updatedNote) async {
-                                        await NoteRepository.instance
-                                            .updateNote(
-                                              updatedNote,
-                                            );
-                                        await SyncService.instance
-                                            .refreshLocalData();
-                                        return updatedNote;
-                                      },
+                          (result) {
+                            final snippet = result.content.length > 50
+                                ? result.content.substring(0, 50)
+                                : result.content;
+                            return ListTile(
+                              title: Text(result.title),
+                              subtitle: Text(
+                                snippet,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                unawaited(
+                                  Navigator.of(context).push(
+                                    fluent.FluentPageRoute<void>(
+                                      builder: (context) => NoteEditorScreen(
+                                        note: result,
+                                        onSave: (updatedNote) async {
+                                          await NoteRepository.instance
+                                              .updateNote(
+                                                updatedNote,
+                                              );
+                                          await SyncService.instance
+                                              .refreshLocalData();
+                                          return updatedNote;
+                                        },
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
+                                );
+                              },
+                            );
+                          },
                         ),
                       ],
                     ],

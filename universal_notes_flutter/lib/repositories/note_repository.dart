@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
@@ -21,9 +20,9 @@ import 'package:uuid/uuid.dart';
 
 /// A repository for managing all app data in a local database.
 class NoteRepository {
-  @visibleForTesting
   NoteRepository._();
 
+  /// Resets the singleton instance.
   static void resetInstance() {
     instance = NoteRepository._();
   }
@@ -31,6 +30,7 @@ class NoteRepository {
   /// The singleton instance of [NoteRepository].
   static NoteRepository instance = NoteRepository._();
 
+  /// The firebase service instance.
   @visibleForTesting
   FirebaseService firebaseService = FirebaseService();
 
@@ -40,12 +40,15 @@ class NoteRepository {
   Map<String, int>? _wordFrequencyCache;
 
   ReadingBookmarksService? _bookmarksService;
+
+  /// The bookmarks service.
   ReadingBookmarksService get bookmarksService {
     if (_bookmarksService == null) {
-      if (_database == null)
+      if (_database == null) {
         throw StateError(
           'Database must be initialized before accessing services',
         );
+      }
       _bookmarksService = ReadingBookmarksService(database: _database!);
     }
     return _bookmarksService!;
@@ -55,12 +58,15 @@ class NoteRepository {
       _bookmarksService = service;
 
   ReadingInteractionService? _readingInteractionService;
+
+  /// The reading interaction service.
   ReadingInteractionService get readingInteractionService {
     if (_readingInteractionService == null) {
-      if (_database == null)
+      if (_database == null) {
         throw StateError(
           'Database must be initialized before accessing services',
         );
+      }
       _readingInteractionService = ReadingInteractionService(
         database: _database!,
       );
@@ -72,12 +78,15 @@ class NoteRepository {
       _readingInteractionService = service;
 
   ReadingStatsService? _readingStatsService;
+
+  /// The reading stats service.
   ReadingStatsService get readingStatsService {
     if (_readingStatsService == null) {
-      if (_database == null)
+      if (_database == null) {
         throw StateError(
           'Database must be initialized before accessing services',
         );
+      }
       _readingStatsService = ReadingStatsService(database: _database!);
     }
     return _readingStatsService!;
@@ -87,12 +96,15 @@ class NoteRepository {
       _readingStatsService = service;
 
   ReadingPlanService? _readingPlanService;
+
+  /// The reading plan service.
   ReadingPlanService get readingPlanService {
     if (_readingPlanService == null) {
-      if (_database == null)
+      if (_database == null) {
         throw StateError(
           'Database must be initialized before accessing services',
         );
+      }
       _readingPlanService = ReadingPlanService(database: _database!);
     }
     return _readingPlanService!;
@@ -567,7 +579,7 @@ class NoteRepository {
       return cache[b]!.compareTo(cache[a]!);
     });
 
-    return matchingWords.take(10).toList(); // Limit to top 10 for performance
+    return matchingWords.take(10).toList();
   }
 
   // --- Versioning Methods ---
@@ -696,20 +708,14 @@ class NoteRepository {
 
     query += ' ORDER BY N.date DESC';
 
-    // final columnsToFetch = Note.fromMap(
-    //   const {},
-    // ).toMap().keys.where((key) => key != 'content').toList();
-
     final maps = await db.rawQuery(query, whereArgs);
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
   /// Searches all notes for the given term.
-  Future<List<Note>> searchAllNotes(String searchTerm) async {
+  Future<List<Note>> searchNotes(String searchTerm) async {
     final db = await database;
 
-    // 🛡️ Sentinel: Add input length validation to prevent local DoS attacks
-    // from excessively long search terms.
     if (searchTerm.length > 256) {
       return [];
     }
@@ -786,132 +792,59 @@ class NoteRepository {
     });
   }
 
+  /// Moves a note to the trash.
+  Future<void> deleteNote(String id) async {
+    final db = await database;
+    await db.update(
+      _notesTable,
+      {'isInTrash': 1},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   /// Helper to update relational tag tables.
   Future<void> _updateTagsForNote(Transaction txn, Note note) async {
-    // 1. Clear existing tags for this note
     await txn.delete(
       _noteTagsTable,
       where: 'note_id = ?',
       whereArgs: [note.id],
     );
 
-    // 2. Insert new tags
-    for (final tag in note.tags) {
-      if (tag.isEmpty) continue;
-
-      // Ensure tag definitions exist (using tag name as ID)
-      await txn.insert(
-        _tagsTable,
-        {'id': tag, 'name': tag, 'color': null},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
-      );
-
-      // Link tag to note
+    for (var tag in note.tags) {
       await txn.insert(
         _noteTagsTable,
         {'note_id': note.id, 'tag_id': tag},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
       );
     }
   }
 
-  /// Retrieves all distinct tag names used in the database.
-  Future<List<String>> getAllTagNames() async {
+  /// Loads the first 100 characters of each note as a snippet.
+  Future<List<Note>> getNoteSnippets() async {
     final db = await database;
-    // We fetch from _tagsTable, but maybe only those that are used?
-    // Since we lazy-create tags, _tagsTable might have orphans if we remove
-    // tags from notes.
-    // ideal: join with _noteTagsTable to find used tags.
-    // Or just return all known tags. Let's return all known tags to allow
-    // reuse.
-    final result = await db.query(
-      _tagsTable,
-      columns: ['name'],
-      orderBy: 'name',
-    );
-    return result.map((row) => row['name']! as String).toList();
-  }
-
-  /// Moves a note to the trash (soft delete).
-  Future<void> deleteNote(String id) async {
-    final db = await database;
-    await db.delete(_notesTable, where: 'id = ?', whereArgs: [id]);
-  }
-
-  /// Permanently deletes a note from the database.
-  Future<void> deleteNotePermanently(String id) async {
-    final db = await database;
-    await db.delete(_notesTable, where: 'id = ?', whereArgs: [id]);
-    _wordFrequencyCache = null; // Invalidate cache on deletion
-  }
-
-  /// Restores a note from the trash.
-  Future<void> restoreNoteFromTrash(String id) async {
-    final db = await database;
-    await db.update(
+    final maps = await db.query(
       _notesTable,
-      {'isInTrash': 0},
-      where: 'id = ?',
-      whereArgs: [id],
+      columns: ['id', 'title', 'date', 'isFavorite', 'isInTrash'],
+      where: 'isInTrash = 0',
+      orderBy: 'date DESC',
     );
+    return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
-  // --- Collaborative Note Methods ---
-
-  /// Returns a stream of a collaborative note.
-  Stream<Note> getCollaborativeNoteStream(String noteId) {
-    return firebaseService.documentStream.map((docData) {
-      final contentJson = docData['content'] as Map<String, dynamic>;
-      final contentStr = json.encode(contentJson);
-      // Create a temporary Note object with the synced content.
-      // Other note properties (title, etc.) would also be synced in a full
-      // implementation.
-      return Note(
-        id: noteId,
-        title: 'Collaborative Note', // Placeholder title
-        content: contentStr,
-        createdAt: DateTime.now(),
-        lastModified: DateTime.now(),
-        ownerId: 'collaborator',
-      );
-    });
+  /// Deletes a note permanently.
+  Future<void> deleteNotePermanently(String noteId) async {
+    final db = await database;
+    await db.delete(
+      _notesTable,
+      where: 'id = ?',
+      whereArgs: [noteId],
+    );
+    _wordFrequencyCache = null;
   }
 
-  /// Updates the content of a collaborative note.
-  Future<void> updateCollaborativeNote(String noteId, DocumentModel content) {
-    return firebaseService.updateDocument(noteId, content);
-  }
+  // --- Note Event Methods ---
 
-  /// Returns a stream of presence data for a collaborative note.
-  Stream<Map<String, Map<String, dynamic>>> getPresenceStream(String noteId) {
-    return firebaseService.presenceStream;
-  }
-
-  /// Updates the presence and cursor position of the current user.
-  Future<void> updateUserPresence(
-    String noteId,
-    String userId,
-    Map<String, dynamic> cursorData,
-  ) {
-    return firebaseService.updateUserPresence(noteId, userId, cursorData);
-  }
-
-  /// Removes the current user from the presence tracking.
-  Future<void> removeUserPresence(String noteId, String userId) {
-    return firebaseService.removeUserPresence(noteId, userId);
-  }
-
-  /// Closes the database connection.
-  Future<void> close() async {
-    if (_database != null) {
-      await _database!.close();
-      _database = null;
-    }
-  }
-
-  // --- Event Sourcing Methods ---
-
-  /// Adds a new event to the log.
+  /// Adds a note event.
   Future<void> addNoteEvent(NoteEvent event) async {
     final db = await database;
     await db.insert(
@@ -921,7 +854,7 @@ class NoteRepository {
     );
   }
 
-  /// Retrieves all events for a specific note, ordered by timestamp.
+  /// Retrieves events for a note.
   Future<List<NoteEvent>> getNoteEvents(String noteId) async {
     final db = await database;
     final maps = await db.query(
@@ -933,7 +866,7 @@ class NoteRepository {
     return List.generate(maps.length, (i) => NoteEvent.fromMap(maps[i]));
   }
 
-  /// Updates an existing event (e.g., to mark as synced).
+  /// Updates a note event.
   Future<void> updateNoteEvent(NoteEvent event) async {
     final db = await database;
     await db.update(
@@ -944,11 +877,7 @@ class NoteRepository {
     );
   }
 
-  // --- Full-Text Search Methods ---
-
-  /// Performs a full-text search across notes.
-  Future<List<SearchResult>> searchNotes(String query) async {
-    if (query.trim().isEmpty) return [];
+  // --- Dictionary Methods ---
 
     // 🛡️ Sentinel: Add input length validation to prevent local DoS attacks
     // from excessively long search terms bogging down the FTS5 engine.
@@ -957,90 +886,51 @@ class NoteRepository {
     }
 
     final db = await database;
-
-    // Escape special FTS5 characters and add prefix matching
-    final sanitizedQuery = query
-        .replaceAll('"', '""')
-        .split(' ')
-        .where((w) => w.length > 1) // Only use words > 1 char for search
-        .map((w) => '"$w"*') // Prefix match with quotes for safety
-        .join(' ');
-
-    if (sanitizedQuery.isEmpty) return [];
-
-    // Query FTS5 with ranking - Title has higher weight (10.0 vs 1.0)
-    final results = await db.rawQuery(
-      '''
-      SELECT 
-        n.*,
-        snippet($_notesFtsTable, 0, '<b>', '</b>', '...', 16) as title_snippet,
-        snippet($_notesFtsTable, 1, '<b>', '</b>', '...', 32) as content_snippet,
-        bm25($_notesFtsTable, 10.0, 1.0) as rank
-      FROM $_notesFtsTable fts
-      JOIN $_notesTable n ON fts.rowid = n.rowid
-      WHERE $_notesFtsTable MATCH ?
-        AND n.isInTrash = 0
-        AND n.isDeleted = 0
-      ORDER BY rank
-      LIMIT 100
-    ''',
-      [sanitizedQuery],
-    );
-
-    return results.map((row) {
-      final titleSnippet = row['title_snippet'] as String? ?? '';
-      final contentSnippet = row['content_snippet'] as String? ?? '';
-
-      return SearchResult(
-        note: Note.fromMap(row),
-        snippet: titleSnippet.contains('<b>') ? titleSnippet : contentSnippet,
-        rank: (row['rank'] as num?)?.toDouble() ?? 0.0,
-      );
-    }).toList();
-  }
-
-  // --- User Dictionary Methods ---
-
-  /// Learns a new word or increments its frequency.
-  Future<void> learnWord(String word) async {
-    if (word.length < 3) return; // Ignore short words
-
-    final db = await database;
-    final lowerWord = word.toLowerCase();
-    final now = DateTime.now().millisecondsSinceEpoch;
-
-    await db.rawInsert(
-      '''
-      INSERT INTO $_userDictionaryTable (word, frequency, lastUsed, isSynced)
-      VALUES (?, 1, ?, 0)
-      ON CONFLICT(word) DO UPDATE SET
-        frequency = frequency + 1,
-        lastUsed = ?,
-        isSynced = 0
-    ''',
-      [lowerWord, now, now],
-    );
-  }
-
-  /// Gets learned words matching a prefix, sorted by frequency.
-  Future<List<String>> getLearnedWords(String prefix) async {
-    final db = await database;
-    final lowerPrefix = prefix.toLowerCase();
-
-    final results = await db.query(
+    final maps = await db.query(
       _userDictionaryTable,
-      columns: ['word'],
       where: 'word LIKE ?',
-      whereArgs: ['$lowerPrefix%'],
+      whereArgs: ['$prefix%'],
       orderBy: 'frequency DESC',
       limit: 10,
     );
-
-    return results.map((r) => r['word']! as String).toList();
+    return List.generate(maps.length, (i) => maps[i]['word'] as String);
   }
 
-  /// Gets all unsynced words for push to cloud.
-  Future<List<Map<String, dynamic>>> getUnsyncedWords() async {
+  /// Learns a word (increments frequency).
+  Future<void> learnWord(String word) async {
+    final db = await database;
+    final existing = await db.query(
+      _userDictionaryTable,
+      where: 'word = ?',
+      whereArgs: [word],
+    );
+
+    if (existing.isNotEmpty) {
+      await db.update(
+        _userDictionaryTable,
+        {
+          'frequency': (existing.first['frequency'] as int) + 1,
+          'lastUsed': DateTime.now().millisecondsSinceEpoch,
+          'isSynced': 0, // Local change
+        },
+        where: 'word = ?',
+        whereArgs: [word],
+      );
+    } else {
+      await db.insert(
+        _userDictionaryTable,
+        {
+          'word': word,
+          'frequency': 1,
+          'lastUsed': DateTime.now().millisecondsSinceEpoch,
+          'isSynced': 0, // Local change
+        },
+      );
+    }
+  }
+
+  /// Gets unsynced words.
+  Future<List<Map<String, Object?>>> getUnsyncedWords() async {
     final db = await database;
     return db.query(
       _userDictionaryTable,
@@ -1048,72 +938,62 @@ class NoteRepository {
     );
   }
 
-  /// Marks words as synced after successful push.
+  /// Marks words as synced.
   Future<void> markWordsSynced(List<String> words) async {
-    if (words.isEmpty) return;
-
-    final db = await database;
-    final placeholders = List.filled(words.length, '?').join(',');
-    await db.rawUpdate('''
-      UPDATE $_userDictionaryTable 
-      SET isSynced = 1 
-      WHERE word IN ($placeholders)
-    ''', words);
-  }
-
-  /// Imports words from cloud sync (merges with local).
-  Future<void> importWords(List<Map<String, dynamic>> cloudWords) async {
     final db = await database;
     final batch = db.batch();
-
-    for (final word in cloudWords) {
-      batch.rawInsert(
-        '''
-        INSERT INTO $_userDictionaryTable (word, frequency, lastUsed, isSynced)
-        VALUES (?, ?, ?, 1)
-        ON CONFLICT(word) DO UPDATE SET
-          frequency = MAX(frequency, excluded.frequency),
-          lastUsed = MAX(lastUsed, excluded.lastUsed),
-          isSynced = 1
-      ''',
-        [
-          word['word'],
-          word['frequency'] ?? 1,
-          word['lastUsed'] ?? DateTime.now().millisecondsSinceEpoch,
-        ],
+    for (final word in words) {
+      batch.update(
+        _userDictionaryTable,
+        {'isSynced': 1},
+        where: 'word = ?',
+        whereArgs: [word],
       );
     }
-
-    await batch.commit(noResult: true);
+    await batch.commit();
   }
 
-  /// Retrieves all notes that haven't been synced to the remote storage.
+  /// Imports words from cloud.
+  Future<void> importWords(List<String> words) async {
+    final db = await database;
+    final batch = db.batch();
+    for (final word in words) {
+      batch.insert(
+        _userDictionaryTable,
+        {
+          'word': word,
+          'frequency': 1,
+          'lastUsed': DateTime.now().millisecondsSinceEpoch,
+          'isSynced': 1,
+        },
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+    await batch.commit();
+  }
+
+  // --- Sync Helpers ---
+
+  /// Gets all tag names.
+  Future<List<String>> getAllTagNames() async {
+    final tags = await getAllTags();
+    return tags.map((t) => t.name).toList();
+  }
+
+  /// Gets unsynced notes.
   Future<List<Note>> getUnsyncedNotes() async {
     final db = await database;
-    final results = await db.query(
+    final maps = await db.query(
       _notesTable,
-      where: 'syncStatus = ? OR syncStatus = ?',
-      whereArgs: [SyncStatus.local.index, SyncStatus.modified.index],
+      where: 'syncStatus != ?',
+      whereArgs: [SyncStatus.synced.index], // Stored as integer
     );
-    return results.map(Note.fromMap).toList();
+    return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
-}
 
-/// Represents a search result with the matched note and a snippet.
-class SearchResult {
-  /// Creates a [SearchResult].
-  const SearchResult({
-    required this.note,
-    required this.snippet,
-    required this.rank,
-  });
-
-  /// The matched note.
-  final Note note;
-
-  /// A snippet of the matched content with highlights.
-  final String snippet;
-
-  /// The relevance rank (lower is better in BM25).
-  final double rank;
+  /// Closes the database.
+  Future<void> close() async {
+    final db = await database;
+    await db.close();
+  }
 }

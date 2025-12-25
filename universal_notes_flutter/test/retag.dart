@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_print
+library;
+
 import 'dart:io';
 
 void main() {
@@ -28,7 +31,7 @@ void main() {
       if (tagRegex.hasMatch(content)) {
         newContent = content.replaceFirst(tagRegex, newTag);
       } else {
-        newContent = "$newTag\n$content";
+        newContent = "$newTag\nlibrary;\n\n$content";
       }
 
       file.writeAsStringSync(newContent);

@@ -66,7 +66,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final ScrollController _scrollController = ScrollController();
 
   // Full-text search state
-  List<SearchResult>? _searchResults;
+  List<Note>? _searchResults;
   bool _isSearching = false;
 
   @override
@@ -886,7 +886,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 }
 
-class _DashboardCard extends StatefulWidget {
+class _DashboardCard extends StatelessWidget {
   const _DashboardCard({
     required this.title,
     required this.subtitle,
@@ -903,65 +903,41 @@ class _DashboardCard extends StatefulWidget {
 
   // ⚡ Bolt: Hoist constant styles to prevent them from being recreated on
   // every build. `copyWith` is used to apply instance-specific colors.
-
-  @override
-  State<_DashboardCard> createState() => _DashboardCardState();
-}
-
-class _DashboardCardState extends State<_DashboardCard> {
-  // ⚡ Bolt: Caching expensive objects to avoid rebuilding them on every frame.
-
-  @override
-  void initState() {
-    super.initState();
-    _updateStyles();
-  }
-
-  @override
-  void didUpdateWidget(_DashboardCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // ⚡ Bolt: Only update styles when the color changes, preventing unnecessary
-    // object recreation.
-    if (widget.color != oldWidget.color) {
-      _updateStyles();
-    }
-  }
-
-  void _updateStyles() {
-    // Styles were moved inline or removed if not needed to avoid unused field warnings.
-  }
+  // This is more efficient than creating new TextStyle objects on each build.
+  static const _titleTextStyle = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 16,
+  );
+  static const _subtitleTextStyle = TextStyle(
+    fontSize: 12,
+  );
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Container(
         width: 160,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: widget.color.withValues(alpha: 0.1),
+          color: color.withOpacity(0.1),
           borderRadius: const BorderRadius.all(Radius.circular(16)),
-          border: Border.all(color: widget.color.withValues(alpha: 0.2)),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(widget.icon, color: widget.color, size: 32),
+            Icon(icon, color: color, size: 32),
             const SizedBox(height: 12),
             Text(
-              widget.title,
-              style: TextStyle(
-                color: widget.color,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              title,
+              style: _titleTextStyle.copyWith(color: color),
             ),
             Text(
-              widget.subtitle,
-              style: TextStyle(
-                color: widget.color.withValues(alpha: 0.7),
-                fontSize: 12,
+              subtitle,
+              style: _subtitleTextStyle.copyWith(
+                color: color.withOpacity(0.7),
               ),
             ),
           ],

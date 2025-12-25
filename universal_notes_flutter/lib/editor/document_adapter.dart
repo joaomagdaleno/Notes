@@ -31,7 +31,7 @@ class DocumentAdapter {
         }
       }).toList();
       return DocumentModel(blocks: blocks);
-    } catch (_) {
+    } on Exception catch (_) {
       // Fallback for old plain text content or malformed JSON
       return DocumentModel(
         blocks: [

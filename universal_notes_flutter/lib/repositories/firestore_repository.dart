@@ -6,23 +6,27 @@ import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/services/tracing_service.dart';
 
+/// A repository for interacting with Firestore.
 class FirestoreRepository {
-
   FirestoreRepository._() {
     _initCollections();
   }
 
   /// Creates a [FirestoreRepository] (for migration or specific needs, but
-  /// instance should be preferred).
+  /// [instance] should be preferred).
   @visibleForTesting
   FirestoreRepository() {
     _initCollections();
   }
+
   /// The singleton instance of [FirestoreRepository].
   static FirestoreRepository instance = FirestoreRepository._();
 
+  /// The Firestore instance.
   @visibleForTesting
   late FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  /// The FirebaseAuth instance.
   @visibleForTesting
   late FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -33,7 +37,6 @@ class FirestoreRepository {
     _userMetadataCollection = firestore.collection('metadata');
   }
 
-  // Reference to the collections
   late final CollectionReference<Map<String, dynamic>> _notesCollection;
   late final CollectionReference<Map<String, dynamic>> _usersCollection;
   late final CollectionReference<Map<String, dynamic>> _foldersCollection;
@@ -41,8 +44,6 @@ class FirestoreRepository {
 
   /// Returns the current authenticated user.
   User? get currentUser => auth.currentUser;
-
-  // --- Dictionary Methods ---
 
   /// Adds learned words to the user's dictionary in Firestore.
   Future<void> addDictionaryWords(
@@ -56,12 +57,15 @@ class FirestoreRepository {
       final word = wordMap['word'] as String;
       final docRef = userDictRef.doc(word);
 
-      batch.set(docRef, {
-        'word': word,
-        // Use max to keep the highest frequency/lastUsed
-        'frequency': FieldValue.increment(wordMap['frequency'] as int),
-        'lastUsed': wordMap['lastUsed'],
-      }, SetOptions(merge: true));
+      batch.set(
+        docRef,
+        {
+          'word': word,
+          'frequency': FieldValue.increment(wordMap['frequency'] as int),
+          'lastUsed': wordMap['lastUsed'],
+        },
+        SetOptions(merge: true),
+      );
     }
 
     await batch.commit();
@@ -104,23 +108,18 @@ class FirestoreRepository {
       query = query.where('folderId', isEqualTo: folderId);
     }
 
-    // For the \"All Notes\" view, we want notes that are not in trash.
-    // For other views (like Favorites), we also respect the trash status.
     if (isInTrash != null) {
       query = query.where('isInTrash', isEqualTo: isInTrash);
     } else {
       query = query.where('isInTrash', isEqualTo: false);
     }
 
-    // Apply order
     query = query.orderBy('lastModified', descending: true);
 
-    // Apply pagination
     if (lastDocument != null) {
       query = query.startAfterDocument(lastDocument);
     }
 
-    // Apply limit
     query = query.limit(limit);
 
     return query.snapshots().map((snapshot) {
@@ -138,39 +137,35 @@ class FirestoreRepository {
       }
       final now = DateTime.now();
 
-      // Create snippet (first 100 chars)
       final snippet = content.length > 100
           ? content.substring(0, 100)
           : content;
 
       final docRef = await _notesCollection.add({
         'title': title,
-        'content': snippet, // Store only snippet in main doc
+        'content': snippet,
         'createdAt': Timestamp.fromDate(now),
         'lastModified': Timestamp.fromDate(now),
         'ownerId': user.uid,
         'collaborators': <String, dynamic>{},
         'tags': <String>[],
-        'memberIds': [user.uid], // Owner is always a member
+        'memberIds': [user.uid],
         'isFavorite': false,
         'isInTrash': false,
       });
 
-      // Store full content in subcollection
       await docRef.collection('content').doc('main').set({
         'fullContent': content,
       });
 
       final snapshot = await docRef.get();
 
-      // Start with snippet, Editor will fetch full content
       return Note.fromFirestore(snapshot);
     } finally {
       span.end();
     }
   }
 
-  /// Updates the user's unique tags list in metadata.
   Future<void> _updateUserTags(String userId, List<String> tags) async {
     await _userMetadataCollection.doc(userId).set({
       'tags': FieldValue.arrayUnion(tags),
@@ -179,19 +174,15 @@ class FirestoreRepository {
 
   /// Updates an existing [note].
   Future<void> updateNote(Note note) async {
-    // Update metadata and snippet in main doc
     final snippet = note.content.length > 100
         ? note.content.substring(0, 100)
         : note.content;
 
-    // Create a map of fields to update in the main document
-    // We manually construct this to ensure 'content' is the snippet
     final noteData = note.toFirestore();
     noteData['content'] = snippet;
 
     await _notesCollection.doc(note.id).update(noteData);
 
-    // Sync tags metadata
     if (note.tags.isNotEmpty) {
       final user = auth.currentUser;
       if (user != null) {
@@ -199,7 +190,6 @@ class FirestoreRepository {
       }
     }
 
-    // Update full content in subcollection
     await _notesCollection.doc(note.id).collection('content').doc('main').set({
       'fullContent': note.content,
     }, SetOptions(merge: true));
@@ -207,7 +197,6 @@ class FirestoreRepository {
 
   /// Deletes a note by its [noteId].
   Future<void> deleteNote(String noteId) async {
-    // Delete content subcollection document first
     await _notesCollection
         .doc(noteId)
         .collection('content')
@@ -247,10 +236,9 @@ class FirestoreRepository {
     String email,
     String permission,
   ) async {
-    // 🛡️ Sentinel: Prevent a user from sharing a note with themselves.
     final currentUser = auth.currentUser;
     if (currentUser != null && currentUser.email == email) {
-      return false; // Cannot share with oneself
+      return false;
     }
 
     final querySnapshot = await _usersCollection
@@ -258,7 +246,7 @@ class FirestoreRepository {
         .limit(1)
         .get();
     if (querySnapshot.docs.isEmpty) {
-      return false; // User not found
+      return false;
     }
     final collaboratorId = querySnapshot.docs.first.id;
 
@@ -280,8 +268,6 @@ class FirestoreRepository {
     });
   }
 
-  // --- User Management ---
-
   /// Creates a user document in Firestore.
   Future<void> createUser(User user) async {
     await _usersCollection.doc(user.uid).set({
@@ -291,8 +277,6 @@ class FirestoreRepository {
       'createdAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
-
-  // --- Folder Management ---
 
   /// Creates a new folder.
   Future<void> createFolder(String name) async {
@@ -328,9 +312,6 @@ class FirestoreRepository {
   Future<void> deleteFolder(String folderId) async {
     await _foldersCollection.doc(folderId).delete();
   }
-
-  // Methods used by BackupService (mock implementation for now based on
-  // previous code)
 
   /// Retrieves all folders (for backup).
   Future<List<Map<String, dynamic>>> getAllFolders() async {
@@ -370,8 +351,6 @@ class FirestoreRepository {
   Future<List<Note>> getAllNotes() async {
     final user = auth.currentUser;
     if (user == null) return [];
-    // This might be expensive, in real app consider pagination or not backing
-    // up everything always
     final snapshot = await _notesCollection
         .where('ownerId', isEqualTo: user.uid)
         .get();
@@ -380,15 +359,8 @@ class FirestoreRepository {
 
   /// Retrieves note versions (for backup).
   Future<List<dynamic>> getNoteVersions(String noteId) async {
-    // Placeholder as NoteVersion collection logic wasn't fully inspected,
-    // assuming subcollection or separate collection.
-    // Returning empty for now to satisfy BackupService contract if inferred.
     return [];
   }
-
-  // =========================================================================
-  // Event Sourcing Sync Methods
-  // =========================================================================
 
   /// Pushes a single [event] to Firestore.
   Future<void> addNoteEvent(NoteEvent event) async {
@@ -402,7 +374,7 @@ class FirestoreRepository {
         .set(event.toFirestore());
   }
 
-  /// Pushes multiple events to Firestore in a batch.
+  /// Pushes multiple [events] to Firestore in a batch.
   Future<void> addNoteEvents(List<NoteEvent> events) async {
     if (events.isEmpty) return;
     final user = auth.currentUser;
@@ -453,8 +425,6 @@ class FirestoreRepository {
     }).toList();
   }
 
-  // --- Collaboration / Cursors ---
-
   /// Updates the current user's cursor position for a specific note.
   Future<void> updateCursorPosition(
     String noteId,
@@ -476,22 +446,16 @@ class FirestoreRepository {
     });
   }
 
-  /// Returns a stream of active cursors for a note, validating active status.
+  /// Returns a stream of active cursors for a note.
   Stream<List<Map<String, dynamic>>> listenToCursors(String noteId) {
-    return _notesCollection
-        .doc(noteId)
-        .collection('cursors')
-        // actively edited in last minute? usually filtered client side or via
-        // query if we index lastActive
-        // For simplicity, we just listen to all and client filters by time if
-        // needed, or just rely on the collection not being too big.
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) => doc.data()).toList();
-        });
+    return _notesCollection.doc(noteId).collection('cursors').snapshots().map((
+      snapshot,
+    ) {
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    });
   }
 
-  /// Clean up old cursors (optional maintenance)
+  /// Removes the current user's cursor from a note.
   Future<void> removeCursor(String noteId) async {
     final user = auth.currentUser;
     if (user == null) return;

@@ -134,7 +134,7 @@ void main() {
       () async {
         await noteRepository.insertNote(note);
         final longSearchTerm = 'a' * 257;
-        final notes = await noteRepository.searchAllNotes(longSearchTerm);
+        final notes = await noteRepository.searchNotes(longSearchTerm);
         expect(notes.length, 0);
       },
     );
@@ -159,7 +159,7 @@ void main() {
 
       test('getNoteWithContent throws for non-existent note', () async {
         expect(
-          () async => await noteRepository.getNoteWithContent('non-existent'),
+          () => noteRepository.getNoteWithContent('non-existent'),
           throwsException,
         );
       });
@@ -179,13 +179,13 @@ void main() {
 
       test('searchAllNotes returns matching notes', () async {
         await noteRepository.insertNote(note);
-        final results = await noteRepository.searchAllNotes('Test');
+        final results = await noteRepository.searchNotes('Test');
         expect(results.any((n) => n.title.contains('Test')), true);
       });
 
       test('searchAllNotes is case insensitive', () async {
         await noteRepository.insertNote(note);
-        final results = await noteRepository.searchAllNotes('test');
+        final results = await noteRepository.searchNotes('test');
         expect(results.any((n) => n.title.contains('Test')), true);
       });
     });

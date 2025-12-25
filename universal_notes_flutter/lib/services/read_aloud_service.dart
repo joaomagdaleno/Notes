@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 /// Service for text-to-speech reading aloud functionality.
@@ -37,7 +36,7 @@ class ReadAloudService {
       StreamController<double>.broadcast();
 
   ReadAloudState _state = ReadAloudState.stopped;
-  double _speechRate = 1.0;
+  double _speechRate = 1;
   String _currentText = '';
   int _currentWordIndex = 0;
   List<_Word> _words = [];
@@ -49,29 +48,25 @@ class ReadAloudService {
 
     await _tts.setLanguage('en-US');
     await _tts.setSpeechRate(_speechRate);
-    await _tts.setVolume(1.0);
-    await _tts.setPitch(1.0);
+    await _tts.setVolume(1);
+    await _tts.setPitch(1);
 
-    _tts.setProgressHandler((text, start, end, word) {
-      _handleProgress(text, start, end, word);
-    });
+    _tts.setProgressHandler(_handleProgress);
 
-    _tts.setCompletionHandler(() {
-      _updateState(ReadAloudState.stopped);
-      _currentWordIndex = 0;
-    });
-
-    _tts.setCancelHandler(() {
-      _updateState(ReadAloudState.stopped);
-    });
-
-    _tts.setPauseHandler(() {
-      _updateState(ReadAloudState.paused);
-    });
-
-    _tts.setContinueHandler(() {
-      _updateState(ReadAloudState.playing);
-    });
+    _tts
+      ..setCompletionHandler(() {
+        _updateState(ReadAloudState.stopped);
+        _currentWordIndex = 0;
+      })
+      ..setCancelHandler(() {
+        _updateState(ReadAloudState.stopped);
+      })
+      ..setPauseHandler(() {
+        _updateState(ReadAloudState.paused);
+      })
+      ..setContinueHandler(() {
+        _updateState(ReadAloudState.playing);
+      });
 
     _initialized = true;
   }

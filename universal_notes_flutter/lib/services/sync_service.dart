@@ -25,8 +25,11 @@ class SyncService {
   bool _isDisposed = false;
   Future<void>? _syncUpFuture;
 
+  /// Local repository for note data.
   @visibleForTesting
   late NoteRepository noteRepository = NoteRepository.instance;
+
+  /// Remote repository for syncing data.
   @visibleForTesting
   late FirestoreRepository firestoreRepository = FirestoreRepository.instance;
 
@@ -108,7 +111,7 @@ class SyncService {
         if (_isDisposed) return;
         await _syncDown(remoteNotes);
       },
-      onError: (e, stack) {
+      onError: (Object e, stack) {
         if (kDebugMode) {
           print('Error in sync stream: $e');
         }
@@ -215,7 +218,7 @@ class SyncService {
           note.copyWith(syncStatus: SyncStatus.synced),
         );
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (kDebugMode) {
         print('Error syncing note ${note.id}: $e');
       }
@@ -302,7 +305,8 @@ class SyncService {
 
   Future<void> _syncDownDictionary(String userId) async {
     final cloudWords = await firestoreRepository.getDictionaryWords(userId);
-    await noteRepository.importWords(cloudWords);
+    final words = cloudWords.map((w) => w['word'] as String).toList();
+    await noteRepository.importWords(words);
   }
 
   /// Disposes of the controllers and subscriptions.

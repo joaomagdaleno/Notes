@@ -98,6 +98,7 @@ class EditorWidget extends StatefulWidget {
   final TextSelection? selection;
 
   /// A map of remote cursors to display.
+  /// A map of remote cursors to display.
   final Map<String, Map<String, dynamic>> remoteCursors;
 
   /// Callback when the selection changes.
@@ -107,7 +108,7 @@ class EditorWidget extends StatefulWidget {
   /// positioning).
   final ValueChanged<Rect?>? onSelectionRectChanged;
 
-  /// Callback when an editing event occurs.
+  /// Callback for editor events.
   final void Function(NoteEventType type, Map<String, dynamic> payload)?
   onEvent;
 

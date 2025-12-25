@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 
 /// Model for a text highlight in the Zen reading mode.
 ///
 /// Represents a highlighted section of text with optional notes.
+@immutable
 class ReadingHighlight {
   /// Creates a new [ReadingHighlight].
   const ReadingHighlight({

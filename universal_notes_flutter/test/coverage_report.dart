@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_print
+library;
+
 import 'dart:io';
 
 void main() async {

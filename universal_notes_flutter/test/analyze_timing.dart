@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_print
+library;
+
 /// Script to analyze test timing from JSON reporter output
 /// Identifies the slowest tests for optimization
 import 'dart:convert';

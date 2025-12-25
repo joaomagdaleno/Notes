@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 
 /// Model for reading mode settings.
 ///
 /// Contains all customizable settings for the Zen reading mode.
+@immutable
 class ReadingSettings {
   /// Creates a new [ReadingSettings].
   const ReadingSettings({
