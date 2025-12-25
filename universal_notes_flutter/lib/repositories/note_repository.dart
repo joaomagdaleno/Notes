@@ -895,7 +895,7 @@ class NoteRepository {
       orderBy: 'frequency DESC',
       limit: 10,
     );
-    return List.generate(maps.length, (i) => maps[i]['word'] as String);
+    return List.generate(maps.length, (i) => maps[i]['word']! as String);
   }
 
   /// Learns a word (increments frequency).

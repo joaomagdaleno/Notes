@@ -146,7 +146,6 @@ class ReadingModeSettings extends StatelessWidget {
               value: '${settings.paragraphSpacing.toInt()}',
               child: Slider(
                 value: settings.paragraphSpacing,
-                min: 0,
                 max: 48,
                 divisions: 12,
                 onChanged: (value) {
@@ -227,7 +226,6 @@ class ReadingModeSettings extends StatelessWidget {
               value: '$currentGoalMinutes min',
               child: Slider(
                 value: currentGoalMinutes.toDouble(),
-                min: 0,
                 max: 120,
                 divisions: 12,
                 onChanged: onGoalChanged != null

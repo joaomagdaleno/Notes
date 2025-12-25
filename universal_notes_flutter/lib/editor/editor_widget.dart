@@ -8,28 +8,25 @@ import 'package:flutter/services.dart';
 
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
-
 import 'package:universal_notes_flutter/editor/markdown_converter.dart';
 import 'package:universal_notes_flutter/editor/remote_cursor.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
-import 'package:universal_notes_flutter/models/document_model.dart';
-
-import 'package:universal_notes_flutter/models/note_event.dart';
-import 'package:universal_notes_flutter/models/persona_model.dart';
-import 'package:universal_notes_flutter/models/reading_settings.dart';
-
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/services/autocomplete_service.dart';
-import 'package:universal_notes_flutter/models/reading_annotation.dart';
-import 'package:universal_notes_flutter/models/reading_stats.dart';
-import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
-import 'package:universal_notes_flutter/widgets/reading_search_bar.dart';
 import 'package:universal_notes_flutter/editor/widgets/editor_line.dart';
-import 'package:universal_notes_flutter/editor/widgets/line_with_index.dart';
 import 'package:universal_notes_flutter/editor/widgets/grid_painter.dart';
+import 'package:universal_notes_flutter/editor/widgets/line_with_index.dart';
 import 'package:universal_notes_flutter/editor/widgets/persona_button.dart';
 import 'package:universal_notes_flutter/editor/widgets/reading_fab_menu.dart';
+import 'package:universal_notes_flutter/models/document_model.dart';
+import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/persona_model.dart';
+import 'package:universal_notes_flutter/models/reading_annotation.dart';
+import 'package:universal_notes_flutter/models/reading_settings.dart';
+import 'package:universal_notes_flutter/models/reading_stats.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/services/autocomplete_service.dart';
+import 'package:universal_notes_flutter/widgets/autocomplete_overlay.dart';
+import 'package:universal_notes_flutter/widgets/reading_search_bar.dart';
 
 /// A widget that provides a text editor with rich text capabilities.
 class EditorWidget extends StatefulWidget {
@@ -1658,6 +1655,7 @@ class EditorWidgetState extends State<EditorWidget> {
     );
   }
 
+  /// Builds the remote cursors overlay.
   List<Widget> _buildRemoteCursors() {
     final cursorWidgets = <Widget>[];
     for (final entry in widget.remoteCursors.entries) {

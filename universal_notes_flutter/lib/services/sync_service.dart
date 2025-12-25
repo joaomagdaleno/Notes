@@ -299,7 +299,7 @@ class SyncService {
     await firestoreRepository.addDictionaryWords(userId, unsyncedWords);
 
     // Mark as synced
-    final words = unsyncedWords.map((w) => w['word'] as String).toList();
+    final words = unsyncedWords.map((w) => w['word']! as String).toList();
     await noteRepository.markWordsSynced(words);
   }
 

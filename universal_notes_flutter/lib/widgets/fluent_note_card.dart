@@ -145,7 +145,7 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
           onExit: (_) => setState(() => _isHovered = false),
           child: fluent.Card(
             backgroundColor: _isHovered
-                ? theme.selectionColor.withOpacity(0.1)
+                ? theme.selectionColor.withValues(alpha: 0.1)
                 : theme.cardColor,
             child: Stack(
               children: [

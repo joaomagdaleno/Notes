@@ -1,20 +1,25 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:universal_notes_flutter/models/note_event.dart';
-import 'package:universal_notes_flutter/editor/widgets/grid_painter.dart';
+import 'package:universal_notes_flutter/editor/interactive_drawing_block.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/stroke.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+/// A widget that renders a single line in the editor.
+///
+/// Handles rendering of text, images, tables, math equations, and transclusions.
+/// Supports user interaction via tap and pan gestures.
 class EditorLine extends StatelessWidget {
+  /// Creates an [EditorLine].
   const EditorLine({
     required this.line,
     required this.lineIndex,
@@ -37,23 +42,58 @@ class EditorLine extends StatelessWidget {
     super.key,
   });
 
+  /// The line data model to render.
   final Line line;
+
+  /// The index of this line in the document.
   final int lineIndex;
+
+  /// The current text selection.
   final TextSelection selection;
+
+  /// The virtual text buffer for text position calculations.
   final VirtualTextBuffer buffer;
+
+  /// Whether to show the blinking cursor.
   final bool showCursor;
+
+  /// Callback when the line is tapped.
   final void Function(TapDownDetails, int, TextSelection) onTapDown;
+
+  /// Callback when a pan gesture starts.
   final void Function(DragStartDetails, int, TextSelection) onPanStart;
+
+  /// Callback when a pan gesture updates.
   final void Function(DragUpdateDetails, int, TextSelection) onPanUpdate;
+
+  /// Remote cursors to display (collaborative editing).
   final List<Map<String, dynamic>> remoteCursors;
+
+  /// Current drawing color.
   final Color currentColor;
+
+  /// Current drawing stroke width.
   final double currentStrokeWidth;
+
+  /// Whether this is the currently focused line.
   final bool isCurrentLine;
+
+  /// Callback when a checkbox is tapped (for checklist items).
   final ValueChanged<int>? onCheckboxTap;
+
+  /// Whether the editor is in drawing mode.
   final bool isDrawingMode;
+
+  /// Callback when a drawing stroke is added.
   final ValueChanged<Stroke>? onStrokeAdded;
+
+  /// Callback when a drawing stroke is removed.
   final ValueChanged<Stroke>? onStrokeRemoved;
+
+  /// Whether text should soft wrap.
   final bool softWrap;
+
+  /// Callback when a link is tapped.
   final ValueChanged<String>? onLinkTap;
 
   int _getOffsetForPosition(
@@ -383,7 +423,7 @@ class EditorLine extends StatelessWidget {
               ],
             );
           } else if (currentLine is CalloutLine) {
-            final calloutLine = currentLine as CalloutLine;
+            final calloutLine = currentLine;
             final type = calloutLine.type;
             Color color;
             IconData icon;
