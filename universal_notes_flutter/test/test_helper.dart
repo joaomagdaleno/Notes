@@ -18,8 +18,6 @@ import 'package:universal_notes_flutter/services/encryption_service.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:universal_notes_flutter/services/storage_service.dart';
-import 'package:universal_notes_flutter/services/media_service.dart';
 import 'package:universal_notes_flutter/services/reading_bookmarks_service.dart';
 import 'package:universal_notes_flutter/services/reading_interaction_service.dart';
 import 'package:universal_notes_flutter/services/reading_plan_service.dart';

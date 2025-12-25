@@ -26,10 +26,10 @@ android {
     }
 
     // Load signing data if present
-    val keystoreProps = java.util.Properties()
+    val keystoreProps = Properties()
     val keystorePropsFile = rootProject.file("key.properties")
     if (keystorePropsFile.exists()) {
-        keystoreProps.load(java.io.FileInputStream(keystorePropsFile))
+        keystoreProps.load(FileInputStream(keystorePropsFile))
     }
 
     signingConfigs {

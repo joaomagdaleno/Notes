@@ -21,7 +21,6 @@ import 'package:uuid/uuid.dart';
 
 /// A repository for managing all app data in a local database.
 class NoteRepository {
-  @visibleForTesting
   NoteRepository._();
 
   static void resetInstance() {
@@ -42,10 +41,11 @@ class NoteRepository {
   ReadingBookmarksService? _bookmarksService;
   ReadingBookmarksService get bookmarksService {
     if (_bookmarksService == null) {
-      if (_database == null)
+      if (_database == null) {
         throw StateError(
           'Database must be initialized before accessing services',
         );
+      }
       _bookmarksService = ReadingBookmarksService(database: _database!);
     }
     return _bookmarksService!;
@@ -57,10 +57,11 @@ class NoteRepository {
   ReadingInteractionService? _readingInteractionService;
   ReadingInteractionService get readingInteractionService {
     if (_readingInteractionService == null) {
-      if (_database == null)
+      if (_database == null) {
         throw StateError(
           'Database must be initialized before accessing services',
         );
+      }
       _readingInteractionService = ReadingInteractionService(
         database: _database!,
       );
@@ -74,10 +75,11 @@ class NoteRepository {
   ReadingStatsService? _readingStatsService;
   ReadingStatsService get readingStatsService {
     if (_readingStatsService == null) {
-      if (_database == null)
+      if (_database == null) {
         throw StateError(
           'Database must be initialized before accessing services',
         );
+      }
       _readingStatsService = ReadingStatsService(database: _database!);
     }
     return _readingStatsService!;
@@ -89,10 +91,11 @@ class NoteRepository {
   ReadingPlanService? _readingPlanService;
   ReadingPlanService get readingPlanService {
     if (_readingPlanService == null) {
-      if (_database == null)
+      if (_database == null) {
         throw StateError(
           'Database must be initialized before accessing services',
         );
+      }
       _readingPlanService = ReadingPlanService(database: _database!);
     }
     return _readingPlanService!;
