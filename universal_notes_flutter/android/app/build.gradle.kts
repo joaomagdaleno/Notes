@@ -33,7 +33,7 @@ android {
     }
 
     signingConfigs {
-        getByName("release") {
+        create("release") {
             if (keystoreProps.containsKey("storeFile")) {
                 storeFile = file(keystoreProps.getProperty("storeFile"))
                 storePassword = keystoreProps.getProperty("storePassword")

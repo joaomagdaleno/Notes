@@ -1,14 +1,12 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_math_fork/flutter_math.dart';
-import 'package:universal_notes_flutter/editor/document.dart';
-import 'package:universal_notes_flutter/editor/interactive_drawing_block.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/editor/widgets/grid_painter.dart';
 import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -347,153 +345,169 @@ class EditorLine extends StatelessWidget {
               Expanded(child: textStack),
             ],
           );
-        } else if (blockType == 'checklist') {
-          final isChecked = attributes['checked'] as bool? ?? false;
-          content = Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () => onCheckboxTap?.call(lineStartOffset),
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8, top: 2),
-                  child: Icon(
-                    isChecked ? Icons.check_box : Icons.check_box_outline_blank,
-                    size: 20,
-                    color: isChecked ? Colors.grey : Colors.black87,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Opacity(
-                  opacity: isChecked ? 0.5 : 1.0,
-                  child: textStack,
-                ),
-              ),
-            ],
-          );
-        } else if (line is CalloutLine) {
-          final type = (line as CalloutLine).type;
-          Color color;
-          IconData icon;
-          switch (type) {
-            case CalloutType.note:
-              color = Colors.blue;
-              icon = Icons.info;
-            case CalloutType.tip:
-              color = Colors.green;
-              icon = Icons.lightbulb;
-            case CalloutType.warning:
-              color = Colors.orange;
-              icon = Icons.warning;
-            case CalloutType.danger:
-              color = Colors.red;
-              icon = Icons.error;
-            case CalloutType.info:
-              color = Colors.lightBlue;
-              icon = Icons.info_outline;
-            case CalloutType.success:
-              color = Colors.greenAccent;
-              icon = Icons.check_circle;
-          }
+        } else {
+          final currentLine = line;
 
-          const iconSize = 20.0;
-          const spacing = 12.0;
+          // Use a text stack for better performance with large blocks of text
+          // This `textStack` is the one defined earlier, so we don't redefine it here.
+          // The instruction seems to imply a new textStack, but the context suggests
+          // it's about how `content` is assigned based on `currentLine` type.
+          // I will assume the instruction meant to replace the `else if (blockType == 'checklist') { ... } else if (line is CalloutLine) { ... } else if (line is TableLine) { ... } else { content = textStack; }`
+          // block with the new structure, and the `textStack` variable should be the one already defined.
 
-          var inner = textStack;
-          if ((line as CalloutLine).isFirst) {
-            inner = Row(
+          if (blockType == 'checklist') {
+            // This was previously `else if (blockType == 'checklist')`
+            final isChecked = attributes['checked'] as bool? ?? false;
+            content = Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: color, size: iconSize),
-                const SizedBox(width: spacing),
-                Expanded(child: textStack),
+                GestureDetector(
+                  onTap: () => onCheckboxTap?.call(lineStartOffset),
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8, top: 2),
+                    child: Icon(
+                      isChecked
+                          ? Icons.check_box
+                          : Icons.check_box_outline_blank,
+                      size: 20,
+                      color: isChecked ? Colors.grey : Colors.black87,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Opacity(
+                    opacity: isChecked ? 0.5 : 1.0,
+                    child: textStack,
+                  ),
+                ),
               ],
             );
-          } else {
-            inner = Padding(
-              padding: const EdgeInsets.only(left: iconSize + spacing),
-              child: textStack,
-            );
-          }
+          } else if (currentLine is CalloutLine) {
+            final calloutLine = currentLine as CalloutLine;
+            final type = calloutLine.type;
+            Color color;
+            IconData icon;
+            switch (type) {
+              case CalloutType.note:
+                color = Colors.blue;
+                icon = Icons.info;
+              case CalloutType.tip:
+                color = Colors.green;
+                icon = Icons.lightbulb;
+              case CalloutType.warning:
+                color = Colors.orange;
+                icon = Icons.warning;
+              case CalloutType.danger:
+                color = Colors.red;
+                icon = Icons.error;
+              case CalloutType.info:
+                color = Colors.lightBlue;
+                icon = Icons.info_outline;
+              case CalloutType.success:
+                color = Colors.greenAccent;
+                icon = Icons.check_circle;
+            }
 
-          content = Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              border: Border(
-                left: BorderSide(color: color, width: 4),
-                top: (line as CalloutLine).isFirst
-                    ? BorderSide(color: color.withValues(alpha: 0.1))
-                    : BorderSide.none,
-                bottom: (line as CalloutLine).isLast
-                    ? BorderSide(color: color.withValues(alpha: 0.1))
-                    : BorderSide.none,
-                right: BorderSide(color: color.withValues(alpha: 0.1)),
+            const iconSize = 20.0;
+            const spacing = 12.0;
+
+            var inner = textStack;
+            if (calloutLine.isFirst) {
+              inner = Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(icon, color: color, size: iconSize),
+                  const SizedBox(width: spacing),
+                  Expanded(child: textStack),
+                ],
+              );
+            } else {
+              inner = Padding(
+                padding: const EdgeInsets.only(left: iconSize + spacing),
+                child: textStack,
+              );
+            }
+
+            content = Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                border: Border(
+                  left: BorderSide(color: color, width: 4),
+                  top: calloutLine.isFirst
+                      ? BorderSide(color: color.withValues(alpha: 0.1))
+                      : BorderSide.none,
+                  bottom: calloutLine.isLast
+                      ? BorderSide(color: color.withValues(alpha: 0.1))
+                      : BorderSide.none,
+                  right: BorderSide(color: color.withValues(alpha: 0.1)),
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: calloutLine.isFirst
+                      ? const Radius.circular(4)
+                      : Radius.zero,
+                  topRight: calloutLine.isFirst
+                      ? const Radius.circular(4)
+                      : Radius.zero,
+                  bottomLeft: calloutLine.isLast
+                      ? const Radius.circular(4)
+                      : Radius.zero,
+                  bottomRight: calloutLine.isLast
+                      ? const Radius.circular(4)
+                      : Radius.zero,
+                ),
               ),
-              borderRadius: BorderRadius.only(
-                topLeft: (line as CalloutLine).isFirst
-                    ? const Radius.circular(4)
-                    : Radius.zero,
-                topRight: (line as CalloutLine).isFirst
-                    ? const Radius.circular(4)
-                    : Radius.zero,
-                bottomLeft: (line as CalloutLine).isLast
-                    ? const Radius.circular(4)
-                    : Radius.zero,
-                bottomRight: (line as CalloutLine).isLast
-                    ? const Radius.circular(4)
-                    : Radius.zero,
+              padding: EdgeInsets.fromLTRB(
+                12,
+                calloutLine.isFirst ? 12 : 4,
+                12,
+                calloutLine.isLast ? 12 : 4,
               ),
-            ),
-            padding: EdgeInsets.fromLTRB(
-              12,
-              (line as CalloutLine).isFirst ? 12 : 4,
-              12,
-              (line as CalloutLine).isLast ? 12 : 4,
-            ),
-            child: inner,
-          );
-        } else if (line is TableLine) {
-          content = Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Table(
-              border: TableBorder.all(
-                color: Colors.grey.withValues(alpha: 0.3),
-              ),
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: (line as TableLine).rows.map((row) {
-                return TableRow(
-                  decoration: row.any((c) => c.isHeader)
-                      ? BoxDecoration(
-                          color: Colors.grey.withValues(alpha: 0.05),
-                        )
-                      : null,
-                  children: row.map((cell) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: RichText(
-                        text: TextSpan(
-                          style:
-                              (Theme.of(context).textTheme.bodyMedium ??
-                                      const TextStyle())
-                                  .copyWith(
-                                    fontWeight: cell.isHeader
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                          children: cell.content
-                              .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
-                              .toList(),
+              child: inner,
+            );
+          } else if (currentLine is TableLine) {
+            final tableLine = currentLine as TableLine;
+            content = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Table(
+                border: TableBorder.all(
+                  color: Colors.grey.withValues(alpha: 0.3),
+                ),
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                children: tableLine.rows.map((row) {
+                  return TableRow(
+                    decoration: row.any((c) => c.isHeader)
+                        ? BoxDecoration(
+                            color: Colors.grey.withValues(alpha: 0.05),
+                          )
+                        : null,
+                    children: row.map((cell) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: RichText(
+                          text: TextSpan(
+                            style:
+                                (Theme.of(context).textTheme.bodyMedium ??
+                                        const TextStyle())
+                                    .copyWith(
+                                      fontWeight: cell.isHeader
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                            children: cell.content
+                                .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
+                                .toList(),
+                          ),
                         ),
-                      ),
-                    );
-                  }).toList(),
-                );
-              }).toList(),
-            ),
-          );
-        } else {
-          content = textStack;
+                      );
+                    }).toList(),
+                  );
+                }).toList(),
+              ),
+            );
+          } else {
+            content = textStack;
+          }
         }
 
         final indentPadding = (attributes['indent'] as int? ?? 0) * 24.0;
@@ -530,24 +544,23 @@ class EditorLine extends StatelessWidget {
             final textPosition = painter.getPositionForOffset(effectiveOffset);
 
             var currentOffset = 0;
-            if (line is TextLine) {
-              for (final s in (line as TextLine).spans) {
-                final len = s.text.length;
-                if (textPosition.offset >= currentOffset &&
-                    textPosition.offset < currentOffset + len) {
-                  if (s.linkUrl != null) {
-                    final url = Uri.tryParse(s.linkUrl!);
-                    if (url != null) {
-                      unawaited(
-                        launchUrl(url, mode: LaunchMode.externalApplication),
-                      );
-                    }
-                    return;
+            // if (line is TextLine) - Always true
+            for (final s in line.spans) {
+              final len = s.text.length;
+              if (textPosition.offset >= currentOffset &&
+                  textPosition.offset < currentOffset + len) {
+                if (s.linkUrl != null) {
+                  final url = Uri.tryParse(s.linkUrl!);
+                  if (url != null) {
+                    unawaited(
+                      launchUrl(url, mode: LaunchMode.externalApplication),
+                    );
                   }
-                  break;
+                  return;
                 }
-                currentOffset += len;
+                break;
               }
+              currentOffset += len;
             }
 
             _handleTapDown(context, d, maxWidth);

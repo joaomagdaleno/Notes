@@ -879,9 +879,11 @@ class NoteRepository {
 
   // --- Dictionary Methods ---
 
+  /// Gets learned words starting with [prefix] (up to 10).
+  Future<List<String>> getLearnedWords(String prefix) async {
     // 🛡️ Sentinel: Add input length validation to prevent local DoS attacks
     // from excessively long search terms bogging down the FTS5 engine.
-    if (query.length > 256) {
+    if (prefix.length > 256) {
       return [];
     }
 

@@ -50,11 +50,6 @@ enum SortOrder {
 }
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
-  // ⚡ Bolt: Caching the RegExp for snippet highlighting.
-  // This avoids recompiling the regular expression on every search result,
-  // improving performance when rendering the search results list.
-  static final _highlightRegex = RegExp('<b>(.*?)</b>');
-
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final _sortOrderNotifier = ValueNotifier<SortOrder>(SortOrder.dateDesc);
   final SyncService _syncService = SyncService.instance;
@@ -338,7 +333,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   /// Builds the search results list with highlighted snippets.
-  Widget _buildSearchResults(List<SearchResult> results) {
+  Widget _buildSearchResults(List<Note> results) {
     return ListView.builder(
       itemCount: results.length,
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -348,61 +343,21 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: ListTile(
             title: Text(
-              result.note.title.isEmpty ? 'Sem título' : result.note.title,
+              result.title.isEmpty ? 'Sem título' : result.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            subtitle: result.snippet.isNotEmpty
-                ? _buildHighlightedSnippet(result.snippet)
-                : Text(
-                    result.note.content.length > 100
-                        ? '${result.note.content.substring(0, 100)}...'
-                        : result.note.content,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-            onTap: () => unawaited(_openNoteEditor(result.note)),
+            subtitle: Text(
+              result.content.length > 100
+                  ? '${result.content.substring(0, 100)}...'
+                  : result.content,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            onTap: () => unawaited(_openNoteEditor(result)),
           ),
         );
       },
-    );
-  }
-
-  /// Parses the FTS5 snippet with <b> tags into rich text.
-  Widget _buildHighlightedSnippet(String snippet) {
-    final parts = <TextSpan>[];
-    var lastEnd = 0;
-
-    for (final match in _highlightRegex.allMatches(snippet)) {
-      // Add text before match
-      if (match.start > lastEnd) {
-        parts.add(TextSpan(text: snippet.substring(lastEnd, match.start)));
-      }
-      // Add highlighted match
-      parts.add(
-        TextSpan(
-          text: match.group(1),
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            backgroundColor: Colors.yellow,
-          ),
-        ),
-      );
-      lastEnd = match.end;
-    }
-
-    // Add remaining text
-    if (lastEnd < snippet.length) {
-      parts.add(TextSpan(text: snippet.substring(lastEnd)));
-    }
-
-    return RichText(
-      text: TextSpan(
-        style: DefaultTextStyle.of(context).style,
-        children: parts,
-      ),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
     );
   }
 
@@ -920,9 +875,9 @@ class _DashboardCard extends StatelessWidget {
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: const BorderRadius.all(Radius.circular(16)),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -936,7 +891,7 @@ class _DashboardCard extends StatelessWidget {
             Text(
               subtitle,
               style: _subtitleTextStyle.copyWith(
-                color: color.withOpacity(0.7),
+                color: color.withValues(alpha: 0.7),
               ),
             ),
           ],
