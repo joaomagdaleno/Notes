@@ -18,8 +18,6 @@ void main() {
     syncService
       ..noteRepository = mockNoteRepository
       ..firestoreRepository = mockFirestoreRepository;
-    await syncService.init();
-
     // Default stubs
     when(
       () => mockNoteRepository.getUnsyncedNotes(),
@@ -37,6 +35,19 @@ void main() {
     when(
       () => mockFirestoreRepository.getNoteContent(any()),
     ).thenAnswer((_) async => 'Remote Content');
+
+    // Stub firestoreRepository.notesStream() to avoid failing during init()
+    when(
+      () => mockFirestoreRepository.notesStream(
+        isFavorite: any(named: 'isFavorite'),
+        isInTrash: any(named: 'isInTrash'),
+        tag: any(named: 'tag'),
+        folderId: any(named: 'folderId'),
+        limit: any(named: 'limit'),
+        lastDocument: any(named: 'lastDocument'),
+      ),
+    ).thenAnswer((_) => const Stream.empty());
+
     when(
       () => mockFirestoreRepository.addNote(
         title: any(named: 'title'),
@@ -61,6 +72,8 @@ void main() {
     when(
       () => mockNoteRepository.updateNote(any()),
     ).thenAnswer((_) async => {});
+
+    await syncService.init();
   });
 
   group('SyncService', () {

@@ -214,7 +214,8 @@ Future<void> setupTest() async {
   SyncService.instance.firestoreRepository = mockFirestore;
   SyncService.instance.noteRepository = mockNoteRepo;
 
-  await SyncService.instance.init();
+  // REMOVED: await SyncService.instance.init();
+  // We should not trigger global service initialization by default in all tests.
 }
 
 Future<void> setupNotesTest() async {

@@ -1,17 +1,21 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 
 /// Service for handling authentication.
 class AuthService {
   /// The FirebaseAuth instance.
-  @visibleForTesting
-  late FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final FirebaseAuth firebaseAuth;
 
   /// The FirestoreRepository instance.
-  @visibleForTesting
-  FirestoreRepository firestoreRepository = FirestoreRepository.instance;
+  final FirestoreRepository firestoreRepository;
+
+  /// Creates an [AuthService].
+  AuthService({
+    FirebaseAuth? firebaseAuth,
+    FirestoreRepository? firestoreRepository,
+  }) : firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+       firestoreRepository =
+           firestoreRepository ?? FirestoreRepository.instance;
 
   /// Returns a stream of the authentication state.
   Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();

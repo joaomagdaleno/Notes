@@ -3,7 +3,7 @@ library;
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
 
@@ -16,17 +16,7 @@ class MockUserCredential extends Mock implements UserCredential {}
 
 class MockUser extends Mock implements User {}
 
-class MockFirestoreRepository extends Mock implements FirestoreRepository {
-  @override
-  Future<void> createUser(User? user) {
-    return super.noSuchMethod(
-          Invocation.method(#createUser, [user]),
-          returnValue: Future<void>.value(),
-          returnValueForMissingStub: Future<void>.value(),
-        )
-        as Future<void>;
-  }
-}
+class MockFirestoreRepository extends Mock implements FirestoreRepository {}
 
 void main() {
   late AuthService authService;
@@ -36,9 +26,12 @@ void main() {
   setUp(() {
     mockFirebaseAuth = MockFirebaseAuth();
     mockFirestoreRepository = MockFirestoreRepository();
-    authService = AuthService()
-      ..firebaseAuth = mockFirebaseAuth
-      ..firestoreRepository = mockFirestoreRepository;
+    authService = AuthService(
+      firebaseAuth: mockFirebaseAuth,
+      firestoreRepository: mockFirestoreRepository,
+    );
+
+    registerFallbackValue(MockUser());
   });
 
   group('AuthService', () {
@@ -48,11 +41,11 @@ void main() {
       final mockCredential = MockUserCredential();
 
       when(
-        mockFirebaseAuth.signInWithEmailAndPassword(
+        () => mockFirebaseAuth.signInWithEmailAndPassword(
           email: email,
           password: password,
         ),
-      ).thenAnswer((_) => Future.value(mockCredential));
+      ).thenAnswer((_) async => mockCredential);
 
       final result = await authService.signInWithEmailAndPassword(
         email,
@@ -70,13 +63,17 @@ void main() {
         final mockCredential = MockUserCredential();
         final mockUser = MockUser();
 
-        when(mockCredential.user).thenReturn(mockUser);
+        when(() => mockCredential.user).thenReturn(mockUser);
         when(
-          mockFirebaseAuth.createUserWithEmailAndPassword(
+          () => mockFirebaseAuth.createUserWithEmailAndPassword(
             email: email,
             password: password,
           ),
-        ).thenAnswer((_) => Future.value(mockCredential));
+        ).thenAnswer((_) async => mockCredential);
+
+        when(
+          () => mockFirestoreRepository.createUser(any()),
+        ).thenAnswer((_) async => {});
 
         final result = await authService.createUserWithEmailAndPassword(
           email,
@@ -84,16 +81,16 @@ void main() {
         );
 
         expect(result, mockCredential);
-        verify(mockFirestoreRepository.createUser(any)).called(1);
+        verify(() => mockFirestoreRepository.createUser(mockUser)).called(1);
       },
     );
 
     test('signOut calls firebaseAuth.signOut', () async {
-      when(mockFirebaseAuth.signOut()).thenAnswer((_) => Future.value());
+      when(() => mockFirebaseAuth.signOut()).thenAnswer((_) async => {});
 
       await authService.signOut();
 
-      verify(mockFirebaseAuth.signOut()).called(1);
+      verify(() => mockFirebaseAuth.signOut()).called(1);
     });
   });
 }
