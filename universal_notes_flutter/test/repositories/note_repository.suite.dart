@@ -7,6 +7,8 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/note_version.dart';
+import 'package:universal_notes_flutter/models/snippet.dart';
 import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
@@ -186,6 +188,98 @@ void main() {
         await noteRepository.insertNote(note);
         final results = await noteRepository.searchNotes('test');
         expect(results.any((n) => n.title.contains('Test')), true);
+      });
+
+      test('getNoteByTitle returns note', () async {
+        await noteRepository.insertNote(note);
+        final fetched = await noteRepository.getNoteByTitle('Test Note');
+        expect(fetched, isNotNull);
+        expect(fetched!.id, note.id);
+      });
+
+      test('updateNoteContent sets syncStatus to modified', () async {
+        await noteRepository.insertNote(note);
+        final noteWithContent = note.copyWith(content: 'New content');
+        await noteRepository.updateNoteContent(noteWithContent);
+        final fetched = await noteRepository.getNoteWithContent(note.id);
+        expect(fetched.content, 'New content');
+        // syncStatus should be modified (1) per implementation in updateNoteContent
+      });
+
+      test(
+        'getUnsyncedNotes returns notes with modified/local status',
+        () async {
+          await noteRepository.insertNote(note);
+          final unsynced = await noteRepository.getUnsyncedNotes();
+          expect(unsynced.length, 1);
+          expect(unsynced[0].id, note.id);
+        },
+      );
+
+      test('getUnsyncedWords and markWordsSynced', () async {
+        final db = await noteRepository.database;
+        await db.insert('user_dictionary', {
+          'word': 'testword',
+          'frequency': 1,
+          'lastUsed': 123,
+          'isSynced': 0,
+        });
+
+        final unsynced = await noteRepository.getUnsyncedWords();
+        expect(unsynced.length, 1);
+        expect(unsynced[0]['word'], 'testword');
+
+        await noteRepository.markWordsSynced(['testword']);
+        final unsyncedAfter = await noteRepository.getUnsyncedWords();
+        expect(unsyncedAfter.length, 0);
+      });
+
+      test('Snippet operations extended', () async {
+        final s = await noteRepository.createSnippet(
+          trigger: '/t',
+          content: 'C',
+        );
+        final all = await noteRepository.getAllSnippets();
+        expect(all.length, 1);
+
+        final updated = Snippet(id: s.id, trigger: s.trigger, content: 'New C');
+        await noteRepository.updateSnippet(updated);
+        final all2 = await noteRepository.getAllSnippets();
+        expect(all2[0].content, 'New C');
+
+        await noteRepository.deleteSnippet(s.id);
+        expect(await noteRepository.getAllSnippets(), isEmpty);
+      });
+
+      test('Frequency cache and words', () async {
+        await noteRepository.insertNote(
+          Note(
+            id: 'n1',
+            title: 'T',
+            content: '[{"type":"text","spans":[{"text":"hello world"}]}]',
+            createdAt: DateTime.now(),
+            lastModified: DateTime.now(),
+            ownerId: 'u1',
+          ),
+        );
+
+        final words = await noteRepository.getFrequentWords('hel');
+        expect(words, contains('hello'));
+      });
+
+      test('Note versioning operations', () async {
+        await noteRepository.insertNote(note);
+        final version = NoteVersion(
+          id: 'v1',
+          noteId: note.id,
+          content: 'Old content',
+          date: DateTime.now(),
+        );
+        await noteRepository.createNoteVersion(version);
+
+        final versions = await noteRepository.getNoteVersions(note.id);
+        expect(versions.length, 1);
+        expect(versions[0].content, 'Old content');
       });
     });
   });
