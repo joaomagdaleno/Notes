@@ -85,8 +85,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   bool _softWrap = true;
 
   // Undo/Redo Stacks
-  // Undo/Redo Stacks
-  // final List<DocumentModel> _undoStack = [];
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
   late final HistoryManager _historyManager;
   final ScrollController _scrollController = ScrollController();
@@ -122,7 +120,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   final _tagController = TextEditingController();
 
   // --- Reading Mode State ---
-  ReadingSettings _readingSettings = const ReadingSettings();
+  ReadingSettings _readingSettings = ReadingSettings.defaults;
   final ReadAloudService _readAloudService = ReadAloudService();
   final ReadingBookmarksService _bookmarksService =
       NoteRepository.instance.bookmarksService;
@@ -138,20 +136,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   (int, int)? _readAloudHighlightRange;
   bool _isReadAloudControlsVisible = false;
   late SharedPreferences _prefs;
-
-  //   static const List<Color> _predefinedColors = [
-  //     Colors.black,
-  //     Colors.red,
-  //     Colors.green,
-  //     Colors.blue,
-  //     Colors.orange,
-  //     Colors.purple,
-  //   ];
-  //   static const Map<String, double> _fontSizes = {
-  //     'Normal': 16.0,
-  //     'Título Médio': 24.0,
-  //     'Título Grande': 32.0,
-  //   };
 
   @override
   void initState() {

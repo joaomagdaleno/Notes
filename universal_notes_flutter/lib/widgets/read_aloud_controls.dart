@@ -207,7 +207,7 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
                 child: Slider(
                   value: _speed,
                   min: 0.5,
-                  max: 2.0,
+                  max: 2,
                   divisions: 6,
                   label: '${_speed.toStringAsFixed(1)}x',
                   onChanged: (val) => widget.service.setSpeechRate(val),
@@ -262,11 +262,11 @@ class _SpeedButton extends StatelessWidget {
       itemBuilder: (context) => [
         const PopupMenuItem(value: 0.5, child: Text('0.5x')),
         const PopupMenuItem(value: 0.75, child: Text('0.75x')),
-        const PopupMenuItem(value: 1.0, child: Text('1.0x (Normal)')),
+        const PopupMenuItem(value: 1, child: Text('1.0x (Normal)')),
         const PopupMenuItem(value: 1.25, child: Text('1.25x')),
         const PopupMenuItem(value: 1.5, child: Text('1.5x')),
         const PopupMenuItem(value: 1.75, child: Text('1.75x')),
-        const PopupMenuItem(value: 2.0, child: Text('2.0x')),
+        const PopupMenuItem(value: 2, child: Text('2.0x')),
       ],
     );
   }

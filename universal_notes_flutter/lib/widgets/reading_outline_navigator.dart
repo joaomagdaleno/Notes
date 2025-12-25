@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 
 /// Widget for navigating document outline (headings).
 ///
@@ -173,7 +174,7 @@ class _HeadingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final indent = (heading.level - 1) * 16.0;
+    final indent = (heading.level - 1) * 16;
 
     return InkWell(
       onTap: onTap,
@@ -238,6 +239,7 @@ class _HeadingTile extends StatelessWidget {
 }
 
 /// Represents a heading in the document outline.
+@immutable
 class OutlineHeading {
   /// Creates a new [OutlineHeading].
   const OutlineHeading({

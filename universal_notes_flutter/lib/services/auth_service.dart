@@ -5,9 +5,11 @@ import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 
 /// Service for handling authentication.
 class AuthService {
+  /// The FirebaseAuth instance.
   @visibleForTesting
   late FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
+  /// The FirestoreRepository instance.
   @visibleForTesting
   FirestoreRepository firestoreRepository = FirestoreRepository.instance;
 

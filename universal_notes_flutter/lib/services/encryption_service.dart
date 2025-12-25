@@ -21,6 +21,10 @@ class EncryptionService {
   @visibleForTesting
   static set iterations(int value) => _pbkdf2Iterations = value;
 
+  /// Gets the number of PBKDF2 iterations for testing.
+  @visibleForTesting
+  static int get iterations => _pbkdf2Iterations;
+
   // === Criptografia Principal ===
 
   /// Derives an AES-256 key from a password using PBKDF2.
