@@ -1,15 +1,16 @@
+// This script is intended to be run from the command line, so printing is appropriate.
 // ignore_for_file: avoid_print
 
 import 'dart:io';
 
 void main() async {
   final file = File('coverage/lcov.info');
-  if (!await file.exists()) {
+  if (!file.existsSync()) {
     print('Coverage file not found.');
     return;
   }
 
-  final lines = await file.readAsLines();
+  final lines = file.readAsLinesSync();
   final fileCoverage = <String, Map<String, int>>{};
   var currentFile = '';
 

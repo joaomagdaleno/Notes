@@ -4,12 +4,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
+import 'package:universal_notes_flutter/models/tag.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:sqflite/sqflite.dart';
 
 void main() {
   // --- START OF THE FIX ---

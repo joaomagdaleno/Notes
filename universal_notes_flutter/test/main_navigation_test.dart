@@ -2,12 +2,11 @@
 library;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
-import 'package:universal_notes_flutter/models/note.dart';
 import 'test_helper.dart';
 
 void main() {
@@ -30,7 +29,8 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 200));
       });
 
-      // Use multiple pumps instead of pumpAndSettle to avoid infinite animation hangs
+      // Use multiple pumps instead of pumpAndSettle to avoid infinite
+      // animation hangs
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
@@ -68,7 +68,8 @@ void main() {
         ),
       ).thenAnswer((_) async => [favoriteNote]);
 
-      // Ensure SyncService has the correct firestore repository for background ops
+      // Ensure SyncService has the correct firestore repository for
+      // background ops
       SyncService.instance.firestoreRepository = createDefaultMockRepository([
         favoriteNote,
       ]);

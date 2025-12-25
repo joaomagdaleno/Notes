@@ -36,12 +36,11 @@ void main() {
   setUp(() {
     mockFirebaseAuth = MockFirebaseAuth();
     mockFirestoreRepository = MockFirestoreRepository();
-    authService = AuthService();
-    authService.firebaseAuth = mockFirebaseAuth;
-    authService.firestoreRepository = mockFirestoreRepository;
+    authService = AuthService()
+      ..firebaseAuth = mockFirebaseAuth
+      ..firestoreRepository = mockFirestoreRepository;
   });
 
-  /*
   group('AuthService', () {
     test('signInWithEmailAndPassword calls firebaseAuth', () async {
       final email = 'test@example.com';
@@ -85,7 +84,9 @@ void main() {
         );
 
         expect(result, mockCredential);
-        verify(mockFirestoreRepository.createUser(any)).called(1);
+        verify(
+          mockFirestoreRepository.createUser(argThat(isA<User>())),
+        ).called(1);
       },
     );
 
@@ -97,5 +98,4 @@ void main() {
       verify(mockFirebaseAuth.signOut()).called(1);
     });
   });
-*/
 }

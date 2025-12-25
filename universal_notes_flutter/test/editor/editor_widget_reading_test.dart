@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/editor/editor_widget.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
+import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/models/reading_settings.dart';
 import 'package:universal_notes_flutter/widgets/reading_search_bar.dart';
-import 'package:universal_notes_flutter/models/persona_model.dart';
 
 void main() {
   group('EditorWidget Reading Mode', () {
@@ -23,7 +23,7 @@ void main() {
               document: doc,
               selection: const TextSelection.collapsed(offset: 0),
               initialPersona: EditorPersona.reading,
-              readingSettings: const ReadingSettings(),
+              readingSettings: ReadingSettings.defaults,
               onDocumentChanged: (_) {},
               onSelectionChanged: (_) {},
             ),

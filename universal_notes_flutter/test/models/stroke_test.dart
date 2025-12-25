@@ -78,7 +78,7 @@ void main() {
     test('toJson should convert a Stroke to json', () {
       final json = stroke.toJson();
 
-      expect(json['points'].length, 2);
+      expect((json['points'] as List).length, 2);
       expect(json['color'], Colors.black.toARGB32());
       expect(json['width'], 2.0);
     });

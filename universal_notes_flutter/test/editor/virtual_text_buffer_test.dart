@@ -97,7 +97,8 @@ void main() {
       final buffer = VirtualTextBuffer(doc);
 
       // Line 1: 'A' (length 1 + 1 for newline?) wait...
-      // If Blocks are distinct, DocumentModel usually implies newlines between them?
+      // If Blocks are distinct, DocumentModel usually implies newlines
+      // between them?
       // Check DocumentModel.toPlainText() or VirtualTextBuffer logic.
       // _lineLengths[i] adds 1 if not last line.
 

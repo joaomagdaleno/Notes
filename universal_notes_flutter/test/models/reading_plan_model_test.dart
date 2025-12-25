@@ -22,7 +22,8 @@ void main() {
       expect(fromMap.title, plan.title);
       expect(fromMap.noteIds, plan.noteIds);
       expect(fromMap.currentIndex, plan.currentIndex);
-      // Compare dates as ISO strings to avoid microsecond precision issues in some environments
+      // Compare dates as ISO strings to avoid microsecond precision issues in
+      // some environments
       expect(
         fromMap.createdAt.toIso8601String(),
         plan.createdAt.toIso8601String(),
