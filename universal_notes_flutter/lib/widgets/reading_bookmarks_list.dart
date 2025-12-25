@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:universal_notes_flutter/models/reading_bookmark.dart';
 import 'package:intl/intl.dart';
+import 'package:universal_notes_flutter/models/reading_bookmark.dart';
 
 /// Widget for managing reading bookmarks.
 ///

@@ -1006,28 +1006,30 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _showOutline() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) {
-        // Extract headings for outline
-        final headings = _extractHeadings();
-        return ReadingOutlineNavigator(
-          headings: headings,
-          onHeadingTap: (heading) {
-            // Scroll to heading position
-            _scrollController.animateTo(
-              heading.position * 1.0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-            Navigator.pop(context);
-          },
-          progressPercent: _scrollController.hasClients
-              ? _scrollController.offset /
-                    _scrollController.position.maxScrollExtent
-              : 0.0,
-        );
-      },
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (context) {
+          // Extract headings for outline
+          final headings = _extractHeadings();
+          return ReadingOutlineNavigator(
+            headings: headings,
+            onHeadingTap: (heading) {
+              // Scroll to heading position
+              _scrollController.animateTo(
+                heading.position * 1.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+              Navigator.pop(context);
+            },
+            progressPercent: _scrollController.hasClients
+                ? _scrollController.offset /
+                      _scrollController.position.maxScrollExtent
+                : 0.0,
+          );
+        },
+      ),
     );
   }
 
@@ -1056,36 +1058,38 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _showBookmarks() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) {
-        return FutureBuilder<List<ReadingBookmark>>(
-          future: _bookmarksService.getBookmarksForNote(_note?.id ?? ''),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return ReadingBookmarksList(
-              bookmarks: snapshot.data!,
-              onBookmarkTap: (bookmark) {
-                _scrollController.animateTo(
-                  bookmark.position * 1.0,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-                Navigator.pop(context);
-              },
-              onBookmarkDelete: (bookmark) async {
-                await _bookmarksService.deleteBookmark(bookmark.id);
-                if (context.mounted) {
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (context) {
+          return FutureBuilder<List<ReadingBookmark>>(
+            future: _bookmarksService.getBookmarksForNote(_note?.id ?? ''),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              return ReadingBookmarksList(
+                bookmarks: snapshot.data!,
+                onBookmarkTap: (bookmark) {
+                  _scrollController.animateTo(
+                    bookmark.position * 1.0,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
                   Navigator.pop(context);
-                  _showBookmarks(); // Refresh
-                }
-              },
-            );
-          },
-        );
-      },
+                },
+                onBookmarkDelete: (bookmark) async {
+                  await _bookmarksService.deleteBookmark(bookmark.id);
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    _showBookmarks(); // Refresh
+                  }
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -1120,60 +1124,62 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _showReadingPlans() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) {
-        return FutureBuilder<List<ReadingPlan>>(
-          future: _planService.getAllPlans(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final plans = snapshot.data!;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppBar(
-                  title: const Text('Reading Plans'),
-                  automaticallyImplyLeading: false,
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: () => _createNewReadingPlan(context),
-                    ),
-                  ],
-                ),
-                if (plans.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text('No reading plans yet.'),
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (context) {
+          return FutureBuilder<List<ReadingPlan>>(
+            future: _planService.getAllPlans(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final plans = snapshot.data!;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppBar(
+                    title: const Text('Reading Plans'),
+                    automaticallyImplyLeading: false,
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () => _createNewReadingPlan(context),
+                      ),
+                    ],
                   ),
-                ...plans.map((plan) {
-                  final isAlreadyInPlan = plan.noteIds.contains(
-                    _note?.id ?? '',
-                  );
-                  return ListTile(
-                    title: Text(plan.title),
-                    subtitle: Text('${plan.noteIds.length} notes'),
-                    trailing: isAlreadyInPlan
-                        ? const Icon(Icons.check_circle, color: Colors.green)
-                        : const Icon(Icons.add_circle_outline),
-                    onTap: () async {
-                      if (!isAlreadyInPlan && _note != null) {
-                        final updatedPlan = plan.copyWith(
-                          noteIds: [...plan.noteIds, _note!.id],
-                        );
-                        await _planService.updatePlan(updatedPlan);
-                        if (context.mounted) Navigator.pop(context);
-                      }
-                    },
-                  );
-                }),
-              ],
-            );
-          },
-        );
-      },
+                  if (plans.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text('No reading plans yet.'),
+                    ),
+                  ...plans.map((plan) {
+                    final isAlreadyInPlan = plan.noteIds.contains(
+                      _note?.id ?? '',
+                    );
+                    return ListTile(
+                      title: Text(plan.title),
+                      subtitle: Text('${plan.noteIds.length} notes'),
+                      trailing: isAlreadyInPlan
+                          ? const Icon(Icons.check_circle, color: Colors.green)
+                          : const Icon(Icons.add_circle_outline),
+                      onTap: () async {
+                        if (!isAlreadyInPlan && _note != null) {
+                          final updatedPlan = plan.copyWith(
+                            noteIds: [...plan.noteIds, _note!.id],
+                          );
+                          await _planService.updatePlan(updatedPlan);
+                          if (context.mounted) Navigator.pop(context);
+                        }
+                      },
+                    );
+                  }),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -1203,7 +1209,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                 if (context.mounted) {
                   Navigator.pop(context); // Dialog
                   Navigator.pop(context); // Bottom Sheet
-                  unawaited(_showReadingPlans()); // Re-open to refresh
+                  _showReadingPlans(); // Re-open to refresh
                 }
               }
             },
@@ -1318,19 +1324,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
   void _navigateToNote(String id) {
-    NoteRepository.instance.getNoteWithContent(id).then((Note? note) {
-      if (note != null && mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute<void>(
-            builder: (context) => NoteEditorScreen(
-              onSave: widget.onSave,
-              note: note,
+    unawaited(
+      NoteRepository.instance.getNoteWithContent(id).then((Note? note) {
+        if (note != null && mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute<void>(
+              builder: (context) => NoteEditorScreen(
+                onSave: widget.onSave,
+                note: note,
+              ),
             ),
-          ),
-        );
-      }
-    });
+          );
+        }
+      }),
+    );
   }
 
   void _scrollToTop() {
@@ -1395,7 +1403,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       onFind: () => setState(() => _isFindBarVisible = true),
       onEscape: () {
         if (_isFocusMode) {
-          unawaited(_toggleFocusMode());
+          _toggleFocusMode();
         } else if (_isFindBarVisible) {
           setState(() => _isFindBarVisible = false);
         }
