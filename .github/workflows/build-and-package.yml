@@ -70,8 +70,10 @@ jobs:
           path: |
             universal_notes_flutter/build
             universal_notes_flutter/.dart_tool
-          key: ${{ runner.os }}-build-${{ hashFiles('universal_notes_flutter/pubspec.lock') }}
+          key: ${{ runner.os }}-build-v3
           restore-keys: |
+            ${{ runner.os }}-build-v3
+            ${{ runner.os }}-build-v2
             ${{ runner.os }}-build-
       - name: Flutter Build Windows
         working-directory: universal_notes_flutter
