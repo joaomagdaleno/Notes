@@ -79,7 +79,7 @@ jobs:
           mkdir -p universal_notes_flutter/lib
           echo "${{ secrets.FIREBASE_OPTIONS_DART }}" > universal_notes_flutter/lib/firebase_options.dart
           mkdir -p universal_notes_flutter/android/app
-          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > universal_notes_flutter/android/app/google-services.json
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > universal_notes_flutter/android/app/google-services.json
           mkdir -p universal_notes_flutter/ios/Runner
           echo "${{ secrets.GOOGLE_SERVICE_INFO }}" > universal_notes_flutter/ios/Runner/GoogleService-Info.plist
       - name: Install Flutter
