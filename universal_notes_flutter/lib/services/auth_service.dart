@@ -3,11 +3,6 @@ import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 
 /// Service for handling authentication.
 class AuthService {
-  /// The FirebaseAuth instance.
-  final FirebaseAuth firebaseAuth;
-
-  /// The FirestoreRepository instance.
-  final FirestoreRepository firestoreRepository;
 
   /// Creates an [AuthService].
   AuthService({
@@ -16,6 +11,11 @@ class AuthService {
   }) : firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
        firestoreRepository =
            firestoreRepository ?? FirestoreRepository.instance;
+  /// The FirebaseAuth instance.
+  final FirebaseAuth firebaseAuth;
+
+  /// The FirestoreRepository instance.
+  final FirestoreRepository firestoreRepository;
 
   /// Returns a stream of the authentication state.
   Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();

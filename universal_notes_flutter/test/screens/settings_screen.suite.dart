@@ -50,8 +50,9 @@ void main() {
               '/about': (context) => FutureBuilder<PackageInfo>(
                 future: PackageInfo.fromPlatform(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData)
+                  if (!snapshot.hasData) {
                     return const CircularProgressIndicator();
+                  }
                   return AboutScreen(
                     packageInfo: snapshot.data!,
                     debugPlatform: TargetPlatform.android,
@@ -150,8 +151,9 @@ void main() {
               '/about': (context) => FutureBuilder<PackageInfo>(
                 future: PackageInfo.fromPlatform(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData)
+                  if (!snapshot.hasData) {
                     return const CircularProgressIndicator();
+                  }
                   return AboutScreen(
                     packageInfo: snapshot.data!,
                     debugPlatform: TargetPlatform.android,

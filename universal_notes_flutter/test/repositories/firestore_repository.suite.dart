@@ -76,7 +76,7 @@ void main() {
 
       final mockSnapshot = MockDocumentSnapshot();
       when(() => mockSnapshot.id).thenReturn('new-note-id');
-      when(() => mockSnapshot.data()).thenReturn({
+      when(mockSnapshot.data).thenReturn({
         'title': 'Test Title',
         'content': 'Test Content',
         'createdAt': Timestamp.now(),
@@ -132,13 +132,13 @@ void main() {
       ).thenReturn(mockContentCollection);
       when(() => mockContentCollection.doc('main')).thenReturn(mockContentDoc);
 
-      when(() => mockContentDoc.delete()).thenAnswer((_) async => {});
+      when(mockContentDoc.delete).thenAnswer((_) async => {});
       when(() => mockDoc.delete()).thenAnswer((_) async => {});
 
       await repository.deleteNote('note123');
 
       verify(() => mockDoc.delete()).called(1);
-      verify(() => mockContentDoc.delete()).called(1);
+      verify(mockContentDoc.delete).called(1);
     });
 
     test('currentUser returns auth.currentUser', () {

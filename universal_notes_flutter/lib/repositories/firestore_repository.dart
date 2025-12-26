@@ -10,6 +10,22 @@ import 'package:universal_notes_flutter/services/tracing_service.dart';
 
 /// A repository for interacting with Firestore.
 class FirestoreRepository {
+
+  /// Creates a [FirestoreRepository] instance.
+  ///
+  /// Uses the default [FirebaseFirestore.instance] unless explicit
+  /// dependency injection is used.
+  FirestoreRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
+    : firestore = firestore ?? FirebaseFirestore.instance,
+      auth = auth ?? FirebaseAuth.instance {
+    _initCollections();
+  }
+
+  FirestoreRepository._internal()
+    : firestore = FirebaseFirestore.instance,
+      auth = FirebaseAuth.instance {
+    _initCollections();
+  }
   /// The Firestore instance.
   FirebaseFirestore firestore;
 
@@ -34,22 +50,6 @@ class FirestoreRepository {
   static set instance(FirestoreRepository? value) => _instance = value;
 
   static FirestoreRepository? _instance;
-
-  /// Creates a [FirestoreRepository] instance.
-  ///
-  /// Uses the default [FirebaseFirestore.instance] unless explicit
-  /// dependency injection is used.
-  FirestoreRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
-    : firestore = firestore ?? FirebaseFirestore.instance,
-      auth = auth ?? FirebaseAuth.instance {
-    _initCollections();
-  }
-
-  FirestoreRepository._internal()
-    : firestore = FirebaseFirestore.instance,
-      auth = FirebaseAuth.instance {
-    _initCollections();
-  }
 
   void _initCollections() {
     _notesCollection = firestore.collection('notes');
