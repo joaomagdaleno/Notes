@@ -87,6 +87,10 @@ void main() {
     var deleted = false;
     final noteInTrash = note.copyWith(isInTrash: true);
 
+    // Increase surface size to ensure context menu is fully visible
+    await tester.binding.setSurfaceSize(const Size(800, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -102,10 +106,10 @@ void main() {
     );
 
     await tester.longPress(find.byType(NoteSimpleListTile));
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Excluir permanentemente'));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(deleted, isTrue);
   });

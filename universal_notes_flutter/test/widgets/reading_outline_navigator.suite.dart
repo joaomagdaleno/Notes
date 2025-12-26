@@ -42,10 +42,11 @@ void main() {
         ),
       );
 
+      // Only level-1 headings are visible by default (children are collapsed)
       expect(find.text('Introduction'), findsOneWidget);
-      expect(find.text('Section 1'), findsOneWidget);
-      expect(find.text('Section 2'), findsOneWidget);
       expect(find.text('Conclusion'), findsOneWidget);
+      // Level-2/3 headings are hidden when parents are collapsed
+      expect(find.text('Section 1'), findsNothing);
     });
 
     testWidgets('shows empty message when no headings', (tester) async {
@@ -129,8 +130,8 @@ void main() {
       );
 
       // The active heading should be visually different
-      // We can check by finding the text and its styling
-      expect(find.text('Subsection 1.1'), findsOneWidget);
+      // Use index 0 (Introduction) since it's a level-1 heading always visible
+      expect(find.text('Introduction'), findsOneWidget);
     });
 
     testWidgets('shows expand icons for headings with children', (

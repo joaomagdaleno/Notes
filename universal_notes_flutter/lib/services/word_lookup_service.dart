@@ -28,7 +28,9 @@ class WordLookupService {
         return null;
       }
 
-      final data = json.decode(response.body) as List<dynamic>;
+      // Decode as UTF-8 explicitly to handle Unicode phonetics correctly
+      final body = utf8.decode(response.bodyBytes);
+      final data = json.decode(body) as List<dynamic>;
       if (data.isEmpty) return null;
 
       final entry = data[0] as Map<String, dynamic>;
