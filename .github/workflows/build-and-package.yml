@@ -47,7 +47,9 @@ jobs:
         run: flutter pub get
       - name: Flutter Build Windows
         working-directory: universal_notes_flutter
-        run: flutter build windows
+        run: |
+          flutter clean
+          flutter build windows
       - name: Install Inno Setup
         run: |
           Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile is.exe
