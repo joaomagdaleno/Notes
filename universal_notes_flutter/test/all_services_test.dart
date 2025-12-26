@@ -3,7 +3,6 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'test_helper.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 
 // Use distinct prefixes to avoid any potential shadowing
@@ -13,8 +12,10 @@ import 'services/backup_service.suite.dart' as backup;
 import 'services/encryption_service.suite.dart' as encryption;
 import 'services/event_replayer.suite.dart' as event_replayer;
 import 'services/export_service.suite.dart' as export_svc;
+import 'services/export_service.suite.dart' as export_svc_new;
 import 'services/firebase_service_unit.suite.dart' as firebase;
 import 'services/history_grouper.suite.dart' as history_grouper;
+import 'services/media_service.suite.dart' as media;
 import 'services/read_aloud_service.suite.dart' as read_aloud;
 import 'services/reading_bookmarks_service.suite.dart' as bookmarks;
 import 'services/reading_interaction_service.suite.dart' as reading_interaction;
@@ -28,8 +29,7 @@ import 'services/theme_service.suite.dart' as theme;
 import 'services/tracing_service.suite.dart' as tracing;
 import 'services/update_service.suite.dart' as update;
 import 'services/word_lookup_service.suite.dart' as word_lookup;
-import 'services/media_service.suite.dart' as media;
-import 'services/export_service.suite.dart' as export_svc_new;
+import 'test_helper.dart';
 
 void main() {
   setUpAll(() async {

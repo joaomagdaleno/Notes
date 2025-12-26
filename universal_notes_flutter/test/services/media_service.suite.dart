@@ -30,7 +30,7 @@ void main() {
     final mockPathProvider = MockPathProvider();
     PathProviderPlatform.instance = mockPathProvider;
     when(
-      () => mockPathProvider.getTemporaryPath(),
+      mockPathProvider.getTemporaryPath,
     ).thenAnswer((_) async => tempDir.path);
   });
 

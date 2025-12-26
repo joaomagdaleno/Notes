@@ -36,19 +36,19 @@ void main() async {
 
   // Filter for domain layer (lib/services, lib/repositories, lib/models)
   final domainReport = report.where((r) {
-    final path = (r['file'] as String).replaceAll('\\', '/');
+    final path = (r['file']! as String).replaceAll(r'\', '/');
     return path.contains('lib/services/') ||
         path.contains('lib/repositories/') ||
         path.contains('lib/models/');
   }).toList();
 
   domainReport.sort(
-    (a, b) => (a['coverage'] as double).compareTo(b['coverage'] as double),
+    (a, b) => (a['coverage']! as double).compareTo(b['coverage']! as double),
   );
 
   print('=== DOMAIN LAYER COVERAGE (LOWEST FIRST) ===\n');
   for (final r in domainReport) {
-    final cov = (r['coverage'] as double).toStringAsFixed(2);
+    final cov = (r['coverage']! as double).toStringAsFixed(2);
     print('$cov% (${r['lh']}/${r['lf']}) - ${r['file']}');
   }
 }
