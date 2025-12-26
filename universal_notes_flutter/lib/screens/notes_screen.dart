@@ -60,9 +60,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final _viewModeNotifier = ValueNotifier<String>('grid_medium');
   final ScrollController _scrollController = ScrollController();
 
-  // Full-text search state
-  List<Note>? _searchResults;
-  bool _isSearching = false;
+  // ⚡ Bolt: Use ValueNotifiers for search state to prevent full-screen
+  // rebuilds. Only widgets wrapped in ValueListenableBuilder will update.
+  final _searchResultsNotifier = ValueNotifier<List<Note>?>(null);
+  final _isSearchingNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -85,6 +86,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       ..dispose();
     _viewModeNotifier.dispose();
     _sortOrderNotifier.dispose();
+    _searchResultsNotifier.dispose();
+    _isSearchingNotifier.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
   }
 
@@ -95,23 +99,21 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final query = _searchController.text;
 
     if (query.isEmpty) {
-      setState(() {
-        _searchResults = null;
-        _isSearching = false;
-      });
+      // ⚡ Bolt: No setState(), just update the notifier's value.
+      _searchResultsNotifier.value = null;
+      _isSearchingNotifier.value = false;
       return;
     }
 
-    setState(() => _isSearching = true);
+    // ⚡ Bolt: No setState(), just update the notifier's value.
+    _isSearchingNotifier.value = true;
 
     _searchDebounce = Timer(const Duration(milliseconds: 300), () async {
       final results = await NoteRepository.instance.searchNotes(query);
-      if (context.mounted) {
-        setState(() {
-          _searchResults = results;
-          _isSearching = false;
-        });
-      }
+      // ⚡ Bolt: No need for context.mounted or setState. The
+      // ValueListenableBuilder will handle the update automatically.
+      _searchResultsNotifier.value = results;
+      _isSearchingNotifier.value = false;
     });
   }
 
@@ -298,37 +300,47 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   /// Builds the main content area - search results or normal notes list.
   Widget _buildContent() {
-    // Show search results if we have a search query
-    if (_searchResults != null) {
-      if (_searchResults!.isEmpty) {
-        return const EmptyState(
-          icon: Icons.search_off,
-          message: 'Nenhum resultado encontrado.',
-        );
-      }
-      return _buildSearchResults(_searchResults!);
-    }
+    // ⚡ Bolt: This ValueListenableBuilder ensures that only the content area
+    // rebuilds when search results change, not the entire NotesScreen.
+    return ValueListenableBuilder<List<Note>?>(
+      valueListenable: _searchResultsNotifier,
+      builder: (context, searchResults, child) {
+        // Show search results if we have them
+        if (searchResults != null) {
+          if (searchResults.isEmpty) {
+            return const EmptyState(
+              icon: Icons.search_off,
+              message: 'Nenhum resultado encontrado.',
+            );
+          }
+          return _buildSearchResults(searchResults);
+        }
 
-    // Show normal notes stream
-    return StreamBuilder<List<Note>>(
-      stream: _notesStream,
-      initialData: _syncService.currentNotes,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting &&
-            !snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const EmptyState(
-            icon: Icons.note_add,
-            message: 'No notes yet. Create one!',
-          );
-        }
-        return _buildNotesList(snapshot.data!);
+        // Otherwise, show the normal notes stream
+        return child!;
       },
+      // ⚡ Bolt: The StreamBuilder is passed as a child, so it's only built
+      // once and not affected by search result updates.
+      child: StreamBuilder<List<Note>>(
+        stream: _notesStream,
+        initialData: _syncService.currentNotes,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              !snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const EmptyState(
+              icon: Icons.note_add,
+              message: 'No notes yet. Create one!',
+            );
+          }
+          return _buildNotesList(snapshot.data!);
+        },
+      ),
     );
   }
 
@@ -584,21 +596,36 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               decoration: InputDecoration(
                 hintText: 'Buscar em todas as notas...',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: _isSearching
-                    ? const Padding(
+                // ⚡ Bolt: Use a ValueListenableBuilder for the suffix icon to
+                // ensure only the icon rebuilds, not the whole TextField or screen.
+                suffixIcon: ValueListenableBuilder<bool>(
+                  valueListenable: _isSearchingNotifier,
+                  builder: (context, isSearching, child) {
+                    if (isSearching) {
+                      return const Padding(
                         padding: EdgeInsets.all(12),
                         child: SizedBox(
                           height: 12,
                           width: 12,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
-                      )
-                    : _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: _searchController.clear,
-                      )
-                    : null,
+                      );
+                    }
+                    // Use a second builder for the clear button to react to text changes
+                    // without rebuilding the search indicator.
+                    return ValueListenableBuilder(
+                      valueListenable: _searchController,
+                      builder: (context, text, child) {
+                        return _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: _searchController.clear,
+                              )
+                            : const SizedBox.shrink();
+                      },
+                    );
+                  },
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
