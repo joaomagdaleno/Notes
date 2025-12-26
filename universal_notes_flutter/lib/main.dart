@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -20,37 +22,99 @@ import 'package:universal_notes_flutter/widgets/sync_conflict_listener.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  TracingService().init();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    await windowManager.ensureInitialized();
-    const windowOptions = WindowOptions(
-      size: Size(800, 600),
-      center: true,
-      minimumSize: Size(400, 300),
-    );
-    await windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
-  }
+  runZonedGuarded(
+    () async {
+      debugPrint('🚀 [STARTUP] main() execution started');
+      WidgetsFlutterBinding.ensureInitialized();
+      debugPrint('✅ [STARTUP] WidgetsFlutterBinding initialized');
 
-  await SyncService.instance.init();
+      // Initialize Tracing
+      TracingService().init();
+      debugPrint('✅ [STARTUP] TracingService initialized');
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeService()),
-        StreamProvider<User?>.value(
-          value: AuthService().authStateChanges,
-          initialData: null,
+      // Initialize Firebase
+      try {
+        debugPrint('⏳ [STARTUP] Initializing Firebase...');
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        debugPrint('✅ [STARTUP] Firebase initialized');
+
+        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+          // Pass all uncaught errors from the framework to Crashlytics.
+          FlutterError.onError = (errorDetails) {
+            FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+          };
+          debugPrint(
+            '✅ [STARTUP] Crashlytics recordFlutterFatalError configured',
+          );
+
+          // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+          PlatformDispatcher.instance.onError = (error, stack) {
+            FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+            return true;
+          };
+          debugPrint('✅ [STARTUP] PlatformDispatcher.onError configured');
+        }
+      } catch (e, stack) {
+        debugPrint('❌ [STARTUP] Firebase initialization failed: $e');
+        debugPrint(stack.toString());
+      }
+
+      // Windows/Desktop window setup
+      if (!kIsWeb &&
+          (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+        debugPrint('⏳ [STARTUP] Initializing WindowManager...');
+        await windowManager.ensureInitialized();
+        const windowOptions = WindowOptions(
+          size: Size(800, 600),
+          center: true,
+          minimumSize: Size(400, 300),
+        );
+        await windowManager.waitUntilReadyToShow(windowOptions, () async {
+          await windowManager.show();
+          await windowManager.focus();
+        });
+        debugPrint('✅ [STARTUP] WindowManager initialized');
+      }
+
+      // Initialize Sync Service
+      try {
+        debugPrint('⏳ [STARTUP] Initializing SyncService...');
+        await SyncService.instance.init();
+        debugPrint('✅ [STARTUP] SyncService initialized');
+      } catch (e, stack) {
+        debugPrint('❌ [STARTUP] SyncService initialization failed: $e');
+        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+          FirebaseCrashlytics.instance.recordError(
+            e,
+            stack,
+            reason: 'SyncService init failure',
+          );
+        }
+      }
+
+      debugPrint('🚀 [STARTUP] Running App...');
+      runApp(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => ThemeService()),
+            StreamProvider<User?>.value(
+              value: AuthService().authStateChanges,
+              initialData: null,
+            ),
+          ],
+          child: const MyApp(),
         ),
-      ],
-      child: const MyApp(),
-    ),
+      );
+    },
+    (error, stack) {
+      debugPrint('🔥 [FATAL] Global runZonedGuarded error: $error');
+      debugPrint(stack.toString());
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      }
+    },
   );
 }
 
@@ -61,18 +125,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ⚡ Bolt: By passing the theme-independent widgets to the `child` parameter
-    // of the Consumer, we ensure that they are built only once. The `builder`
-    // will be called again on theme changes, but the `child` widget instance
-    // will be reused, preventing unnecessary rebuilds of a large widget
-    // subtree.
-    // Impact: Reduces widget rebuilds in the main tree significantly on theme
-    // change.
-    // Measurement: Verified with Flutter DevTools' "Highlight Repaints".
     return Consumer<ThemeService>(
-      child: const SyncConflictListener(
-        child: AuthWrapper(),
-      ),
+      child: const SyncConflictListener(child: AuthWrapper()),
       builder: (context, themeService, child) {
         return MaterialApp(
           title: 'Universal Notes',
@@ -115,17 +169,37 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
 
   Future<void> _checkBiometrics() async {
-    final security = SecurityService.instance;
-    final enabled = await security.isLockEnabled();
-    if (enabled) {
-      final success = await security.authenticate();
-      if (mounted) {
-        setState(() {
-          _isAuthenticated = success;
-          _isCheckingAuth = false;
-        });
+    try {
+      debugPrint('⏳ [AUTH] Checking biometrics/lock...');
+      final security = SecurityService.instance;
+      final enabled = await security.isLockEnabled();
+      if (enabled) {
+        final success = await security.authenticate();
+        debugPrint('✅ [AUTH] Biometric result: $success');
+        if (mounted) {
+          setState(() {
+            _isAuthenticated = success;
+            _isCheckingAuth = false;
+          });
+        }
+      } else {
+        debugPrint('ℹ️ [AUTH] Lock not enabled');
+        if (mounted) {
+          setState(() {
+            _isAuthenticated = true;
+            _isCheckingAuth = false;
+          });
+        }
       }
-    } else {
+    } catch (e, stack) {
+      debugPrint('❌ [AUTH] Error during biometric check: $e');
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        FirebaseCrashlytics.instance.recordError(
+          e,
+          stack,
+          reason: 'Biometric check failure',
+        );
+      }
       if (mounted) {
         setState(() {
           _isAuthenticated = true;
@@ -164,8 +238,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
     }
 
     if (firebaseUser != null) {
+      debugPrint('✅ [NAVIGATION] Authenticated, showing NotesScreen');
       return const NotesScreen();
     }
+    debugPrint('ℹ️ [NAVIGATION] Not authenticated, showing AuthScreen');
     return const AuthScreen();
   }
 }

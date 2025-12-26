@@ -1,8 +1,9 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:opentelemetry/api.dart';
 import 'package:opentelemetry/sdk.dart' as sdk;
-import 'package:flutter/foundation.dart';
 
-/// A service to manage OpenTelemetry tracing.
+/// A service to manage OpenTelemetry tracing and Firebase Crashlytics.
 class TracingService {
   /// Returns the singleton instance of [TracingService].
   factory TracingService() => _instance;
@@ -18,7 +19,7 @@ class TracingService {
 
   bool _initialized = false;
 
-  /// Initializes the OpenTelemetry SDK.
+  /// Initializes the OpenTelemetry SDK and Crashlytics.
   void init() {
     if (_initialized) return;
 
@@ -27,7 +28,7 @@ class TracingService {
     _tracerProvider = sdk.TracerProviderBase(
       sampler: const sdk.AlwaysOnSampler(),
       processors: [
-        // sdk.SimpleSpanProcessor(sdk.ConsoleExporter()), // Try this if available
+        // sdk.SimpleSpanProcessor(sdk.ConsoleExporter()),
       ],
     );
 
@@ -38,6 +39,13 @@ class TracingService {
     }
     _tracer = _tracerProvider.getTracer('universal-notes-flutter');
     _initialized = true;
+
+    // Log initialization to Crashlytics
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS)) {
+      FirebaseCrashlytics.instance.log('TracingService initialized');
+    }
   }
 
   /// Gets the global tracer.
@@ -45,8 +53,33 @@ class TracingService {
 
   /// Starts a new span.
   Span startSpan(String name, {SpanContext? parentContext}) {
-    // For 0.18.10, if parentContext is provided, we should wrap it.
-    // However, if the shim is missing, we'll just start a new span for now.
+    // Log span start to Crashlytics as a breadcrumb
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS)) {
+      FirebaseCrashlytics.instance.log('Start Span: $name');
+    }
     return _tracer.startSpan(name);
+  }
+
+  /// Records an error to Crashlytics.
+  Future<void> recordError(
+    dynamic exception,
+    StackTrace? stack, {
+    dynamic reason,
+    bool fatal = false,
+  }) async {
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS)) {
+      await FirebaseCrashlytics.instance.recordError(
+        exception,
+        stack,
+        reason: reason,
+        fatal: fatal,
+      );
+    } else {
+      debugPrint('Error recorded: $exception');
+    }
   }
 }
