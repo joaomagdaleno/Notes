@@ -70,3 +70,4 @@ flutter:
 
 dependency_overrides:
   flutter_tts: ^4.2.3
+  local_auth: ^3.0.0
