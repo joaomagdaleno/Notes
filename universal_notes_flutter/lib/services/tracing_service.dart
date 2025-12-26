@@ -1,12 +1,17 @@
 import 'package:opentelemetry/api.dart';
 import 'package:opentelemetry/sdk.dart' as sdk;
+import 'package:flutter/foundation.dart';
 
 /// A service to manage OpenTelemetry tracing.
 class TracingService {
   /// Returns the singleton instance of [TracingService].
   factory TracingService() => _instance;
   TracingService._internal();
-  static final TracingService _instance = TracingService._internal();
+  static TracingService _instance = TracingService._internal();
+
+  /// Visible for testing to inject a mock instance.
+  @visibleForTesting
+  static set instance(TracingService instance) => _instance = instance;
 
   late sdk.TracerProviderBase _tracerProvider;
   late Tracer _tracer;

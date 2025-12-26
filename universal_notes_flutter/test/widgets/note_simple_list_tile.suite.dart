@@ -3,33 +3,14 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
+import '../test_helper.dart';
 
-import 'note_simple_list_tile_test.mocks.dart';
-
-@GenerateMocks([StorageService, NoteRepository, FirestoreRepository])
 void main() {
-  late MockStorageService mockStorageService;
-  late MockNoteRepository mockNoteRepository;
-  late MockFirestoreRepository mockFirestoreRepository;
-
-  setUp(() {
-    mockStorageService = MockStorageService();
-    mockNoteRepository = MockNoteRepository();
-    mockFirestoreRepository = MockFirestoreRepository();
-    StorageService.instance = mockStorageService;
-    NoteRepository.instance = mockNoteRepository;
-    FirestoreRepository.instance = mockFirestoreRepository;
-
-    // Default stubs
-    when(mockNoteRepository.getAllSnippets()).thenAnswer((_) async => []);
+  setUp(() async {
+    await setupNotesTest();
   });
 
   final note = Note(
@@ -69,7 +50,6 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(home: Scaffold(body: tile)));
 
-    // Find the ListTile and tap on it
     final listTileFinder = find.descendant(
       of: find.byKey(const ValueKey('tile_under_test')),
       matching: find.byType(ListTile),
@@ -96,7 +76,7 @@ void main() {
     );
 
     await tester.longPress(find.byType(NoteSimpleListTile));
-    await tester.pump(); // pump to build the menu
+    await tester.pump();
 
     expect(find.text('Favoritar'), findsOneWidget);
     expect(find.text('Mover para a lixeira'), findsOneWidget);
@@ -146,16 +126,12 @@ void main() {
         ),
       );
 
-      // Find the ListTile and tap on it
       final listTileFinder = find.byType(ListTile);
       await tester.tap(listTileFinder);
 
-      // Wait for navigation to complete
       await tester.pump(const Duration(milliseconds: 200));
 
-      // Check if we've navigated to the NoteEditorScreen
       expect(find.byType(NoteEditorScreen), findsOneWidget);
-      // Check for the note title in the AppBar
       expect(find.text('Edit Note'), findsOneWidget);
     },
   );

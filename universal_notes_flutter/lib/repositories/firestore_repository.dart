@@ -15,7 +15,12 @@ class FirestoreRepository {
   FirebaseAuth auth;
 
   /// The singleton instance of [FirestoreRepository].
-  static FirestoreRepository instance = FirestoreRepository._();
+  static FirestoreRepository? _instance;
+  static FirestoreRepository get instance =>
+      _instance ??= FirestoreRepository._();
+
+  @visibleForTesting
+  static set instance(FirestoreRepository value) => _instance = value;
 
   /// Creates a [FirestoreRepository] with optional dependencies.
   @visibleForTesting

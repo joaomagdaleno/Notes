@@ -223,6 +223,12 @@ void main() {
           home: fluent.NavigationView(
             content: fluent.Navigator(
               onGenerateRoute: (settings) {
+                if (settings.name == '/') {
+                  return fluent.FluentPageRoute(
+                    builder: (context) =>
+                        const fluent.Center(child: fluent.Text('Home')),
+                  );
+                }
                 return fluent.FluentPageRoute<void>(
                   builder: (context) => AboutScreen(
                     packageInfo: packageInfo,
@@ -235,14 +241,31 @@ void main() {
         ),
       );
 
+      // Verify Home
+      expect(find.text('Home'), findsOneWidget);
+
+      // Push AboutScreen
+      final context = tester.element(find.text('Home'));
+      fluent.Navigator.push(
+        context,
+        fluent.FluentPageRoute(
+          builder: (context) => AboutScreen(
+            packageInfo: packageInfo,
+            debugPlatform: TargetPlatform.windows,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
       expect(find.text('Sobre'), findsOneWidget);
 
       // Tap back button
       await tester.tap(find.byIcon(fluent.FluentIcons.back));
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpAndSettle();
 
       // After pop, should not show AboutScreen anymore
       expect(find.text('Sobre'), findsNothing);
+      expect(find.text('Home'), findsOneWidget);
     });
 
     testWidgets('shows loading indicator during update check', (tester) async {

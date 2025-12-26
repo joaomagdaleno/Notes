@@ -9,6 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/services/tracing_service.dart';
+import '../test_helper.dart';
 
 class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
 
@@ -44,6 +46,11 @@ void main() {
     mockDoc = MockDocumentReference();
 
     when(() => mockFirestore.collection(any())).thenReturn(mockCollection);
+
+    // Mock TracingService
+    final mockTracing = MockTracingService();
+    TracingService.instance = mockTracing;
+    when(() => mockTracing.startSpan(any())).thenReturn(MockSpan());
 
     repository = FirestoreRepository(
       firestore: mockFirestore,

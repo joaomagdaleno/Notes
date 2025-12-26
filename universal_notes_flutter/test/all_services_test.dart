@@ -4,8 +4,6 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'test_helper.dart';
-import 'package:universal_notes_flutter/services/sync_service.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 
 // Use distinct prefixes to avoid any potential shadowing
@@ -39,11 +37,11 @@ void main() {
   });
 
   setUp(() async {
-    // Crucial: Reset singletons and background sync for EVERY test group
-    SyncService.resetInstance();
-    NoteRepository.resetInstance();
     // Default mock for Firestore to avoid initialization errors
     FirestoreRepository.instance = MockFirestoreRepository();
+
+    // Use standardized setup for consistency and performance
+    await setupNotesTest();
   });
 
   auth.main();

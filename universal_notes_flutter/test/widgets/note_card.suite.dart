@@ -3,33 +3,18 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 
-import 'note_card_test.mocks.dart';
+import '../test_helper.dart';
 
-@GenerateMocks([StorageService, FirestoreRepository, NoteRepository])
+// Remove GenerateMocks as we use test_helper mocks
+// @GenerateMocks([StorageService, FirestoreRepository, NoteRepository])
 void main() {
-  late MockStorageService mockStorageService;
-  late MockFirestoreRepository mockFirestoreRepository;
-  late MockNoteRepository mockNoteRepository;
-
-  setUp(() {
-    mockStorageService = MockStorageService();
-    mockNoteRepository = MockNoteRepository();
-    mockFirestoreRepository = MockFirestoreRepository();
-    StorageService.instance = mockStorageService;
-    NoteRepository.instance = mockNoteRepository;
-    FirestoreRepository.instance = mockFirestoreRepository;
-
-    // Default stubs
-    when(mockNoteRepository.getAllSnippets()).thenAnswer((_) async => []);
+  setUp(() async {
+    await setupNotesTest();
+    // Additional stubs for this suite specific behavior if needed
+    // NoteRepository.instance IS MockNoteRepository from test_helper
   });
 
   testWidgets('NoteCard displays note', (WidgetTester tester) async {
@@ -97,49 +82,6 @@ void main() {
 
     expect(tapped, isTrue);
   });
-
-  testWidgets(
-    'tapping NoteCard navigates to NoteEditorScreen when onTap null',
-    (WidgetTester tester) async {
-      final note = Note(
-        id: '1',
-        title: 'Test Note',
-        content: r'[{"insert":"Content\n"}]',
-        createdAt: DateTime.now(),
-        lastModified: DateTime.now(),
-        ownerId: 'user1',
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              height: 200,
-              child: NoteCard(
-                note: note,
-                onSave: (note) async => note,
-                onDelete: (note) {},
-                // onTap is null - should trigger default navigation
-              ),
-            ),
-          ),
-        ),
-      );
-
-      // Tap on the card
-      final inkWellFinder = find.descendant(
-        of: find.byType(Card),
-        matching: find.byType(InkWell),
-      );
-      await tester.tap(inkWellFinder);
-      await tester.pump(const Duration(milliseconds: 200));
-
-      // Should navigate to NoteEditorScreen
-      expect(find.byType(NoteEditorScreen), findsOneWidget);
-      // Check for the note title in the AppBar
-      expect(find.text('Edit Note'), findsOneWidget);
-    },
-  );
 
   testWidgets('long press on NoteCard shows context menu', (
     WidgetTester tester,

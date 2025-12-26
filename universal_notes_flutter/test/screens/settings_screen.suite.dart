@@ -43,7 +43,24 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
       try {
-        await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
+        await tester.pumpWidget(
+          MaterialApp(
+            home: const SettingsScreen(),
+            routes: {
+              '/about': (context) => FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData)
+                    return const CircularProgressIndicator();
+                  return AboutScreen(
+                    packageInfo: snapshot.data!,
+                    debugPlatform: TargetPlatform.android,
+                  );
+                },
+              ),
+            },
+          ),
+        );
         await tester.pump(
           const Duration(milliseconds: 400),
         ); // Wait for initial build and _packageInfo
@@ -53,6 +70,9 @@ void main() {
         expect(listTileFinder, findsOneWidget);
         await tester.tap(listTileFinder);
         await tester.pump(const Duration(milliseconds: 400));
+        await tester.pump(
+          const Duration(milliseconds: 400),
+        ); // Build future builder
 
         // Now we can safely look for the AboutScreen by its type
         expect(find.byType(AboutScreen), findsOneWidget);
@@ -81,7 +101,23 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
 
       try {
-        await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
+        await tester.pumpWidget(
+          fluent.FluentApp(
+            home: const SettingsScreen(),
+            routes: {
+              '/about': (context) => FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const fluent.ProgressRing();
+                  return AboutScreen(
+                    packageInfo: snapshot.data!,
+                    debugPlatform: TargetPlatform.windows,
+                  );
+                },
+              ),
+            },
+          ),
+        );
         await tester.pump(
           const Duration(milliseconds: 400),
         ); // Wait for initial build and _packageInfo
@@ -90,6 +126,7 @@ void main() {
         final listTileFinder = find.byType(fluent.ListTile);
         expect(listTileFinder, findsOneWidget);
         await tester.tap(listTileFinder);
+        await tester.pump(const Duration(milliseconds: 400));
         await tester.pump(const Duration(milliseconds: 400));
 
         // Now we can safely look for the AboutScreen by its type
@@ -106,7 +143,24 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
 
       try {
-        await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
+        await tester.pumpWidget(
+          MaterialApp(
+            home: const SettingsScreen(),
+            routes: {
+              '/about': (context) => FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData)
+                    return const CircularProgressIndicator();
+                  return AboutScreen(
+                    packageInfo: snapshot.data!,
+                    debugPlatform: TargetPlatform.android,
+                  );
+                },
+              ),
+            },
+          ),
+        );
         await tester.pump(const Duration(milliseconds: 400));
 
         // Navigate to AboutScreen
@@ -116,7 +170,7 @@ void main() {
 
         // Navigate back
         await tester.tap(find.byType(BackButton));
-        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
 
         // Should be back at SettingsScreen with loading reset
         expect(find.byType(SettingsScreen), findsOneWidget);
@@ -133,17 +187,33 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
 
       try {
-        await tester.pumpWidget(const fluent.FluentApp(home: SettingsScreen()));
+        await tester.pumpWidget(
+          fluent.FluentApp(
+            home: const SettingsScreen(),
+            routes: {
+              '/about': (context) => FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const fluent.ProgressRing();
+                  return AboutScreen(
+                    packageInfo: snapshot.data!,
+                    debugPlatform: TargetPlatform.windows,
+                  );
+                },
+              ),
+            },
+          ),
+        );
         await tester.pump(const Duration(milliseconds: 400));
 
         // Navigate to AboutScreen
         await tester.tap(find.byType(fluent.ListTile));
-        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
         expect(find.byType(AboutScreen), findsOneWidget);
 
         // Navigate back
         await tester.tap(find.byIcon(fluent.FluentIcons.back));
-        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
 
         // Check if AboutScreen is gone
         expect(find.byType(AboutScreen), findsNothing);
