@@ -2,9 +2,9 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
-import 'package:universal_notes_flutter/editor/document_adapter.dart';
 
 void main() {
   late ExportService exportService;

@@ -544,7 +544,7 @@ class NoteRepository {
       try {
         final spans = json.decode(content) as List<dynamic>;
 
-        void _processText(String text) {
+        void processText(String text) {
           final words = text.split(RegExp(r'\s+'));
           for (final word in words) {
             final cleanWord = word
@@ -561,14 +561,14 @@ class NoteRepository {
           if (block is Map<String, dynamic>) {
             // Check for direct text (simple format)
             if (block['text'] is String) {
-              _processText(block['text'] as String);
+              processText(block['text'] as String);
             }
             // Check for nested spans (rich text format)
             else if (block['spans'] is List) {
               final nestedSpans = block['spans'] as List;
               for (final span in nestedSpans) {
                 if (span is Map<String, dynamic> && span['text'] is String) {
-                  _processText(span['text'] as String);
+                  processText(span['text'] as String);
                 }
               }
             }

@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/models/sync_status.dart';
 import 'package:universal_notes_flutter/models/sync_conflict.dart';
+import 'package:universal_notes_flutter/models/sync_status.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
-import 'dart:async';
+
 import '../test_helper.dart';
 
 void main() {
