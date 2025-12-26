@@ -7,15 +7,17 @@ jobs:
   build_windows:
     name: Build Windows
     runs-on: windows-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - name: Checkout
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - name: Setup Firebase
         shell: bash
+        env:
+          FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
         run: |
           mkdir -p universal_notes_flutter/lib
-          echo "${{ secrets.FIREBASE_OPTIONS_DART }}" > universal_notes_flutter/lib/firebase_options.dart
+          echo "$FIREBASE_OPTIONS_DART" > universal_notes_flutter/lib/firebase_options.dart
       - name: Install Flutter
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
@@ -108,13 +110,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - name: Setup Firebase
+        env:
+          FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+          GOOGLE_SERVICE_INFO: ${{ secrets.GOOGLE_SERVICE_INFO }}
         run: |
           mkdir -p universal_notes_flutter/lib
-          echo "${{ secrets.FIREBASE_OPTIONS_DART }}" > universal_notes_flutter/lib/firebase_options.dart
+          echo "$FIREBASE_OPTIONS_DART" > universal_notes_flutter/lib/firebase_options.dart
           mkdir -p universal_notes_flutter/android/app
-          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > universal_notes_flutter/android/app/google-services.json
+          echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > universal_notes_flutter/android/app/google-services.json
           mkdir -p universal_notes_flutter/ios/Runner
-          echo "${{ secrets.GOOGLE_SERVICE_INFO }}" > universal_notes_flutter/ios/Runner/GoogleService-Info.plist
+          echo "$GOOGLE_SERVICE_INFO" > universal_notes_flutter/ios/Runner/GoogleService-Info.plist
       - name: Install Flutter
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
