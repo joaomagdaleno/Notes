@@ -35,7 +35,7 @@ void main() {
       final state = tester.state<EditorWidgetState>(find.byType(EditorWidget));
 
       // Tap FAB to open menu
-      await tester.tap(find.byIcon(Icons.add)); // The main FAB has Icons.add
+      await tester.tap(find.byIcon(Icons.import_contacts));
       await tester.pump(const Duration(milliseconds: 200));
 
       final searchIcon = find.byIcon(Icons.search);

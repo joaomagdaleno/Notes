@@ -52,6 +52,7 @@ void main() {
     ).thenAnswer((_) => tagsController.stream);
 
     // Default stubs
+    when(() => mockSyncService.reset()).thenAnswer((_) async {});
     when(
       () => mockSyncService.refreshLocalData(
         folderId: any(named: 'folderId'),

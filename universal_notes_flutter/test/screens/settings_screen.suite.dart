@@ -165,7 +165,7 @@ void main() {
 
         // Navigate to AboutScreen
         await tester.tap(find.byType(ListTile));
-        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
         expect(find.byType(AboutScreen), findsOneWidget);
 
         // Navigate back

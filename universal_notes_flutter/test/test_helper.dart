@@ -250,6 +250,7 @@ Future<void> setupTest() async {
   final mockTracing = MockTracingService();
   TracingService.instance = mockTracing;
   when(() => mockTracing.startSpan(any())).thenReturn(MockSpan());
+  when(() => mockTracing.tracer).thenReturn(MockTracer());
 
   // REMOVED: await SyncService.instance.init();
   // We should not trigger global service initialization by default in all tests.
@@ -258,6 +259,8 @@ Future<void> setupTest() async {
 class MockSpan extends Mock implements otel.Span {}
 
 class MockTracingService extends Mock implements TracingService {}
+
+class MockTracer extends Mock implements otel.Tracer {}
 
 Future<void> setupNotesTest() async {
   _ensureFallbacksRegistered();

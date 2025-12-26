@@ -14,37 +14,39 @@ void main() {
       test('returns definition for valid word', () async {
         final mockClient = MockClient((request) async {
           if (request.url.path.contains('/api/v2/entries/en/hello')) {
-            return http.Response(
-              json.encode([
-                {
-                  'word': 'hello',
-                  'phonetics': [
-                    {
-                      'text': '/həˈloʊ/',
-                      'audio': 'https://audio.example/hello.mp3',
-                    },
-                  ],
-                  'meanings': [
-                    {
-                      'partOfSpeech': 'interjection',
-                      'definitions': [
-                        {
-                          'definition': 'An expression of greeting.',
-                          'example': 'Hello, how are you?',
-                        },
-                      ],
-                    },
-                    {
-                      'partOfSpeech': 'noun',
-                      'definitions': [
-                        {
-                          'definition': 'A greeting.',
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ]),
+            return http.Response.bytes(
+              utf8.encode(
+                json.encode([
+                  {
+                    'word': 'hello',
+                    'phonetics': [
+                      {
+                        'text': '/həˈloʊ/',
+                        'audio': 'https://audio.example/hello.mp3',
+                      },
+                    ],
+                    'meanings': [
+                      {
+                        'partOfSpeech': 'interjection',
+                        'definitions': [
+                          {
+                            'definition': 'An expression of greeting.',
+                            'example': 'Hello, how are you?',
+                          },
+                        ],
+                      },
+                      {
+                        'partOfSpeech': 'noun',
+                        'definitions': [
+                          {
+                            'definition': 'A greeting.',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ]),
+              ),
               200,
             );
           }
