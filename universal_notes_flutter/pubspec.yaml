@@ -70,3 +70,5 @@ flutter:
 
 dependency_overrides:
   local_auth: ^3.0.0
+  flutter_tts:
+    path: packages/flutter_tts
