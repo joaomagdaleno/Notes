@@ -37,13 +37,28 @@ fun configureAndroidProject(project: Project) {
         val kotlinOptions = android.javaClass.getMethod("getKotlinOptions").invoke(android)
         kotlinOptions!!.javaClass.getMethod("setJvmTarget", String::class.java).invoke(kotlinOptions, "17")
 
-        // Definitive Namespace Fix: Inject namespace if missing
-        val getNamespace = android.javaClass.getMethod("getNamespace")
-        val setNamespace = android.javaClass.getMethod("setNamespace", String::class.java)
-        val currentNamespace = getNamespace.invoke(android)
-        if (currentNamespace == null) {
-            val namespace = "com.universal_notes.${project.name.replace("-", "_").replace(".", "_")}"
-            setNamespace.invoke(android, namespace)
+        // Definitive Namespace Fix (v4): Parse Manifest directly to avoid triggering validaton
+        val manifestFile = project.file("src/main/AndroidManifest.xml")
+        if (manifestFile.exists()) {
+            val manifestContent = manifestFile.readText()
+            val packageRegex = "package=\"([^\"]+)\"".toRegex()
+            val match = packageRegex.find(manifestContent)
+            if (match != null) {
+                val packageName = match.groupValues[1]
+                val setNamespace = android.javaClass.getMethod("setNamespace", String::class.java)
+                setNamespace.invoke(android, packageName)
+                println("Definitive Fix: Injected namespace '$packageName' from Manifest into project ':${project.name}'")
+            } else {
+                 // Fallback if no package found in manifest (rare for valid plugins)
+                 val getNamespace = android.javaClass.getMethod("getNamespace")
+                 val setNamespace = android.javaClass.getMethod("setNamespace", String::class.java)
+                 val currentNamespace = getNamespace.invoke(android) as? String
+                 if (currentNamespace == null || currentNamespace.isEmpty()) {
+                    val namespace = "com.universal_notes.${project.name.replace("-", "_").replace(".", "_")}"
+                    setNamespace.invoke(android, namespace)
+                    println("Definitive Fix: Injected fallback namespace '$namespace' into project ':${project.name}'")
+                 }
+            }
         }
     } catch (e: Exception) {
         // Ignore errors related to reflection or missing methods
