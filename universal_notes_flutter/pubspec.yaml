@@ -24,7 +24,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_math_fork: ^0.7.4
-  flutter_tts: ^4.3.0
+  flutter_tts: ^4.2.3
   http: ^1.6.0
   image: ^4.5.4
   image_picker: ^1.2.1
@@ -69,5 +69,4 @@ flutter:
     - assets/dictionaries/
 
 dependency_overrides:
-  flutter_tts: ^4.3.0
   local_auth: ^3.0.0
