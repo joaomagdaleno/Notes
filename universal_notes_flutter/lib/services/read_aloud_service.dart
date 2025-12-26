@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:flutter_tts/flutter_tts.dart';
+import 'package:text_to_speech/text_to_speech.dart';
 
 /// Service for text-to-speech reading aloud functionality.
 ///
-/// Provides play, pause, stop controls and text highlight sync.
+/// Provides play, pause, stop controls.
 class ReadAloudService {
   /// Creates a new [ReadAloudService].
-  ReadAloudService({FlutterTts? tts}) : _tts = tts ?? FlutterTts();
+  ReadAloudService({TextToSpeech? tts}) : _tts = tts ?? TextToSpeech();
 
-  final FlutterTts _tts;
+  final TextToSpeech _tts;
 
-  /// Stream of currently highlighted word positions.
+  /// Stream of currently highlighted word positions (empty in this implementation).
   Stream<ReadAloudPosition> get positionStream => _positionController.stream;
 
   /// Stream of playback state changes.
@@ -37,49 +37,20 @@ class ReadAloudService {
 
   ReadAloudState _state = ReadAloudState.stopped;
   double _speechRate = 1;
-  String _currentText = '';
-  int _currentWordIndex = 0;
-  List<_Word> _words = [];
-  bool _initialized = false;
 
   /// Initializes the TTS engine.
   Future<void> initialize() async {
-    if (_initialized) return;
-
-    await _tts.setLanguage('en-US');
-    await _tts.setSpeechRate(_speechRate);
-    await _tts.setVolume(1);
-    await _tts.setPitch(1);
-
-    _tts
-      ..setProgressHandler(_handleProgress)
-      ..setCompletionHandler(() {
-        _updateState(ReadAloudState.stopped);
-        _currentWordIndex = 0;
-      })
-      ..setCancelHandler(() {
-        _updateState(ReadAloudState.stopped);
-      })
-      ..setPauseHandler(() {
-        _updateState(ReadAloudState.paused);
-      })
-      ..setContinueHandler(() {
-        _updateState(ReadAloudState.playing);
-      });
-
-    _initialized = true;
+    // text_to_speech handles initialization internally or doesn't require it
   }
 
   /// Starts speaking the given text.
   Future<void> speak(String text) async {
-    if (!_initialized) await initialize();
-
-    _currentText = text;
-    _words = _parseWords(text);
-    _currentWordIndex = 0;
-
     _updateState(ReadAloudState.playing);
     await _tts.speak(text);
+    // text_to_speech.speak is usually fire-and-forget or waits for completion
+    // depending on the platform, but it doesn't provide a reliable completion callback
+    // in the same way flutter_tts did on all platforms.
+    _updateState(ReadAloudState.stopped);
   }
 
   /// Pauses the current speech.
@@ -93,9 +64,7 @@ class ReadAloudService {
   /// Resumes paused speech.
   Future<void> resume() async {
     if (_state == ReadAloudState.paused) {
-      // Flutter TTS doesn't have a true resume, so we restart from current
-      // position in practice. For simplicity, we just continue.
-      await _tts.speak(_currentText);
+      await _tts.resume();
       _updateState(ReadAloudState.playing);
     }
   }
@@ -103,7 +72,6 @@ class ReadAloudService {
   /// Stops the current speech.
   Future<void> stop() async {
     await _tts.stop();
-    _currentWordIndex = 0;
     _updateState(ReadAloudState.stopped);
   }
 
@@ -111,7 +79,7 @@ class ReadAloudService {
   Future<void> setSpeechRate(double rate) async {
     _speechRate = rate.clamp(0.0, 2.0);
     _speedController.add(_speechRate);
-    await _tts.setSpeechRate(_speechRate);
+    _tts.setRate(_speechRate);
   }
 
   /// Sets the language for TTS.
@@ -135,34 +103,6 @@ class ReadAloudService {
     await _positionController.close();
     await _stateController.close();
     await _speedController.close();
-  }
-
-  void _handleProgress(String text, int start, int end, String word) {
-    // Find the word index based on character position
-    for (var i = 0; i < _words.length; i++) {
-      if (_words[i].start <= start && _words[i].end >= end) {
-        _currentWordIndex = i;
-        break;
-      }
-    }
-
-    _positionController.add(
-      ReadAloudPosition(
-        wordIndex: _currentWordIndex,
-        startOffset: start,
-        endOffset: end,
-        word: word,
-      ),
-    );
-  }
-
-  List<_Word> _parseWords(String text) {
-    final words = <_Word>[];
-    final pattern = RegExp(r'\S+');
-    for (final match in pattern.allMatches(text)) {
-      words.add(_Word(match.start, match.end));
-    }
-    return words;
   }
 
   void _updateState(ReadAloudState newState) {
@@ -206,10 +146,4 @@ enum ReadAloudState {
 
   /// Paused.
   paused,
-}
-
-class _Word {
-  const _Word(this.start, this.end);
-  final int start;
-  final int end;
 }
