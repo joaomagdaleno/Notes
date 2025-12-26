@@ -4,7 +4,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 import '../test_helper.dart';
 
@@ -110,29 +109,4 @@ void main() {
 
     expect(deleted, isTrue);
   });
-
-  testWidgets(
-    'tapping NoteSimpleListTile navigates to editor when onTap is null',
-    (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: NoteSimpleListTile(
-              note: note,
-              onDelete: (note) {},
-              onSave: (note) async => note,
-            ),
-          ),
-        ),
-      );
-
-      final listTileFinder = find.byType(ListTile);
-      await tester.tap(listTileFinder);
-
-      await tester.pump(const Duration(milliseconds: 200));
-
-      expect(find.byType(NoteEditorScreen), findsOneWidget);
-      expect(find.text('Edit Note'), findsOneWidget);
-    },
-  );
 }

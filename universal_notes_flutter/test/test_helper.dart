@@ -25,7 +25,7 @@ import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/services/tracing_service.dart';
 import 'package:opentelemetry/api.dart' as otel;
 import 'package:window_manager/window_manager.dart';
-import 'package:sqflite/sqflite.dart';
+// import 'package:sqflite/sqflite.dart'; // Disabled for FFI issues
 // import 'package:sqflite_common_ffi/sqflite_common_ffi.dart';
 
 const String inMemoryDatabasePath = ':memory:';

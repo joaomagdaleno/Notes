@@ -41,7 +41,7 @@ void main() {
 
       await tester.enterText(find.byType(TextField), 'Hello World');
       await tester.tap(find.text('Cancelar'));
-      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpAndSettle();
 
       expect(savedText, isNull);
       expect(find.byType(QuickNoteEditor), findsNothing);

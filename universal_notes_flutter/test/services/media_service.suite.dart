@@ -1,6 +1,7 @@
 @Tags(['unit'])
 library;
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,6 +17,10 @@ class MockPathProvider extends Mock
 void main() {
   late MediaService mediaService;
   late Directory tempDir;
+  // 1x1 Transparent PNG
+  final validPngBytes = base64Decode(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  );
 
   setUp(() async {
     mediaService = MediaService.instance;
@@ -48,78 +53,7 @@ void main() {
       // Create a small white 10x10 image
       final file = File(p.join(tempDir.path, 'valid.png'));
       // Minimal valid PNG (1x1 white pixel)
-      final pngBytes = [
-        0x89,
-        0x50,
-        0x4E,
-        0x47,
-        0x0D,
-        0x0A,
-        0x1A,
-        0x0A,
-        0x00,
-        0x00,
-        0x00,
-        0x0D,
-        0x49,
-        0x48,
-        0x44,
-        0x52,
-        0x00,
-        0x00,
-        0x00,
-        0x01,
-        0x00,
-        0x00,
-        0x00,
-        0x01,
-        0x08,
-        0x02,
-        0x00,
-        0x00,
-        0x00,
-        0x90,
-        0x77,
-        0x53,
-        0xDE,
-        0x00,
-        0x00,
-        0x00,
-        0x0C,
-        0x49,
-        0x44,
-        0x41,
-        0x54,
-        0x08,
-        0xD7,
-        0x63,
-        0x60,
-        0x60,
-        0x60,
-        0x00,
-        0x00,
-        0x00,
-        0x05,
-        0x00,
-        0x01,
-        0x0D,
-        0x0A,
-        0x2D,
-        0xB4,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x49,
-        0x45,
-        0x4E,
-        0x44,
-        0xAE,
-        0x42,
-        0x60,
-        0x82,
-      ];
-      await file.writeAsBytes(pngBytes);
+      await file.writeAsBytes(validPngBytes);
 
       final result = await mediaService.generateThumbnail(file);
 
@@ -131,78 +65,7 @@ void main() {
       // We'll skip actual heavy compression testing to keep it fast,
       // but verify it creates a file.
       final file = File(p.join(tempDir.path, 'large.png'));
-      final pngBytes = [
-        0x89,
-        0x50,
-        0x4E,
-        0x47,
-        0x0D,
-        0x0A,
-        0x1A,
-        0x0A,
-        0x00,
-        0x00,
-        0x00,
-        0x0D,
-        0x49,
-        0x48,
-        0x44,
-        0x52,
-        0x00,
-        0x00,
-        0x00,
-        0x01,
-        0x00,
-        0x00,
-        0x00,
-        0x01,
-        0x08,
-        0x02,
-        0x00,
-        0x00,
-        0x00,
-        0x90,
-        0x77,
-        0x53,
-        0xDE,
-        0x00,
-        0x00,
-        0x00,
-        0x0C,
-        0x49,
-        0x44,
-        0x41,
-        0x54,
-        0x08,
-        0xD7,
-        0x63,
-        0x60,
-        0x60,
-        0x60,
-        0x00,
-        0x00,
-        0x00,
-        0x05,
-        0x00,
-        0x01,
-        0x0D,
-        0x0A,
-        0x2D,
-        0xB4,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x49,
-        0x45,
-        0x4E,
-        0x44,
-        0xAE,
-        0x42,
-        0x60,
-        0x82,
-      ];
-      await file.writeAsBytes(pngBytes);
+      await file.writeAsBytes(validPngBytes);
 
       final result = await mediaService.compressImage(file);
 

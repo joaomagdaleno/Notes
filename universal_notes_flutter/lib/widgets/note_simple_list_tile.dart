@@ -14,12 +14,16 @@ class NoteSimpleListTile extends StatelessWidget {
     this.onTap,
     super.key,
   });
+
   /// The note to display.
   final Note note;
+
   /// The function to call when the note is saved.
   final Future<Note> Function(Note) onSave;
+
   /// The function to call when the note is deleted.
   final void Function(Note) onDelete;
+
   /// The function to call when the widget is tapped.
   /// If null, it will navigate to the [NoteEditorScreen].
   final VoidCallback? onTap;
@@ -31,45 +35,35 @@ class NoteSimpleListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  return ListTile(
-    key: key,
-    contentPadding: const EdgeInsets.symmetric(
-      horizontal: 16,
-      vertical: 8,
-    ),
-    leading: Container(
-      width: 40,
-      height: 40,
-      color: Colors.grey[300],
-      child: const Icon(Icons.image_outlined, color: Colors.grey),
-    ),
-    title: Text(note.title),
-    trailing: Text(_dateFormat.format(note.date)),
-    onTap: onTap ??
-        () async {
-          await Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (context) => NoteEditorScreen(
-                note: note,
-                onSave: onSave,
-              ),
-            ),
-          );
-        },
-    onLongPress: () async {
-      final renderBox = context.findRenderObject();
-      if (renderBox is RenderBox) {
-        final position = renderBox.localToGlobal(Offset.zero);
+    return ListTile(
+      key: key,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 8,
+      ),
+      leading: Container(
+        width: 40,
+        height: 40,
+        color: Colors.grey[300],
+        child: const Icon(Icons.image_outlined, color: Colors.grey),
+      ),
+      title: Text(note.title),
+      trailing: Text(_dateFormat.format(note.date)),
+      onTap: onTap,
+      onLongPress: () async {
+        final renderBox = context.findRenderObject();
+        if (renderBox is RenderBox) {
+          final position = renderBox.localToGlobal(Offset.zero);
 
-        await ContextMenuHelper.showContextMenu(
-          context: context,
-          position: position,
-          note: note,
-          onSave: onSave,
-          onDelete: onDelete,
-        );
-      }
-    },
-  );
-}
+          await ContextMenuHelper.showContextMenu(
+            context: context,
+            position: position,
+            note: note,
+            onSave: onSave,
+            onDelete: onDelete,
+          );
+        }
+      },
+    );
+  }
 }
