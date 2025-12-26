@@ -10,8 +10,6 @@
 include: package:very_good_analysis/analysis_options.yaml
 
 analyzer:
-  exclude:
-    - packages/flutter_tts/**
   errors:
     undefined_identifier: error
     uri_does_not_exist: error
