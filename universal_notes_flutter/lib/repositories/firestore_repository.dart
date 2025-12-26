@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -15,24 +17,35 @@ class FirestoreRepository {
   FirebaseAuth auth;
 
   /// The singleton instance of [FirestoreRepository].
+  static FirestoreRepository get instance {
+    if (_instance == null) {
+      if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+        _instance = FirestoreRepository();
+      } else {
+        // Fallback for Windows/Linux or if specifically mocked
+        _instance = FirestoreRepository._internal();
+      }
+    }
+    return _instance!;
+  }
+
+  /// Sets the singleton instance for testing.
+  @visibleForTesting
+  static set instance(FirestoreRepository? value) => _instance = value;
+
   static FirestoreRepository? _instance;
-  static FirestoreRepository get instance =>
-      _instance ??= FirestoreRepository._();
 
-  @visibleForTesting
-  static set instance(FirestoreRepository value) => _instance = value;
-
-  /// Creates a [FirestoreRepository] with optional dependencies.
-  @visibleForTesting
-  FirestoreRepository({
-    FirebaseFirestore? firestore,
-    FirebaseAuth? auth,
-  }) : firestore = firestore ?? FirebaseFirestore.instance,
-       auth = auth ?? FirebaseAuth.instance {
+  /// Creates a [FirestoreRepository] instance.
+  ///
+  /// Uses the default [FirebaseFirestore.instance] unless explicit
+  /// dependency injection is used.
+  FirestoreRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
+    : firestore = firestore ?? FirebaseFirestore.instance,
+      auth = auth ?? FirebaseAuth.instance {
     _initCollections();
   }
 
-  FirestoreRepository._()
+  FirestoreRepository._internal()
     : firestore = FirebaseFirestore.instance,
       auth = FirebaseAuth.instance {
     _initCollections();

@@ -1,6 +1,8 @@
 @Tags(['widget'])
 library;
 
+import 'dart:async';
+
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -224,7 +226,7 @@ void main() {
             content: fluent.Navigator(
               onGenerateRoute: (settings) {
                 if (settings.name == '/') {
-                  return fluent.FluentPageRoute(
+                  return fluent.FluentPageRoute<void>(
                     builder: (context) =>
                         const fluent.Center(child: fluent.Text('Home')),
                   );
@@ -246,12 +248,14 @@ void main() {
 
       // Push AboutScreen
       final context = tester.element(find.text('Home'));
-      fluent.Navigator.push(
-        context,
-        fluent.FluentPageRoute(
-          builder: (context) => AboutScreen(
-            packageInfo: packageInfo,
-            debugPlatform: TargetPlatform.windows,
+      unawaited(
+        fluent.Navigator.push(
+          context,
+          fluent.FluentPageRoute<void>(
+            builder: (context) => AboutScreen(
+              packageInfo: packageInfo,
+              debugPlatform: TargetPlatform.windows,
+            ),
           ),
         ),
       );
