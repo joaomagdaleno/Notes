@@ -22,7 +22,7 @@ import 'package:universal_notes_flutter/widgets/sync_conflict_listener.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
-  runZonedGuarded(
+  await runZonedGuarded(
     () async {
       debugPrint('🚀 [STARTUP] main() execution started');
       WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +43,11 @@ void main() async {
         if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
           // Pass all uncaught errors from the framework to Crashlytics.
           FlutterError.onError = (errorDetails) {
-            FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+            unawaited(
+              FirebaseCrashlytics.instance.recordFlutterFatalError(
+                errorDetails,
+              ),
+            );
           };
           debugPrint(
             '✅ [STARTUP] Crashlytics recordFlutterFatalError configured',
@@ -51,7 +55,13 @@ void main() async {
 
           // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
           PlatformDispatcher.instance.onError = (error, stack) {
-            FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+            unawaited(
+              FirebaseCrashlytics.instance.recordError(
+                error,
+                stack,
+                fatal: true,
+              ),
+            );
             return true;
           };
           debugPrint('✅ [STARTUP] PlatformDispatcher.onError configured');
