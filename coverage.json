@@ -1,7 +1,7 @@
 {
-  "totalLines": 7073,
-  "totalHit": 3346,
-  "percentage": 47.30665912625477,
+  "totalLines": 7077,
+  "totalHit": 3347,
+  "percentage": 47.294051151617914,
   "files": [
     {
       "lines": {
@@ -2487,7 +2487,7 @@
     },
     {
       "lines": {
-        "found": 116,
+        "found": 114,
         "hit": 62,
         "details": [
           {
@@ -2509,14 +2509,6 @@
           {
             "line": 22,
             "hit": 2
-          },
-          {
-            "line": 30,
-            "hit": 0
-          },
-          {
-            "line": 34,
-            "hit": 0
           },
           {
             "line": 45,
@@ -3719,7 +3711,7 @@
         "details": [
           {
             "line": 4,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 11,
@@ -3782,7 +3774,7 @@
         "details": [
           {
             "line": 6,
-            "hit": 3
+            "hit": 2
           },
           {
             "line": 13,
@@ -3845,7 +3837,7 @@
         "details": [
           {
             "line": 4,
-            "hit": 4
+            "hit": 2
           },
           {
             "line": 13,
@@ -6830,7 +6822,7 @@
         "details": [
           {
             "line": 8,
-            "hit": 6
+            "hit": 7
           },
           {
             "line": 23,
@@ -7074,7 +7066,7 @@
           },
           {
             "line": 199,
-            "hit": 6
+            "hit": 7
           },
           {
             "line": 202,
@@ -14384,7 +14376,7 @@
           },
           {
             "line": 105,
-            "hit": 5
+            "hit": 4
           },
           {
             "line": 117,
@@ -16809,7 +16801,7 @@
         "details": [
           {
             "line": 9,
-            "hit": 6
+            "hit": 4
           },
           {
             "line": 22,
@@ -18390,7 +18382,7 @@
         "details": [
           {
             "line": 9,
-            "hit": 5
+            "hit": 3
           },
           {
             "line": 11,
@@ -22369,19 +22361,19 @@
           },
           {
             "line": 2064,
-            "hit": 5
+            "hit": 3
           },
           {
             "line": 2069,
-            "hit": 5
+            "hit": 3
           },
           {
             "line": 2074,
-            "hit": 5
+            "hit": 3
           },
           {
             "line": 2079,
-            "hit": 5
+            "hit": 3
           },
           {
             "line": 2084,
@@ -22496,7 +22488,7 @@
         "details": [
           {
             "line": 9,
-            "hit": 5
+            "hit": 3
           },
           {
             "line": 11,
@@ -23412,7 +23404,7 @@
     {
       "lines": {
         "found": 40,
-        "hit": 1,
+        "hit": 0,
         "details": [
           {
             "line": 10,
@@ -23572,7 +23564,7 @@
           },
           {
             "line": 115,
-            "hit": 1
+            "hit": 0
           }
         ]
       },
@@ -23595,7 +23587,7 @@
         "details": [
           {
             "line": 4,
-            "hit": 5
+            "hit": 3
           },
           {
             "line": 23,
@@ -25855,7 +25847,7 @@
         "details": [
           {
             "line": 6,
-            "hit": 5
+            "hit": 3
           },
           {
             "line": 18,
@@ -26452,7 +26444,7 @@
         "details": [
           {
             "line": 31,
-            "hit": 5
+            "hit": 3
           },
           {
             "line": 42,
@@ -26967,7 +26959,7 @@
         "details": [
           {
             "line": 24,
-            "hit": 5
+            "hit": 3
           },
           {
             "line": 48,
@@ -27946,454 +27938,6 @@
     },
     {
       "lines": {
-        "found": 15,
-        "hit": 9,
-        "details": [
-          {
-            "line": 8,
-            "hit": 1
-          },
-          {
-            "line": 11,
-            "hit": 0
-          },
-          {
-            "line": 13,
-            "hit": 0
-          },
-          {
-            "line": 21,
-            "hit": 0
-          },
-          {
-            "line": 24,
-            "hit": 1
-          },
-          {
-            "line": 29,
-            "hit": 2
-          },
-          {
-            "line": 33,
-            "hit": 0
-          },
-          {
-            "line": 41,
-            "hit": 1
-          },
-          {
-            "line": 46,
-            "hit": 2
-          },
-          {
-            "line": 51,
-            "hit": 1
-          },
-          {
-            "line": 54,
-            "hit": 3
-          },
-          {
-            "line": 55,
-            "hit": 0
-          },
-          {
-            "line": 63,
-            "hit": 0
-          },
-          {
-            "line": 71,
-            "hit": 1
-          },
-          {
-            "line": 72,
-            "hit": 2
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/services/auth_service.dart"
-    },
-    {
-      "lines": {
-        "found": 14,
-        "hit": 8,
-        "details": [
-          {
-            "line": 6,
-            "hit": 1
-          },
-          {
-            "line": 9,
-            "hit": 3
-          },
-          {
-            "line": 15,
-            "hit": 0
-          },
-          {
-            "line": 16,
-            "hit": 0
-          },
-          {
-            "line": 18,
-            "hit": 0
-          },
-          {
-            "line": 23,
-            "hit": 0
-          },
-          {
-            "line": 25,
-            "hit": 0
-          },
-          {
-            "line": 29,
-            "hit": 0
-          },
-          {
-            "line": 35,
-            "hit": 1
-          },
-          {
-            "line": 36,
-            "hit": 1
-          },
-          {
-            "line": 37,
-            "hit": 1
-          },
-          {
-            "line": 41,
-            "hit": 1
-          },
-          {
-            "line": 42,
-            "hit": 1
-          },
-          {
-            "line": 43,
-            "hit": 1
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/services/security_service.dart"
-    },
-    {
-      "lines": {
-        "found": 19,
-        "hit": 18,
-        "details": [
-          {
-            "line": 13,
-            "hit": 1
-          },
-          {
-            "line": 18,
-            "hit": 2
-          },
-          {
-            "line": 19,
-            "hit": 1
-          },
-          {
-            "line": 20,
-            "hit": 0
-          },
-          {
-            "line": 23,
-            "hit": 4
-          },
-          {
-            "line": 24,
-            "hit": 1
-          },
-          {
-            "line": 26,
-            "hit": 2
-          },
-          {
-            "line": 27,
-            "hit": 2
-          },
-          {
-            "line": 31,
-            "hit": 2
-          },
-          {
-            "line": 32,
-            "hit": 1
-          },
-          {
-            "line": 36,
-            "hit": 1
-          },
-          {
-            "line": 37,
-            "hit": 1
-          },
-          {
-            "line": 38,
-            "hit": 1
-          },
-          {
-            "line": 43,
-            "hit": 2
-          },
-          {
-            "line": 44,
-            "hit": 5
-          },
-          {
-            "line": 47,
-            "hit": 4
-          },
-          {
-            "line": 51,
-            "hit": 1
-          },
-          {
-            "line": 53,
-            "hit": 2
-          },
-          {
-            "line": 54,
-            "hit": 2
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/services/tag_suggestion_service.dart"
-    },
-    {
-      "lines": {
-        "found": 45,
-        "hit": 45,
-        "details": [
-          {
-            "line": 10,
-            "hit": 1
-          },
-          {
-            "line": 19,
-            "hit": 1
-          },
-          {
-            "line": 24,
-            "hit": 2
-          },
-          {
-            "line": 25,
-            "hit": 2
-          },
-          {
-            "line": 27,
-            "hit": 2
-          },
-          {
-            "line": 32,
-            "hit": 2
-          },
-          {
-            "line": 33,
-            "hit": 1
-          },
-          {
-            "line": 34,
-            "hit": 1
-          },
-          {
-            "line": 36,
-            "hit": 1
-          },
-          {
-            "line": 37,
-            "hit": 1
-          },
-          {
-            "line": 39,
-            "hit": 1
-          },
-          {
-            "line": 40,
-            "hit": 2
-          },
-          {
-            "line": 42,
-            "hit": 1
-          },
-          {
-            "line": 43,
-            "hit": 1
-          },
-          {
-            "line": 45,
-            "hit": 2
-          },
-          {
-            "line": 47,
-            "hit": 1
-          },
-          {
-            "line": 48,
-            "hit": 1
-          },
-          {
-            "line": 50,
-            "hit": 1
-          },
-          {
-            "line": 51,
-            "hit": 1
-          },
-          {
-            "line": 57,
-            "hit": 2
-          },
-          {
-            "line": 61,
-            "hit": 2
-          },
-          {
-            "line": 63,
-            "hit": 1
-          },
-          {
-            "line": 64,
-            "hit": 1
-          },
-          {
-            "line": 68,
-            "hit": 1
-          },
-          {
-            "line": 74,
-            "hit": 1
-          },
-          {
-            "line": 80,
-            "hit": 1
-          },
-          {
-            "line": 82,
-            "hit": 1
-          },
-          {
-            "line": 83,
-            "hit": 2
-          },
-          {
-            "line": 84,
-            "hit": 2
-          },
-          {
-            "line": 86,
-            "hit": 2
-          },
-          {
-            "line": 90,
-            "hit": 2
-          },
-          {
-            "line": 92,
-            "hit": 1
-          },
-          {
-            "line": 93,
-            "hit": 1
-          },
-          {
-            "line": 94,
-            "hit": 1
-          },
-          {
-            "line": 96,
-            "hit": 1
-          },
-          {
-            "line": 97,
-            "hit": 1
-          },
-          {
-            "line": 98,
-            "hit": 1
-          },
-          {
-            "line": 99,
-            "hit": 1
-          },
-          {
-            "line": 100,
-            "hit": 1
-          },
-          {
-            "line": 102,
-            "hit": 1
-          },
-          {
-            "line": 108,
-            "hit": 1
-          },
-          {
-            "line": 109,
-            "hit": 2
-          },
-          {
-            "line": 116,
-            "hit": 1
-          },
-          {
-            "line": 139,
-            "hit": 1
-          },
-          {
-            "line": 158,
-            "hit": 1
-          }
-        ]
-      },
-      "functions": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "branches": {
-        "hit": 0,
-        "found": 0,
-        "details": []
-      },
-      "file": "lib/services/word_lookup_service.dart"
-    },
-    {
-      "lines": {
         "found": 73,
         "hit": 73,
         "details": [
@@ -29326,8 +28870,456 @@
     },
     {
       "lines": {
-        "found": 80,
-        "hit": 42,
+        "found": 15,
+        "hit": 9,
+        "details": [
+          {
+            "line": 8,
+            "hit": 1
+          },
+          {
+            "line": 11,
+            "hit": 0
+          },
+          {
+            "line": 13,
+            "hit": 0
+          },
+          {
+            "line": 21,
+            "hit": 0
+          },
+          {
+            "line": 24,
+            "hit": 1
+          },
+          {
+            "line": 29,
+            "hit": 2
+          },
+          {
+            "line": 33,
+            "hit": 0
+          },
+          {
+            "line": 41,
+            "hit": 1
+          },
+          {
+            "line": 46,
+            "hit": 2
+          },
+          {
+            "line": 51,
+            "hit": 1
+          },
+          {
+            "line": 54,
+            "hit": 3
+          },
+          {
+            "line": 55,
+            "hit": 0
+          },
+          {
+            "line": 63,
+            "hit": 0
+          },
+          {
+            "line": 71,
+            "hit": 1
+          },
+          {
+            "line": 72,
+            "hit": 2
+          }
+        ]
+      },
+      "functions": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "branches": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "file": "lib/services/auth_service.dart"
+    },
+    {
+      "lines": {
+        "found": 14,
+        "hit": 8,
+        "details": [
+          {
+            "line": 6,
+            "hit": 1
+          },
+          {
+            "line": 9,
+            "hit": 3
+          },
+          {
+            "line": 15,
+            "hit": 0
+          },
+          {
+            "line": 16,
+            "hit": 0
+          },
+          {
+            "line": 18,
+            "hit": 0
+          },
+          {
+            "line": 23,
+            "hit": 0
+          },
+          {
+            "line": 25,
+            "hit": 0
+          },
+          {
+            "line": 29,
+            "hit": 0
+          },
+          {
+            "line": 35,
+            "hit": 1
+          },
+          {
+            "line": 36,
+            "hit": 1
+          },
+          {
+            "line": 37,
+            "hit": 1
+          },
+          {
+            "line": 41,
+            "hit": 1
+          },
+          {
+            "line": 42,
+            "hit": 1
+          },
+          {
+            "line": 43,
+            "hit": 1
+          }
+        ]
+      },
+      "functions": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "branches": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "file": "lib/services/security_service.dart"
+    },
+    {
+      "lines": {
+        "found": 19,
+        "hit": 18,
+        "details": [
+          {
+            "line": 13,
+            "hit": 1
+          },
+          {
+            "line": 18,
+            "hit": 2
+          },
+          {
+            "line": 19,
+            "hit": 1
+          },
+          {
+            "line": 20,
+            "hit": 0
+          },
+          {
+            "line": 23,
+            "hit": 4
+          },
+          {
+            "line": 24,
+            "hit": 1
+          },
+          {
+            "line": 26,
+            "hit": 2
+          },
+          {
+            "line": 27,
+            "hit": 2
+          },
+          {
+            "line": 31,
+            "hit": 2
+          },
+          {
+            "line": 32,
+            "hit": 1
+          },
+          {
+            "line": 36,
+            "hit": 1
+          },
+          {
+            "line": 37,
+            "hit": 1
+          },
+          {
+            "line": 38,
+            "hit": 1
+          },
+          {
+            "line": 43,
+            "hit": 2
+          },
+          {
+            "line": 44,
+            "hit": 5
+          },
+          {
+            "line": 47,
+            "hit": 4
+          },
+          {
+            "line": 51,
+            "hit": 1
+          },
+          {
+            "line": 53,
+            "hit": 2
+          },
+          {
+            "line": 54,
+            "hit": 2
+          }
+        ]
+      },
+      "functions": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "branches": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "file": "lib/services/tag_suggestion_service.dart"
+    },
+    {
+      "lines": {
+        "found": 45,
+        "hit": 45,
+        "details": [
+          {
+            "line": 10,
+            "hit": 1
+          },
+          {
+            "line": 19,
+            "hit": 1
+          },
+          {
+            "line": 24,
+            "hit": 2
+          },
+          {
+            "line": 25,
+            "hit": 2
+          },
+          {
+            "line": 27,
+            "hit": 2
+          },
+          {
+            "line": 32,
+            "hit": 2
+          },
+          {
+            "line": 33,
+            "hit": 1
+          },
+          {
+            "line": 34,
+            "hit": 1
+          },
+          {
+            "line": 36,
+            "hit": 1
+          },
+          {
+            "line": 37,
+            "hit": 1
+          },
+          {
+            "line": 39,
+            "hit": 1
+          },
+          {
+            "line": 40,
+            "hit": 2
+          },
+          {
+            "line": 42,
+            "hit": 1
+          },
+          {
+            "line": 43,
+            "hit": 1
+          },
+          {
+            "line": 45,
+            "hit": 2
+          },
+          {
+            "line": 47,
+            "hit": 1
+          },
+          {
+            "line": 48,
+            "hit": 1
+          },
+          {
+            "line": 50,
+            "hit": 1
+          },
+          {
+            "line": 51,
+            "hit": 1
+          },
+          {
+            "line": 57,
+            "hit": 2
+          },
+          {
+            "line": 61,
+            "hit": 2
+          },
+          {
+            "line": 63,
+            "hit": 1
+          },
+          {
+            "line": 64,
+            "hit": 1
+          },
+          {
+            "line": 68,
+            "hit": 1
+          },
+          {
+            "line": 74,
+            "hit": 1
+          },
+          {
+            "line": 80,
+            "hit": 1
+          },
+          {
+            "line": 82,
+            "hit": 1
+          },
+          {
+            "line": 83,
+            "hit": 2
+          },
+          {
+            "line": 84,
+            "hit": 2
+          },
+          {
+            "line": 86,
+            "hit": 2
+          },
+          {
+            "line": 90,
+            "hit": 2
+          },
+          {
+            "line": 92,
+            "hit": 1
+          },
+          {
+            "line": 93,
+            "hit": 1
+          },
+          {
+            "line": 94,
+            "hit": 1
+          },
+          {
+            "line": 96,
+            "hit": 1
+          },
+          {
+            "line": 97,
+            "hit": 1
+          },
+          {
+            "line": 98,
+            "hit": 1
+          },
+          {
+            "line": 99,
+            "hit": 1
+          },
+          {
+            "line": 100,
+            "hit": 1
+          },
+          {
+            "line": 102,
+            "hit": 1
+          },
+          {
+            "line": 108,
+            "hit": 1
+          },
+          {
+            "line": 109,
+            "hit": 2
+          },
+          {
+            "line": 116,
+            "hit": 1
+          },
+          {
+            "line": 139,
+            "hit": 1
+          },
+          {
+            "line": 158,
+            "hit": 1
+          }
+        ]
+      },
+      "functions": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "branches": {
+        "hit": 0,
+        "found": 0,
+        "details": []
+      },
+      "file": "lib/services/word_lookup_service.dart"
+    },
+    {
+      "lines": {
+        "found": 86,
+        "hit": 44,
         "details": [
           {
             "line": 14,
@@ -29579,34 +29571,26 @@
           },
           {
             "line": 152,
-            "hit": 1
-          },
-          {
-            "line": 154,
-            "hit": 1
-          },
-          {
-            "line": 156,
-            "hit": 1
-          },
-          {
-            "line": 157,
-            "hit": 1
-          },
-          {
-            "line": 158,
             "hit": 3
           },
           {
-            "line": 159,
-            "hit": 1
+            "line": 153,
+            "hit": 0
           },
           {
-            "line": 161,
-            "hit": 2
+            "line": 156,
+            "hit": 0
           },
           {
-            "line": 166,
+            "line": 158,
+            "hit": 0
+          },
+          {
+            "line": 160,
+            "hit": 0
+          },
+          {
+            "line": 165,
             "hit": 1
           },
           {
@@ -29614,39 +29598,71 @@
             "hit": 1
           },
           {
-            "line": 168,
+            "line": 169,
             "hit": 1
           },
           {
-            "line": 169,
+            "line": 170,
+            "hit": 1
+          },
+          {
+            "line": 171,
             "hit": 3
           },
           {
-            "line": 175,
+            "line": 172,
             "hit": 1
           },
           {
-            "line": 176,
-            "hit": 5
-          },
-          {
-            "line": 177,
-            "hit": 1
-          },
-          {
-            "line": 179,
+            "line": 174,
             "hit": 2
           },
           {
-            "line": 184,
+            "line": 179,
             "hit": 1
           },
           {
-            "line": 187,
+            "line": 180,
+            "hit": 1
+          },
+          {
+            "line": 181,
+            "hit": 1
+          },
+          {
+            "line": 182,
+            "hit": 3
+          },
+          {
+            "line": 188,
             "hit": 1
           },
           {
             "line": 189,
+            "hit": 5
+          },
+          {
+            "line": 190,
+            "hit": 1
+          },
+          {
+            "line": 192,
+            "hit": 2
+          },
+          {
+            "line": 197,
+            "hit": 1
+          },
+          {
+            "line": 200,
+            "hit": 1
+          },
+          {
+            "line": 202,
+            "hit": 1
+          },
+          {
+            "line": 204,
             "hit": 0
           }
         ]
