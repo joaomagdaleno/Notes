@@ -543,17 +543,33 @@ class NoteRepository {
       final content = map['content'] as String;
       try {
         final spans = json.decode(content) as List<dynamic>;
-        for (final span in spans) {
-          if (span is Map<String, dynamic> && span['text'] is String) {
-            final text = span['text'] as String;
-            final words = text.split(RegExp(r'\s+'));
-            for (final word in words) {
-              final cleanWord = word
-                  .replaceAll(RegExp('[^a-zA-Z]'), '')
-                  .toLowerCase();
-              if (cleanWord.isNotEmpty) {
-                _wordFrequencyCache![cleanWord] =
-                    (_wordFrequencyCache![cleanWord] ?? 0) + 1;
+
+        void _processText(String text) {
+          final words = text.split(RegExp(r'\s+'));
+          for (final word in words) {
+            final cleanWord = word
+                .replaceAll(RegExp('[^a-zA-Z]'), '')
+                .toLowerCase();
+            if (cleanWord.isNotEmpty) {
+              _wordFrequencyCache![cleanWord] =
+                  (_wordFrequencyCache![cleanWord] ?? 0) + 1;
+            }
+          }
+        }
+
+        for (final block in spans) {
+          if (block is Map<String, dynamic>) {
+            // Check for direct text (simple format)
+            if (block['text'] is String) {
+              _processText(block['text'] as String);
+            }
+            // Check for nested spans (rich text format)
+            else if (block['spans'] is List) {
+              final nestedSpans = block['spans'] as List;
+              for (final span in nestedSpans) {
+                if (span is Map<String, dynamic> && span['text'] is String) {
+                  _processText(span['text'] as String);
+                }
               }
             }
           }

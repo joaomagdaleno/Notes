@@ -25,7 +25,8 @@ void main() {
 
       await tester.enterText(find.byType(TextField), 'Hello World');
       await tester.tap(find.text('Salvar'));
-      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       expect(savedText, 'Hello World');
       expect(find.byType(QuickNoteEditor), findsNothing);
@@ -41,7 +42,8 @@ void main() {
 
       await tester.enterText(find.byType(TextField), 'Hello World');
       await tester.tap(find.text('Cancelar'));
-      await tester.pumpAndSettle();
+      await tester.pump(); // Advance navigation
+      await tester.pump(const Duration(milliseconds: 500)); // Finish animation
 
       expect(savedText, isNull);
       expect(find.byType(QuickNoteEditor), findsNothing);

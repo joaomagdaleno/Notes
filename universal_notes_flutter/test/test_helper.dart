@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:opentelemetry/api.dart' as otel;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -21,9 +22,8 @@ import 'package:universal_notes_flutter/services/reading_plan_service.dart';
 import 'package:universal_notes_flutter/services/reading_stats_service.dart';
 import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
-import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/services/tracing_service.dart';
-import 'package:opentelemetry/api.dart' as otel;
+import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:window_manager/window_manager.dart';
 // import 'package:sqflite/sqflite.dart'; // Disabled for FFI issues
 // import 'package:sqflite_common_ffi/sqflite_common_ffi.dart';

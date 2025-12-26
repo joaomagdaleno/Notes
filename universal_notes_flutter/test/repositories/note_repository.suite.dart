@@ -35,7 +35,8 @@ void main() {
     late NoteRepository noteRepository;
     late Note note;
 
-    setUp(() {
+    setUp(() async {
+      NoteRepository.resetInstance();
       noteRepository = NoteRepository.instance..dbPath = inMemoryDatabasePath;
       note = Note(
         id: '1',
