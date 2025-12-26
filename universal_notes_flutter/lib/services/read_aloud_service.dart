@@ -87,14 +87,10 @@ class ReadAloudService {
     await _tts.setLanguage(lang);
   }
 
-  /// Gets available voices.
-  Future<List<dynamic>> getVoices() async {
-    return await _tts.getVoices as List<dynamic>;
-  }
-
   /// Gets available languages.
-  Future<List<dynamic>> getLanguages() async {
-    return await _tts.getLanguages as List<dynamic>;
+  Future<List<String>> getLanguages() async {
+    final List<String> languages = await _tts.getLanguages();
+    return languages;
   }
 
   /// Disposes resources.
