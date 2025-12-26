@@ -36,29 +36,42 @@ jobs:
         run: |
           VERSION=$(find artifacts/version-info -type f -name "*.txt" | head -n 1 | xargs cat)
           echo "full_version=$VERSION" >> $GITHUB_OUTPUT
-      - name: Create Pre-release
+      - name: Create Dev Release (Update Existing)
+        if: github.ref == 'refs/heads/dev'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.full_version }}
-          name: Pre-release ${{ steps.version.outputs.full_version }}
+          tag_name: dev-latest
+          name: Development Build (Dev)
           body: |
-            Automated pre-release for the ${{ github.ref_name }} branch. [Commit: ${{ github.sha }}]
-            Version: ${{ steps.version.outputs.full_version }}
+            Este é o **Snapshot mais recente** da branch `dev`.
+            Versão interna: ${{ steps.version.outputs.full_version }}
+            Commit: ${{ github.sha }}
           prerelease: true
-          generate_release_notes: true
+          generate_release_notes: false
           files: |
             artifacts/windows-installer/*.exe
             artifacts/android-apk/*.apk
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Update latest tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${{ env.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git tag -f ${{ github.ref_name }}-latest
-          git push -f origin ${{ github.ref_name }}-latest
+          fail_on_unmatched_files: true
+
+      - name: Create Beta Release (Update Existing)
+        if: github.ref == 'refs/heads/beta'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: beta-latest
+          name: Beta Release
+          body: |
+            Esta é a versão **Beta mais recente** para testes públicos.
+            Próxima versão planejada.
+            Versão interna: ${{ steps.version.outputs.full_version }}
+            Commit: ${{ github.sha }}
+          prerelease: true
+          generate_release_notes: false
+          files: |
+            artifacts/windows-installer/*.exe
+            artifacts/android-apk/*.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fail_on_unmatched_files: true
 
       - name: Deploy to Beta (Canary)
         if: github.ref == 'refs/heads/beta'

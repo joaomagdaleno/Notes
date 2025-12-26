@@ -15,8 +15,11 @@ jobs:
     name: Quality Gate
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed to push to the coverage-data branch
-      pull-requests: write # Needed for TruffleHog to comment on PRs
+      contents: write
+      pull-requests: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - name: Free up disk space
         if: runner.os == 'Linux'
@@ -57,7 +60,7 @@ jobs:
           # Add more specific SCA tools here if needed, e.g., osv-scanner
 
       - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@df31a0e53a1efa49f2396699d51254455bb81868 # main
+        uses: trufflesecurity/trufflehog@v3.82.2 # Pinned version
 
       - name: Run Tests
         working-directory: universal_notes_flutter
@@ -133,52 +136,30 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - name: Checkout coverage-data branch
+        uses: actions/checkout@v4
+        with:
+          ref: coverage-data
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Download lcov artifact
         uses: actions/download-artifact@v4
         with:
           name: coverage-lcov
           path: coverage
 
-      - name: Install lcov-parse tool
-        run: npm install -g lcov-parse
-
-      - name: Convert lcov to json
-        run: lcov-parse coverage/lcov.info > coverage-list.json
-
-      - name: Restructure coverage JSON
-        id: restructure
+      - name: Process coverage data
         run: |
-          jq '{
-            totalLines: (map(.lines.found) | add),
-            totalHit: (map(.lines.hit) | add),
-            percentage: ((map(.lines.hit) | add) / (map(.lines.found) | add) * 100),
-            files: .
-          }' coverage-list.json > coverage.json
+          npx lcov-parse coverage/lcov.info > coverage.json.new
+          mv coverage.json.new coverage.json
 
-      - name: Commit coverage.json
+      - name: Commit and Push
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-          # Clone the coverage-data branch or create it if it doesn't exist
-          git clone --branch coverage-data --single-branch https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} coverage-data || \
-          (git init coverage-data && \
-           cd coverage-data && \
-           git checkout -b coverage-data && \
-           git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} && \
-           echo "{}" > coverage.json && \
-           git add coverage.json && \
-           git commit -m "feat: Initial commit for coverage data" && \
-           git push -u origin coverage-data)
-
-          mv coverage.json coverage-data/coverage.json
-          cd coverage-data
-
           git add coverage.json
-          # Commit only if there are changes
           if ! git diff --staged --quiet; then
-            git commit -m "docs: Update code coverage report"
+            git commit -m "docs: Update code coverage report [skip ci]"
             git push
-          else
-            echo "No changes to coverage data."
           fi
