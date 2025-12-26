@@ -4,14 +4,12 @@ library;
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:universal_notes_flutter/services/read_aloud_service.dart';
 import 'package:universal_notes_flutter/widgets/read_aloud_controls.dart';
 
-import 'read_aloud_controls_test.mocks.dart';
+class MockReadAloudService extends Mock implements ReadAloudService {}
 
-@GenerateMocks([ReadAloudService])
 void main() {
   late MockReadAloudService mockService;
   late StreamController<ReadAloudState> stateController;
@@ -22,10 +20,14 @@ void main() {
     stateController = StreamController<ReadAloudState>.broadcast();
     speedController = StreamController<double>.broadcast();
 
-    when(mockService.currentState).thenReturn(ReadAloudState.stopped);
-    when(mockService.currentSpeed).thenReturn(1);
-    when(mockService.stateStream).thenAnswer((_) => stateController.stream);
-    when(mockService.speedStream).thenAnswer((_) => speedController.stream);
+    when(() => mockService.currentState).thenReturn(ReadAloudState.stopped);
+    when(() => mockService.currentSpeed).thenReturn(1);
+    when(
+      () => mockService.stateStream,
+    ).thenAnswer((_) => stateController.stream);
+    when(
+      () => mockService.speedStream,
+    ).thenAnswer((_) => speedController.stream);
   });
 
   tearDown(() async {
@@ -62,46 +64,53 @@ void main() {
     });
 
     testWidgets('toggles play/pause when button pressed', (tester) async {
+      when(() => mockService.speak(any())).thenAnswer((_) async {});
+      when(() => mockService.pause()).thenAnswer((_) async {});
+
       await tester.pumpWidget(createWidget());
 
       // Initial state: stopped
       await tester.tap(find.byIcon(Icons.play_arrow));
-      verify(mockService.speak('Test text')).called(1);
+      verify(() => mockService.speak('Test text')).called(1);
 
       // Change state to playing
-      when(mockService.currentState).thenReturn(ReadAloudState.playing);
+      when(() => mockService.currentState).thenReturn(ReadAloudState.playing);
       stateController.add(ReadAloudState.playing);
       await tester.pump();
 
       expect(find.byIcon(Icons.pause), findsOneWidget);
       await tester.tap(find.byIcon(Icons.pause));
-      verify(mockService.pause()).called(1);
+      verify(() => mockService.pause()).called(1);
     });
 
     testWidgets('calls stop when stop button pressed', (tester) async {
-      when(mockService.currentState).thenReturn(ReadAloudState.playing);
+      when(() => mockService.currentState).thenReturn(ReadAloudState.playing);
+      when(() => mockService.stop()).thenAnswer((_) async {});
+
       await tester.pumpWidget(createWidget());
 
       await tester.tap(find.byIcon(Icons.stop));
-      verify(mockService.stop()).called(1);
+      verify(() => mockService.stop()).called(1);
     });
 
     testWidgets('calls setSpeechRate when slider moved', (tester) async {
+      when(() => mockService.setSpeechRate(any())).thenAnswer((_) async {});
       await tester.pumpWidget(createWidget());
 
       await tester.drag(find.byType(Slider), const Offset(50, 0));
       await tester.pump();
 
-      verify(mockService.setSpeechRate(any)).called(greaterThan(0));
+      verify(() => mockService.setSpeechRate(any())).called(greaterThan(0));
     });
 
     testWidgets('calls onClose when close button pressed', (tester) async {
+      when(() => mockService.stop()).thenAnswer((_) async {});
       var closed = false;
       await tester.pumpWidget(createWidget(onClose: () => closed = true));
 
       await tester.tap(find.byIcon(Icons.close));
       expect(closed, true);
-      verify(mockService.stop()).called(1);
+      verify(() => mockService.stop()).called(1);
     });
   });
 }

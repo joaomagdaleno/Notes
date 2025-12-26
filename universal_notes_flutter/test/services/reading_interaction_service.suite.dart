@@ -2,14 +2,12 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:universal_notes_flutter/services/reading_interaction_service.dart';
 
-import 'reading_interaction_service_test.mocks.dart';
+class MockDatabase extends Mock implements Database {}
 
-@GenerateMocks([Database])
 void main() {
   late ReadingInteractionService service;
   late MockDatabase mockDatabase;
@@ -34,11 +32,11 @@ void main() {
       ];
 
       when(
-        mockDatabase.query(
-          any,
-          where: anyNamed('where'),
-          whereArgs: anyNamed('whereArgs'),
-          orderBy: anyNamed('orderBy'),
+        () => mockDatabase.query(
+          any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'),
+          orderBy: any(named: 'orderBy'),
         ),
       ).thenAnswer((_) async => mockData);
 
@@ -50,7 +48,7 @@ void main() {
     });
 
     test('addHighlight inserts and returns annotation', () async {
-      when(mockDatabase.insert(any, any)).thenAnswer((_) async => 1);
+      when(() => mockDatabase.insert(any(), any())).thenAnswer((_) async => 1);
 
       final result = await service.addHighlight(
         noteId: 'note1',
@@ -63,11 +61,11 @@ void main() {
       expect(result.noteId, 'note1');
       expect(result.startOffset, 10);
       expect(result.color, 0xFFFF0000);
-      verify(mockDatabase.insert('reading_annotations', any)).called(1);
+      verify(() => mockDatabase.insert('reading_annotations', any())).called(1);
     });
 
     test('addNote inserts and returns annotation', () async {
-      when(mockDatabase.insert(any, any)).thenAnswer((_) async => 1);
+      when(() => mockDatabase.insert(any(), any())).thenAnswer((_) async => 1);
 
       final result = await service.addNote(
         noteId: 'note1',
@@ -78,22 +76,22 @@ void main() {
       expect(result.noteId, 'note1');
       expect(result.comment, 'nice');
       expect(result.startOffset, 50);
-      verify(mockDatabase.insert('reading_annotations', any)).called(1);
+      verify(() => mockDatabase.insert('reading_annotations', any())).called(1);
     });
 
     test('deleteAnnotation calls database delete', () async {
       when(
-        mockDatabase.delete(
-          any,
-          where: anyNamed('where'),
-          whereArgs: anyNamed('whereArgs'),
+        () => mockDatabase.delete(
+          any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'),
         ),
       ).thenAnswer((_) async => 1);
 
       await service.deleteAnnotation('1');
 
       verify(
-        mockDatabase.delete(
+        () => mockDatabase.delete(
           'reading_annotations',
           where: 'id = ?',
           whereArgs: ['1'],

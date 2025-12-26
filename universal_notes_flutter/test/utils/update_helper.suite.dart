@@ -10,16 +10,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 
-import 'update_helper_test.mocks.dart';
+class MockUpdateService extends Mock implements UpdateService {}
 
-@GenerateMocks([UpdateService, http.Client])
+class MockClient extends Mock implements http.Client {}
+
 void main() {
+  setUpAll(() {
+    registerFallbackValue(Uri());
+  });
+
   group('UpdateHelper', () {
     late MockUpdateService mockUpdateService;
     late MockClient mockHttpClient;
@@ -113,7 +117,7 @@ void main() {
     // --- Interaction Tests ---
 
     testWidgets('cancelling dialog does not trigger download', (tester) async {
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.updateAvailable,
           updateInfo: testUpdateInfo,
@@ -145,7 +149,7 @@ void main() {
     });
 
     testWidgets('shows no update snackbar', (tester) async {
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
       );
 
@@ -167,7 +171,7 @@ void main() {
     });
 
     testWidgets('shows error snackbar on check failure', (tester) async {
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.error,
           errorMessage: 'Check failed',
@@ -196,7 +200,7 @@ void main() {
     testWidgets('successful download and install on Android', (tester) async {
       setupMethodChannels();
 
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.updateAvailable,
           updateInfo: testUpdateInfo,
@@ -204,7 +208,7 @@ void main() {
       );
 
       when(
-        mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
+        () => mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
       ).thenAnswer(
         (_) async => http.Response('fake apk content', 200),
       );
@@ -240,21 +244,21 @@ void main() {
 
       // Verify HTTP call
       verify(
-        mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
+        () => mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
       ).called(1);
     });
 
     testWidgets('shows error when download fails (404)', (tester) async {
       setupMethodChannels();
 
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.updateAvailable,
           updateInfo: testUpdateInfo,
         ),
       );
 
-      when(mockHttpClient.get(any)).thenAnswer(
+      when(() => mockHttpClient.get(any())).thenAnswer(
         (_) async => http.Response('Not Found', 404),
       );
 
@@ -285,7 +289,7 @@ void main() {
     testWidgets('shows permission denied snackbar', (tester) async {
       setupMethodChannels(permissionGranted: false);
 
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.updateAvailable,
           updateInfo: testUpdateInfo,
@@ -321,7 +325,7 @@ void main() {
     ) async {
       var onNoUpdateCalled = false;
 
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
       );
 
@@ -345,7 +349,7 @@ void main() {
     testWidgets('calls onError callback when error occurs', (tester) async {
       String? errorMessage;
 
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.error,
           errorMessage: 'Test error message',
@@ -374,7 +378,7 @@ void main() {
         openFileResult: '{"type": 1, "message": "Fail to open"}',
       ); // 1 = error
 
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.updateAvailable,
           updateInfo: testUpdateInfo,
@@ -382,7 +386,7 @@ void main() {
       );
 
       when(
-        mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
+        () => mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
       ).thenAnswer((_) async => http.Response('fake apk content', 200));
 
       await tester.pumpWidget(
@@ -411,15 +415,11 @@ void main() {
       tester,
     ) async {
       // We don't provide HttpClient, so it creates one internally.
-      // We set manual check to avoid dialog, but we want to trigger download?
-      // No, to trigger download we need updateAvailable.
-      // Download URL will be real, so it will likely fail.
-      // Check for Update itself is mocked via service, so that part is fine.
       final badInfo = UpdateInfo(
         version: '1.0.1',
         downloadUrl: 'http://invalid-url.local/app.apk',
       );
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.updateAvailable,
           updateInfo: badInfo,
@@ -452,7 +452,7 @@ void main() {
         openFileResult: '{"type":0, "message":"Done"}', // Success
       );
 
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.updateAvailable,
           updateInfo: testUpdateInfo,
@@ -460,7 +460,7 @@ void main() {
       );
 
       when(
-        mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
+        () => mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
       ).thenAnswer((_) async => http.Response('content', 200));
 
       await tester.pumpWidget(
@@ -480,10 +480,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.text('Sim, atualizar'));
       await tester.pump(const Duration(milliseconds: 100));
-      // await tester.pump();
-      // await tester.pump(const Duration(milliseconds: 100));
 
-      // Should NOT show error
       expect(find.textContaining('Erro'), findsNothing);
     });
 
@@ -492,7 +489,7 @@ void main() {
     ) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
 
-      when(mockUpdateService.checkForUpdate()).thenAnswer(
+      when(() => mockUpdateService.checkForUpdate()).thenAnswer(
         (_) async => UpdateCheckResult(
           UpdateCheckStatus.updateAvailable,
           updateInfo: testUpdateInfo,
@@ -520,7 +517,7 @@ void main() {
       // update_helper.dart: _handleUpdate checks 'if (isAndroid)'.
       // Since it's Windows, it shouldn't try update.
       // So no permission request, no download.
-      verifyNever(mockHttpClient.get(any));
+      verifyNever(() => mockHttpClient.get(any()));
 
       debugDefaultTargetPlatformOverride = null;
     });

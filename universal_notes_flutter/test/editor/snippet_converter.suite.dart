@@ -3,16 +3,14 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/snippet.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 
-import 'snippet_converter_test.mocks.dart';
+import '../test_helper.dart'; // For MockNoteRepository
 
-@GenerateMocks([NoteRepository])
 void main() {
   late MockNoteRepository mockNoteRepository;
 
@@ -24,7 +22,9 @@ void main() {
 
   group('SnippetConverter', () {
     test('checkAndApply should return null if no snippets cached', () async {
-      when(mockNoteRepository.getAllSnippets()).thenAnswer((_) async => []);
+      when(
+        () => mockNoteRepository.getAllSnippets(),
+      ).thenAnswer((_) async => []);
       await SnippetConverter.precacheSnippets();
 
       final doc = DocumentModel.fromPlainText(';test ');
@@ -45,7 +45,7 @@ void main() {
           ),
         ];
         when(
-          mockNoteRepository.getAllSnippets(),
+          () => mockNoteRepository.getAllSnippets(),
         ).thenAnswer((_) async => snippets);
         await SnippetConverter.precacheSnippets();
 
@@ -69,7 +69,7 @@ void main() {
         ),
       ];
       when(
-        mockNoteRepository.getAllSnippets(),
+        () => mockNoteRepository.getAllSnippets(),
       ).thenAnswer((_) async => snippets);
       await SnippetConverter.precacheSnippets();
 

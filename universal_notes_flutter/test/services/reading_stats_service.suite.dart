@@ -2,11 +2,11 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:universal_notes_flutter/services/reading_stats_service.dart';
 
-import 'reading_interaction_service_test.mocks.dart';
+class MockDatabase extends Mock implements Database {}
 
 void main() {
   late ReadingStatsService service;
@@ -20,10 +20,10 @@ void main() {
   group('ReadingStatsService', () {
     test('getStatsForNote returns stats', () async {
       when(
-        mockDatabase.query(
-          any,
-          where: anyNamed('where'),
-          whereArgs: anyNamed('whereArgs'),
+        () => mockDatabase.query(
+          any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'),
         ),
       ).thenAnswer(
         (_) async => [
@@ -39,10 +39,10 @@ void main() {
 
     test('getStatsForNote returns default for new note', () async {
       when(
-        mockDatabase.query(
-          any,
-          where: anyNamed('where'),
-          whereArgs: anyNamed('whereArgs'),
+        () => mockDatabase.query(
+          any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'),
         ),
       ).thenAnswer((_) async => []);
 
@@ -54,26 +54,26 @@ void main() {
 
     test('updatePosition saves position', () async {
       when(
-        mockDatabase.query(
-          any,
-          where: anyNamed('where'),
-          whereArgs: anyNamed('whereArgs'),
+        () => mockDatabase.query(
+          any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'),
         ),
       ).thenAnswer((_) async => []);
       when(
-        mockDatabase.insert(
-          any,
-          any,
-          conflictAlgorithm: anyNamed('conflictAlgorithm'),
+        () => mockDatabase.insert(
+          any(),
+          any(),
+          conflictAlgorithm: any(named: 'conflictAlgorithm'),
         ),
       ).thenAnswer((_) async => 1);
 
       await service.updatePosition('note1', 100);
 
       verify(
-        mockDatabase.insert(
+        () => mockDatabase.insert(
           'reading_stats',
-          argThat(containsPair('lastReadPosition', 100)),
+          any(that: containsPair('lastReadPosition', 100)),
           conflictAlgorithm: ConflictAlgorithm.replace,
         ),
       ).called(1);
@@ -81,26 +81,26 @@ void main() {
 
     test('setReadingGoal saves goal', () async {
       when(
-        mockDatabase.query(
-          any,
-          where: anyNamed('where'),
-          whereArgs: anyNamed('whereArgs'),
+        () => mockDatabase.query(
+          any(),
+          where: any(named: 'where'),
+          whereArgs: any(named: 'whereArgs'),
         ),
       ).thenAnswer((_) async => []);
       when(
-        mockDatabase.insert(
-          any,
-          any,
-          conflictAlgorithm: anyNamed('conflictAlgorithm'),
+        () => mockDatabase.insert(
+          any(),
+          any(),
+          conflictAlgorithm: any(named: 'conflictAlgorithm'),
         ),
       ).thenAnswer((_) async => 1);
 
       await service.setReadingGoal('note1', 30);
 
       verify(
-        mockDatabase.insert(
+        () => mockDatabase.insert(
           'reading_stats',
-          argThat(containsPair('readingGoalMinutes', 30)),
+          any(that: containsPair('readingGoalMinutes', 30)),
           conflictAlgorithm: ConflictAlgorithm.replace,
         ),
       ).called(1);

@@ -8,16 +8,20 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 
-import 'windows_update_helper_test.mocks.dart';
+class MockUpdateService extends Mock implements UpdateService {}
 
-@GenerateMocks([UpdateService, http.Client])
+class MockClient extends Mock implements http.Client {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    registerFallbackValue(Uri());
+  });
 
   group('WindowsUpdateHelper', () {
     late MockUpdateService mockUpdateService;
@@ -90,7 +94,7 @@ void main() {
 
     group('checkForUpdate', () {
       test('shows "Verificando atualizações..." status on start', () async {
-        when(mockUpdateService.checkForUpdate()).thenAnswer(
+        when(() => mockUpdateService.checkForUpdate()).thenAnswer(
           (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
         );
 
@@ -108,7 +112,7 @@ void main() {
       test(
         'calls onNoUpdate and onCheckFinished when no update available',
         () async {
-          when(mockUpdateService.checkForUpdate()).thenAnswer(
+          when(() => mockUpdateService.checkForUpdate()).thenAnswer(
             (_) async => UpdateCheckResult(UpdateCheckStatus.noUpdate),
           );
 
@@ -127,7 +131,7 @@ void main() {
       );
 
       test('calls onError with message and onCheckFinished on error', () async {
-        when(mockUpdateService.checkForUpdate()).thenAnswer(
+        when(() => mockUpdateService.checkForUpdate()).thenAnswer(
           (_) async => UpdateCheckResult(
             UpdateCheckStatus.error,
             errorMessage: 'Falha na conexão',
@@ -150,7 +154,7 @@ void main() {
       test(
         'calls onError with default message when errorMessage is null',
         () async {
-          when(mockUpdateService.checkForUpdate()).thenAnswer(
+          when(() => mockUpdateService.checkForUpdate()).thenAnswer(
             (_) async => UpdateCheckResult(UpdateCheckStatus.error),
           );
 
@@ -172,7 +176,7 @@ void main() {
 
     group('_downloadAndInstallUpdate (via checkForUpdate)', () {
       test('successful download, process run, and exit', () async {
-        when(mockUpdateService.checkForUpdate()).thenAnswer(
+        when(() => mockUpdateService.checkForUpdate()).thenAnswer(
           (_) async => UpdateCheckResult(
             UpdateCheckStatus.updateAvailable,
             updateInfo: testUpdateInfo,
@@ -180,7 +184,7 @@ void main() {
         );
 
         when(
-          mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
+          () => mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
         ).thenAnswer((_) async => http.Response('fake exe content', 200));
 
         await WindowsUpdateHelper.checkForUpdate(
@@ -204,7 +208,7 @@ void main() {
       });
 
       test('calls onError when HTTP returns non-200 status', () async {
-        when(mockUpdateService.checkForUpdate()).thenAnswer(
+        when(() => mockUpdateService.checkForUpdate()).thenAnswer(
           (_) async => UpdateCheckResult(
             UpdateCheckStatus.updateAvailable,
             updateInfo: testUpdateInfo,
@@ -212,7 +216,7 @@ void main() {
         );
 
         when(
-          mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
+          () => mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
         ).thenAnswer((_) async => http.Response('Not Found', 404));
 
         await WindowsUpdateHelper.checkForUpdate(
@@ -234,7 +238,7 @@ void main() {
       });
 
       test('calls onError when HTTP request throws exception', () async {
-        when(mockUpdateService.checkForUpdate()).thenAnswer(
+        when(() => mockUpdateService.checkForUpdate()).thenAnswer(
           (_) async => UpdateCheckResult(
             UpdateCheckStatus.updateAvailable,
             updateInfo: testUpdateInfo,
@@ -242,7 +246,7 @@ void main() {
         );
 
         when(
-          mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
+          () => mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
         ).thenThrow(const SocketException('No internet'));
 
         await WindowsUpdateHelper.checkForUpdate(
@@ -262,7 +266,7 @@ void main() {
       });
 
       test('calls onError when process runner throws exception', () async {
-        when(mockUpdateService.checkForUpdate()).thenAnswer(
+        when(() => mockUpdateService.checkForUpdate()).thenAnswer(
           (_) async => UpdateCheckResult(
             UpdateCheckStatus.updateAvailable,
             updateInfo: testUpdateInfo,
@@ -270,7 +274,7 @@ void main() {
         );
 
         when(
-          mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
+          () => mockHttpClient.get(Uri.parse(testUpdateInfo.downloadUrl)),
         ).thenAnswer((_) async => http.Response('fake exe content', 200));
 
         await WindowsUpdateHelper.checkForUpdate(
@@ -296,7 +300,7 @@ void main() {
           downloadUrl: 'http://invalid-url.local/installer.exe',
         );
 
-        when(mockUpdateService.checkForUpdate()).thenAnswer(
+        when(() => mockUpdateService.checkForUpdate()).thenAnswer(
           (_) async => UpdateCheckResult(
             UpdateCheckStatus.updateAvailable,
             updateInfo: badInfo,
