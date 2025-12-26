@@ -7,6 +7,7 @@ jobs:
   build_windows:
     name: Build Windows
     runs-on: windows-latest
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
@@ -19,6 +20,7 @@ jobs:
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
           flutter-version: '3.38.2'
+          cache: true
       - name: Get base version from last tag
         id: version-win
         shell: powershell
@@ -32,23 +34,46 @@ jobs:
         shell: pwsh
         working-directory: universal_notes_flutter
         run: |
-          $baseVersion = "${{ steps.version-win.outputs.base }}"
-          $fullVersion = $baseVersion
-          if ("${{ github.ref_name }}" -eq "dev") {
-            $fullVersion = "$baseVersion-dev.${{ github.run_number }}"
+          # Read current version from pubspec
+          $pubspecContent = Get-Content pubspec.yaml
+          $currentVersion = ($pubspecContent | Select-String 'version:').Line.Split(' ')[1]
+          $parts = $currentVersion.Split('.')
+          $major = $parts[0]
+          $minor = $parts[1]
+          $patch = $parts[2]
+
+          if ("${{ github.ref_name }}" -eq "main") {
+            $fullVersion = $currentVersion
           } elseif ("${{ github.ref_name }}" -eq "beta") {
-            $fullVersion = "$baseVersion-beta.${{ github.run_number }}"
+            # Beta: next patch
+            $nextPatch = [int]$patch + 1
+            $fullVersion = "$major.$minor.$nextPatch-beta.${{ github.run_number }}"
+          } elseif ("${{ github.ref_name }}" -eq "dev") {
+            # Dev: next minor
+            $nextMinor = [int]$minor + 1
+            $fullVersion = "$major.$nextMinor.0-dev.${{ github.run_number }}"
+          } else {
+            $fullVersion = "$currentVersion-local.${{ github.run_number }}"
           }
+
           (Get-Content pubspec.yaml) -replace '^version:.*',"version: $fullVersion" | Set-Content pubspec.yaml
           Set-Content -Path "version.txt" -Value $fullVersion
           Add-Content -Path $env:GITHUB_OUTPUT -Value "full_version=$fullVersion"
       - name: Flutter Pub Get
         working-directory: universal_notes_flutter
         run: flutter pub get
+      - name: Cache Windows Build Artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            universal_notes_flutter/build
+            universal_notes_flutter/.dart_tool
+          key: ${{ runner.os }}-build-${{ hashFiles('universal_notes_flutter/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
       - name: Flutter Build Windows
         working-directory: universal_notes_flutter
         run: |
-          flutter clean
           flutter build windows
       - name: Install Inno Setup
         run: |
@@ -119,13 +144,26 @@ jobs:
         id: generate_version
         working-directory: universal_notes_flutter
         run: |
-          BASE_VERSION="${{ steps.version.outputs.base }}"
-          FULL_VERSION="$BASE_VERSION"
-          if [ "${{ github.ref_name }}" = "dev" ]; then
-            FULL_VERSION="$BASE_VERSION-dev.${GITHUB_RUN_NUMBER}"
+          # Read current version from pubspec
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          # Split version into components
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            FULL_VERSION="$VERSION"
           elif [ "${{ github.ref_name }}" = "beta" ]; then
-            FULL_VERSION="$BASE_VERSION-beta.${GITHUB_RUN_NUMBER}"
+            # Beta: next patch
+             PATCH_NUM=$(echo $PATCH | grep -oE '^[0-9]+')
+            NEXT_PATCH=$((PATCH_NUM + 1))
+            FULL_VERSION="$MAJOR.$MINOR.$NEXT_PATCH-beta.${GITHUB_RUN_NUMBER}"
+          elif [ "${{ github.ref_name }}" = "dev" ]; then
+            # Dev: next minor
+            NEXT_MINOR=$((MINOR + 1))
+            FULL_VERSION="$MAJOR.$NEXT_MINOR.0-dev.${GITHUB_RUN_NUMBER}"
+          else
+            FULL_VERSION="$VERSION-local.${GITHUB_RUN_NUMBER}"
           fi
+
           sed -i "s/^version:.*/version: $FULL_VERSION/" pubspec.yaml
           echo "$FULL_VERSION" > version.txt
           echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
