@@ -53,6 +53,11 @@ class AuthService {
         try {
           await firestoreRepository.createUser(credential.user!);
         } on Exception {
+          // 🛡️ Sentinel: CRITICAL - If Firestore user creation fails,
+          // the auth user must be deleted to prevent an inconsistent state
+          // where a user exists in auth but not in the application database.
+          // This is a "Fail Closed" security pattern.
+          await credential.user?.delete();
           // Re-throwing the exception to allow the UI to handle the error,
           // for example, by showing a message to the user and preventing
           // them from proceeding in an inconsistent state.
