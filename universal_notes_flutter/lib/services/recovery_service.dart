@@ -153,7 +153,7 @@ class RecoveryService {
       'encryptedRecoveryKey': encryptedKey,
       'recoverySetupDate': FieldValue.serverTimestamp(),
       'hasEncryptedNotes': true,
-    }, SetOptions(merge: true));
+    }, SetOptions(merge: true),);
   }
 
   /// Retrieves the encrypted recovery key from Firestore.

@@ -189,7 +189,7 @@ class FirestoreRepository {
   Future<void> _updateUserTags(String userId, List<String> tags) async {
     await _userMetadataCollection.doc(userId).set({
       'tags': FieldValue.arrayUnion(tags),
-    }, SetOptions(merge: true));
+    }, SetOptions(merge: true),);
   }
 
   /// Updates an existing [note].
@@ -212,7 +212,7 @@ class FirestoreRepository {
 
     await _notesCollection.doc(note.id).collection('content').doc('main').set({
       'fullContent': note.content,
-    }, SetOptions(merge: true));
+    }, SetOptions(merge: true),);
   }
 
   /// Deletes a note by its [noteId].
@@ -295,7 +295,7 @@ class FirestoreRepository {
       'displayName': user.displayName,
       'photoURL': user.photoURL,
       'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    }, SetOptions(merge: true),);
   }
 
   /// Creates a new folder.
