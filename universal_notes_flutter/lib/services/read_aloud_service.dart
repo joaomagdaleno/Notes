@@ -89,7 +89,7 @@ class ReadAloudService {
 
   /// Gets available languages.
   Future<List<String>> getLanguages() async {
-    final List<String> languages = await _tts.getLanguages();
+    final languages = await _tts.getLanguages();
     return languages;
   }
 

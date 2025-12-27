@@ -35,7 +35,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     textEditingController.text = text;
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       initLanguages();
     });
   }
