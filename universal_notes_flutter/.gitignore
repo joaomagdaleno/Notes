@@ -33,6 +33,8 @@ build/
 **/build/
 .dart_tool/
 **/.dart_tool/
+.gradle/
+**/.gradle/
 test/**/*.mocks.dart
 
 # Symbolication related
