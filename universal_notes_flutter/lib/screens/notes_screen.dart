@@ -893,6 +893,13 @@ class _DashboardCard extends StatelessWidget {
     fontSize: 12,
   );
 
+  // ⚡ Bolt: Hoist the constant part of the decoration to prevent it from
+  // being recreated on every build. `copyWith` is used to apply
+  // instance-specific colors and borders.
+  static final _baseDecoration = BoxDecoration(
+    borderRadius: const BorderRadius.all(Radius.circular(16)),
+  );
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -901,9 +908,8 @@ class _DashboardCard extends StatelessWidget {
         width: 160,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
+        decoration: _baseDecoration.copyWith(
           color: color.withValues(alpha: 0.1),
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
           border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Column(
