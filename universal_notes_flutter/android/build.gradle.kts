@@ -28,14 +28,14 @@ subprojects {
 fun configureAndroidProject(project: Project) {
     val android = project.extensions.findByName("android") ?: return
     try {
-        // Enforce Java 17 for compileOptions
+        // Enforce Java 21 for compileOptions
         val compileOptions = android.javaClass.getMethod("getCompileOptions").invoke(android)
-        compileOptions!!.javaClass.getMethod("setSourceCompatibility", JavaVersion::class.java).invoke(compileOptions, JavaVersion.VERSION_17)
-        compileOptions.javaClass.getMethod("setTargetCompatibility", JavaVersion::class.java).invoke(compileOptions, JavaVersion.VERSION_17)
+        compileOptions!!.javaClass.getMethod("setSourceCompatibility", JavaVersion::class.java).invoke(compileOptions, JavaVersion.VERSION_21)
+        compileOptions.javaClass.getMethod("setTargetCompatibility", JavaVersion::class.java).invoke(compileOptions, JavaVersion.VERSION_21)
 
-        // Enforce Java 17 for kotlinOptions
+        // Enforce Java 21 for kotlinOptions
         val kotlinOptions = android.javaClass.getMethod("getKotlinOptions").invoke(android)
-        kotlinOptions!!.javaClass.getMethod("setJvmTarget", String::class.java).invoke(kotlinOptions, "17")
+        kotlinOptions!!.javaClass.getMethod("setJvmTarget", String::class.java).invoke(kotlinOptions, "21")
 
         // Definitive Namespace Fix (v4): Parse Manifest directly to avoid triggering validaton
         val manifestFile = project.file("src/main/AndroidManifest.xml")

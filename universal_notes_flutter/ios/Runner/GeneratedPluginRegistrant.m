@@ -108,12 +108,6 @@
 @import sqflite_darwin;
 #endif
 
-#if __has_include(<text_to_speech/TextToSpeechPlugin.h>)
-#import <text_to_speech/TextToSpeechPlugin.h>
-#else
-@import text_to_speech;
-#endif
-
 #if __has_include(<url_launcher_ios/URLLauncherPlugin.h>)
 #import <url_launcher_ios/URLLauncherPlugin.h>
 #else
@@ -140,7 +134,6 @@
   [PrintingPlugin registerWithRegistrar:[registry registrarForPlugin:@"PrintingPlugin"]];
   [SharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"SharedPreferencesPlugin"]];
   [SqflitePlugin registerWithRegistrar:[registry registrarForPlugin:@"SqflitePlugin"]];
-  [TextToSpeechPlugin registerWithRegistrar:[registry registrarForPlugin:@"TextToSpeechPlugin"]];
   [URLLauncherPlugin registerWithRegistrar:[registry registrarForPlugin:@"URLLauncherPlugin"]];
 }
 
