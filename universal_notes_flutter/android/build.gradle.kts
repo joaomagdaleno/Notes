@@ -28,6 +28,10 @@ subprojects {
 fun configureAndroidProject(project: Project) {
     val android = project.extensions.findByName("android") ?: return
     try {
+        // Force compileSdk for all subprojects to avoid "provider has no value" errors
+        val setCompileSdk = android.javaClass.getMethod("setCompileSdkVersion", Int::class.java)
+        setCompileSdk.invoke(android, 35)
+
         // Enforce Java 21 for compileOptions
         val compileOptions = android.javaClass.getMethod("getCompileOptions").invoke(android)
         compileOptions!!.javaClass.getMethod("setSourceCompatibility", JavaVersion::class.java).invoke(compileOptions, JavaVersion.VERSION_21)
