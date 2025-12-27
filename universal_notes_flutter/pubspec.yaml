@@ -70,3 +70,7 @@ flutter:
 
 dependency_overrides:
   local_auth: ^3.0.0
+  permission_handler_android:
+    path: packages/permission_handler_android
+  local_auth_android:
+    path: packages/local_auth_android
