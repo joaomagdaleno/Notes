@@ -253,7 +253,8 @@ Future<void> setupTest() async {
   when(() => mockTracing.tracer).thenReturn(MockTracer());
 
   // REMOVED: await SyncService.instance.init();
-  // We should not trigger global service initialization by default in all tests.
+  // We should not trigger global service initialization by default in all
+  // tests.
 }
 
 class MockSpan extends Mock implements otel.Span {}

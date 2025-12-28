@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/services/tracing_service.dart';
@@ -33,6 +32,7 @@ class FirestoreRepository {
   FirebaseAuth auth;
 
   /// The singleton instance of [FirestoreRepository].
+  // ignore: prefer_constructors_over_static_methods
   static FirestoreRepository get instance {
     if (_instance == null) {
       if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
@@ -190,7 +190,7 @@ class FirestoreRepository {
   Future<void> _updateUserTags(String userId, List<String> tags) async {
     await _userMetadataCollection.doc(userId).set({
       'tags': FieldValue.arrayUnion(tags),
-    }, SetOptions(merge: true));
+    }, SetOptions(merge: true),);
   }
 
   /// Updates an existing [note].
@@ -213,7 +213,7 @@ class FirestoreRepository {
 
     await _notesCollection.doc(note.id).collection('content').doc('main').set({
       'fullContent': note.content,
-    }, SetOptions(merge: true));
+    }, SetOptions(merge: true),);
   }
 
   /// Deletes a note by its [noteId].
@@ -296,7 +296,7 @@ class FirestoreRepository {
       'displayName': user.displayName,
       'photoURL': user.photoURL,
       'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    }, SetOptions(merge: true),);
   }
 
   /// Creates a new folder.

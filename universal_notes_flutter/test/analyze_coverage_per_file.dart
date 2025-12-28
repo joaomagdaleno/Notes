@@ -3,7 +3,7 @@ import 'dart:io';
 void main() async {
   final file = File('coverage/lcov.info');
   if (!file.existsSync()) {
-    print('lcov.info not found');
+    // lcov.info not found
     return;
   }
 
@@ -40,15 +40,16 @@ void main() async {
     return path.contains('lib/services/') ||
         path.contains('lib/repositories/') ||
         path.contains('lib/models/');
-  }).toList();
+  }).toList()
+    ..sort(
+      (a, b) => (a['coverage']! as double).compareTo(b['coverage']! as double),
+    );
 
-  domainReport.sort(
-    (a, b) => (a['coverage']! as double).compareTo(b['coverage']! as double),
-  );
-
-  print('=== DOMAIN LAYER COVERAGE (LOWEST FIRST) ===\n');
+  // print('=== DOMAIN LAYER COVERAGE (LOWEST FIRST) ===\n');
+  stdout.writeln('=== DOMAIN LAYER COVERAGE (LOWEST FIRST) ===\n');
   for (final r in domainReport) {
     final cov = (r['coverage']! as double).toStringAsFixed(2);
-    print('$cov% (${r['lh']}/${r['lf']}) - ${r['file']}');
+    // print('$cov% (${r['lh']}/${r['lf']}) - ${r['file']}');
+    stdout.writeln('$cov% (${r['lh']}/${r['lf']}) - ${r['file']}');
   }
 }

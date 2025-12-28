@@ -57,10 +57,10 @@ extension PaperMarginExtension on PaperMargin {
         return const EdgeInsets.all(1.27 * cm);
       case PaperMargin.moderate:
         return const EdgeInsets.symmetric(
-            vertical: 2.54 * cm, horizontal: 1.91 * cm);
+            vertical: 2.54 * cm, horizontal: 1.91 * cm,);
       case PaperMargin.wide:
         return const EdgeInsets.symmetric(
-            vertical: 2.54 * cm, horizontal: 5.08 * cm);
+            vertical: 2.54 * cm, horizontal: 5.08 * cm,);
     }
   }
   /// The label of the paper margin.

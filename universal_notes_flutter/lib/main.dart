@@ -53,7 +53,8 @@ void main() async {
             '✅ [STARTUP] Crashlytics recordFlutterFatalError configured',
           );
 
-          // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+          // Pass all uncaught asynchronous errors that aren't handled by the
+          // Flutter framework to Crashlytics
           PlatformDispatcher.instance.onError = (error, stack) {
             unawaited(
               FirebaseCrashlytics.instance.recordError(
@@ -66,7 +67,7 @@ void main() async {
           };
           debugPrint('✅ [STARTUP] PlatformDispatcher.onError configured');
         }
-      } catch (e, stack) {
+      } on Object catch (e, stack) {
         debugPrint('❌ [STARTUP] Firebase initialization failed: $e');
         debugPrint(stack.toString());
       }
@@ -93,10 +94,10 @@ void main() async {
         debugPrint('⏳ [STARTUP] Initializing SyncService...');
         await SyncService.instance.init();
         debugPrint('✅ [STARTUP] SyncService initialized');
-      } catch (e, stack) {
+      } on Object catch (e, stack) {
         debugPrint('❌ [STARTUP] SyncService initialization failed: $e');
         if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-          FirebaseCrashlytics.instance.recordError(
+          await FirebaseCrashlytics.instance.recordError(
             e,
             stack,
             reason: 'SyncService init failure',
@@ -122,7 +123,9 @@ void main() async {
       debugPrint('🔥 [FATAL] Global runZonedGuarded error: $error');
       debugPrint(stack.toString());
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        unawaited(
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true),
+        );
       }
     },
   );
@@ -201,10 +204,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
           });
         }
       }
-    } catch (e, stack) {
+    } on Object catch (e, stack) {
       debugPrint('❌ [AUTH] Error during biometric check: $e');
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-        FirebaseCrashlytics.instance.recordError(
+        await FirebaseCrashlytics.instance.recordError(
           e,
           stack,
           reason: 'Biometric check failure',

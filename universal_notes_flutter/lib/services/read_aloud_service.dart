@@ -1,17 +1,16 @@
 import 'dart:async';
 
-import 'package:text_to_speech/text_to_speech.dart';
-
 /// Service for text-to-speech reading aloud functionality.
 ///
 /// Provides play, pause, stop controls.
+/// Currently stubbed out as text_to_speech dependency has been removed.
 class ReadAloudService {
   /// Creates a new [ReadAloudService].
-  ReadAloudService({TextToSpeech? tts}) : _tts = tts ?? TextToSpeech();
+  ReadAloudService();
 
-  final TextToSpeech _tts;
+  /// Stream of currently highlighted word positions
+  /// (empty in this implementation).
 
-  /// Stream of currently highlighted word positions (empty in this implementation).
   Stream<ReadAloudPosition> get positionStream => _positionController.stream;
 
   /// Stream of playback state changes.
@@ -40,23 +39,26 @@ class ReadAloudService {
 
   /// Initializes the TTS engine.
   Future<void> initialize() async {
-    // text_to_speech handles initialization internally or doesn't require it
+    // Stubbed: initialization
   }
 
   /// Starts speaking the given text.
   Future<void> speak(String text) async {
     _updateState(ReadAloudState.playing);
-    await _tts.speak(text);
-    // text_to_speech.speak is usually fire-and-forget or waits for completion
-    // depending on the platform, but it doesn't provide a reliable completion callback
-    // in the same way flutter_tts did on all platforms.
+    // Stubbed: speak
+    // debugPrint('ReadAloudService (Stub): Speaking "$text"');
+
+    
+    // Simulate completion after a short delay or just stop immediately for now
+    await Future<void>.delayed(const Duration(seconds: 1));
+
     _updateState(ReadAloudState.stopped);
   }
 
   /// Pauses the current speech.
   Future<void> pause() async {
     if (_state == ReadAloudState.playing) {
-      await _tts.pause();
+      // Stubbed: pause
       _updateState(ReadAloudState.paused);
     }
   }
@@ -64,14 +66,14 @@ class ReadAloudService {
   /// Resumes paused speech.
   Future<void> resume() async {
     if (_state == ReadAloudState.paused) {
-      await _tts.resume();
+      // Stubbed: resume
       _updateState(ReadAloudState.playing);
     }
   }
 
   /// Stops the current speech.
   Future<void> stop() async {
-    await _tts.stop();
+    // Stubbed: stop
     _updateState(ReadAloudState.stopped);
   }
 
@@ -79,18 +81,18 @@ class ReadAloudService {
   Future<void> setSpeechRate(double rate) async {
     _speechRate = rate.clamp(0.0, 2.0);
     _speedController.add(_speechRate);
-    _tts.setRate(_speechRate);
+    // Stubbed: setRate
   }
 
   /// Sets the language for TTS.
   Future<void> setLanguage(String lang) async {
-    await _tts.setLanguage(lang);
+    // Stubbed: setLanguage
   }
 
   /// Gets available languages.
   Future<List<String>> getLanguages() async {
-    final List<String> languages = await _tts.getLanguages();
-    return languages;
+    // Stubbed: getLanguages
+    return ['en-US', 'pt-BR']; // Return dummy languages
   }
 
   /// Disposes resources.

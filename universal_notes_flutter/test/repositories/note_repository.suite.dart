@@ -204,7 +204,8 @@ void main() {
         await noteRepository.updateNoteContent(noteWithContent);
         final fetched = await noteRepository.getNoteWithContent(note.id);
         expect(fetched.content, 'New content');
-        // syncStatus should be modified (1) per implementation in updateNoteContent
+        // syncStatus should be modified (1) per implementation in
+        // updateNoteContent
       });
 
       test(
