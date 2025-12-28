@@ -57,8 +57,7 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Semantics(
-                  excludeFromSemantics: true,
+                const ExcludeSemantics(
                   child: Icon(Icons.lock, size: 80),
                 ),
                 const SizedBox(height: 20),
