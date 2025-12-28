@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_notes_flutter/firebase_options.dart';
-import 'package:universal_notes_flutter/screens/auth_screen.dart';
 import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
 import 'package:universal_notes_flutter/services/security_service.dart';
@@ -230,7 +229,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    final firebaseUser = context.watch<User?>();
 
     if (_isCheckingAuth) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -256,11 +254,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
       );
     }
 
-    if (firebaseUser != null) {
-      debugPrint('✅ [NAVIGATION] Authenticated, showing NotesScreen');
-      return const NotesScreen();
-    }
-    debugPrint('ℹ️ [NAVIGATION] Not authenticated, showing AuthScreen');
-    return const AuthScreen();
+    // 🚀 Start: Refactored navigation flow.
+    // The app no longer enforces login at startup.
+    // AuthScreen is accessible via the Sidebar for sync features.
+    debugPrint('✅ [NAVIGATION] Showing NotesScreen (Auth Optional)');
+    return const NotesScreen();
   }
 }
