@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:opentelemetry/api.dart';
@@ -13,6 +14,7 @@ class TracingService {
   /// Visible for testing to inject a mock instance.
   @visibleForTesting
   static set instance(TracingService instance) => _instance = instance;
+  static TracingService get instance => _instance;
 
   late sdk.TracerProviderBase _tracerProvider;
   late Tracer _tracer;
@@ -44,7 +46,7 @@ class TracingService {
     if (!kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS)) {
-      FirebaseCrashlytics.instance.log('TracingService initialized');
+      unawaited(FirebaseCrashlytics.instance.log('TracingService initialized'));
     }
   }
 
@@ -57,7 +59,7 @@ class TracingService {
     if (!kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS)) {
-      FirebaseCrashlytics.instance.log('Start Span: $name');
+      unawaited(FirebaseCrashlytics.instance.log('Start Span: $name'));
     }
     return _tracer.startSpan(name);
   }

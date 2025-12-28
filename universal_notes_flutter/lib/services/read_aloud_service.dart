@@ -8,7 +8,9 @@ class ReadAloudService {
   /// Creates a new [ReadAloudService].
   ReadAloudService();
 
-  /// Stream of currently highlighted word positions (empty in this implementation).
+  /// Stream of currently highlighted word positions
+  /// (empty in this implementation).
+
   Stream<ReadAloudPosition> get positionStream => _positionController.stream;
 
   /// Stream of playback state changes.
@@ -44,10 +46,12 @@ class ReadAloudService {
   Future<void> speak(String text) async {
     _updateState(ReadAloudState.playing);
     // Stubbed: speak
-    print('ReadAloudService (Stub): Speaking "$text"');
+    // debugPrint('ReadAloudService (Stub): Speaking "$text"');
+
     
     // Simulate completion after a short delay or just stop immediately for now
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<void>.delayed(const Duration(seconds: 1));
+
     _updateState(ReadAloudState.stopped);
   }
 

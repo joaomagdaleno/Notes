@@ -5,8 +5,8 @@
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:local_auth_platform_interface/local_auth_platform_interface.dart';
 
-import 'src/auth_messages_android.dart';
-import 'src/messages.g.dart';
+import 'package:local_auth_android/src/auth_messages_android.dart';
+import 'package:local_auth_android/src/messages.g.dart';
 
 export 'package:local_auth_android/src/auth_messages_android.dart';
 export 'package:local_auth_platform_interface/types/auth_messages.dart';
@@ -32,8 +32,8 @@ class LocalAuthAndroid extends LocalAuthPlatform {
     required Iterable<AuthMessages> authMessages,
     AuthenticationOptions options = const AuthenticationOptions(),
   }) async {
-    assert(localizedReason.isNotEmpty);
-    final AuthResult result = await _api.authenticate(
+    assert(localizedReason.isNotEmpty, 'localizedReason must not be empty');
+    final result = await _api.authenticate(
       AuthOptions(
         biometricOnly: options.biometricOnly,
         sensitiveTransaction: options.sensitiveTransaction,
@@ -120,7 +120,7 @@ class LocalAuthAndroid extends LocalAuthPlatform {
 
   @override
   Future<List<BiometricType>> getEnrolledBiometrics() async {
-    final List<AuthClassification>? result = await _api.getEnrolledBiometrics();
+    final result = await _api.getEnrolledBiometrics();
     if (result == null) {
       throw const LocalAuthException(
         code: LocalAuthExceptionCode.uiUnavailable,
