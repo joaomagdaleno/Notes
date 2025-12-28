@@ -774,46 +774,44 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               ),
               const SizedBox(width: 8),
               Flexible(
-                child: fluent.CommandBar(
-                  primaryItems: [
-                    // 🎨 Palette: A single, dynamic button to cycle view modes.
-                    ValueListenableBuilder<String>(
-                      valueListenable: _viewModeNotifier,
-                      builder: (context, currentMode, child) {
-                        final nextMode = _getNextViewModeProperties(
-                          currentMode,
-                          isFluent: true,
-                        );
-                        return fluent.Tooltip(
-                          message: nextMode.tooltip,
-                          child: fluent.CommandBarButton(
-                            icon: Icon(nextMode.icon),
-                            onPressed: _cycleViewMode,
-                          ),
-                        );
-                      },
-                    ),
-                    fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.update_restore),
-                      tooltip: 'Check for Updates',
-                      onPressed: () =>
-                          unawaited(_updateService.checkForUpdate()),
-                    ),
-                    fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.brightness),
-                      tooltip: 'Toggle Theme',
-                      onPressed: () {
-                        if (context.mounted) {
-                          unawaited(
-                            Provider.of<ThemeService>(
-                              context,
-                              listen: false,
-                            ).toggleTheme(),
-                          );
-                        }
-                      },
-                    ),
-                  ],
+                child: ValueListenableBuilder<String>(
+                  valueListenable: _viewModeNotifier,
+                  builder: (context, currentMode, child) {
+                    final nextMode = _getNextViewModeProperties(
+                      currentMode,
+                      isFluent: true,
+                    );
+                    return fluent.CommandBar(
+                      primaryItems: [
+                        // 🎨 Palette: A single, dynamic button to cycle view modes.
+                        fluent.CommandBarButton(
+                          icon: Icon(nextMode.icon),
+                          tooltip: nextMode.tooltip,
+                          onPressed: _cycleViewMode,
+                        ),
+                        fluent.CommandBarButton(
+                          icon: const Icon(fluent.FluentIcons.update_restore),
+                          tooltip: 'Check for Updates',
+                          onPressed: () =>
+                              unawaited(_updateService.checkForUpdate()),
+                        ),
+                        fluent.CommandBarButton(
+                          icon: const Icon(fluent.FluentIcons.brightness),
+                          tooltip: 'Toggle Theme',
+                          onPressed: () {
+                            if (context.mounted) {
+                              unawaited(
+                                Provider.of<ThemeService>(
+                                  context,
+                                  listen: false,
+                                ).toggleTheme(),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -937,11 +935,9 @@ class _DashboardCard extends StatelessWidget {
     fontSize: 12,
   );
 
-  // ⚡ Bolt: Hoist the constant part of the decoration to prevent it from
-  // being recreated on every build. `copyWith` is used to apply
-  // instance-specific colors and borders.
-  static final _baseDecoration = BoxDecoration(
-    borderRadius: const BorderRadius.all(Radius.circular(16)),
+  // being recreated on every build.
+  static const _baseDecoration = BoxDecoration(
+    borderRadius: BorderRadius.all(Radius.circular(16)),
   );
 
   @override
