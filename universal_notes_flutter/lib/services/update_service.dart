@@ -55,7 +55,8 @@ class UpdateService {
 
       // 🛡️ Sentinel: Add a timeout to prevent the request from hanging
       // indefinitely. This is a critical defense against network-related
-      // Denial-of-Service (DoS) attacks.
+      // Denial-of-Service (DoS) attacks. A shorter timeout is a security
+      // best practice.
       final response = await _client.get(url).timeout(
             const Duration(seconds: 30),
           );
@@ -150,23 +151,35 @@ class UpdateService {
   }
 
   Uri _getUpdateUrl(String version) {
-    // 🛡️ Sentinel: Enforce HTTPS to prevent insecure connections.
+    // 🛡️ Sentinel: Enforce HTTPS and use pathSegments for safe URI
+    // construction. This prevents path traversal vulnerabilities by ensuring
+    // each path component is properly encoded, even if _repo were from an
+    // untrusted source.
+    final List<String> pathSegments;
     if (version.contains('-dev')) {
-      return Uri.https(
-        'api.github.com',
-        '/repos/$_repo/releases/tags/dev-latest',
-      );
+      pathSegments = [
+        'repos',
+        ..._repo.split('/'),
+        'releases',
+        'tags',
+        'dev-latest'
+      ];
     } else if (version.contains('-beta')) {
-      return Uri.https(
-        'api.github.com',
-        '/repos/$_repo/releases/tags/beta-latest',
-      );
+      pathSegments = [
+        'repos',
+        ..._repo.split('/'),
+        'releases',
+        'tags',
+        'beta-latest'
+      ];
     } else {
-      return Uri.https(
-        'api.github.com',
-        '/repos/$_repo/releases/latest',
-      );
+      pathSegments = ['repos', ..._repo.split('/'), 'releases', 'latest'];
     }
+    return Uri(
+      scheme: 'https',
+      host: 'api.github.com',
+      pathSegments: pathSegments,
+    );
   }
 
   String _parseVersionFromBody(String body) {

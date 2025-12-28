@@ -57,6 +57,11 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const Semantics(
+                  excludeFromSemantics: true,
+                  child: Icon(Icons.lock, size: 80),
+                ),
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(labelText: 'Email'),
