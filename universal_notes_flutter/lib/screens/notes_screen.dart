@@ -211,9 +211,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final note = Note(
       id: const Uuid().v4(),
       title: 'Nova Nota',
-      content: DocumentModel.empty()
-          .toJson()
-          .toString(), // Or empty string literal
+      content:
+          DocumentModel.empty().toJson().toString(), // Or empty string literal
       createdAt: DateTime.now(),
       lastModified: DateTime.now(),
       ownerId: 'user', // Default user
@@ -512,8 +511,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           Text(
             'Quick Start',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 12),
           SingleChildScrollView(
@@ -555,8 +554,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           Text(
             'Recent Notes',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: Colors.grey.shade600,
-            ),
+                  color: Colors.grey.shade600,
+                ),
           ),
         ],
       ),
@@ -783,7 +782,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                     );
                     return fluent.CommandBar(
                       primaryItems: [
-                        // 🎨 Palette: A single, dynamic button to cycle view modes.
+                        // 🎨 Palette: A dynamic button to cycle view modes.
                         fluent.CommandBarButton(
                           icon: Icon(nextMode.icon),
                           tooltip: nextMode.tooltip,
