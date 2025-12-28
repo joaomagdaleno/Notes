@@ -34,6 +34,8 @@ class _AuthScreenState extends State<AuthScreen> {
               backgroundColor: Colors.red,
             ),
           );
+        } else if (mounted) {
+          Navigator.pop(context);
         }
       } catch (e) {
         if (mounted) {

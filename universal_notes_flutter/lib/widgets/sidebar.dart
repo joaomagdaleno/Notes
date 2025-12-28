@@ -1,8 +1,12 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/screens/auth_screen.dart';
+import 'package:universal_notes_flutter/services/auth_service.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 
@@ -307,6 +311,65 @@ class _SidebarState extends State<Sidebar> {
             leading: const Icon(Icons.backup),
             title: const Text('Backup Notes'),
             onTap: () => unawaited(_performBackup()),
+          ),
+          const Divider(),
+          // --- Account / Auth Section ---
+          Builder(
+            builder: (context) {
+              final user = context.watch<User?>();
+              if (user == null) {
+                return ListTile(
+                  leading: const Icon(Icons.login),
+                  title: const Text('Sign In to Sync'),
+                  onTap: () {
+                    Navigator.pop(context); // Close drawer
+                    unawaited(
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AuthScreen(),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 12,
+                          child: Text(
+                            user.email?.substring(0, 1).toUpperCase() ?? 'U',
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            user.email ?? 'Authenticated',
+                            style: Theme.of(context).textTheme.bodySmall,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.logout),
+                    title: const Text('Sign Out'),
+                    onTap: () async {
+                      Navigator.pop(context); // Close drawer
+                      await AuthService().signOut();
+                    },
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
