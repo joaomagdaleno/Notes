@@ -181,195 +181,206 @@ class _SidebarState extends State<Sidebar> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
-          ListTile(
-            key: const ValueKey('all_notes'),
-            leading: const Icon(Icons.notes),
-            title: const Text('All Notes'),
-            selected: _selection.type == SidebarItemType.all,
-            onTap: () {
-              const newSelection = SidebarSelection(SidebarItemType.all);
-              setState(() => _selection = newSelection);
-              widget.onSelectionChanged(newSelection);
-            },
-          ),
-          ListTile(
-            key: const ValueKey('favorites'),
-            leading: const Icon(Icons.favorite_border),
-            title: const Text('Favorites'),
-            selected: _selection.type == SidebarItemType.favorites,
-            onTap: () {
-              const newSelection = SidebarSelection(SidebarItemType.favorites);
-              setState(() => _selection = newSelection);
-              widget.onSelectionChanged(newSelection);
-            },
-          ),
-          ListTile(
-            key: const ValueKey('trash'),
-            leading: const Icon(Icons.delete_outline),
-            title: const Text('Trash'),
-            selected: _selection.type == SidebarItemType.trash,
-            onTap: () {
-              const newSelection = SidebarSelection(SidebarItemType.trash);
-              setState(() => _selection = newSelection);
-              widget.onSelectionChanged(newSelection);
-            },
-          ),
-          const Divider(),
-          // --- Folders ---
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text('Folders', style: TextStyle(color: Colors.grey)),
-            ),
-          ),
           Expanded(
-            child: StreamBuilder<List<Folder>>(
-              stream: _foldersStream,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const SizedBox.shrink();
-                final folders = snapshot.data!;
-
-                return ListView.builder(
-                  itemCount: folders.length,
-                  itemBuilder: (context, index) {
-                    final folder = folders[index];
-                    return ListTile(
-                      leading: const Icon(Icons.folder_outlined),
-                      title: Text(folder.name),
-                      selected:
-                          _selection.type == SidebarItemType.folder &&
-                          _selection.folder?.id == folder.id,
-                      trailing: PopupMenuButton(
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Text('Delete'),
-                          ),
-                        ],
-                        onSelected: (value) async {
-                          if (value == 'delete') {
-                            await _deleteFolder(folder.id);
-                          }
-                        },
-                      ),
-                      onTap: () {
-                        final newSelection = SidebarSelection(
-                          SidebarItemType.folder,
-                          folder: folder,
-                        );
-                        setState(() => _selection = newSelection);
-                        widget.onSelectionChanged(newSelection);
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          const Divider(),
-          // --- Tags ---
-          Expanded(
-            child: StreamBuilder<List<String>>(
-              stream: _tagsStream,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const SizedBox.shrink(); // No tags to show
-                }
-                final tags = snapshot.data!;
-                return ListView.builder(
-                  itemCount: tags.length,
-                  itemBuilder: (context, index) {
-                    final tag = tags[index];
-                    return ListTile(
-                      leading: const Icon(Icons.label_outline),
-                      title: Text(tag),
-                      selected:
-                          _selection.type == SidebarItemType.tag &&
-                          _selection.tag == tag,
-                      onTap: () {
-                        final newSelection = SidebarSelection(
-                          SidebarItemType.tag,
-                          tag: tag,
-                        );
-                        setState(() => _selection = newSelection);
-                        widget.onSelectionChanged(newSelection);
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.add_circle_outline),
-            title: const Text('New Folder'),
-            onTap: () => unawaited(_createNewFolder()),
-          ),
-          ListTile(
-            leading: const Icon(Icons.backup),
-            title: const Text('Backup Notes'),
-            onTap: () => unawaited(_performBackup()),
-          ),
-          const Divider(),
-          // --- Account / Auth Section ---
-          Builder(
-            builder: (context) {
-              final user = context.watch<User?>();
-              if (user == null) {
-                return ListTile(
-                  leading: const Icon(Icons.login),
-                  title: const Text('Sign In to Sync'),
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                ListTile(
+                  key: const ValueKey('all_notes'),
+                  leading: const Icon(Icons.notes),
+                  title: const Text('All Notes'),
+                  selected: _selection.type == SidebarItemType.all,
                   onTap: () {
-                    Navigator.pop(context); // Close drawer
-                    unawaited(
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AuthScreen(),
-                        ),
-                      ),
-                    );
+                    const newSelection = SidebarSelection(SidebarItemType.all);
+                    setState(() => _selection = newSelection);
+                    widget.onSelectionChanged(newSelection);
                   },
-                );
-              }
-
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 12,
-                          child: Text(
-                            user.email?.substring(0, 1).toUpperCase() ?? 'U',
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            user.email ?? 'Authenticated',
-                            style: Theme.of(context).textTheme.bodySmall,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                ),
+                ListTile(
+                  key: const ValueKey('favorites'),
+                  leading: const Icon(Icons.favorite_border),
+                  title: const Text('Favorites'),
+                  selected: _selection.type == SidebarItemType.favorites,
+                  onTap: () {
+                    const newSelection =
+                        SidebarSelection(SidebarItemType.favorites);
+                    setState(() => _selection = newSelection);
+                    widget.onSelectionChanged(newSelection);
+                  },
+                ),
+                ListTile(
+                  key: const ValueKey('trash'),
+                  leading: const Icon(Icons.delete_outline),
+                  title: const Text('Trash'),
+                  selected: _selection.type == SidebarItemType.trash,
+                  onTap: () {
+                    const newSelection =
+                        SidebarSelection(SidebarItemType.trash);
+                    setState(() => _selection = newSelection);
+                    widget.onSelectionChanged(newSelection);
+                  },
+                ),
+                const Divider(),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Text(
+                    'Folders',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.logout),
-                    title: const Text('Sign Out'),
-                    onTap: () async {
-                      Navigator.pop(context); // Close drawer
-                      await AuthService().signOut();
-                    },
+                ),
+                StreamBuilder<List<Folder>>(
+                  stream: _foldersStream,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const SizedBox.shrink();
+                    final folders = snapshot.data!;
+                    return Column(
+                      children: folders.map((folder) {
+                        return ListTile(
+                          leading: const Icon(
+                            Icons.folder_outlined,
+                          ), // Changed to outlined
+                          title: Text(folder.name),
+                          selected: _selection.type == SidebarItemType.folder &&
+                              _selection.folder?.id == folder.id,
+                          trailing: PopupMenuButton(
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete'),
+                              ),
+                            ],
+                            onSelected: (value) async {
+                              if (value == 'delete') {
+                                await _deleteFolder(folder.id);
+                              }
+                            },
+                          ),
+                          onTap: () {
+                            final newSelection = SidebarSelection(
+                              SidebarItemType.folder,
+                              folder: folder,
+                            );
+                            setState(() => _selection = newSelection);
+                            widget.onSelectionChanged(newSelection);
+                          },
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+                const Divider(),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Text(
+                    'Tags',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
                   ),
-                ],
-              );
-            },
+                ),
+                StreamBuilder<List<String>>(
+                  stream: _tagsStream,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const SizedBox.shrink();
+                    final tags = snapshot.data!;
+                    if (tags.isEmpty) return const SizedBox.shrink();
+                    return Column(
+                      children: tags.map((tag) {
+                        return ListTile(
+                          title: Text(tag),
+                          leading: const Icon(Icons.label_outline),
+                          selected: _selection.type == SidebarItemType.tag &&
+                              _selection.tag == tag,
+                          onTap: () {
+                            final newSelection = SidebarSelection(
+                              SidebarItemType.tag,
+                              tag: tag,
+                            );
+                            setState(() => _selection = newSelection);
+                            widget.onSelectionChanged(newSelection);
+                          },
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.add_circle_outline),
+                  title: const Text('New Folder'),
+                  onTap: () => unawaited(_createNewFolder()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.backup),
+                  title: const Text('Backup Notes'),
+                  onTap: () => unawaited(_performBackup()),
+                ),
+                const Divider(),
+                // --- Account / Auth Section ---
+                Builder(
+                  builder: (context) {
+                    final user = context.watch<User?>();
+                    if (user == null) {
+                      return ListTile(
+                        leading: const Icon(Icons.login),
+                        title: const Text('Sign In to Sync'),
+                        onTap: () {
+                          Navigator.pop(context); // Close drawer
+                          unawaited(
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AuthScreen(),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }
+
+                    return Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 12,
+                                child: Text(
+                                  user.email?.substring(0, 1).toUpperCase() ??
+                                      'U',
+                                  style: const TextStyle(fontSize: 10),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  user.email ?? 'Authenticated',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.logout),
+                          title: const Text('Sign Out'),
+                          onTap: () async {
+                            Navigator.pop(context); // Close drawer
+                            await AuthService().signOut();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
