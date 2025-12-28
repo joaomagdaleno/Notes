@@ -22,12 +22,32 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _signIn() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isSigningIn = true);
-      await _authService.signInWithEmailAndPassword(
-        _emailController.text,
-        _passwordController.text,
-      );
-      if (mounted) {
-        setState(() => _isSigningIn = false);
+      try {
+        final result = await _authService.signInWithEmailAndPassword(
+          _emailController.text,
+          _passwordController.text,
+        );
+        if (result == null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Falha na autenticação. Verifique suas credenciais.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao entrar: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isSigningIn = false);
+        }
       }
     }
   }
@@ -35,12 +55,32 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _signUp() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isSigningUp = true);
-      await _authService.createUserWithEmailAndPassword(
-        _emailController.text,
-        _passwordController.text,
-      );
-      if (mounted) {
-        setState(() => _isSigningUp = false);
+      try {
+        final result = await _authService.createUserWithEmailAndPassword(
+          _emailController.text,
+          _passwordController.text,
+        );
+        if (result == null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Falha ao criar conta. Tente novamente.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao cadastrar: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isSigningUp = false);
+        }
       }
     }
   }
