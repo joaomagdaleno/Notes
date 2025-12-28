@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+// plugin_platform_interface is a transitive dependency
+// ignore: depend_on_referenced_packages
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:universal_notes_flutter/services/media_service.dart';
 
@@ -20,7 +22,8 @@ void main() {
   late Directory tempDir;
   // 1x1 Transparent PNG
   final validPngBytes = base64Decode(
-    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAh'
+    'KmMIQAAAABJRU5ErkJggg==',
   );
 
   setUp(() async {

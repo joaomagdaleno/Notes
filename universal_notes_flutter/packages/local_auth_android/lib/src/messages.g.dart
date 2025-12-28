@@ -135,6 +135,7 @@ class AuthStrings {
   }
 
   @override
+  // Generated code does not follow Flutter style for mutable classes.
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (other is! AuthStrings || other.runtimeType != runtimeType) {
@@ -147,6 +148,7 @@ class AuthStrings {
   }
 
   @override
+  // Generated code does not follow Flutter style for mutable classes.
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => Object.hashAll(_toList());
 }
@@ -178,6 +180,7 @@ class AuthResult {
   }
 
   @override
+  // Generated code does not follow Flutter style for mutable classes.
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (other is! AuthResult || other.runtimeType != runtimeType) {
@@ -190,6 +193,7 @@ class AuthResult {
   }
 
   @override
+  // Generated code does not follow Flutter style for mutable classes.
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => Object.hashAll(_toList());
 }
@@ -225,6 +229,7 @@ class AuthOptions {
   }
 
   @override
+  // Generated code does not follow Flutter style for mutable classes.
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (other is! AuthOptions || other.runtimeType != runtimeType) {
@@ -237,6 +242,7 @@ class AuthOptions {
   }
 
   @override
+  // Generated code does not follow Flutter style for mutable classes.
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => Object.hashAll(_toList());
 }
