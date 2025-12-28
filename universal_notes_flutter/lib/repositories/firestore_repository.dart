@@ -32,6 +32,7 @@ class FirestoreRepository {
   FirebaseAuth auth;
 
   /// The singleton instance of [FirestoreRepository].
+  // ignore: prefer_constructors_over_static_methods
   static FirestoreRepository get instance {
     if (_instance == null) {
       if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {

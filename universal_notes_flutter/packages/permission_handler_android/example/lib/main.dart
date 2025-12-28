@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:baseflow_plugin_template/baseflow_plugin_template.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler_platform_interface/permission_handler_platform_interface.dart';
@@ -84,7 +86,7 @@ class _PermissionState extends State<PermissionWidget> {
   void initState() {
     super.initState();
 
-    _listenForPermissionStatus();
+    unawaited(_listenForPermissionStatus());
   }
 
   Future<void> _listenForPermissionStatus() async {
@@ -122,16 +124,16 @@ class _PermissionState extends State<PermissionWidget> {
           (widget._permission is PermissionWithService)
               ? IconButton(
                 icon: const Icon(Icons.info, color: Colors.white),
-                onPressed: () {
-                  checkServiceStatus(
+                onPressed: () async {
+                  await checkServiceStatus(
                     context,
                     widget._permission as PermissionWithService,
                   );
                 },
               )
               : null,
-      onTap: () {
-        requestPermission(widget._permission);
+      onTap: () async {
+        await requestPermission(widget._permission);
       },
     );
   }

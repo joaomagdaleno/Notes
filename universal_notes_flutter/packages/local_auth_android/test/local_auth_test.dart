@@ -71,7 +71,7 @@ void main() {
         ],
       );
 
-      final List<BiometricType> result = await plugin.getEnrolledBiometrics();
+      final result = await plugin.getEnrolledBiometrics();
 
       expect(result, <BiometricType>[BiometricType.weak, BiometricType.strong]);
     });
@@ -81,7 +81,7 @@ void main() {
         api.getEnrolledBiometrics(),
       ).thenAnswer((_) async => <AuthClassification>[]);
 
-      final List<BiometricType> result = await plugin.getEnrolledBiometrics();
+      final result = await plugin.getEnrolledBiometrics();
 
       expect(result, <BiometricType>[]);
     });
@@ -115,7 +115,7 @@ void main() {
           authMessages: <AuthMessages>[],
         );
 
-        final VerificationResult result = verify(
+        final result = verify(
           api.authenticate(any, captureAny),
         );
         final strings = result.captured[0] as AuthStrings;
@@ -140,7 +140,7 @@ void main() {
             authMessages: <AuthMessages>[AnotherPlatformAuthMessages()],
           );
 
-          final VerificationResult result = verify(
+          final result = verify(
             api.authenticate(any, captureAny),
           );
           final strings = result.captured[0] as AuthStrings;
@@ -177,7 +177,7 @@ void main() {
           ],
         );
 
-        final VerificationResult result = verify(
+        final result = verify(
           api.authenticate(any, captureAny),
         );
         final strings = result.captured[0] as AuthStrings;
@@ -205,7 +205,7 @@ void main() {
           ],
         );
 
-        final VerificationResult result = verify(
+        final result = verify(
           api.authenticate(any, captureAny),
         );
         final strings = result.captured[0] as AuthStrings;
@@ -230,7 +230,7 @@ void main() {
           authMessages: <AuthMessages>[],
         );
 
-        final VerificationResult result = verify(
+        final result = verify(
           api.authenticate(captureAny, any),
         );
         final options = result.captured[0] as AuthOptions;
@@ -254,7 +254,7 @@ void main() {
           ),
         );
 
-        final VerificationResult result = verify(
+        final result = verify(
           api.authenticate(captureAny, any),
         );
         final options = result.captured[0] as AuthOptions;
@@ -270,7 +270,7 @@ void main() {
           api.authenticate(any, any),
         ).thenAnswer((_) async => AuthResult(code: AuthResultCode.success));
 
-        final bool result = await plugin.authenticate(
+        final result = await plugin.authenticate(
           localizedReason: 'reason',
           authMessages: <AuthMessages>[],
         );
@@ -480,7 +480,8 @@ void main() {
       );
 
       test(
-        'converts hardwareUnavailable to biometricHardwareTemporarilyUnavailable LocalAuthException',
+        'converts hardwareUnavailable to '
+        'biometricHardwareTemporarilyUnavailable LocalAuthException',
         () async {
           when(api.authenticate(any, any)).thenAnswer(
             (_) async => AuthResult(code: AuthResultCode.hardwareUnavailable),
@@ -628,7 +629,8 @@ void main() {
       );
 
       test(
-        'converts unknownError to unknownError LocalAuthException, passing error message',
+        'converts unknownError to unknownError LocalAuthException, '
+        'passing error message',
         () async {
           const errorMessage = 'Some error message';
           when(api.authenticate(any, any)).thenAnswer(

@@ -32,13 +32,13 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    LocalAuthPlatform.instance.isDeviceSupported().then(
+    unawaited(LocalAuthPlatform.instance.isDeviceSupported().then(
       (bool isSupported) => setState(
         () => _supportState = isSupported
             ? _SupportState.supported
             : _SupportState.unsupported,
       ),
-    );
+    ));
   }
 
   Future<void> _checkBiometrics() async {
