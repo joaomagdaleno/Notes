@@ -24,9 +24,9 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _isSigningUp = false;
   bool _showSignUp = false;
 
-  void _showError(Object e) {
+  Future<void> _showError(Object e) async {
     if (!mounted) return;
-    displayInfoBar(
+    await displayInfoBar(
       context,
       builder: (context, close) {
         return InfoBar(
@@ -66,10 +66,28 @@ class _AuthScreenState extends State<AuthScreen> {
           );
         }
         if (mounted) {
-          Navigator.pop(context);
+          if (_showSignUp) {
+            await displayInfoBar(
+              context,
+              builder: (context, close) {
+                return InfoBar(
+                  title: const Text('Verifique seu e-mail'),
+                  content: const Text(
+                    'Enviamos um link de confirmação para o seu e-mail. '
+                    'Por favor, verifique sua caixa de entrada.',
+                  ),
+                  severity: InfoBarSeverity.warning,
+                  onClose: close,
+                );
+              },
+            );
+          }
+          if (mounted) {
+            Navigator.pop(context);
+          }
         }
-      } catch (e) {
-        _showError(e);
+      } on Exception catch (e) {
+        await _showError(e);
       } finally {
         if (mounted) {
           setState(() {
@@ -84,30 +102,20 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _handleGoogleAuth() async {
     try {
       final result = await _authService.signInWithGoogle();
-      if (result != null && mounted) {
+      if (!mounted) return;
+      if (result != null) {
         Navigator.pop(context);
       }
-    } catch (e) {
-      _showError(e);
+    } on Exception catch (e) {
+      await _showError(e);
     }
   }
 
-  Future<void> _handleMicrosoftAuth() async {
-    try {
-      final result = await _authService.signInWithMicrosoft();
-      if (result != null && mounted) {
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      _showError(e);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return NavigationView(
       appBar: NavigationAppBar(
-        automaticallyImplyLeading: true,
         title: Text(_showSignUp ? 'Criar Conta' : 'Entrar'),
       ),
       content: Center(
@@ -183,30 +191,18 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   const Text('Ou entre com'),
                   const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Button(
-                        onPressed: _handleGoogleAuth,
-                        child: Row(
-                          children: const [
-                            Icon(FluentIcons.chrome_back),
-                            SizedBox(width: 8),
-                            Text('Google'),
-                          ],
-                        ),
+                  Center(
+                    child: Button(
+                      onPressed: _handleGoogleAuth,
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(FluentIcons.chrome_back),
+                          SizedBox(width: 8),
+                          Text('Google'),
+                        ],
                       ),
-                      Button(
-                        onPressed: _handleMicrosoftAuth,
-                        child: Row(
-                          children: const [
-                            Icon(FluentIcons.cloud),
-                            SizedBox(width: 8),
-                            Text('Microsoft'),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),

@@ -19,14 +19,12 @@ dependencies:
   firebase_crashlytics: ^5.0.6
   firebase_storage: ^13.0.5
   fluent_ui: ^4.13.0
-  google_sign_in: ^6.2.1
-  aad_oauth: ^1.0.1
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
   flutter_math_fork: ^0.7.4
-
+  google_sign_in: ^6.2.1
   http: ^1.6.0
   image: ^4.5.4
   image_picker: ^1.2.1

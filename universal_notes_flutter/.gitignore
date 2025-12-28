@@ -57,9 +57,7 @@ app.*.map.json
 /ios/Flutter/Generated.xcconfig
 
 # Firebase credentials
-# NOTE: firebase_options.dart is a stub file for CI. Developers should run
-# `flutterfire configure` locally to generate real credentials.
-# The stub file is committed to allow CI analysis to pass.
-# /lib/firebase_options.dart
+/lib/firebase_options.dart
+/lib/config/auth_config.dart
 /android/app/google-services.json
 /ios/Runner/GoogleService-Info.plist

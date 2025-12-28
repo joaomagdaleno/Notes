@@ -41,39 +41,53 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'stub-api-key',
-    appId: 'stub-app-id',
-    messagingSenderId: 'stub-sender-id',
-    projectId: 'stub-project-id',
+    apiKey: 'AIzaSyD3x5Bx4Bxt5X9ON9WonBqrUeUyJ9OQTcg',
+    appId: '1:542251776386:web:62f1b1373d48c96baef79b',
+    messagingSenderId: '542251776386',
+    projectId: 'noootes-app',
+    authDomain: 'noootes-app.firebaseapp.com',
+    storageBucket: 'noootes-app.firebasestorage.app',
+    measurementId: 'G-30VLCP5DXN',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'stub-api-key',
-    appId: 'stub-app-id',
-    messagingSenderId: 'stub-sender-id',
-    projectId: 'stub-project-id',
+    apiKey: 'AIzaSyBIKMM7gT7fDteG66PbsxavPA5tHy4DGrQ',
+    appId: '1:542251776386:android:81e42b4a90a944e2aef79b',
+    messagingSenderId: '542251776386',
+    projectId: 'noootes-app',
+    storageBucket: 'noootes-app.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'stub-api-key',
-    appId: 'stub-app-id',
-    messagingSenderId: 'stub-sender-id',
-    projectId: 'stub-project-id',
-    iosBundleId: 'stub-bundle-id',
+    apiKey: 'AIzaSyCZ-BVY_VGMJGic4Z171IE3kfHT7aJYdEc',
+    appId: '1:542251776386:ios:4d1d9f23b64a0a01aef79b',
+    messagingSenderId: '542251776386',
+    projectId: 'noootes-app',
+    storageBucket: 'noootes-app.firebasestorage.app',
+    androidClientId: '542251776386-a0el0b32ppoor4l305ej830ad926appt.apps.googleusercontent.com',
+    iosClientId: '542251776386-flt1kc52alrit79v0k8j38nkl0pbancc.apps.googleusercontent.com',
+    iosBundleId: 'noootes-app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'stub-api-key',
-    appId: 'stub-app-id',
-    messagingSenderId: 'stub-sender-id',
-    projectId: 'stub-project-id',
-    iosBundleId: 'stub-bundle-id',
+    apiKey: 'AIzaSyCZ-BVY_VGMJGic4Z171IE3kfHT7aJYdEc',
+    appId: '1:542251776386:ios:4d1d9f23b64a0a01aef79b',
+    messagingSenderId: '542251776386',
+    projectId: 'noootes-app',
+    storageBucket: 'noootes-app.firebasestorage.app',
+    androidClientId: '542251776386-a0el0b32ppoor4l305ej830ad926appt.apps.googleusercontent.com',
+    iosClientId: '542251776386-flt1kc52alrit79v0k8j38nkl0pbancc.apps.googleusercontent.com',
+    iosBundleId: 'noootes-app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'stub-api-key',
-    appId: 'stub-app-id',
-    messagingSenderId: 'stub-sender-id',
-    projectId: 'stub-project-id',
+    apiKey: 'AIzaSyD3x5Bx4Bxt5X9ON9WonBqrUeUyJ9OQTcg',
+    appId: '1:542251776386:web:62f1b1373d48c96baef79b',
+    messagingSenderId: '542251776386',
+    projectId: 'noootes-app',
+    authDomain: 'noootes-app.firebaseapp.com',
+    storageBucket: 'noootes-app.firebasestorage.app',
+    measurementId: 'G-30VLCP5DXN',
   );
+
 }

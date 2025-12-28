@@ -15,9 +15,11 @@ jobs:
         shell: bash
         env:
           FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+          AUTH_CONFIG_DART: ${{ secrets.AUTH_CONFIG_DART }}
         run: |
-          mkdir -p universal_notes_flutter/lib
+          mkdir -p universal_notes_flutter/lib/config
           echo "$FIREBASE_OPTIONS_DART" > universal_notes_flutter/lib/firebase_options.dart
+          echo "$AUTH_CONFIG_DART" > universal_notes_flutter/lib/config/auth_config.dart
       - name: Install Flutter
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
@@ -113,11 +115,13 @@ jobs:
       - name: Setup Firebase
         env:
           FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+          AUTH_CONFIG_DART: ${{ secrets.AUTH_CONFIG_DART }}
           GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
           GOOGLE_SERVICE_INFO: ${{ secrets.GOOGLE_SERVICE_INFO }}
         run: |
-          mkdir -p universal_notes_flutter/lib
+          mkdir -p universal_notes_flutter/lib/config
           echo "$FIREBASE_OPTIONS_DART" > universal_notes_flutter/lib/firebase_options.dart
+          echo "$AUTH_CONFIG_DART" > universal_notes_flutter/lib/config/auth_config.dart
           mkdir -p universal_notes_flutter/android/app
           echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > universal_notes_flutter/android/app/google-services.json
           mkdir -p universal_notes_flutter/ios/Runner
