@@ -34,6 +34,26 @@ subprojects {
             force("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
         }
     }
+
+    afterEvaluate {
+        val android = project.extensions.findByName("android")
+        if (android != null) {
+            try {
+                // Force compileSdk 36 for all android subprojects
+                val setCompileSdk = android.javaClass.methods.find { it.name == "setCompileSdk" && it.parameterCount == 1 }
+                setCompileSdk?.invoke(android, 36)
+
+                // Ensure a namespace exists (required by AGP 8+)
+                val getNamespace = android.javaClass.methods.find { it.name == "getNamespace" && it.parameterCount == 0 }
+                if (getNamespace?.invoke(android) == null) {
+                    val setNamespace = android.javaClass.methods.find { it.name == "setNamespace" && it.parameterCount == 1 }
+                    setNamespace?.invoke(android, "com.universalnotes.${project.name.replace(":", ".").replace("-", ".")}")
+                }
+            } catch (e: Exception) {
+                // Ignore if reflection fails
+            }
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {
