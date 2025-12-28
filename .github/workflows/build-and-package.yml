@@ -68,7 +68,6 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            universal_notes_flutter/build
             universal_notes_flutter/.dart_tool
           key: ${{ runner.os }}-build-v3
           restore-keys: |
@@ -78,7 +77,7 @@ jobs:
       - name: Flutter Build Windows
         working-directory: universal_notes_flutter
         run: |
-          flutter build windows
+          flutter build windows -v
       - name: Install Inno Setup
         run: |
           Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile is.exe
