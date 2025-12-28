@@ -65,6 +65,51 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final _searchResultsNotifier = ValueNotifier<List<Note>?>(null);
   final _isSearchingNotifier = ValueNotifier<bool>(false);
 
+  // 🎨 Palette: Cycle through view modes to provide a dynamic button.
+  void _cycleViewMode() {
+    const modes = ['grid_medium', 'grid_large', 'list'];
+    final currentMode = _viewModeNotifier.value;
+    final nextIndex = (modes.indexOf(currentMode) + 1) % modes.length;
+    _viewModeNotifier.value = modes[nextIndex];
+  }
+
+  // 🎨 Palette: Get the icon and tooltip for the *next* view mode.
+  ({IconData icon, String tooltip}) _getNextViewModeProperties(
+    String currentMode, {
+    bool isFluent = false,
+  }) {
+    if (isFluent) {
+      switch (currentMode) {
+        case 'grid_medium':
+          return (
+            icon: fluent.FluentIcons.grid_view_large,
+            tooltip: 'Grid View (Large)'
+          );
+        case 'grid_large':
+          return (icon: fluent.FluentIcons.list, tooltip: 'List View');
+        case 'list':
+          return (
+            icon: fluent.FluentIcons.view_all,
+            tooltip: 'Grid View (Medium)'
+          );
+      }
+    } else {
+      switch (currentMode) {
+        case 'grid_medium':
+          return (icon: Icons.view_comfy, tooltip: 'Grid View (Large)');
+        case 'grid_large':
+          return (icon: Icons.view_list, tooltip: 'List View');
+        case 'list':
+          return (icon: Icons.view_module, tooltip: 'Grid View (Medium)');
+      }
+    }
+    // Default fallback
+    return (
+      icon: isFluent ? fluent.FluentIcons.view_all : Icons.view_module,
+      tooltip: 'Grid View (Medium)'
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -524,20 +569,17 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       appBar: AppBar(
         title: Text(_getAppBarTitle()),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.view_module),
-            tooltip: 'Grid View (Medium)',
-            onPressed: () => _viewModeNotifier.value = 'grid_medium',
-          ),
-          IconButton(
-            icon: const Icon(Icons.view_comfy),
-            tooltip: 'Grid View (Large)',
-            onPressed: () => _viewModeNotifier.value = 'grid_large',
-          ),
-          IconButton(
-            icon: const Icon(Icons.view_list),
-            tooltip: 'List View',
-            onPressed: () => _viewModeNotifier.value = 'list',
+          // 🎨 Palette: A single, dynamic button to cycle through view modes.
+          ValueListenableBuilder<String>(
+            valueListenable: _viewModeNotifier,
+            builder: (context, currentMode, child) {
+              final nextMode = _getNextViewModeProperties(currentMode);
+              return IconButton(
+                icon: Icon(nextMode.icon),
+                tooltip: nextMode.tooltip,
+                onPressed: _cycleViewMode,
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.update),
@@ -734,20 +776,22 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               Flexible(
                 child: fluent.CommandBar(
                   primaryItems: [
-                    fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.view_all),
-                      tooltip: 'Grid View (Medium)',
-                      onPressed: () => _viewModeNotifier.value = 'grid_medium',
-                    ),
-                    fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.grid_view_large),
-                      tooltip: 'Grid View (Large)',
-                      onPressed: () => _viewModeNotifier.value = 'grid_large',
-                    ),
-                    fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.list),
-                      tooltip: 'List View',
-                      onPressed: () => _viewModeNotifier.value = 'list',
+                    // 🎨 Palette: A single, dynamic button to cycle view modes.
+                    ValueListenableBuilder<String>(
+                      valueListenable: _viewModeNotifier,
+                      builder: (context, currentMode, child) {
+                        final nextMode = _getNextViewModeProperties(
+                          currentMode,
+                          isFluent: true,
+                        );
+                        return fluent.Tooltip(
+                          message: nextMode.tooltip,
+                          child: fluent.CommandBarButton(
+                            icon: Icon(nextMode.icon),
+                            onPressed: _cycleViewMode,
+                          ),
+                        );
+                      },
                     ),
                     fluent.CommandBarButton(
                       icon: const Icon(fluent.FluentIcons.update_restore),
