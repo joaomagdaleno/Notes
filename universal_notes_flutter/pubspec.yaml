@@ -70,7 +70,5 @@ flutter:
 
 dependency_overrides:
   local_auth: ^3.0.0
-  local_auth_android:
-    path: packages/local_auth_android
-  permission_handler_android:
-    path: packages/permission_handler_android
+  # Removed local_auth_android and permission_handler_android path overrides
+  # because they reference incomplete local packages missing pigeon dependencies
