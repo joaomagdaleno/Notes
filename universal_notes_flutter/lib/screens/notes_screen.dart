@@ -60,9 +60,55 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final _viewModeNotifier = ValueNotifier<String>('grid_medium');
   final ScrollController _scrollController = ScrollController();
 
-  // Full-text search state
-  List<Note>? _searchResults;
-  bool _isSearching = false;
+  // ⚡ Bolt: Use ValueNotifiers for search state to prevent full-screen
+  // rebuilds. Only widgets wrapped in ValueListenableBuilder will update.
+  final _searchResultsNotifier = ValueNotifier<List<Note>?>(null);
+  final _isSearchingNotifier = ValueNotifier<bool>(false);
+
+  // 🎨 Palette: Cycle through view modes to provide a dynamic button.
+  void _cycleViewMode() {
+    const modes = ['grid_medium', 'grid_large', 'list'];
+    final currentMode = _viewModeNotifier.value;
+    final nextIndex = (modes.indexOf(currentMode) + 1) % modes.length;
+    _viewModeNotifier.value = modes[nextIndex];
+  }
+
+  // 🎨 Palette: Get the icon and tooltip for the *next* view mode.
+  ({IconData icon, String tooltip}) _getNextViewModeProperties(
+    String currentMode, {
+    bool isFluent = false,
+  }) {
+    if (isFluent) {
+      switch (currentMode) {
+        case 'grid_medium':
+          return (
+            icon: fluent.FluentIcons.grid_view_large,
+            tooltip: 'Grid View (Large)'
+          );
+        case 'grid_large':
+          return (icon: fluent.FluentIcons.list, tooltip: 'List View');
+        case 'list':
+          return (
+            icon: fluent.FluentIcons.view_all,
+            tooltip: 'Grid View (Medium)'
+          );
+      }
+    } else {
+      switch (currentMode) {
+        case 'grid_medium':
+          return (icon: Icons.view_comfy, tooltip: 'Grid View (Large)');
+        case 'grid_large':
+          return (icon: Icons.view_list, tooltip: 'List View');
+        case 'list':
+          return (icon: Icons.view_module, tooltip: 'Grid View (Medium)');
+      }
+    }
+    // Default fallback
+    return (
+      icon: isFluent ? fluent.FluentIcons.view_all : Icons.view_module,
+      tooltip: 'Grid View (Medium)'
+    );
+  }
 
   @override
   void initState() {
@@ -85,6 +131,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       ..dispose();
     _viewModeNotifier.dispose();
     _sortOrderNotifier.dispose();
+    _searchResultsNotifier.dispose();
+    _isSearchingNotifier.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
   }
 
@@ -95,23 +144,21 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final query = _searchController.text;
 
     if (query.isEmpty) {
-      setState(() {
-        _searchResults = null;
-        _isSearching = false;
-      });
+      // ⚡ Bolt: No setState(), just update the notifier's value.
+      _searchResultsNotifier.value = null;
+      _isSearchingNotifier.value = false;
       return;
     }
 
-    setState(() => _isSearching = true);
+    // ⚡ Bolt: No setState(), just update the notifier's value.
+    _isSearchingNotifier.value = true;
 
     _searchDebounce = Timer(const Duration(milliseconds: 300), () async {
       final results = await NoteRepository.instance.searchNotes(query);
-      if (context.mounted) {
-        setState(() {
-          _searchResults = results;
-          _isSearching = false;
-        });
-      }
+      // ⚡ Bolt: No need for context.mounted or setState. The
+      // ValueListenableBuilder will handle the update automatically.
+      _searchResultsNotifier.value = results;
+      _isSearchingNotifier.value = false;
     });
   }
 
@@ -298,37 +345,47 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   /// Builds the main content area - search results or normal notes list.
   Widget _buildContent() {
-    // Show search results if we have a search query
-    if (_searchResults != null) {
-      if (_searchResults!.isEmpty) {
-        return const EmptyState(
-          icon: Icons.search_off,
-          message: 'Nenhum resultado encontrado.',
-        );
-      }
-      return _buildSearchResults(_searchResults!);
-    }
+    // ⚡ Bolt: This ValueListenableBuilder ensures that only the content area
+    // rebuilds when search results change, not the entire NotesScreen.
+    return ValueListenableBuilder<List<Note>?>(
+      valueListenable: _searchResultsNotifier,
+      builder: (context, searchResults, child) {
+        // Show search results if we have them
+        if (searchResults != null) {
+          if (searchResults.isEmpty) {
+            return const EmptyState(
+              icon: Icons.search_off,
+              message: 'Nenhum resultado encontrado.',
+            );
+          }
+          return _buildSearchResults(searchResults);
+        }
 
-    // Show normal notes stream
-    return StreamBuilder<List<Note>>(
-      stream: _notesStream,
-      initialData: _syncService.currentNotes,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting &&
-            !snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const EmptyState(
-            icon: Icons.note_add,
-            message: 'No notes yet. Create one!',
-          );
-        }
-        return _buildNotesList(snapshot.data!);
+        // Otherwise, show the normal notes stream
+        return child!;
       },
+      // ⚡ Bolt: The StreamBuilder is passed as a child, so it's only built
+      // once and not affected by search result updates.
+      child: StreamBuilder<List<Note>>(
+        stream: _notesStream,
+        initialData: _syncService.currentNotes,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              !snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const EmptyState(
+              icon: Icons.note_add,
+              message: 'No notes yet. Create one!',
+            );
+          }
+          return _buildNotesList(snapshot.data!);
+        },
+      ),
     );
   }
 
@@ -512,20 +569,17 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       appBar: AppBar(
         title: Text(_getAppBarTitle()),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.view_module),
-            tooltip: 'Grid View (Medium)',
-            onPressed: () => _viewModeNotifier.value = 'grid_medium',
-          ),
-          IconButton(
-            icon: const Icon(Icons.view_comfy),
-            tooltip: 'Grid View (Large)',
-            onPressed: () => _viewModeNotifier.value = 'grid_large',
-          ),
-          IconButton(
-            icon: const Icon(Icons.view_list),
-            tooltip: 'List View',
-            onPressed: () => _viewModeNotifier.value = 'list',
+          // 🎨 Palette: A single, dynamic button to cycle through view modes.
+          ValueListenableBuilder<String>(
+            valueListenable: _viewModeNotifier,
+            builder: (context, currentMode, child) {
+              final nextMode = _getNextViewModeProperties(currentMode);
+              return IconButton(
+                icon: Icon(nextMode.icon),
+                tooltip: nextMode.tooltip,
+                onPressed: _cycleViewMode,
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.update),
@@ -584,21 +638,36 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               decoration: InputDecoration(
                 hintText: 'Buscar em todas as notas...',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: _isSearching
-                    ? const Padding(
+                // ⚡ Bolt: Use a ValueListenableBuilder for the suffix icon to
+                // ensure only the icon rebuilds, not the whole TextField or screen.
+                suffixIcon: ValueListenableBuilder<bool>(
+                  valueListenable: _isSearchingNotifier,
+                  builder: (context, isSearching, child) {
+                    if (isSearching) {
+                      return const Padding(
                         padding: EdgeInsets.all(12),
                         child: SizedBox(
                           height: 12,
                           width: 12,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
-                      )
-                    : _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: _searchController.clear,
-                      )
-                    : null,
+                      );
+                    }
+                    // Use a second builder for the clear button to react to text changes
+                    // without rebuilding the search indicator.
+                    return ValueListenableBuilder(
+                      valueListenable: _searchController,
+                      builder: (context, text, child) {
+                        return _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: _searchController.clear,
+                              )
+                            : const SizedBox.shrink();
+                      },
+                    );
+                  },
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -705,44 +774,44 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               ),
               const SizedBox(width: 8),
               Flexible(
-                child: fluent.CommandBar(
-                  primaryItems: [
-                    fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.view_all),
-                      tooltip: 'Grid View (Medium)',
-                      onPressed: () => _viewModeNotifier.value = 'grid_medium',
-                    ),
-                    fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.grid_view_large),
-                      tooltip: 'Grid View (Large)',
-                      onPressed: () => _viewModeNotifier.value = 'grid_large',
-                    ),
-                    fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.list),
-                      tooltip: 'List View',
-                      onPressed: () => _viewModeNotifier.value = 'list',
-                    ),
-                    fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.update_restore),
-                      tooltip: 'Check for Updates',
-                      onPressed: () =>
-                          unawaited(_updateService.checkForUpdate()),
-                    ),
-                    fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.brightness),
-                      tooltip: 'Toggle Theme',
-                      onPressed: () {
-                        if (context.mounted) {
-                          unawaited(
-                            Provider.of<ThemeService>(
-                              context,
-                              listen: false,
-                            ).toggleTheme(),
-                          );
-                        }
-                      },
-                    ),
-                  ],
+                child: ValueListenableBuilder<String>(
+                  valueListenable: _viewModeNotifier,
+                  builder: (context, currentMode, child) {
+                    final nextMode = _getNextViewModeProperties(
+                      currentMode,
+                      isFluent: true,
+                    );
+                    return fluent.CommandBar(
+                      primaryItems: [
+                        // 🎨 Palette: A single, dynamic button to cycle view modes.
+                        fluent.CommandBarButton(
+                          icon: Icon(nextMode.icon),
+                          tooltip: nextMode.tooltip,
+                          onPressed: _cycleViewMode,
+                        ),
+                        fluent.CommandBarButton(
+                          icon: const Icon(fluent.FluentIcons.update_restore),
+                          tooltip: 'Check for Updates',
+                          onPressed: () =>
+                              unawaited(_updateService.checkForUpdate()),
+                        ),
+                        fluent.CommandBarButton(
+                          icon: const Icon(fluent.FluentIcons.brightness),
+                          tooltip: 'Toggle Theme',
+                          onPressed: () {
+                            if (context.mounted) {
+                              unawaited(
+                                Provider.of<ThemeService>(
+                                  context,
+                                  listen: false,
+                                ).toggleTheme(),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -866,6 +935,11 @@ class _DashboardCard extends StatelessWidget {
     fontSize: 12,
   );
 
+  // being recreated on every build.
+  static const _baseDecoration = BoxDecoration(
+    borderRadius: BorderRadius.all(Radius.circular(16)),
+  );
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -874,9 +948,8 @@ class _DashboardCard extends StatelessWidget {
         width: 160,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
+        decoration: _baseDecoration.copyWith(
           color: color.withValues(alpha: 0.1),
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
           border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Column(
