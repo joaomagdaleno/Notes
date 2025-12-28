@@ -191,7 +191,7 @@ jobs:
           echo "storeFile=../app/upload-keystore.jks" >> universal_notes_flutter/android/key.properties
       - name: Flutter Build APK
         working-directory: universal_notes_flutter
-        run: flutter build apk --release
+        run: flutter build apk --release -v
       - name: Rename APK with version
         working-directory: universal_notes_flutter
         run: |
