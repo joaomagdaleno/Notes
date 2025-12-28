@@ -346,6 +346,7 @@ Future<void> setupNotesTest() async {
   final mockTracing = MockTracingService();
   TracingService.instance = mockTracing;
   when(() => mockTracing.startSpan(any())).thenReturn(MockSpan());
+  when(() => mockTracing.tracer).thenReturn(MockTracer());
 }
 
 Future<void> tearDownTest() async {

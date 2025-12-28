@@ -92,5 +92,36 @@ void main() {
 
       verify(() => mockFirebaseAuth.signOut()).called(1);
     });
+
+    test(
+      'createUserWithEmailAndPassword calls user.delete on firestore failure',
+      () async {
+        const email = 'test@example.com';
+        const password = 'password';
+        final mockCredential = MockUserCredential();
+        final mockUser = MockUser();
+
+        when(() => mockCredential.user).thenReturn(mockUser);
+        when(() => mockUser.delete()).thenAnswer((_) async => {});
+        when(
+          () => mockFirebaseAuth.createUserWithEmailAndPassword(
+            email: email,
+            password: password,
+          ),
+        ).thenAnswer((_) async => mockCredential);
+
+        when(
+          () => mockFirestoreRepository.createUser(any()),
+        ).thenThrow(Exception('Firestore error'));
+
+        await expectLater(
+          authService.createUserWithEmailAndPassword(email, password),
+          throwsA(isA<Exception>()),
+        );
+
+        verify(() => mockFirestoreRepository.createUser(mockUser)).called(1);
+        verify(() => mockUser.delete()).called(1);
+      },
+    );
   });
 }

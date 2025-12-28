@@ -149,6 +149,19 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
                 : theme.cardColor,
             child: Stack(
               children: [
+                if (widget.note.isFavorite)
+                  Positioned(
+                    top: 4,
+                    left: 4,
+                    child: Semantics(
+                      label: 'Favorite',
+                      child: fluent.Icon(
+                        fluent.FluentIcons.favorite_star_fill,
+                        color: fluent.FluentTheme.of(context).accentColor,
+                        size: 16,
+                      ),
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
@@ -184,9 +197,12 @@ class _FluentNoteCardState extends State<FluentNoteCard> {
                 Positioned(
                   top: 4,
                   right: 4,
-                  child: fluent.IconButton(
-                    icon: const fluent.Icon(fluent.FluentIcons.view),
-                    onPressed: () => unawaited(_showPreview(context)),
+                  child: fluent.Tooltip(
+                    message: 'Preview',
+                    child: fluent.IconButton(
+                      icon: const fluent.Icon(fluent.FluentIcons.view),
+                      onPressed: () => unawaited(_showPreview(context)),
+                    ),
                   ),
                 ),
               ],
