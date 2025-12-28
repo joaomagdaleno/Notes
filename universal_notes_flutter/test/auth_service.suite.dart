@@ -3,6 +3,7 @@ library;
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
@@ -18,17 +19,22 @@ class MockUser extends Mock implements User {}
 
 class MockFirestoreRepository extends Mock implements FirestoreRepository {}
 
+class MockGoogleSignIn extends Mock implements GoogleSignIn {}
+
 void main() {
   late AuthService authService;
   late MockFirebaseAuth mockFirebaseAuth;
   late MockFirestoreRepository mockFirestoreRepository;
+  late MockGoogleSignIn mockGoogleSignIn;
 
   setUp(() {
     mockFirebaseAuth = MockFirebaseAuth();
     mockFirestoreRepository = MockFirestoreRepository();
+    mockGoogleSignIn = MockGoogleSignIn();
     authService = AuthService(
       firebaseAuth: mockFirebaseAuth,
       firestoreRepository: mockFirestoreRepository,
+      googleSignIn: mockGoogleSignIn,
     );
 
     registerFallbackValue(MockUser());
@@ -65,7 +71,8 @@ void main() {
         final mockUser = MockUser();
 
         when(() => mockCredential.user).thenReturn(mockUser);
-        when(() => mockUser.updateDisplayName(any())).thenAnswer((_) async => {});
+        when(() => mockUser.updateDisplayName(any()))
+            .thenAnswer((_) async => {});
         when(
           () => mockFirebaseAuth.createUserWithEmailAndPassword(
             email: email,
@@ -91,10 +98,12 @@ void main() {
 
     test('signOut calls firebaseAuth.signOut', () async {
       when(() => mockFirebaseAuth.signOut()).thenAnswer((_) async => {});
+      when(() => mockGoogleSignIn.signOut()).thenAnswer((_) async => null);
 
       await authService.signOut();
 
       verify(() => mockFirebaseAuth.signOut()).called(1);
+      verify(() => mockGoogleSignIn.signOut()).called(1);
     });
 
     test(
@@ -107,7 +116,8 @@ void main() {
         final mockUser = MockUser();
 
         when(() => mockCredential.user).thenReturn(mockUser);
-        when(() => mockUser.updateDisplayName(any())).thenAnswer((_) async => {});
+        when(() => mockUser.updateDisplayName(any()))
+            .thenAnswer((_) async => {});
         when(mockUser.delete).thenAnswer((_) async => {});
         when(
           () => mockFirebaseAuth.createUserWithEmailAndPassword(
@@ -121,7 +131,11 @@ void main() {
         ).thenThrow(Exception('Firestore error'));
 
         await expectLater(
-          authService.createUserWithEmailAndPassword(email, password, displayName),
+          authService.createUserWithEmailAndPassword(
+            email,
+            password,
+            displayName,
+          ),
           throwsA(isA<Exception>()),
         );
 

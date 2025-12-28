@@ -1,8 +1,6 @@
-import 'package:aad_oauth/aad_oauth.dart';
-import 'package:aad_oauth/model/config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:universal_notes_flutter/config/auth_config.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 
 /// Service for handling authentication.
@@ -15,24 +13,25 @@ class AuthService {
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
         _firestoreRepository =
             firestoreRepository ?? FirestoreRepository.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn();
+        _googleSignIn = googleSignIn ??
+            GoogleSignIn(clientId: AuthConfig.googleClientId);
 
   final FirebaseAuth _firebaseAuth;
   final FirestoreRepository _firestoreRepository;
   final GoogleSignIn _googleSignIn;
 
-  // Configuration for Microsoft Auth
-  // TODO: Replace with real values from Azure Portal
-  static final Config _microsoftConfig = Config(
-    tenant: 'common',
-    clientId: 'YOUR_CLIENT_ID',
-    scope: 'openid profile offline_access User.Read',
-    redirectUri: 'msauth://com.example.universalNotesFlutter/auth',
-    navigatorKey: GlobalKey<NavigatorState>(),
-  );
-
   /// Returns a stream of the authentication state.
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+
+  /// Private helper to sync user profile to Firestore.
+  Future<void> _syncUserProfile(User user) async {
+    try {
+      await _firestoreRepository.createUser(user);
+    } on Exception catch (e) {
+      // ignore: avoid_print, Print is used here for fallback logging if Firestore fails during profile sync.
+      print('Warning: Failed to sync profile to Firestore: $e');
+    }
+  }
 
   /// Signs in with email and password.
   Future<UserCredential> signInWithEmailAndPassword(
@@ -60,6 +59,9 @@ class AuthService {
       // Update display name in Firebase Auth
       await credential.user!.updateDisplayName(displayName);
 
+      // Send verification email
+      await credential.user!.sendEmailVerification();
+
       // Create user profile in Firestore
       try {
         await _firestoreRepository.createUser(credential.user!);
@@ -69,6 +71,14 @@ class AuthService {
       }
     }
     return credential;
+  }
+
+  /// Sends a verification email to the current user.
+  Future<void> sendEmailVerification() async {
+    final user = _firebaseAuth.currentUser;
+    if (user != null && !user.emailVerified) {
+      await user.sendEmailVerification();
+    }
   }
 
   /// Signs in with Google.
@@ -84,26 +94,7 @@ class AuthService {
 
     final userCredential = await _firebaseAuth.signInWithCredential(credential);
     if (userCredential.user != null) {
-      await _firestoreRepository.createUser(userCredential.user!);
-    }
-    return userCredential;
-  }
-
-  /// Signs in with Microsoft.
-  Future<UserCredential?> signInWithMicrosoft() async {
-    final oauth = AadOAuth(_microsoftConfig);
-    await oauth.login();
-    final accessToken = await oauth.getAccessToken();
-
-    if (accessToken == null) return null;
-
-    final credential = OAuthProvider('microsoft.com').credential(
-      accessToken: accessToken,
-    );
-
-    final userCredential = await _firebaseAuth.signInWithCredential(credential);
-    if (userCredential.user != null) {
-      await _firestoreRepository.createUser(userCredential.user!);
+      await _syncUserProfile(userCredential.user!);
     }
     return userCredential;
   }
