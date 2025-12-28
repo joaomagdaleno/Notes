@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
+import 'dart:async';
+
+import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart' show Icons;
 import 'package:universal_notes_flutter/services/auth_service.dart';
 
-/// The authentication screen.
+/// The authentication screen redesigned with Fluent UI.
 class AuthScreen extends StatefulWidget {
   /// Creates an auth screen.
   const AuthScreen({super.key});
@@ -15,150 +17,199 @@ class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
   final _authService = AuthService();
+
   bool _isSigningIn = false;
   bool _isSigningUp = false;
+  bool _showSignUp = false;
 
-  Future<void> _signIn() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isSigningIn = true);
-      try {
-        final result = await _authService.signInWithEmailAndPassword(
-          _emailController.text,
-          _passwordController.text,
+  void _showError(Object e) {
+    if (!mounted) return;
+    displayInfoBar(
+      context,
+      builder: (context, close) {
+        return InfoBar(
+          title: const Text('Erro'),
+          content: Text(e.toString()),
+          action: IconButton(
+            icon: const Icon(FluentIcons.clear),
+            onPressed: close,
+          ),
+          severity: InfoBarSeverity.error,
         );
-        if (result == null && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Falha na autenticação. Verifique suas credenciais.'),
-              backgroundColor: Colors.red,
-            ),
+      },
+    );
+  }
+
+  Future<void> _handleEmailAuth() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        if (_showSignUp) {
+          _isSigningUp = true;
+        } else {
+          _isSigningIn = true;
+        }
+      });
+
+      try {
+        if (_showSignUp) {
+          await _authService.createUserWithEmailAndPassword(
+            _emailController.text,
+            _passwordController.text,
+            _nameController.text,
           );
-        } else if (mounted) {
+        } else {
+          await _authService.signInWithEmailAndPassword(
+            _emailController.text,
+            _passwordController.text,
+          );
+        }
+        if (mounted) {
           Navigator.pop(context);
         }
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro ao entrar: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        _showError(e);
       } finally {
         if (mounted) {
-          setState(() => _isSigningIn = false);
+          setState(() {
+            _isSigningIn = false;
+            _isSigningUp = false;
+          });
         }
       }
     }
   }
 
-  Future<void> _signUp() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isSigningUp = true);
-      try {
-        final result = await _authService.createUserWithEmailAndPassword(
-          _emailController.text,
-          _passwordController.text,
-        );
-        if (result == null && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Falha ao criar conta. Tente novamente.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro ao cadastrar: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() => _isSigningUp = false);
-        }
+  Future<void> _handleGoogleAuth() async {
+    try {
+      final result = await _authService.signInWithGoogle();
+      if (result != null && mounted) {
+        Navigator.pop(context);
       }
+    } catch (e) {
+      _showError(e);
+    }
+  }
+
+  Future<void> _handleMicrosoftAuth() async {
+    try {
+      final result = await _authService.signInWithMicrosoft();
+      if (result != null && mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      _showError(e);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Authentication')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const ExcludeSemantics(
-                  child: Icon(Icons.lock, size: 80),
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _isSigningIn || _isSigningUp ? null : _signIn,
-                      child: _isSigningIn
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Sign In'),
+    return NavigationView(
+      appBar: NavigationAppBar(
+        automaticallyImplyLeading: true,
+        title: Text(_showSignUp ? 'Criar Conta' : 'Entrar'),
+      ),
+      content: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(FluentIcons.lock),
+                  const SizedBox(height: 24),
+                  if (_showSignUp) ...[
+                    InfoLabel(
+                      label: 'Nome de Exibição',
+                      child: TextBox(
+                        controller: _nameController,
+                        placeholder: 'Como você quer ser chamado',
+                        prefix: const Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Icon(Icons.person_outline),
+                        ),
+                      ),
                     ),
-                    ElevatedButton(
-                      onPressed: _isSigningIn || _isSigningUp ? null : _signUp,
-                      child: _isSigningUp
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Sign Up'),
-                    ),
+                    const SizedBox(height: 16),
                   ],
-                ),
-              ],
+                  InfoLabel(
+                    label: 'Email',
+                    child: TextBox(
+                      controller: _emailController,
+                      placeholder: 'seu@email.com',
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  InfoLabel(
+                    label: 'Senha',
+                    child: PasswordBox(
+                      controller: _passwordController,
+                      placeholder: 'Sua senha segura',
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: (_isSigningIn || _isSigningUp)
+                          ? null
+                          : _handleEmailAuth,
+                      child: _isSigningIn || _isSigningUp
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: ProgressRing(),
+                            )
+                          : Text(_showSignUp ? 'Cadastrar' : 'Entrar'),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  HyperlinkButton(
+                    child: Text(
+                      _showSignUp
+                          ? 'Já tem uma conta? Entre aqui'
+                          : 'Não tem conta? Crie uma agora',
+                    ),
+                    onPressed: () => setState(() => _showSignUp = !_showSignUp),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(),
+                  ),
+                  const Text('Ou entre com'),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Button(
+                        onPressed: _handleGoogleAuth,
+                        child: Row(
+                          children: const [
+                            Icon(FluentIcons.chrome_back),
+                            SizedBox(width: 8),
+                            Text('Google'),
+                          ],
+                        ),
+                      ),
+                      Button(
+                        onPressed: _handleMicrosoftAuth,
+                        child: Row(
+                          children: const [
+                            Icon(FluentIcons.cloud),
+                            SizedBox(width: 8),
+                            Text('Microsoft'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
