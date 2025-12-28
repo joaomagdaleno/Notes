@@ -638,8 +638,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               decoration: InputDecoration(
                 hintText: 'Buscar em todas as notas...',
                 prefixIcon: const Icon(Icons.search),
-                // ⚡ Bolt: Use a ValueListenableBuilder for the suffix icon to
-                // ensure only the icon rebuilds, not the whole TextField or screen.
+                // ⚡ Bolt: Use a ValueListenableBuilder for the suffix icon
+                // to ensure only the icon rebuilds, not the whole TextField.
                 suffixIcon: ValueListenableBuilder<bool>(
                   valueListenable: _isSearchingNotifier,
                   builder: (context, isSearching, child) {
@@ -653,8 +653,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                         ),
                       );
                     }
-                    // Use a second builder for the clear button to react to text changes
-                    // without rebuilding the search indicator.
+                    // Use a second builder for the clear button to react to
+                    // text changes without rebuilding the search indicator.
                     return ValueListenableBuilder(
                       valueListenable: _searchController,
                       builder: (context, text, child) {
