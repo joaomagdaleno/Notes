@@ -15,18 +15,6 @@ plugins {
 android {
     namespace = "com.example.universal_notes_flutter"
     
-    // Debug prints
-    run {
-        try {
-            println("DEBUG: flutter.compileSdkVersion = ${flutter.compileSdkVersion}")
-            println("DEBUG: flutter.minSdkVersion = ${flutter.minSdkVersion}")
-            println("DEBUG: flutter.targetSdkVersion = ${flutter.targetSdkVersion}")
-            println("DEBUG: flutter.ndkVersion = ${flutter.ndkVersion}")
-        } catch (e: Exception) {
-            println("DEBUG: Error accessing flutter properties: ${e.message}")
-        }
-    }
-
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
