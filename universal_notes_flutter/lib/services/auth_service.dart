@@ -1,79 +1,118 @@
+import 'package:aad_oauth/aad_oauth.dart';
+import 'package:aad_oauth/model/config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 
 /// Service for handling authentication.
 class AuthService {
-
   /// Creates an [AuthService].
   AuthService({
     FirebaseAuth? firebaseAuth,
     FirestoreRepository? firestoreRepository,
-  }) : firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-       firestoreRepository =
-           firestoreRepository ?? FirestoreRepository.instance;
-  /// The FirebaseAuth instance.
-  final FirebaseAuth firebaseAuth;
+    GoogleSignIn? googleSignIn,
+  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+        _firestoreRepository =
+            firestoreRepository ?? FirestoreRepository.instance,
+        _googleSignIn = googleSignIn ?? GoogleSignIn();
 
-  /// The FirestoreRepository instance.
-  final FirestoreRepository firestoreRepository;
+  final FirebaseAuth _firebaseAuth;
+  final FirestoreRepository _firestoreRepository;
+  final GoogleSignIn _googleSignIn;
+
+  // Configuration for Microsoft Auth
+  // TODO: Replace with real values from Azure Portal
+  static final Config _microsoftConfig = Config(
+    tenant: 'common',
+    clientId: 'YOUR_CLIENT_ID',
+    scope: 'openid profile offline_access User.Read',
+    redirectUri: 'msauth://com.example.universalNotesFlutter/auth',
+    navigatorKey: GlobalKey<NavigatorState>(),
+  );
 
   /// Returns a stream of the authentication state.
-  Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();
+  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
   /// Signs in with email and password.
-  Future<UserCredential?> signInWithEmailAndPassword(
+  Future<UserCredential> signInWithEmailAndPassword(
     String email,
     String password,
   ) async {
-    try {
-      return await firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } on FirebaseAuthException catch (_) {
-      // Handle errors
-      // print(e.message);
-      return null;
-    }
+    return _firebaseAuth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
   }
 
   /// Creates a new user with email and password.
-  Future<UserCredential?> createUserWithEmailAndPassword(
+  Future<UserCredential> createUserWithEmailAndPassword(
     String email,
     String password,
+    String displayName,
   ) async {
-    try {
-      final credential = await firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
-      if (credential.user != null) {
-        // Create user profile in Firestore
-        try {
-          await firestoreRepository.createUser(credential.user!);
-        } on Exception {
-          // 🛡️ Sentinel: CRITICAL - If Firestore user creation fails,
-          // the auth user must be deleted to prevent an inconsistent state
-          // where a user exists in auth but not in the application database.
-          // This is a "Fail Closed" security pattern.
-          await credential.user?.delete();
-          // Re-throwing the exception to allow the UI to handle the error,
-          // for example, by showing a message to the user and preventing
-          // them from proceeding in an inconsistent state.
-          rethrow;
-        }
+    if (credential.user != null) {
+      // Update display name in Firebase Auth
+      await credential.user!.updateDisplayName(displayName);
+
+      // Create user profile in Firestore
+      try {
+        await _firestoreRepository.createUser(credential.user!);
+      } on Exception {
+        await credential.user?.delete();
+        rethrow;
       }
-      return credential;
-    } on FirebaseAuthException catch (_) {
-      // Handle errors
-      // print(e.message);
-      return null;
     }
+    return credential;
+  }
+
+  /// Signs in with Google.
+  Future<UserCredential?> signInWithGoogle() async {
+    final googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) return null;
+
+    final googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final userCredential = await _firebaseAuth.signInWithCredential(credential);
+    if (userCredential.user != null) {
+      await _firestoreRepository.createUser(userCredential.user!);
+    }
+    return userCredential;
+  }
+
+  /// Signs in with Microsoft.
+  Future<UserCredential?> signInWithMicrosoft() async {
+    final oauth = AadOAuth(_microsoftConfig);
+    await oauth.login();
+    final accessToken = await oauth.getAccessToken();
+
+    if (accessToken == null) return null;
+
+    final credential = OAuthProvider('microsoft.com').credential(
+      accessToken: accessToken,
+    );
+
+    final userCredential = await _firebaseAuth.signInWithCredential(credential);
+    if (userCredential.user != null) {
+      await _firestoreRepository.createUser(userCredential.user!);
+    }
+    return userCredential;
   }
 
   /// Signs out the current user.
   Future<void> signOut() async {
-    await firebaseAuth.signOut();
+    await Future.wait([
+      _firebaseAuth.signOut(),
+      _googleSignIn.signOut(),
+    ]);
   }
 }

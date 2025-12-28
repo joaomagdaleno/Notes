@@ -60,10 +60,12 @@ void main() {
       () async {
         const email = 'test@example.com';
         const password = 'password';
+        const displayName = 'Test User';
         final mockCredential = MockUserCredential();
         final mockUser = MockUser();
 
         when(() => mockCredential.user).thenReturn(mockUser);
+        when(() => mockUser.updateDisplayName(any())).thenAnswer((_) async => {});
         when(
           () => mockFirebaseAuth.createUserWithEmailAndPassword(
             email: email,
@@ -78,9 +80,11 @@ void main() {
         final result = await authService.createUserWithEmailAndPassword(
           email,
           password,
+          displayName,
         );
 
         expect(result, mockCredential);
+        verify(() => mockUser.updateDisplayName(displayName)).called(1);
         verify(() => mockFirestoreRepository.createUser(mockUser)).called(1);
       },
     );
@@ -98,10 +102,12 @@ void main() {
       () async {
         const email = 'test@example.com';
         const password = 'password';
+        const displayName = 'Test User';
         final mockCredential = MockUserCredential();
         final mockUser = MockUser();
 
         when(() => mockCredential.user).thenReturn(mockUser);
+        when(() => mockUser.updateDisplayName(any())).thenAnswer((_) async => {});
         when(mockUser.delete).thenAnswer((_) async => {});
         when(
           () => mockFirebaseAuth.createUserWithEmailAndPassword(
@@ -115,10 +121,11 @@ void main() {
         ).thenThrow(Exception('Firestore error'));
 
         await expectLater(
-          authService.createUserWithEmailAndPassword(email, password),
+          authService.createUserWithEmailAndPassword(email, password, displayName),
           throwsA(isA<Exception>()),
         );
 
+        verify(() => mockUser.updateDisplayName(displayName)).called(1);
         verify(() => mockFirestoreRepository.createUser(mockUser)).called(1);
         verify(mockUser.delete).called(1);
       },
