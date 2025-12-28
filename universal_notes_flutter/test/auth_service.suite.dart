@@ -102,7 +102,7 @@ void main() {
         final mockUser = MockUser();
 
         when(() => mockCredential.user).thenReturn(mockUser);
-        when(() => mockUser.delete()).thenAnswer((_) async => {});
+        when(mockUser.delete).thenAnswer((_) async => {});
         when(
           () => mockFirebaseAuth.createUserWithEmailAndPassword(
             email: email,
@@ -120,7 +120,7 @@ void main() {
         );
 
         verify(() => mockFirestoreRepository.createUser(mockUser)).called(1);
-        verify(() => mockUser.delete()).called(1);
+        verify(mockUser.delete).called(1);
       },
     );
   });
