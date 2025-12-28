@@ -138,26 +138,32 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ⚡ Bolt: This is a performance optimization.
+    // By using the `child` property of the `Consumer`, we ensure that the
+    // `AuthWrapper` and its descendants are built only once. Only the
+    // `MaterialApp` is rebuilt when the theme changes, which is much more
+    // efficient.
     return Consumer<ThemeService>(
-      child: const SyncConflictListener(child: AuthWrapper()),
       builder: (context, themeService, child) {
         return MaterialApp(
           title: 'Universal Notes',
           theme: AppThemes.lightTheme,
           darkTheme: AppThemes.darkTheme,
           themeMode: themeService.themeMode,
-          home: CallbackShortcuts(
-            bindings: {
-              const SingleActivator(
-                LogicalKeyboardKey.keyK,
-                control: true,
-              ): () =>
-                  showCommandPalette(context),
-            },
-            child: child!,
-          ),
+          home: child,
         );
       },
+      child: Builder(
+        builder: (materialAppContext) => CallbackShortcuts(
+          bindings: {
+            const SingleActivator(
+              LogicalKeyboardKey.keyK,
+              control: true,
+            ): () => showCommandPalette(materialAppContext),
+          },
+          child: const SyncConflictListener(child: AuthWrapper()),
+        ),
+      ),
     );
   }
 }
