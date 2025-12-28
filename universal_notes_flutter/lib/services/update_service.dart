@@ -162,7 +162,7 @@ class UpdateService {
         ..._repo.split('/'),
         'releases',
         'tags',
-        'dev-latest'
+        'dev-latest',
       ];
     } else if (version.contains('-beta')) {
       pathSegments = [
@@ -170,7 +170,7 @@ class UpdateService {
         ..._repo.split('/'),
         'releases',
         'tags',
-        'beta-latest'
+        'beta-latest',
       ];
     } else {
       pathSegments = ['repos', ..._repo.split('/'), 'releases', 'latest'];
