@@ -95,8 +95,15 @@ install(DIRECTORY "${NATIVE_ASSETS_DIR}"
    COMPONENT Runtime)
 
 # Fully re-copy the assets directory on each build.
-# We remove the old one ONLY if it exists to avoid errors.
+# We remove the old one ONLY if it exists and FLUTTER_ASSET_DIR_NAME is not empty to avoid errors.
+if(NOT FLUTTER_ASSET_DIR_NAME)
+  set(FLUTTER_ASSET_DIR_NAME "flutter_assets")
+endif()
+
 install(CODE "
+  if(\"${FLUTTER_ASSET_DIR_NAME}\" STREQUAL \"\")
+    message(FATAL_ERROR \"FLUTTER_ASSET_DIR_NAME is empty - potential recursion detected\")
+  endif()
   if(EXISTS \"${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}\")
     file(REMOVE_RECURSE \"${INSTALL_BUNDLE_DATA_DIR}/${FLUTTER_ASSET_DIR_NAME}\")
   endif()
