@@ -757,11 +757,12 @@ packages:
     source: hosted
     version: "3.0.0"
   local_auth_android:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "packages/local_auth_android"
-      relative: true
-    source: path
+      name: local_auth_android
+      sha256: "162b8e177fd9978c4620da2a8002a5c6bed4d20f0c6daf5137e72e9a8b767d2e"
+      url: "https://pub.dev"
+    source: hosted
     version: "2.0.4"
   local_auth_darwin:
     dependency: transitive
@@ -1060,11 +1061,12 @@ packages:
     source: hosted
     version: "12.0.1"
   permission_handler_android:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "packages/permission_handler_android"
-      relative: true
-    source: path
+      name: permission_handler_android
+      sha256: "1e3bc410ca1bf84662104b100eb126e066cb55791b7451307f9708d4007350e6"
+      url: "https://pub.dev"
+    source: hosted
     version: "13.0.1"
   permission_handler_apple:
     dependency: transitive
