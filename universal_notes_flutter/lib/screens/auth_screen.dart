@@ -24,7 +24,7 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _isSigningUp = false;
   bool _showSignUp = false;
 
-  Future<void> _showError(BuildContext context, Object e) async {
+  Future<void> _showError(Object e) async {
     if (!mounted) return;
     await displayInfoBar(
       context,
@@ -42,7 +42,7 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Future<void> _handleEmailAuth(BuildContext context) async {
+  Future<void> _handleEmailAuth() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         if (_showSignUp) {
@@ -65,29 +65,29 @@ class _AuthScreenState extends State<AuthScreen> {
             _passwordController.text,
           );
         }
-        if (mounted) {
-          if (_showSignUp) {
-            await displayInfoBar(
-              context,
-              builder: (context, close) {
-                return InfoBar(
-                  title: const Text('Verifique seu e-mail'),
-                  content: const Text(
-                    'Enviamos um link de confirmação para o seu e-mail. '
-                    'Por favor, verifique sua caixa de entrada.',
-                  ),
-                  severity: InfoBarSeverity.warning,
-                  onClose: close,
-                );
-              },
-            );
-          }
-          if (mounted) {
-            Navigator.pop(context);
-          }
+        if (!mounted) return;
+        
+        if (_showSignUp) {
+          await displayInfoBar(
+            context,
+            builder: (context, close) {
+              return InfoBar(
+                title: const Text('Verifique seu e-mail'),
+                content: const Text(
+                  'Enviamos um link de confirmação para o seu e-mail. '
+                  'Por favor, verifique sua caixa de entrada.',
+                ),
+                severity: InfoBarSeverity.warning,
+                onClose: close,
+              );
+            },
+          );
         }
-      } catch (e) {
-        await _showError(context, e);
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } on Exception catch (e) {
+        await _showError(e);
       } finally {
         if (mounted) {
           setState(() {
@@ -99,7 +99,7 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  Future<void> _handleGoogleAuth(BuildContext context) async {
+  Future<void> _handleGoogleAuth() async {
     try {
       final result = await _authService.signInWithGoogle();
       if (!mounted) return;
@@ -109,8 +109,8 @@ class _AuthScreenState extends State<AuthScreen> {
         // Provide feedback for cancellation if no exception was thrown
         // No error to show, but useful for debugging
       }
-    } catch (e) {
-      await _showError(context, e);
+    } on Exception catch (e) {
+      await _showError(e);
     }
   }
 
@@ -174,7 +174,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         child: FilledButton(
                           onPressed: (_isSigningIn || _isSigningUp)
                               ? null
-                              : () => unawaited(_handleEmailAuth(context)),
+                              : () => unawaited(_handleEmailAuth()),
                           child: _isSigningIn || _isSigningUp
                               ? const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -208,12 +208,15 @@ class _AuthScreenState extends State<AuthScreen> {
                       const SizedBox(height: 16),
                       Center(
                         child: HoverButton(
-                          onPressed: () => unawaited(_handleGoogleAuth(context)),
+                          onPressed: () => unawaited(_handleGoogleAuth()),
                           builder: (context, states) {
                             final theme = FluentTheme.of(context);
                             return Card(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              backgroundColor: states.isHovering 
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16, 
+                                vertical: 8,
+                              ),
+                              backgroundColor: states.isHovered 
                                   ? theme.resources.subtleFillColorTertiary
                                   : theme.resources.subtleFillColorSecondary,
                               child: Row(
@@ -223,7 +226,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                     'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
                                     width: 18,
                                     height: 18,
-                                    errorBuilder: (context, error, stackTrace) => 
+                                    errorBuilder: (ctx, err, stack) => 
                                         const Icon(FluentIcons.chrome_back, size: 18),
                                   ),
                                   const SizedBox(width: 12),

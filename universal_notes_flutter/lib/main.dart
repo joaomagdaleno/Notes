@@ -193,7 +193,8 @@ class _AppBootstrapState extends State<AppBootstrap> {
   Widget build(BuildContext context) {
     unawaited(StartupLogger.log(
         '🎨 [BUILD] AppBootstrap.build called - '
-        '_isInitialized=$_isInitialized, _errorMessage=$_errorMessage'));
+        '_isInitialized=$_isInitialized, _errorMessage=$_errorMessage',
+    ));
     if (_errorMessage != null) {
       return MaterialApp(
         home: Scaffold(
