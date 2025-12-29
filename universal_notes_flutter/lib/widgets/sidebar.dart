@@ -8,8 +8,8 @@ import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/auth_screen.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
-import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/startup_logger.dart';
+import 'package:universal_notes_flutter/services/sync_service.dart';
 
 /// The type of item selected in the sidebar.
 enum SidebarItemType {
@@ -174,7 +174,8 @@ class _SidebarState extends State<Sidebar> {
   @override
   Widget build(BuildContext context) {
     unawaited(StartupLogger.log('🎨 [BUILD] Sidebar.build called'));
-    // Use a Container on desktop to avoid Material Drawer conflicts with Fluent UI
+    // Use a Container on desktop to avoid Material Drawer conflicts with
+    // Fluent UI
     return Container(
       width: 280,
       color: Theme.of(context).colorScheme.surface,

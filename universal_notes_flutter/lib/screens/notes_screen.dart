@@ -9,6 +9,7 @@ import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
@@ -16,7 +17,6 @@ import 'package:universal_notes_flutter/widgets/empty_state.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/quick_note_editor.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
-import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -132,7 +132,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       _searchController.addListener(_onSearchChanged);
       
       unawaited(StartupLogger.log('✅ NotesScreen.initState complete'));
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       unawaited(StartupLogger.log('🔥 CRASH in NotesScreen.initState: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
@@ -858,25 +858,33 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                     stream: _notesStream,
                     initialData: _syncService.currentNotes,
                     builder: (context, snapshot) {
-                      unawaited(StartupLogger.log('🎨 [BUILD] NotesStream StreamBuilder called - hasData: ${snapshot.hasData}, connectionState: ${snapshot.connectionState}'));
-                      if (snapshot.connectionState == ConnectionState.waiting &&
-                          !snapshot.hasData) {
-                        unawaited(StartupLogger.log('🎨 [BUILD] NotesStream showing spinner'));
-                        return const Center(child: SizedBox(width: 20, height: 20));
-                      }
-                      if (snapshot.hasError) {
-                        unawaited(StartupLogger.log('❌ [BUILD] NotesStream error: ${snapshot.error}'));
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      }
-                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        unawaited(StartupLogger.log('🎨 [BUILD] NotesStream showing EmptyState'));
-                        return const EmptyState(
-                          icon: fluent.FluentIcons.note_forward,
-                          message: 'No notes yet. Create one!',
-                        );
-                      }
-                      unawaited(StartupLogger.log('🎨 [BUILD] NotesStream showing notes list (${snapshot.data!.length} notes)'));
-                      return _buildNotesList(snapshot.data!);
+                      unawaited(StartupLogger.log(
+                      '🎨 [BUILD] NotesStream StreamBuilder called - '
+                      'hasData: ${snapshot.hasData}, '
+                      'connectionState: ${snapshot.connectionState}'));
+                  if (snapshot.connectionState == ConnectionState.waiting &&
+                      !snapshot.hasData) {
+                    unawaited(
+                        StartupLogger.log('🎨 [BUILD] NotesStream showing spinner'));
+                    return const Center(child: SizedBox(width: 20, height: 20));
+                  }
+                  if (snapshot.hasError) {
+                    unawaited(StartupLogger.log(
+                        '❌ [BUILD] NotesStream error: ${snapshot.error}'));
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    unawaited(StartupLogger.log(
+                        '🎨 [BUILD] NotesStream showing EmptyState'));
+                    return const EmptyState(
+                      icon: fluent.FluentIcons.note_forward,
+                      message: 'No notes yet. Create one!',
+                    );
+                  }
+                  unawaited(StartupLogger.log(
+                      '🎨 [BUILD] NotesStream showing notes list '
+                      '(${snapshot.data!.length} notes)'));
+                  return _buildNotesList(snapshot.data!);
                     },
                   ),
                   bottomBar: isTrashView
@@ -889,7 +897,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                               fluent.FilledButton(
                                 onPressed: _createNewNote,
                                 child: const fluent.Row(
-                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisSize: fluent.MainAxisSize.min,
                                   children: [
                                     Icon(fluent.FluentIcons.add),
                                     SizedBox(width: 8),
@@ -901,7 +909,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                               fluent.Button(
                                 onPressed: _abrirEditorRapido,
                                 child: const fluent.Row(
-                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisSize: fluent.MainAxisSize.min,
                                   children: [
                                     Icon(fluent.FluentIcons.quick_note),
                                     SizedBox(width: 8),
@@ -918,7 +926,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           ),
         ),
       );
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       unawaited(StartupLogger.log('🔥 CRASH in _buildFluentUI: $e'));
       unawaited(StartupLogger.log(stack.toString()));
       return Scaffold(body: Center(child: Text('UI Crash: $e')));
@@ -927,17 +935,12 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen.build called - platform: $defaultTargetPlatform'));
-    if (kIsWeb) {
-      unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen returning MaterialUI (web)'));
-      return _buildMaterialUI();
-    }
-
-    final platform = defaultTargetPlatform;
-    if (platform == TargetPlatform.windows ||
-        platform == TargetPlatform.macOS ||
-        platform == TargetPlatform.linux) {
-      unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen returning FluentUI (desktop)'));
+    unawaited(StartupLogger.log(
+        '🎨 [BUILD] NotesScreen.build called - platform: $defaultTargetPlatform'));
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.linux ||
+            defaultTargetPlatform == TargetPlatform.macOS)) {
       return _buildFluentUI();
     }
     unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen returning MaterialUI (mobile)'));
