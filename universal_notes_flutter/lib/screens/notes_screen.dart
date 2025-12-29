@@ -16,6 +16,7 @@ import 'package:universal_notes_flutter/widgets/empty_state.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/quick_note_editor.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
+import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -733,10 +734,14 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Widget _buildFluentUI() {
+    unawaited(StartupLogger.log('🎨 [BUILD] _buildFluentUI starting'));
     final isTrashView = _selection.type == SidebarItemType.trash;
-    return fluent.NavigationView(
-      appBar: fluent.NavigationAppBar(
-        title: Text(_getAppBarTitle()),
+    // Wrap with FluentTheme since we're inside MaterialApp
+    return fluent.FluentTheme(
+      data: fluent.FluentThemeData.light(),
+      child: fluent.NavigationView(
+        appBar: fluent.NavigationAppBar(
+          title: Text(_getAppBarTitle()),
         actions: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400),
           child: fluent.Row(
@@ -887,18 +892,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                         ],
                       ),
                     ),
-            ),
+        ),
           ),
         ],
+      ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('🎨 [BUILD] NotesScreen.build called - platform: $defaultTargetPlatform');
+    unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen.build called - platform: $defaultTargetPlatform'));
     if (kIsWeb) {
-      debugPrint('🎨 [BUILD] NotesScreen returning MaterialUI (web)');
+      unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen returning MaterialUI (web)'));
       return _buildMaterialUI();
     }
 
@@ -906,10 +912,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     if (platform == TargetPlatform.windows ||
         platform == TargetPlatform.macOS ||
         platform == TargetPlatform.linux) {
-      debugPrint('🎨 [BUILD] NotesScreen returning FluentUI (desktop)');
+      unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen returning FluentUI (desktop)'));
       return _buildFluentUI();
     }
-    debugPrint('🎨 [BUILD] NotesScreen returning MaterialUI (mobile)');
+    unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen returning MaterialUI (mobile)'));
     return _buildMaterialUI();
   }
 }

@@ -376,6 +376,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
     }
 
     debugPrint('✅ [NAVIGATION] Showing NotesScreen (Auth Optional)');
+    unawaited(StartupLogger.log('✅ [NAVIGATION] Returning NotesScreen widget'));
     return const NotesScreen();
   }
 }
