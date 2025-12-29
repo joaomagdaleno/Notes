@@ -113,26 +113,27 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   void initState() {
-    unawaited(StartupLogger.log('⏳ NotesScreen.initState starting'));
+    unawaited(StartupLogger.log('🎬 NotesScreen.initState starting'));
     super.initState();
     try {
-      unawaited(StartupLogger.log('⏳ Initializing UpdateService...'));
+      unawaited(StartupLogger.log('⏳ NotesScreen.initState: assigning _updateService...'));
       _updateService = widget.updateService ?? UpdateService();
+      unawaited(StartupLogger.log('✅ NotesScreen.initState: _updateService assigned'));
+
+      unawaited(StartupLogger.log('⏳ NotesScreen.initstate: connecting to notesStream...'));
+      _notesStream = _syncService.notesStream;
       
-      unawaited(StartupLogger.log('⏳ Connecting to notesStream...'));
-      _notesStream = _syncService.notesStream; // Point to sync service stream
-      
-      unawaited(StartupLogger.log('⏳ Adding windowManager listener...'));
+      unawaited(StartupLogger.log('⏳ NotesScreen.initState: adding windowManager listener...'));
       windowManager.addListener(this);
       
-      unawaited(StartupLogger.log('⏳ Calling _updateNotesStream()...'));
-      _updateNotesStream(); // Initial fetch
+      unawaited(StartupLogger.log('⏳ NotesScreen.initState: calling _updateNotesStream()...'));
+      _updateNotesStream();
       
-      unawaited(StartupLogger.log('⏳ Adding searchController listener...'));
+      unawaited(StartupLogger.log('⏳ NotesScreen.initState: adding searchController listener...'));
       _searchController.addListener(_onSearchChanged);
       
       unawaited(StartupLogger.log('✅ NotesScreen.initState complete'));
-    } on Exception catch (e, stack) {
+    } catch (e, stack) {
       unawaited(StartupLogger.log('🔥 CRASH in NotesScreen.initState: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
@@ -179,38 +180,52 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   void _updateNotesStream() {
-    bool? isFavorite;
-    bool? isInTrash;
-    String? folderId;
-    String? tagId;
+    unawaited(StartupLogger.log('🌊 NotesScreen._updateNotesStream starting'));
+    try {
+      bool? isFavorite;
+      bool? isInTrash;
+      String? folderId;
+      String? tagId;
 
-    switch (_selection.type) {
-      case SidebarItemType.all:
-        isInTrash = false;
-      case SidebarItemType.favorites:
-        isFavorite = true;
-        isInTrash = false;
-      case SidebarItemType.trash:
-        isInTrash = true;
-      case SidebarItemType.folder:
-        if (_selection.folder != null) {
-          folderId = _selection.folder!.id;
+      switch (_selection.type) {
+        case SidebarItemType.all:
           isInTrash = false;
-        }
-      case SidebarItemType.tag:
-        tagId = _selection.tag;
-        isInTrash = false;
-    }
+          break;
+        case SidebarItemType.favorites:
+          isFavorite = true;
+          isInTrash = false;
+          break;
+        case SidebarItemType.trash:
+          isInTrash = true;
+          break;
+        case SidebarItemType.folder:
+          if (_selection.folder != null) {
+            folderId = _selection.folder!.id;
+            isInTrash = false;
+          }
+          break;
+        case SidebarItemType.tag:
+          tagId = _selection.tag;
+          isInTrash = false;
+          break;
+      }
 
-    // Trigger refresh of local data into the stream
-    unawaited(
-      _syncService.refreshLocalData(
-        folderId: folderId,
-        tagId: tagId,
-        isFavorite: isFavorite,
-        isInTrash: isInTrash,
-      ),
-    );
+      unawaited(StartupLogger.log('🌊 NotesScreen._updateNotesStream: filter params - '
+          'folderId: $folderId, tagId: $tagId, isFavorite: $isFavorite, isInTrash: $isInTrash'));
+
+      // Trigger refresh of local data into the stream
+      unawaited(
+        _syncService.refreshLocalData(
+          folderId: folderId,
+          tagId: tagId,
+          isFavorite: isFavorite,
+          isInTrash: isInTrash,
+        ),
+      );
+    } catch (e, stack) {
+      unawaited(StartupLogger.log('🔥 ERROR in _updateNotesStream: $e'));
+      unawaited(StartupLogger.log(stack.toString()));
+    }
   }
 
   void _onSelectionChanged(SidebarSelection selection) {
@@ -837,96 +852,99 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               ),
             ),
           ),
-          content: Row(
-            children: [
-              Sidebar(onSelectionChanged: _onSelectionChanged),
-              Expanded(
-                child: fluent.ScaffoldPage(
-                  header: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: fluent.TextBox(
-                      controller: _searchController,
-                      placeholder: 'Search is temporarily disabled...',
-                      prefix: const Padding(
-                        padding: EdgeInsets.only(left: 8),
-                        child: Icon(fluent.FluentIcons.search),
-                      ),
-                      enabled: false,
-                    ),
-                  ),
-                  content: StreamBuilder<List<Note>>(
-                    stream: _notesStream,
-                    initialData: _syncService.currentNotes,
-                    builder: (context, snapshot) {
-                      unawaited(StartupLogger.log(
-                          '🎨 [BUILD] NotesStream StreamBuilder called - '
-                          'hasData: ${snapshot.hasData}, '
-                          'connectionState: ${snapshot.connectionState}'));
-                      if (snapshot.connectionState == ConnectionState.waiting &&
-                          !snapshot.hasData) {
-                        unawaited(StartupLogger.log(
-                            '🎨 [BUILD] NotesStream showing spinner'));
-                        return const Center(child: SizedBox(width: 20, height: 20));
-                      }
-                      if (snapshot.hasError) {
-                        unawaited(StartupLogger.log(
-                            '❌ [BUILD] NotesStream error: ${snapshot.error}'));
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      }
-                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        unawaited(StartupLogger.log(
-                            '🎨 [BUILD] NotesStream showing EmptyState'));
-                        return const EmptyState(
-                          icon: fluent.FluentIcons.note_forward,
-                          message: 'No notes yet. Create one!',
-                        );
-                      }
-                      unawaited(StartupLogger.log(
-                          '🎨 [BUILD] NotesStream showing notes list '
-                          '(${snapshot.data!.length} notes)'));
-                      return _buildNotesList(snapshot.data!);
-                    },
-                  ),
-                  bottomBar: isTrashView
-                      ? null
-                      : Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: fluent.Row(
-                            mainAxisAlignment: fluent.MainAxisAlignment.end,
-                            children: [
-                              fluent.FilledButton(
-                                onPressed: _createNewNote,
-                                child: const fluent.Row(
-                                  mainAxisSize: fluent.MainAxisSize.min,
-                                  children: [
-                                    Icon(fluent.FluentIcons.add),
-                                    SizedBox(width: 8),
-                                    Text('New Note'),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              fluent.Button(
-                                onPressed: _abrirEditorRapido,
-                                child: const fluent.Row(
-                                  mainAxisSize: fluent.MainAxisSize.min,
-                                  children: [
-                                    Icon(fluent.FluentIcons.quick_note),
-                                    SizedBox(width: 8),
-                                    Text('Quick Note'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+          content: Material(
+            type: MaterialType.transparency,
+            child: Row(
+              children: [
+                Sidebar(onSelectionChanged: _onSelectionChanged),
+                Expanded(
+                  child: fluent.ScaffoldPage(
+                    header: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: fluent.TextBox(
+                        controller: _searchController,
+                        placeholder: 'Search is temporarily disabled...',
+                        prefix: const Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Icon(fluent.FluentIcons.search),
                         ),
+                        enabled: false,
+                      ),
+                    ),
+                    content: StreamBuilder<List<Note>>(
+                      stream: _notesStream,
+                      initialData: _syncService.currentNotes,
+                      builder: (context, snapshot) {
+                        unawaited(StartupLogger.log(
+                            '🎨 [BUILD] NotesStream StreamBuilder called - '
+                            'hasData: ${snapshot.hasData}, '
+                            'connectionState: ${snapshot.connectionState}'));
+                        if (snapshot.connectionState == ConnectionState.waiting &&
+                            !snapshot.hasData) {
+                          unawaited(StartupLogger.log(
+                              '🎨 [BUILD] NotesStream showing spinner'));
+                          return const Center(child: SizedBox(width: 20, height: 20));
+                        }
+                        if (snapshot.hasError) {
+                          unawaited(StartupLogger.log(
+                              '❌ [BUILD] NotesStream error: ${snapshot.error}'));
+                          return Center(child: Text('Error: ${snapshot.error}'));
+                        }
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          unawaited(StartupLogger.log(
+                              '🎨 [BUILD] NotesStream showing EmptyState'));
+                          return const EmptyState(
+                            icon: fluent.FluentIcons.note_forward,
+                            message: 'No notes yet. Create one!',
+                          );
+                        }
+                        unawaited(StartupLogger.log(
+                            '🎨 [BUILD] NotesStream showing notes list '
+                            '(${snapshot.data!.length} notes)'));
+                        return _buildNotesList(snapshot.data!);
+                      },
+                    ),
+                    bottomBar: isTrashView
+                        ? null
+                        : Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: fluent.Row(
+                              mainAxisAlignment: fluent.MainAxisAlignment.end,
+                              children: [
+                                fluent.FilledButton(
+                                  onPressed: _createNewNote,
+                                  child: const fluent.Row(
+                                    mainAxisSize: fluent.MainAxisSize.min,
+                                    children: [
+                                      Icon(fluent.FluentIcons.add),
+                                      SizedBox(width: 8),
+                                      Text('New Note'),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                fluent.Button(
+                                  onPressed: _abrirEditorRapido,
+                                  child: const fluent.Row(
+                                    mainAxisSize: fluent.MainAxisSize.min,
+                                    children: [
+                                      Icon(fluent.FluentIcons.quick_note),
+                                      SizedBox(width: 8),
+                                      Text('Quick Note'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
-    } on Exception catch (e, stack) {
+    } catch (e, stack) {
       unawaited(StartupLogger.log('🔥 CRASH in _buildFluentUI: $e'));
       unawaited(StartupLogger.log(stack.toString()));
       return Scaffold(body: Center(child: Text('UI Crash: $e')));
