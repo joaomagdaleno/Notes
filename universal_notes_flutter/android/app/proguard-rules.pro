@@ -22,6 +22,13 @@
 -keep class io.opentelemetry.** { *; }
 -dontwarn io.opentelemetry.**
 
+# Play Core (referenced by Flutter but not always included)
+-dontwarn com.google.android.play.core.**
+
+# gRPC / OkHttp (grpc-okhttp references legacy OkHttp classes)
+-dontwarn com.squareup.okhttp.**
+-dontwarn io.grpc.okhttp.**
+
 # General R8/ProGuard Rules
 -keepattributes *Annotation*
 -keepattributes Signature
