@@ -327,7 +327,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           });
         }
       }
-    } on Object catch (e, stack) {
+    } catch (e, stack) {
       debugPrint('❌ [AUTH] Error during biometric check: $e');
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         await FirebaseCrashlytics.instance.recordError(
