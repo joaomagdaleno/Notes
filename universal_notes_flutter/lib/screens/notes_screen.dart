@@ -771,8 +771,17 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Widget _buildFluentUI() {
-    unawaited(StartupLogger.log('☢️ [DOUBLE NUCLEAR] _buildFluentUI: Returning RED CONTAINER'));
-    return Container(color: Colors.red);
+    unawaited(StartupLogger.log('🧪 [TRIPLE NUCLEAR] _buildFluentUI: Testing ScaffoldPage (GREEN)'));
+    return fluent.FluentTheme(
+      data: fluent.FluentThemeData.light(),
+      child: fluent.ScaffoldPage(
+        header: const Padding(
+           padding: EdgeInsets.all(8.0),
+           child: Text('TRIPLE NUCLEAR - SCAFFOLD PAGE'),
+        ),
+        content: Container(color: Colors.green),
+      ),
+    );
   }
 
   @override
