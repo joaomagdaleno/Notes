@@ -114,26 +114,33 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   @override
   void initState() {
     super.initState();
-    unawaited(StartupLogger.log('🎬 NotesScreen.initState starting after super.initState'));
+    unawaited(StartupLogger.log(
+        '🎬 NotesScreen.initState starting after super.initState'));
     try {
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: assigning _updateService...'));
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: assigning _updateService...'));
       _updateService = widget.updateService ?? UpdateService();
-      unawaited(StartupLogger.log('✅ NotesScreen.initState: _updateService assigned'));
+      unawaited(StartupLogger.log(
+          '✅ NotesScreen.initState: _updateService assigned'));
 
-      unawaited(StartupLogger.log('⏳ NotesScreen.initstate: connecting to notesStream...'));
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initstate: connecting to notesStream...'));
       _notesStream = _syncService.notesStream;
-      
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: adding windowManager listener...'));
+
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: adding windowManager listener...'));
       windowManager.addListener(this);
-      
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: calling _updateNotesStream()...'));
+
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: calling _updateNotesStream()...'));
       _updateNotesStream();
-      
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: adding searchController listener...'));
+
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: adding searchController listener...'));
       _searchController.addListener(_onSearchChanged);
-      
+
       unawaited(StartupLogger.log('✅ NotesScreen.initState complete'));
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       unawaited(StartupLogger.log('🔥 CRASH in NotesScreen.initState: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
@@ -190,28 +197,28 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       switch (_selection.type) {
         case SidebarItemType.all:
           isInTrash = false;
-          break;
         case SidebarItemType.favorites:
           isFavorite = true;
           isInTrash = false;
-          break;
         case SidebarItemType.trash:
           isInTrash = true;
-          break;
         case SidebarItemType.folder:
           if (_selection.folder != null) {
             folderId = _selection.folder!.id;
             isInTrash = false;
           }
-          break;
         case SidebarItemType.tag:
           tagId = _selection.tag;
           isInTrash = false;
-          break;
       }
 
-      unawaited(StartupLogger.log('🌊 NotesScreen._updateNotesStream: filter params - '
-          'folderId: $folderId, tagId: $tagId, isFavorite: $isFavorite, isInTrash: $isInTrash'));
+      unawaited(
+        StartupLogger.log(
+          '🌊 NotesScreen._updateNotesStream: filter params - '
+          'folderId: $folderId, tagId: $tagId, isFavorite: $isFavorite, '
+          'isInTrash: $isInTrash',
+        ),
+      );
 
       // Trigger refresh of local data into the stream
       unawaited(
@@ -222,7 +229,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           isInTrash: isInTrash,
         ),
       );
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       unawaited(StartupLogger.log('🔥 ERROR in _updateNotesStream: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
@@ -768,105 +775,55 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     try {
       final isTrashView = _selection.type == SidebarItemType.trash;
       unawaited(StartupLogger.log('🎨 [BUILD] _buildFluentUI: isTrashView=$isTrashView'));
-      // Wrap with FluentTheme since we're inside MaterialApp
+
       return fluent.FluentTheme(
         data: fluent.FluentThemeData.light(),
         child: fluent.NavigationView(
           appBar: fluent.NavigationAppBar(
+            automaticallyImplyLeading: false,
             title: Text(_getAppBarTitle()),
-            actions: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: fluent.Row(
-                mainAxisSize: fluent.MainAxisSize.min,
-                mainAxisAlignment: fluent.MainAxisAlignment.end,
+            actions: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  fluent.Tooltip(
-                    message: 'Sort Order',
-                    child: fluent.DropDownButton(
-                      title: const Icon(fluent.FluentIcons.sort),
-                      items: [
-                        fluent.MenuFlyoutItem(
-                          text: const Text('Data (Mais Recentes)'),
-                          onPressed: () =>
-                              _sortOrderNotifier.value = SortOrder.dateDesc,
-                        ),
-                        fluent.MenuFlyoutItem(
-                          text: const Text('Data (Mais Antigas)'),
-                          onPressed: () =>
-                              _sortOrderNotifier.value = SortOrder.dateAsc,
-                        ),
-                        fluent.MenuFlyoutItem(
-                          text: const Text('Título (A-Z)'),
-                          onPressed: () =>
-                              _sortOrderNotifier.value = SortOrder.titleAsc,
-                        ),
-                        fluent.MenuFlyoutItem(
-                          text: const Text('Título (Z-A)'),
-                          onPressed: () =>
-                              _sortOrderNotifier.value = SortOrder.titleDesc,
-                        ),
-                      ],
-                    ),
+                   ValueListenableBuilder<String>(
+                    valueListenable: _viewModeNotifier,
+                    builder: (context, currentMode, child) {
+                      final props = _getNextViewModeProperties(
+                        currentMode,
+                        isFluent: true,
+                      );
+                      return fluent.IconButton(
+                        icon: Icon(props.icon),
+                        onPressed: _cycleViewMode,
+                      );
+                    },
                   ),
                   const SizedBox(width: 8),
-                  Flexible(
-                    child: ValueListenableBuilder<String>(
-                      valueListenable: _viewModeNotifier,
-                      builder: (context, currentMode, child) {
-                        final nextMode = _getNextViewModeProperties(
-                          currentMode,
-                          isFluent: true,
-                        );
-                        return fluent.CommandBar(
-                          primaryItems: [
-                            fluent.CommandBarButton(
-                              icon: Icon(nextMode.icon),
-                              tooltip: nextMode.tooltip,
-                              onPressed: _cycleViewMode,
-                            ),
-                            fluent.CommandBarButton(
-                              icon: const Icon(fluent.FluentIcons.update_restore),
-                              tooltip: 'Check for Updates',
-                              onPressed: () =>
-                                  unawaited(_updateService.checkForUpdate()),
-                            ),
-                            fluent.CommandBarButton(
-                              icon: const Icon(fluent.FluentIcons.brightness),
-                              tooltip: 'Toggle Theme',
-                              onPressed: () {
-                                if (context.mounted) {
-                                  unawaited(
-                                    Provider.of<ThemeService>(
-                                      context,
-                                      listen: false,
-                                    ).toggleTheme(),
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                  fluent.IconButton(
+                    icon: const Icon(fluent.FluentIcons.refresh),
+                    onPressed: () => unawaited(_updateService.checkForUpdate()),
                   ),
                 ],
               ),
             ),
           ),
-          pane: fluent.NavigationPane(
-            displayMode: fluent.PaneDisplayMode.top,
-            items: [],
-          ),
-          content: Material(
-            key: const ValueKey('fluent_content_wrapper'),
-            type: MaterialType.transparency,
-            child: Row(
-              children: [
-                Sidebar(
+          content: Row(
+            children: [
+              // Wrap Sidebar in its own Material for ListTile/Theme context
+              Material(
+                key: const ValueKey('sidebar_material_wrapper'),
+                type: MaterialType.transparency,
+                child: Sidebar(
                   key: const ValueKey('fluent_sidebar'),
                   onSelectionChanged: _onSelectionChanged,
                 ),
-                Expanded(
+              ),
+              Expanded(
+                child: Material(
+                  key: const ValueKey('content_material_wrapper'),
+                  type: MaterialType.transparency,
                   child: fluent.ScaffoldPage(
                     header: Padding(
                       padding: const EdgeInsets.all(8),
@@ -885,31 +842,23 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                       initialData: _syncService.currentNotes,
                       builder: (context, snapshot) {
                         unawaited(StartupLogger.log(
-                            '🎨 [BUILD] StreamBuilder inner - '
-                            'hasData: ${snapshot.hasData}, '
-                            'items: ${snapshot.data?.length}'));
+                            '🎨 [BUILD] StreamBuilder inner - hasData: ${snapshot.hasData}, items: ${snapshot.data?.length}'));
                         if (snapshot.connectionState == ConnectionState.waiting &&
                             !snapshot.hasData) {
-                          unawaited(StartupLogger.log(
-                              '🎨 [BUILD] NotesStream showing spinner'));
-                          return const Center(child: SizedBox(width: 20, height: 20));
+                          return const Center(child: fluent.ProgressRing());
                         }
                         if (snapshot.hasError) {
                           unawaited(StartupLogger.log(
-                              '❌ [BUILD] NotesStream error: ${snapshot.error}'));
+                            '❌ [BUILD] StreamBuilder error: ${snapshot.error}',
+                          ));
                           return Center(child: Text('Error: ${snapshot.error}'));
                         }
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          unawaited(StartupLogger.log(
-                              '🎨 [BUILD] NotesStream showing EmptyState'));
                           return const EmptyState(
                             icon: fluent.FluentIcons.note_forward,
                             message: 'No notes yet. Create one!',
                           );
                         }
-                        unawaited(StartupLogger.log(
-                            '🎨 [BUILD] NotesStream showing notes list '
-                            '(${snapshot.data!.length} notes)'));
                         return _buildNotesList(snapshot.data!);
                       },
                     ),
@@ -917,12 +866,12 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                         ? null
                         : Padding(
                             padding: const EdgeInsets.all(16),
-                            child: fluent.Row(
+                            child: Row(
                               mainAxisAlignment: fluent.MainAxisAlignment.end,
                               children: [
                                 fluent.FilledButton(
                                   onPressed: _createNewNote,
-                                  child: const fluent.Row(
+                                  child: const Row(
                                     mainAxisSize: fluent.MainAxisSize.min,
                                     children: [
                                       Icon(fluent.FluentIcons.add),
@@ -934,7 +883,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                                 const SizedBox(width: 16),
                                 fluent.Button(
                                   onPressed: _abrirEditorRapido,
-                                  child: const fluent.Row(
+                                  child: const Row(
                                     mainAxisSize: fluent.MainAxisSize.min,
                                     children: [
                                       Icon(fluent.FluentIcons.quick_note),
@@ -948,12 +897,12 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                           ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       unawaited(StartupLogger.log('🔥 CRASH in _buildFluentUI: $e'));
       unawaited(StartupLogger.log(stack.toString()));
       return Scaffold(body: Center(child: Text('UI Crash: $e')));
@@ -962,15 +911,23 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    unawaited(StartupLogger.log(
-        '🎨 [BUILD] NotesScreen.build called - platform: $defaultTargetPlatform'));
+    unawaited(
+      StartupLogger.log(
+        '🎨 [BUILD] NotesScreen.build called - '
+        'platform: $defaultTargetPlatform',
+      ),
+    );
     if (!kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.windows ||
             defaultTargetPlatform == TargetPlatform.linux ||
             defaultTargetPlatform == TargetPlatform.macOS)) {
       return _buildFluentUI();
     }
-    unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen returning MaterialUI (mobile)'));
+    unawaited(
+      StartupLogger.log(
+        '🎨 [BUILD] NotesScreen returning MaterialUI (mobile)',
+      ),
+    );
     return _buildMaterialUI();
   }
 }

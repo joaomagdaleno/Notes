@@ -174,7 +174,9 @@ class _SidebarState extends State<Sidebar> {
   @override
   Widget build(BuildContext context) {
     unawaited(StartupLogger.log('🎨 [BUILD] Sidebar.build called'));
-    unawaited(StartupLogger.log('🎨 [BUILD] Sidebar.build - context: $context'));
+    unawaited(
+      StartupLogger.log('🎨 [BUILD] Sidebar.build - context: $context'),
+    );
     // Use a Container on desktop to avoid Material Drawer conflicts with
     // Fluent UI
     return Container(

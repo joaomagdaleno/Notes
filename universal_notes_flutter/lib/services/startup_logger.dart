@@ -22,9 +22,9 @@ class StartupLogger {
       );
 
       // Clear previous logs or start fresh
-      if (await _logFile!.exists()) {
+      if (_logFile!.existsSync()) {
         try {
-          await _logFile!.delete();
+          _logFile!.deleteSync();
         } on Exception catch (e) {
           debugPrint('⚠️ Could not delete old log file: $e');
         }
@@ -49,7 +49,7 @@ class StartupLogger {
     _buffer.writeln(logMessage);
 
     // Enqueue file write to ensure sequential, non-overlapping access
-    _lock = _lock.then((_) async {
+    return _lock = _lock.then((_) async {
       if (_initialized && _logFile != null) {
         try {
           await _logFile!.writeAsString(
@@ -64,8 +64,6 @@ class StartupLogger {
     }).catchError((dynamic e) {
       debugPrint('⚠️ StartupLogger queue error: $e');
     });
-    
-    return _lock;
   }
 
   /// Gets the full log content.
