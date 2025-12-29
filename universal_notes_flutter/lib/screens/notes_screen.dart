@@ -843,19 +843,24 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 stream: _notesStream,
                 initialData: _syncService.currentNotes,
                 builder: (context, snapshot) {
+                  unawaited(StartupLogger.log('🎨 [BUILD] NotesStream StreamBuilder called - hasData: ${snapshot.hasData}, connectionState: ${snapshot.connectionState}'));
                   if (snapshot.connectionState == ConnectionState.waiting &&
-                      !snapshot.hasData) {
+                        !snapshot.hasData) {
+                    unawaited(StartupLogger.log('🎨 [BUILD] NotesStream showing spinner'));
                     return const Center(child: SizedBox(width: 20, height: 20));
                   }
                   if (snapshot.hasError) {
+                    unawaited(StartupLogger.log('❌ [BUILD] NotesStream error: ${snapshot.error}'));
                     return Center(child: Text('Error: ${snapshot.error}'));
                   }
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    unawaited(StartupLogger.log('🎨 [BUILD] NotesStream showing EmptyState'));
                     return const EmptyState(
                       icon: fluent.FluentIcons.note_forward,
                       message: 'No notes yet. Create one!',
                     );
                   }
+                  unawaited(StartupLogger.log('🎨 [BUILD] NotesStream showing notes list (${snapshot.data!.length} notes)'));
                   return _buildNotesList(snapshot.data!);
                 },
               ),
