@@ -9,6 +9,7 @@ class StartupLogger {
   static File? _logFile;
   static final StringBuffer _buffer = StringBuffer();
   static bool _initialized = false;
+  static Future<void> _lock = Future.value();
 
   /// Initializes the logger by creating or clearing the log file.
   static Future<void> init() async {
@@ -22,7 +23,11 @@ class StartupLogger {
 
       // Clear previous logs or start fresh
       if (await _logFile!.exists()) {
-        await _logFile!.delete();
+        try {
+          await _logFile!.delete();
+        } on Exception catch (e) {
+          debugPrint('⚠️ Could not delete old log file: $e');
+        }
       }
 
       _initialized = true;
@@ -37,24 +42,30 @@ class StartupLogger {
     final timestamp = DateTime.now().toIso8601String();
     final logMessage = '[$timestamp] $message';
     
-    // Print to console
+    // Print to console (always safe)
     debugPrint(logMessage);
 
-    // Buffer locally
+    // Buffer locally (always safe)
     _buffer.writeln(logMessage);
 
-    // Write to file if initialized
-    if (_initialized && _logFile != null) {
-      try {
-        await _logFile!.writeAsString(
-          '$logMessage\n',
-          mode: FileMode.append,
-          flush: true,
-        );
-      } on Exception catch (e) {
-        debugPrint('❌ Failed to write to log file: $e');
+    // Enqueue file write to ensure sequential, non-overlapping access
+    _lock = _lock.then((_) async {
+      if (_initialized && _logFile != null) {
+        try {
+          await _logFile!.writeAsString(
+            '$logMessage\n',
+            mode: FileMode.append,
+            flush: true,
+          );
+        } on Exception catch (e) {
+          debugPrint('❌ Failed to write to log file: $e');
+        }
       }
-    }
+    }).catchError((dynamic e) {
+      debugPrint('⚠️ StartupLogger queue error: $e');
+    });
+    
+    return _lock;
   }
 
   /// Gets the full log content.
