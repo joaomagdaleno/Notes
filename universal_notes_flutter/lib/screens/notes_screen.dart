@@ -4,11 +4,11 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide MenuBar, MenuAnchor, MenuItemButton, SearchBar;
 import 'package:provider/provider.dart';
-import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/screens/settings_screen.dart';
 import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
@@ -249,8 +249,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final note = Note(
       id: const Uuid().v4(),
       title: 'Nova Nota',
-      content:
-          DocumentModel.empty().toJson().toString(), // Or empty string literal
+      content: '', // Use empty string for new notes
       createdAt: DateTime.now(),
       lastModified: DateTime.now(),
       ownerId: 'user', // Default user
@@ -269,7 +268,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final note = Note(
       id: const Uuid().v4(),
       title: title,
-      content: DocumentModel.empty().toJson().toString(),
+      content: '',
       createdAt: DateTime.now(),
       lastModified: DateTime.now(),
       ownerId: 'user',
@@ -637,6 +636,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               }
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () {
+              unawaited(
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                ),
+              );
+            },
+          ),
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
             tooltip: 'Sort Order',
@@ -794,20 +806,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           // Main content on the right
           Expanded(
             child: fluent.ScaffoldPage(
-              header: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-                child: Row(
+              header: fluent.PageHeader(
+                padding: 12,
+                title: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                commandBar: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    // Action Buttons (Search toggle, Refresh, mode cycle)
+                    // Persona / View Mode (Discrete)
                     ValueListenableBuilder<String>(
                       valueListenable: _viewModeNotifier,
                       builder: (context, currentMode, child) {
@@ -815,16 +826,55 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                           currentMode,
                           isFluent: true,
                         );
-                        return fluent.IconButton(
-                          icon: Icon(props.icon),
-                          onPressed: _cycleViewMode,
+                        return fluent.Tooltip(
+                          message: 'Persona: ${props.tooltip}',
+                          child: fluent.IconButton(
+                            icon: Icon(props.icon, size: 16),
+                            onPressed: _cycleViewMode,
+                          ),
                         );
                       },
                     ),
-                    const SizedBox(width: 8),
-                    fluent.IconButton(
-                      icon: const Icon(fluent.FluentIcons.refresh),
-                      onPressed: () => unawaited(_updateService.checkForUpdate()),
+                    const SizedBox(width: 4),
+                    fluent.Tooltip(
+                      message: 'Toggle Theme',
+                      child: fluent.IconButton(
+                        icon: const Icon(fluent.FluentIcons.brightness, size: 16),
+                        onPressed: () {
+                          if (context.mounted) {
+                            unawaited(
+                              Provider.of<ThemeService>(
+                                context,
+                                listen: false,
+                              ).toggleTheme(),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    fluent.Tooltip(
+                      message: 'Check for Updates',
+                      child: fluent.IconButton(
+                        icon: const Icon(fluent.FluentIcons.update_restore, size: 16),
+                        onPressed: () => unawaited(_updateService.checkForUpdate()),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    fluent.Tooltip(
+                      message: 'Settings',
+                      child: fluent.IconButton(
+                        icon: const Icon(fluent.FluentIcons.settings, size: 16),
+                        onPressed: () {
+                          unawaited(
+                            Navigator.of(context).push(
+                              fluent.FluentPageRoute<void>(
+                                builder: (context) => const SettingsScreen(),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -832,13 +882,13 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               content: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
                     child: fluent.TextBox(
                       controller: _searchController,
                       placeholder: 'Search notes...',
                       prefix: const Padding(
                         padding: EdgeInsets.only(left: 8),
-                        child: Icon(fluent.FluentIcons.search),
+                        child: Icon(fluent.FluentIcons.search, size: 14),
                       ),
                     ),
                   ),
