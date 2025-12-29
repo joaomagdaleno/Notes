@@ -114,26 +114,33 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   @override
   void initState() {
     super.initState();
-    unawaited(StartupLogger.log('🎬 NotesScreen.initState starting after super.initState'));
+    unawaited(StartupLogger.log(
+        '🎬 NotesScreen.initState starting after super.initState'));
     try {
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: assigning _updateService...'));
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: assigning _updateService...'));
       _updateService = widget.updateService ?? UpdateService();
-      unawaited(StartupLogger.log('✅ NotesScreen.initState: _updateService assigned'));
+      unawaited(StartupLogger.log(
+          '✅ NotesScreen.initState: _updateService assigned'));
 
-      unawaited(StartupLogger.log('⏳ NotesScreen.initstate: connecting to notesStream...'));
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initstate: connecting to notesStream...'));
       _notesStream = _syncService.notesStream;
-      
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: adding windowManager listener...'));
+
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: adding windowManager listener...'));
       windowManager.addListener(this);
-      
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: calling _updateNotesStream()...'));
+
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: calling _updateNotesStream()...'));
       _updateNotesStream();
-      
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: adding searchController listener...'));
+
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: adding searchController listener...'));
       _searchController.addListener(_onSearchChanged);
-      
+
       unawaited(StartupLogger.log('✅ NotesScreen.initState complete'));
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       unawaited(StartupLogger.log('🔥 CRASH in NotesScreen.initState: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
@@ -190,28 +197,28 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       switch (_selection.type) {
         case SidebarItemType.all:
           isInTrash = false;
-          break;
         case SidebarItemType.favorites:
           isFavorite = true;
           isInTrash = false;
-          break;
         case SidebarItemType.trash:
           isInTrash = true;
-          break;
         case SidebarItemType.folder:
           if (_selection.folder != null) {
             folderId = _selection.folder!.id;
             isInTrash = false;
           }
-          break;
         case SidebarItemType.tag:
           tagId = _selection.tag;
           isInTrash = false;
-          break;
       }
 
-      unawaited(StartupLogger.log('🌊 NotesScreen._updateNotesStream: filter params - '
-          'folderId: $folderId, tagId: $tagId, isFavorite: $isFavorite, isInTrash: $isInTrash'));
+      unawaited(
+        StartupLogger.log(
+          '🌊 NotesScreen._updateNotesStream: filter params - '
+          'folderId: $folderId, tagId: $tagId, isFavorite: $isFavorite, '
+          'isInTrash: $isInTrash',
+        ),
+      );
 
       // Trigger refresh of local data into the stream
       unawaited(
@@ -222,7 +229,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           isInTrash: isInTrash,
         ),
       );
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       unawaited(StartupLogger.log('🔥 ERROR in _updateNotesStream: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
@@ -783,7 +790,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                    ValueListenableBuilder<String>(
                     valueListenable: _viewModeNotifier,
                     builder: (context, currentMode, child) {
-                      final props = _getNextViewModeProperties(currentMode, isFluent: true);
+                      final props = _getNextViewModeProperties(
+                        currentMode,
+                        isFluent: true,
+                      );
                       return fluent.IconButton(
                         icon: Icon(props.icon),
                         onPressed: _cycleViewMode,
@@ -838,7 +848,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                           return const Center(child: fluent.ProgressRing());
                         }
                         if (snapshot.hasError) {
-                          unawaited(StartupLogger.log('❌ [BUILD] StreamBuilder error: ${snapshot.error}'));
+                          unawaited(StartupLogger.log(
+                            '❌ [BUILD] StreamBuilder error: ${snapshot.error}',
+                          ));
                           return Center(child: Text('Error: ${snapshot.error}'));
                         }
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -890,7 +902,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           ),
         ),
       );
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       unawaited(StartupLogger.log('🔥 CRASH in _buildFluentUI: $e'));
       unawaited(StartupLogger.log(stack.toString()));
       return Scaffold(body: Center(child: Text('UI Crash: $e')));
@@ -899,15 +911,23 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    unawaited(StartupLogger.log(
-        '🎨 [BUILD] NotesScreen.build called - platform: $defaultTargetPlatform'));
+    unawaited(
+      StartupLogger.log(
+        '🎨 [BUILD] NotesScreen.build called - '
+        'platform: $defaultTargetPlatform',
+      ),
+    );
     if (!kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.windows ||
             defaultTargetPlatform == TargetPlatform.linux ||
             defaultTargetPlatform == TargetPlatform.macOS)) {
       return _buildFluentUI();
     }
-    unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen returning MaterialUI (mobile)'));
+    unawaited(
+      StartupLogger.log(
+        '🎨 [BUILD] NotesScreen returning MaterialUI (mobile)',
+      ),
+    );
     return _buildMaterialUI();
   }
 }
