@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/firebase_options.dart';
 import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
@@ -20,7 +21,6 @@ import 'package:universal_notes_flutter/styles/app_themes.dart';
 import 'package:universal_notes_flutter/widgets/command_palette.dart';
 import 'package:universal_notes_flutter/widgets/sync_conflict_listener.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   runZonedGuarded(
@@ -94,9 +94,8 @@ class _AppBootstrapState extends State<AppBootstrap> {
           };
           await StartupLogger.log('✅ Crashlytics configured');
         }
-      } catch (e, stack) {
+      } on Exception catch (e) {
         await StartupLogger.log('❌ Firebase initialization failed: $e');
-        await StartupLogger.log(stack.toString());
         // Continue without Firebase on desktop
       }
 
@@ -107,18 +106,19 @@ class _AppBootstrapState extends State<AppBootstrap> {
         try {
           await windowManager.ensureInitialized();
           const windowOptions = WindowOptions(
-            size: Size(800, 600),
+            size: Size(1280, 800),
             center: true,
-            minimumSize: Size(400, 300),
+            backgroundColor: Colors.transparent,
+            skipTaskbar: false,
+            titleBarStyle: TitleBarStyle.normal,
           );
           await windowManager.waitUntilReadyToShow(windowOptions, () async {
             await windowManager.show();
             await windowManager.focus();
           });
           await StartupLogger.log('✅ WindowManager initialized');
-        } catch (e, stack) {
-          await StartupLogger.log('❌ WindowManager failed: $e');
-          await StartupLogger.log(stack.toString());
+        } on Exception catch (e) {
+          await StartupLogger.log('❌ WindowManager initialization failed: $e');
           // Continue anyway
         }
       }
@@ -131,9 +131,8 @@ class _AppBootstrapState extends State<AppBootstrap> {
           sqfliteFfiInit();
           databaseFactory = databaseFactoryFfi;
           await StartupLogger.log('✅ sqflite FFI initialized');
-        } catch (e, stack) {
+        } on Exception catch (e) {
           await StartupLogger.log('❌ sqflite FFI initialization failed: $e');
-          await StartupLogger.log(stack.toString());
           // This is critical for desktop, but let's continue to show error
         }
       }
@@ -144,7 +143,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
       try {
         await SyncService.instance.init();
         await StartupLogger.log('✅ SyncService initialized');
-      } catch (e, stack) {
+      } on Exception catch (e, stack) {
         await StartupLogger.log('❌ SyncService initialization failed: $e');
         if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
           await FirebaseCrashlytics.instance.recordError(
@@ -163,12 +162,13 @@ class _AppBootstrapState extends State<AppBootstrap> {
           _isInitialized = true;
         });
       }
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       await StartupLogger.log('🔥 FATAL: App initialization failed: $e');
       await StartupLogger.log(stack.toString());
       if (mounted) {
         setState(() {
-          _errorMessage = 'Initialization failed: $e\n\nCheck startup_log.txt for details.';
+          _errorMessage =
+              'Initialization failed: $e\n\nCheck startup_log.txt for details.';
         });
       }
     }

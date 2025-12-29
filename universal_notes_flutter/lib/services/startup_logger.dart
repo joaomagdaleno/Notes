@@ -16,16 +16,18 @@ class StartupLogger {
       if (_initialized) return;
 
       final docsDir = await getApplicationDocumentsDirectory();
-      _logFile = File('${docsDir.path}${Platform.pathSeparator}startup_log.txt');
+      _logFile = File(
+        '${docsDir.path}${Platform.pathSeparator}startup_log.txt',
+      );
 
       // Clear previous logs or start fresh
       if (await _logFile!.exists()) {
         await _logFile!.delete();
       }
-      
+
       _initialized = true;
       await log('🚀 StartupLogger initialized at ${docsDir.path}');
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('❌ Failed to initialize StartupLogger: $e');
     }
   }
@@ -44,8 +46,12 @@ class StartupLogger {
     // Write to file if initialized
     if (_initialized && _logFile != null) {
       try {
-        await _logFile!.writeAsString('$logMessage\n', mode: FileMode.append, flush: true);
-      } catch (e) {
+        await _logFile!.writeAsString(
+          '$logMessage\n',
+          mode: FileMode.append,
+          flush: true,
+        );
+      } on Exception catch (e) {
         debugPrint('❌ Failed to write to log file: $e');
       }
     }

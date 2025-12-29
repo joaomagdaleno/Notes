@@ -199,12 +199,19 @@ jobs:
       - name: Rename APK with version
         working-directory: universal_notes_flutter
         run: |
-          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/universal_notes-v${{ steps.generate_version.outputs.full_version }}.apk
+          APK_PATH=$(find build/app/outputs -name "*.apk" | head -n 1)
+          if [ -n "$APK_PATH" ]; then
+            echo "Found APK at $APK_PATH"
+            mv "$APK_PATH" "build/app/outputs/universal_notes-v${{ steps.generate_version.outputs.full_version }}.apk"
+          else
+            echo "❌ No APK found in build/app/outputs"
+            exit 1
+          fi
       - name: Upload APK Artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: android-apk
-          path: universal_notes_flutter/build/app/outputs/flutter-apk/universal_notes-v${{ steps.generate_version.outputs.full_version }}.apk
+          path: universal_notes_flutter/build/app/outputs/universal_notes-v${{ steps.generate_version.outputs.full_version }}.apk
       - name: Upload Version Artifact (Android)
         uses: actions/upload-artifact@v4
         with:
