@@ -12,6 +12,7 @@ import 'package:universal_notes_flutter/firebase_options.dart';
 import 'package:universal_notes_flutter/screens/notes_screen.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
 import 'package:universal_notes_flutter/services/security_service.dart';
+import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
 import 'package:universal_notes_flutter/services/tracing_service.dart';
@@ -20,103 +21,11 @@ import 'package:universal_notes_flutter/widgets/command_palette.dart';
 import 'package:universal_notes_flutter/widgets/sync_conflict_listener.dart';
 import 'package:window_manager/window_manager.dart';
 
-void main() async {
-  await runZonedGuarded(
-    () async {
-      debugPrint('🚀 [STARTUP] main() execution started');
+void main() {
+  runZonedGuarded(
+    () {
       WidgetsFlutterBinding.ensureInitialized();
-      debugPrint('✅ [STARTUP] WidgetsFlutterBinding initialized');
-
-      // Initialize Tracing
-      TracingService().init();
-      debugPrint('✅ [STARTUP] TracingService initialized');
-
-      // Initialize Firebase
-      try {
-        debugPrint('⏳ [STARTUP] Initializing Firebase...');
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-        debugPrint('✅ [STARTUP] Firebase initialized');
-
-        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-          // Pass all uncaught errors from the framework to Crashlytics.
-          FlutterError.onError = (errorDetails) {
-            unawaited(
-              FirebaseCrashlytics.instance.recordFlutterFatalError(
-                errorDetails,
-              ),
-            );
-          };
-          debugPrint(
-            '✅ [STARTUP] Crashlytics recordFlutterFatalError configured',
-          );
-
-          // Pass all uncaught asynchronous errors that aren't handled by the
-          // Flutter framework to Crashlytics
-          PlatformDispatcher.instance.onError = (error, stack) {
-            unawaited(
-              FirebaseCrashlytics.instance.recordError(
-                error,
-                stack,
-                fatal: true,
-              ),
-            );
-            return true;
-          };
-          debugPrint('✅ [STARTUP] PlatformDispatcher.onError configured');
-        }
-      } on Object catch (e, stack) {
-        debugPrint('❌ [STARTUP] Firebase initialization failed: $e');
-        debugPrint(stack.toString());
-      }
-
-      // Windows/Desktop window setup
-      if (!kIsWeb &&
-          (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
-        debugPrint('⏳ [STARTUP] Initializing WindowManager...');
-        await windowManager.ensureInitialized();
-        const windowOptions = WindowOptions(
-          size: Size(800, 600),
-          center: true,
-          minimumSize: Size(400, 300),
-        );
-        await windowManager.waitUntilReadyToShow(windowOptions, () async {
-          await windowManager.show();
-          await windowManager.focus();
-        });
-        debugPrint('✅ [STARTUP] WindowManager initialized');
-      }
-
-      // Initialize Sync Service
-      try {
-        debugPrint('⏳ [STARTUP] Initializing SyncService...');
-        await SyncService.instance.init();
-        debugPrint('✅ [STARTUP] SyncService initialized');
-      } on Object catch (e, stack) {
-        debugPrint('❌ [STARTUP] SyncService initialization failed: $e');
-        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-          await FirebaseCrashlytics.instance.recordError(
-            e,
-            stack,
-            reason: 'SyncService init failure',
-          );
-        }
-      }
-
-      debugPrint('🚀 [STARTUP] Running App...');
-      runApp(
-        MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (_) => ThemeService()),
-            StreamProvider<User?>.value(
-              value: AuthService().authStateChanges,
-              initialData: null,
-            ),
-          ],
-          child: const MyApp(),
-        ),
-      );
+      runApp(const AppBootstrap());
     },
     (error, stack) {
       debugPrint('🔥 [FATAL] Global runZonedGuarded error: $error');
@@ -130,6 +39,201 @@ void main() async {
   );
 }
 
+/// Bootstrap widget that handles async initialization and shows a splash screen.
+class AppBootstrap extends StatefulWidget {
+  /// Creates a new instance of [AppBootstrap].
+  const AppBootstrap({super.key});
+
+  @override
+  State<AppBootstrap> createState() => _AppBootstrapState();
+}
+
+class _AppBootstrapState extends State<AppBootstrap> {
+  bool _isInitialized = false;
+  String? _errorMessage;
+  String _currentStep = 'Starting...';
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_initializeApp());
+  }
+
+  Future<void> _initializeApp() async {
+    try {
+      // Initialize StartupLogger first
+      await StartupLogger.init();
+      await StartupLogger.log('🚀 App initialization started');
+
+      // Update UI
+      _updateStep('Initializing Tracing...');
+      TracingService().init();
+      await StartupLogger.log('✅ TracingService initialized');
+
+      // Initialize Firebase
+      _updateStep('Initializing Firebase...');
+      await StartupLogger.log('⏳ Initializing Firebase...');
+      try {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        await StartupLogger.log('✅ Firebase initialized');
+
+        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+          FlutterError.onError = (errorDetails) {
+            unawaited(
+              FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails),
+            );
+          };
+          PlatformDispatcher.instance.onError = (error, stack) {
+            unawaited(
+              FirebaseCrashlytics.instance.recordError(error, stack, fatal: true),
+            );
+            return true;
+          };
+          await StartupLogger.log('✅ Crashlytics configured');
+        }
+      } catch (e, stack) {
+        await StartupLogger.log('❌ Firebase initialization failed: $e');
+        await StartupLogger.log(stack.toString());
+        // Continue without Firebase on desktop
+      }
+
+      // Windows/Desktop window setup
+      if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+        _updateStep('Initializing Window...');
+        await StartupLogger.log('⏳ Initializing WindowManager...');
+        try {
+          await windowManager.ensureInitialized();
+          const windowOptions = WindowOptions(
+            size: Size(800, 600),
+            center: true,
+            minimumSize: Size(400, 300),
+          );
+          await windowManager.waitUntilReadyToShow(windowOptions, () async {
+            await windowManager.show();
+            await windowManager.focus();
+          });
+          await StartupLogger.log('✅ WindowManager initialized');
+        } catch (e, stack) {
+          await StartupLogger.log('❌ WindowManager failed: $e');
+          await StartupLogger.log(stack.toString());
+          // Continue anyway
+        }
+      }
+
+      // Initialize Sync Service
+      _updateStep('Initializing Sync Service...');
+      await StartupLogger.log('⏳ Initializing SyncService...');
+      try {
+        await SyncService.instance.init();
+        await StartupLogger.log('✅ SyncService initialized');
+      } catch (e, stack) {
+        await StartupLogger.log('❌ SyncService initialization failed: $e');
+        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+          await FirebaseCrashlytics.instance.recordError(
+            e,
+            stack,
+            reason: 'SyncService init failure',
+          );
+        }
+        // Continue anyway
+      }
+
+      await StartupLogger.log('🚀 App initialization complete, launching UI');
+      
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+      }
+    } catch (e, stack) {
+      await StartupLogger.log('🔥 FATAL: App initialization failed: $e');
+      await StartupLogger.log(stack.toString());
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Initialization failed: $e\n\nCheck startup_log.txt for details.';
+        });
+      }
+    }
+  }
+
+  void _updateStep(String step) {
+    if (mounted) {
+      setState(() {
+        _currentStep = step;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_errorMessage != null) {
+      return MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    _errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _errorMessage = null;
+                        _isInitialized = false;
+                        _currentStep = 'Retrying...';
+                      });
+                      unawaited(_initializeApp());
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (!_isInitialized) {
+      return MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 24),
+                Text(_currentStep, style: const TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+        StreamProvider<User?>.value(
+          value: AuthService().authStateChanges,
+          initialData: null,
+        ),
+      ],
+      child: const MyApp(),
+    );
+  }
+}
+
 /// The root widget of the application.
 class MyApp extends StatelessWidget {
   /// Creates a new instance of [MyApp].
@@ -137,11 +241,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ⚡ Bolt: This is a performance optimization.
-    // By using the `child` property of the `Consumer`, we ensure that the
-    // `AuthWrapper` and its descendants are built only once. Only the
-    // `MaterialApp` is rebuilt when the theme changes, which is much more
-    // efficient.
     return Consumer<ThemeService>(
       builder: (context, themeService, child) {
         return MaterialApp(
@@ -254,9 +353,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
       );
     }
 
-    // 🚀 Start: Refactored navigation flow.
-    // The app no longer enforces login at startup.
-    // AuthScreen is accessible via the Sidebar for sync features.
     debugPrint('✅ [NAVIGATION] Showing NotesScreen (Auth Optional)');
     return const NotesScreen();
   }
