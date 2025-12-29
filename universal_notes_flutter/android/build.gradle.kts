@@ -5,6 +5,7 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.3")
+        classpath("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
     }
 }
 
