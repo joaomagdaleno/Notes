@@ -20,6 +20,7 @@ import 'package:universal_notes_flutter/styles/app_themes.dart';
 import 'package:universal_notes_flutter/widgets/command_palette.dart';
 import 'package:universal_notes_flutter/widgets/sync_conflict_listener.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   runZonedGuarded(
@@ -119,6 +120,21 @@ class _AppBootstrapState extends State<AppBootstrap> {
           await StartupLogger.log('❌ WindowManager failed: $e');
           await StartupLogger.log(stack.toString());
           // Continue anyway
+        }
+      }
+
+      // Initialize sqflite FFI for desktop platforms
+      if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+        _updateStep('Initializing Database...');
+        await StartupLogger.log('⏳ Initializing sqflite FFI...');
+        try {
+          sqfliteFfiInit();
+          databaseFactory = databaseFactoryFfi;
+          await StartupLogger.log('✅ sqflite FFI initialized');
+        } catch (e, stack) {
+          await StartupLogger.log('❌ sqflite FFI initialization failed: $e');
+          await StartupLogger.log(stack.toString());
+          // This is critical for desktop, but let's continue to show error
         }
       }
 
