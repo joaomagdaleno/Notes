@@ -771,22 +771,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Widget _buildFluentUI() {
-    unawaited(StartupLogger.log('💣 [NUCLEAR] _buildFluentUI: Entering Nuclear Simplification'));
-    try {
-      return fluent.NavigationView(
-        appBar: fluent.NavigationAppBar(
-          automaticallyImplyLeading: false,
-          title: const Text('NUCLEAR TEST - NotesScreen'),
-        ),
-        content: const Center(
-          child: Text('IF YOU SEE THIS, FLUENT UI IS WORKING'),
-        ),
-      );
-    } catch (e, stack) {
-      unawaited(StartupLogger.log('🔥 [CRASH] _buildFluentUI: $e'));
-      unawaited(StartupLogger.log(stack.toString()));
-      return Scaffold(body: Center(child: Text('Nuclear Crash: $e')));
-    }
+    unawaited(StartupLogger.log('☢️ [DOUBLE NUCLEAR] _buildFluentUI: Returning RED CONTAINER'));
+    return Container(color: Colors.red);
   }
 
   @override
