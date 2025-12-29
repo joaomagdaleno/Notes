@@ -184,6 +184,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
 
   @override
   Widget build(BuildContext context) {
+    unawaited(StartupLogger.log('🎨 [BUILD] AppBootstrap.build called - _isInitialized=$_isInitialized, _errorMessage=$_errorMessage'));
     if (_errorMessage != null) {
       return MaterialApp(
         home: Scaffold(
@@ -236,7 +237,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
         ),
       );
     }
-
+    unawaited(StartupLogger.log('🎨 [BUILD] Returning MultiProvider with MyApp'));
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeService()),
@@ -257,6 +258,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🎨 [BUILD] MyApp.build called');
+    unawaited(StartupLogger.log('🎨 [BUILD] MyApp.build called'));
     return Consumer<ThemeService>(
       builder: (context, themeService, child) {
         return MaterialApp(
@@ -344,8 +347,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🎨 [BUILD] AuthWrapper.build called - _isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated');
+    unawaited(StartupLogger.log('🎨 [BUILD] AuthWrapper.build called - _isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated'));
 
     if (_isCheckingAuth) {
+      unawaited(StartupLogger.log('🎨 [BUILD] AuthWrapper showing loading spinner'));
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
