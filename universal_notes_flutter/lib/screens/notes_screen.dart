@@ -771,139 +771,152 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Widget _buildFluentUI() {
-    unawaited(StartupLogger.log('🎨 [BUILD] _buildFluentUI starting'));
+    unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: Entry'));
     try {
       final isTrashView = _selection.type == SidebarItemType.trash;
-      unawaited(StartupLogger.log('🎨 [BUILD] _buildFluentUI: isTrashView=$isTrashView'));
+      final title = _getAppBarTitle();
+      unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: vars - '
+          'isTrashView=$isTrashView, title=$title'));
 
-      return fluent.FluentTheme(
-        data: fluent.FluentThemeData.light(),
-        child: fluent.NavigationView(
-          appBar: fluent.NavigationAppBar(
-            automaticallyImplyLeading: false,
-            title: Text(_getAppBarTitle()),
-            actions: Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                   ValueListenableBuilder<String>(
-                    valueListenable: _viewModeNotifier,
-                    builder: (context, currentMode, child) {
-                      final props = _getNextViewModeProperties(
-                        currentMode,
-                        isFluent: true,
-                      );
-                      return fluent.IconButton(
-                        icon: Icon(props.icon),
-                        onPressed: _cycleViewMode,
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  fluent.IconButton(
-                    icon: const Icon(fluent.FluentIcons.refresh),
-                    onPressed: () => unawaited(_updateService.checkForUpdate()),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          content: Row(
+      final appBar = fluent.NavigationAppBar(
+        automaticallyImplyLeading: false,
+        title: Text(title),
+        actions: Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Wrap Sidebar in its own Material for ListTile/Theme context
-              Material(
-                key: const ValueKey('sidebar_material_wrapper'),
-                type: MaterialType.transparency,
-                child: Sidebar(
-                  key: const ValueKey('fluent_sidebar'),
-                  onSelectionChanged: _onSelectionChanged,
-                ),
+              ValueListenableBuilder<String>(
+                valueListenable: _viewModeNotifier,
+                builder: (context, currentMode, child) {
+                  final props = _getNextViewModeProperties(
+                    currentMode,
+                    isFluent: true,
+                  );
+                  return fluent.IconButton(
+                    icon: Icon(props.icon),
+                    onPressed: _cycleViewMode,
+                  );
+                },
               ),
-              Expanded(
-                child: Material(
-                  key: const ValueKey('content_material_wrapper'),
-                  type: MaterialType.transparency,
-                  child: fluent.ScaffoldPage(
-                    header: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: fluent.TextBox(
-                        controller: _searchController,
-                        placeholder: 'Search is temporarily disabled...',
-                        prefix: const Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Icon(fluent.FluentIcons.search),
-                        ),
-                        enabled: false,
-                      ),
-                    ),
-                    content: StreamBuilder<List<Note>>(
-                      stream: _notesStream,
-                      initialData: _syncService.currentNotes,
-                      builder: (context, snapshot) {
-                        unawaited(StartupLogger.log(
-                            '🎨 [BUILD] StreamBuilder inner - hasData: ${snapshot.hasData}, items: ${snapshot.data?.length}'));
-                        if (snapshot.connectionState == ConnectionState.waiting &&
-                            !snapshot.hasData) {
-                          return const Center(child: fluent.ProgressRing());
-                        }
-                        if (snapshot.hasError) {
-                          unawaited(StartupLogger.log(
-                            '❌ [BUILD] StreamBuilder error: ${snapshot.error}',
-                          ));
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        }
-                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return const EmptyState(
-                            icon: fluent.FluentIcons.note_forward,
-                            message: 'No notes yet. Create one!',
-                          );
-                        }
-                        return _buildNotesList(snapshot.data!);
-                      },
-                    ),
-                    bottomBar: isTrashView
-                        ? null
-                        : Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              mainAxisAlignment: fluent.MainAxisAlignment.end,
-                              children: [
-                                fluent.FilledButton(
-                                  onPressed: _createNewNote,
-                                  child: const Row(
-                                    mainAxisSize: fluent.MainAxisSize.min,
-                                    children: [
-                                      Icon(fluent.FluentIcons.add),
-                                      SizedBox(width: 8),
-                                      Text('New Note'),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                fluent.Button(
-                                  onPressed: _abrirEditorRapido,
-                                  child: const Row(
-                                    mainAxisSize: fluent.MainAxisSize.min,
-                                    children: [
-                                      Icon(fluent.FluentIcons.quick_note),
-                                      SizedBox(width: 8),
-                                      Text('Quick Note'),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                  ),
-                ),
+              const SizedBox(width: 8),
+              fluent.IconButton(
+                icon: const Icon(fluent.FluentIcons.refresh),
+                onPressed: () => unawaited(_updateService.checkForUpdate()),
               ),
             ],
           ),
         ),
       );
-    } on Exception catch (e, stack) {
-      unawaited(StartupLogger.log('🔥 CRASH in _buildFluentUI: $e'));
+      unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: appBar created'));
+
+      final content = Row(
+        children: [
+          // Wrap Sidebar in its own Material for ListTile/Theme context
+          Material(
+            key: const ValueKey('sidebar_material_wrapper'),
+            type: MaterialType.transparency,
+            child: Sidebar(
+              key: const ValueKey('fluent_sidebar'),
+              onSelectionChanged: _onSelectionChanged,
+            ),
+          ),
+          Expanded(
+            child: Material(
+              key: const ValueKey('content_material_wrapper'),
+              type: MaterialType.transparency,
+              child: fluent.ScaffoldPage(
+                header: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: fluent.TextBox(
+                    controller: _searchController,
+                    placeholder: 'Search is temporarily disabled...',
+                    prefix: const Padding(
+                      padding: EdgeInsets.only(left: 8),
+                      child: Icon(fluent.FluentIcons.search),
+                    ),
+                    enabled: false,
+                  ),
+                ),
+                content: StreamBuilder<List<Note>>(
+                  stream: _notesStream,
+                  initialData: _syncService.currentNotes,
+                  builder: (context, snapshot) {
+                    unawaited(StartupLogger.log(
+                        '🎨 [TRACE] StreamBuilder inner - hasData: '
+                        '${snapshot.hasData}, items: ${snapshot.data?.length}'));
+                    if (snapshot.connectionState == ConnectionState.waiting &&
+                        !snapshot.hasData) {
+                      return const Center(child: fluent.ProgressRing());
+                    }
+                    if (snapshot.hasError) {
+                      unawaited(StartupLogger.log(
+                        '❌ [TRACE] StreamBuilder error: ${snapshot.error}',
+                      ));
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const EmptyState(
+                        icon: fluent.FluentIcons.note_forward,
+                        message: 'No notes yet. Create one!',
+                      );
+                    }
+                    return _buildNotesList(snapshot.data!);
+                  },
+                ),
+                bottomBar: isTrashView
+                    ? null
+                    : Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: fluent.MainAxisAlignment.end,
+                          children: [
+                            fluent.FilledButton(
+                              onPressed: _createNewNote,
+                              child: const Row(
+                                mainAxisSize: fluent.MainAxisSize.min,
+                                children: [
+                                  Icon(fluent.FluentIcons.add),
+                                  SizedBox(width: 8),
+                                  Text('New Note'),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            fluent.Button(
+                              onPressed: _abrirEditorRapido,
+                              child: const Row(
+                                mainAxisSize: fluent.MainAxisSize.min,
+                                children: [
+                                  Icon(fluent.FluentIcons.quick_note),
+                                  SizedBox(width: 8),
+                                  Text('Quick Note'),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ],
+      );
+      unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: content created'));
+
+      final navigationView = fluent.NavigationView(
+        appBar: appBar,
+        content: content,
+      );
+      unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: navigationView created'));
+
+      unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: returning FluentTheme'));
+      return fluent.FluentTheme(
+        data: fluent.FluentThemeData.light(),
+        child: navigationView,
+      );
+    } catch (e, stack) {
+      unawaited(StartupLogger.log('🔥 [CRASH] _buildFluentUI: $e'));
       unawaited(StartupLogger.log(stack.toString()));
       return Scaffold(body: Center(child: Text('UI Crash: $e')));
     }
