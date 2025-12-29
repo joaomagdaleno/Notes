@@ -38,7 +38,3 @@
 
 # Retain generic type information for reflection
 -keepattributes Signature
-
-# Prevent R8 from removing needed classes
--dontshrink
--dontoptimize
