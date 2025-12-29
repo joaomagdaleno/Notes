@@ -1,8 +1,8 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
 class WriterToolbar extends StatelessWidget {
+  /// Creates a [WriterToolbar].
   const WriterToolbar({
-    super.key,
     required this.onBold,
     required this.onItalic,
     required this.onUnderline,
@@ -19,23 +19,55 @@ class WriterToolbar extends StatelessWidget {
     required this.canUndo,
     required this.canRedo,
     required this.onStyleToggle,
+    super.key,
   });
 
+  /// Callback for toggling bold style.
   final VoidCallback onBold;
+
+  /// Callback for toggling italic style.
   final VoidCallback onItalic;
+
+  /// Callback for toggling underline style.
   final VoidCallback onUnderline;
+
+  /// Callback for toggling strikethrough style.
   final VoidCallback onStrikethrough;
+
+  /// Callback for changing text color.
   final VoidCallback onColor;
+
+  /// Callback for changing font size.
   final VoidCallback onFontSize;
+
+  /// Callback for changing text alignment.
   final ValueChanged<String> onAlignment;
+
+  /// Callback for changing indentation.
   final ValueChanged<int> onIndent;
+
+  /// Callback for changing list style.
   final ValueChanged<String> onList;
+
+  /// Callback for inserting an image.
   final VoidCallback onImage;
+
+  /// Callback for inserting a link.
   final VoidCallback onLink;
+
+  /// Callback for undoing the last action.
   final VoidCallback onUndo;
+
+  /// Callback for redoing the last undone action.
   final VoidCallback onRedo;
+
+  /// Whether undo is currently available.
   final bool canUndo;
+
+  /// Whether redo is currently available.
   final bool canRedo;
+
+  /// Callback for toggling text style (e.g., headings).
   final ValueChanged<String> onStyleToggle;
 
   @override

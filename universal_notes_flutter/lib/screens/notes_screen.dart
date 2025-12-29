@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide MenuBar, MenuAnchor, MenuItemButton, SearchBar;
+import 'package:flutter/material.dart' hide MenuAnchor, MenuBar, MenuItemButton, SearchBar;
 import 'package:provider/provider.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
@@ -115,28 +115,35 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   void initState() {
     super.initState();
     unawaited(StartupLogger.log(
-        '🎬 NotesScreen.initState starting after super.initState'));
+        '🎬 NotesScreen.initState starting after super.initState',
+    ));
     try {
       unawaited(StartupLogger.log(
-          '⏳ NotesScreen.initState: assigning _updateService...'));
+          '⏳ NotesScreen.initState: assigning _updateService...',
+      ));
       _updateService = widget.updateService ?? UpdateService();
       unawaited(StartupLogger.log(
-          '✅ NotesScreen.initState: _updateService assigned'));
+          '✅ NotesScreen.initState: _updateService assigned',
+      ));
 
       unawaited(StartupLogger.log(
-          '⏳ NotesScreen.initstate: connecting to notesStream...'));
+          '⏳ NotesScreen.initstate: connecting to notesStream...',
+      ));
       _notesStream = _syncService.notesStream;
 
       unawaited(StartupLogger.log(
-          '⏳ NotesScreen.initState: adding windowManager listener...'));
+          '⏳ NotesScreen.initState: adding windowManager listener...',
+      ));
       windowManager.addListener(this);
 
       unawaited(StartupLogger.log(
-          '⏳ NotesScreen.initState: calling _updateNotesStream()...'));
+          '⏳ NotesScreen.initState: calling _updateNotesStream()...',
+      ));
       _updateNotesStream();
 
       unawaited(StartupLogger.log(
-          '⏳ NotesScreen.initState: adding searchController listener...'));
+          '⏳ NotesScreen.initState: adding searchController listener...',
+      ));
       _searchController.addListener(_onSearchChanged);
 
       unawaited(StartupLogger.log('✅ NotesScreen.initState complete'));
@@ -783,7 +790,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Widget _buildFluentUI() {
-    unawaited(StartupLogger.log('🧪 [HYBRID] _buildFluentUI: Reconstructing UI with Row + ScaffoldPage'));
+    unawaited(StartupLogger.log(
+      '🧪 [HYBRID] _buildFluentUI: Reconstructing UI with Row + ScaffoldPage',
+    ));
     try {
       final isTrashView = _selection.type == SidebarItemType.trash;
       final title = _getAppBarTitle();
@@ -839,7 +848,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                     fluent.Tooltip(
                       message: 'Toggle Theme',
                       child: fluent.IconButton(
-                        icon: const Icon(fluent.FluentIcons.brightness, size: 16),
+                        icon: const Icon(
+                          fluent.FluentIcons.brightness,
+                          size: 16,
+                        ),
                         onPressed: () {
                           if (context.mounted) {
                             unawaited(
@@ -856,7 +868,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                     fluent.Tooltip(
                       message: 'Check for Updates',
                       child: fluent.IconButton(
-                        icon: const Icon(fluent.FluentIcons.update_restore, size: 16),
+                        icon: const Icon(
+                          fluent.FluentIcons.update_restore,
+                          size: 16,
+                        ),
                         onPressed: () => unawaited(_updateService.checkForUpdate()),
                       ),
                     ),
@@ -900,8 +915,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                         initialData: _syncService.currentNotes,
                         builder: (context, snapshot) {
                           unawaited(StartupLogger.log(
-                              '🧪 [HYBRID] StreamBuilder pulse - hasData: '
-                              '${snapshot.hasData}, items: ${snapshot.data?.length}'));
+                            '🧪 [HYBRID] StreamBuilder pulse - hasData: '
+                            '${snapshot.hasData}, items: ${snapshot.data?.length}',
+                          ));
                           if (snapshot.connectionState == ConnectionState.waiting &&
                               !snapshot.hasData) {
                             return const Center(child: fluent.ProgressRing());
@@ -964,7 +980,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         data: fluent.FluentThemeData.light(),
         child: content,
       );
-    } catch (e, stack) {
+    } on Object catch (e, stack) {
       unawaited(StartupLogger.log('🔥 [CRASH] _buildFluentUI: $e'));
       unawaited(StartupLogger.log(stack.toString()));
       return Scaffold(body: Center(child: Text('UI Crash: $e')));
@@ -1031,7 +1047,7 @@ class _DashboardCard extends StatelessWidget {
         builder: (context, states) {
           return fluent.Card(
             padding: const EdgeInsets.all(16),
-            backgroundColor: states.isHovering 
+            backgroundColor: states.isHovered 
                 ? color.withValues(alpha: 0.15) 
                 : color.withValues(alpha: 0.1),
             child: Column(

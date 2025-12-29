@@ -15,7 +15,6 @@ import 'package:universal_notes_flutter/editor/virtual_text_buffer.dart';
 import 'package:universal_notes_flutter/editor/widgets/editor_line.dart';
 import 'package:universal_notes_flutter/editor/widgets/grid_painter.dart';
 import 'package:universal_notes_flutter/editor/widgets/line_with_index.dart';
-import 'package:universal_notes_flutter/editor/widgets/persona_button.dart';
 import 'package:universal_notes_flutter/editor/widgets/reading_fab_menu.dart';
 import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
@@ -306,40 +305,50 @@ class EditorWidgetState extends State<EditorWidget> {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          PersonaButton(
-            persona: EditorPersona.architect,
-            activePersona: _activePersona,
-            icon: Icons.architecture,
-            label: 'Architect',
-            onTap: () =>
-                setState(() => _activePersona = EditorPersona.architect),
-          ),
-          PersonaButton(
-            persona: EditorPersona.writer,
-            activePersona: _activePersona,
-            icon: Icons.description,
-            label: 'Writer',
-            onTap: () => setState(() => _activePersona = EditorPersona.writer),
-          ),
-          PersonaButton(
-            persona: EditorPersona.brainstorm,
-            activePersona: _activePersona,
-            icon: Icons.gesture,
-            label: 'Brainstorm',
-            onTap: () =>
-                setState(() => _activePersona = EditorPersona.brainstorm),
-          ),
-          PersonaButton(
-            persona: EditorPersona.reading,
-            activePersona: _activePersona,
-            icon: Icons.auto_stories,
-            label: 'Reading',
-            onTap: () => setState(() => _activePersona = EditorPersona.reading),
-          ),
-        ],
+      child: IntrinsicWidth(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _PersonaSegment(
+              persona: EditorPersona.architect,
+              activePersona: _activePersona,
+              icon: Icons.architecture,
+              label: 'Architect',
+              onTap: () => setState(() {
+                _activePersona = EditorPersona.architect;
+              }),
+              isFirst: true,
+            ),
+            _PersonaSegment(
+              persona: EditorPersona.writer,
+              activePersona: _activePersona,
+              icon: Icons.description,
+              label: 'Writer',
+              onTap: () => setState(() {
+                _activePersona = EditorPersona.writer;
+              }),
+            ),
+            _PersonaSegment(
+              persona: EditorPersona.brainstorm,
+              activePersona: _activePersona,
+              icon: Icons.gesture,
+              label: 'Brainstorm',
+              onTap: () => setState(() {
+                _activePersona = EditorPersona.brainstorm;
+              }),
+            ),
+            _PersonaSegment(
+              persona: EditorPersona.reading,
+              activePersona: _activePersona,
+              icon: Icons.auto_stories,
+              label: 'Reading',
+              onTap: () => setState(() {
+                _activePersona = EditorPersona.reading;
+              }),
+              isLast: true,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1770,6 +1779,67 @@ class EditorWidgetState extends State<EditorWidget> {
   }
 }
 
-// Classes extracted to lib/editor/widgets/
+class _PersonaSegment extends StatelessWidget {
+  const _PersonaSegment({
+    required this.persona,
+    required this.activePersona,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isFirst = false,
+    this.isLast = false,
+  });
 
-// Classes extracted to lib/editor/widgets/
+  final EditorPersona persona;
+  final EditorPersona activePersona;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isFirst;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isActive = persona == activePersona;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: isActive ? theme.colorScheme.primary : Colors.transparent,
+            borderRadius: BorderRadius.horizontal(
+              left: isFirst ? const Radius.circular(20) : Radius.zero,
+              right: isLast ? const Radius.circular(20) : Radius.zero,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: isActive
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                  color: isActive
+                      ? theme.colorScheme.onPrimary
+                      : theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
