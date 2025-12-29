@@ -896,14 +896,20 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) return _buildMaterialUI();
+    debugPrint('🎨 [BUILD] NotesScreen.build called - platform: $defaultTargetPlatform');
+    if (kIsWeb) {
+      debugPrint('🎨 [BUILD] NotesScreen returning MaterialUI (web)');
+      return _buildMaterialUI();
+    }
 
     final platform = defaultTargetPlatform;
     if (platform == TargetPlatform.windows ||
         platform == TargetPlatform.macOS ||
         platform == TargetPlatform.linux) {
+      debugPrint('🎨 [BUILD] NotesScreen returning FluentUI (desktop)');
       return _buildFluentUI();
     }
+    debugPrint('🎨 [BUILD] NotesScreen returning MaterialUI (mobile)');
     return _buildMaterialUI();
   }
 }
