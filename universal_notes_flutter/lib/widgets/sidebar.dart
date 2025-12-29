@@ -172,10 +172,16 @@ class _SidebarState extends State<Sidebar> {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
+    // Use a Container on desktop to avoid Material Drawer conflicts with Fluent UI
+    return Container(
+      width: 280,
+      color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
-          DrawerHeader(
+          Container(
+            height: 80,
+            padding: const EdgeInsets.all(16),
+            alignment: Alignment.centerLeft,
             child: Text(
               'My Notes',
               style: Theme.of(context).textTheme.headlineSmall,
