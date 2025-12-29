@@ -767,6 +767,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     unawaited(StartupLogger.log('🎨 [BUILD] _buildFluentUI starting'));
     try {
       final isTrashView = _selection.type == SidebarItemType.trash;
+      unawaited(StartupLogger.log('🎨 [BUILD] _buildFluentUI: isTrashView=$isTrashView'));
       // Wrap with FluentTheme since we're inside MaterialApp
       return fluent.FluentTheme(
         data: fluent.FluentThemeData.light(),
@@ -852,11 +853,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               ),
             ),
           ),
+          pane: fluent.NavigationPane(
+            displayMode: fluent.PaneDisplayMode.top,
+            items: [],
+          ),
           content: Material(
+            key: const ValueKey('fluent_content_wrapper'),
             type: MaterialType.transparency,
             child: Row(
               children: [
-                Sidebar(onSelectionChanged: _onSelectionChanged),
+                Sidebar(
+                  key: const ValueKey('fluent_sidebar'),
+                  onSelectionChanged: _onSelectionChanged,
+                ),
                 Expanded(
                   child: fluent.ScaffoldPage(
                     header: Padding(
@@ -876,9 +885,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                       initialData: _syncService.currentNotes,
                       builder: (context, snapshot) {
                         unawaited(StartupLogger.log(
-                            '🎨 [BUILD] NotesStream StreamBuilder called - '
+                            '🎨 [BUILD] StreamBuilder inner - '
                             'hasData: ${snapshot.hasData}, '
-                            'connectionState: ${snapshot.connectionState}'));
+                            'items: ${snapshot.data?.length}'));
                         if (snapshot.connectionState == ConnectionState.waiting &&
                             !snapshot.hasData) {
                           unawaited(StartupLogger.log(
