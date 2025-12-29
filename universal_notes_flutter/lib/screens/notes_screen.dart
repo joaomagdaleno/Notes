@@ -113,8 +113,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   void initState() {
-    unawaited(StartupLogger.log('🎬 NotesScreen.initState starting'));
     super.initState();
+    unawaited(StartupLogger.log('🎬 NotesScreen.initState starting after super.initState'));
     try {
       unawaited(StartupLogger.log('⏳ NotesScreen.initState: assigning _updateService...'));
       _updateService = widget.updateService ?? UpdateService();
