@@ -1021,39 +1021,39 @@ class _DashboardCard extends StatelessWidget {
   );
 
   // being recreated on every build.
-  static const _baseDecoration = BoxDecoration(
-    borderRadius: BorderRadius.all(Radius.circular(16)),
-  );
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 160,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: _baseDecoration.copyWith(
-          color: color.withValues(alpha: 0.1),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: _titleTextStyle.copyWith(color: color),
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: fluent.HoverButton(
+        onPressed: onTap,
+        builder: (context, states) {
+          return fluent.Card(
+            padding: const EdgeInsets.all(16),
+            backgroundColor: states.isHovering 
+                ? color.withValues(alpha: 0.15) 
+                : color.withValues(alpha: 0.1),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                fluent.Icon(icon, color: color, size: 32),
+                const SizedBox(height: 12),
+                fluent.Text(
+                  title,
+                  style: _titleTextStyle.copyWith(color: color),
+                ),
+                fluent.Text(
+                  subtitle,
+                  style: _subtitleTextStyle.copyWith(
+                    color: color.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
             ),
-            Text(
-              subtitle,
-              style: _subtitleTextStyle.copyWith(
-                color: color.withValues(alpha: 0.7),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
