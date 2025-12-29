@@ -133,31 +133,51 @@ class _AuthScreenState extends State<AuthScreen> {
                   if (_showSignUp) ...[
                     InfoLabel(
                       label: 'Nome de Exibição',
-                      child: TextBox(
+                      child: TextFormBox(
                         controller: _nameController,
                         placeholder: 'Como você quer ser chamado',
                         prefix: const Padding(
                           padding: EdgeInsets.only(left: 8),
                           child: Icon(Icons.person_outline),
                         ),
+                        validator: (text) {
+                          if (text == null || text.isEmpty) {
+                            return 'O nome não pode ficar em branco';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                     const SizedBox(height: 16),
                   ],
                   InfoLabel(
                     label: 'Email',
-                    child: TextBox(
+                    child: TextFormBox(
                       controller: _emailController,
                       placeholder: 'seu@email.com',
                       keyboardType: TextInputType.emailAddress,
+                      validator: (text) {
+                        if (text == null ||
+                            text.isEmpty ||
+                            !text.contains('@')) {
+                          return 'Insira um e-mail válido';
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(height: 16),
                   InfoLabel(
                     label: 'Senha',
-                    child: PasswordBox(
+                    child: PasswordFormBox(
                       controller: _passwordController,
                       placeholder: 'Sua senha segura',
+                      validator: (text) {
+                        if (text == null || text.length < 6) {
+                          return 'A senha deve ter pelo menos 6 caracteres';
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(height: 24),
