@@ -113,14 +113,29 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   void initState() {
+    unawaited(StartupLogger.log('⏳ NotesScreen.initState starting'));
     super.initState();
-    // Removed direct FirestoreRepository usage
-    _updateService = widget.updateService ?? UpdateService();
-    _notesStream = _syncService.notesStream; // Point to sync service stream
-    windowManager.addListener(this);
-    // _scrollController.addListener(_onScroll); // Disabled pagination listener
-    _updateNotesStream(); // Initial fetch
-    _searchController.addListener(_onSearchChanged);
+    try {
+      unawaited(StartupLogger.log('⏳ Initializing UpdateService...'));
+      _updateService = widget.updateService ?? UpdateService();
+      
+      unawaited(StartupLogger.log('⏳ Connecting to notesStream...'));
+      _notesStream = _syncService.notesStream; // Point to sync service stream
+      
+      unawaited(StartupLogger.log('⏳ Adding windowManager listener...'));
+      windowManager.addListener(this);
+      
+      unawaited(StartupLogger.log('⏳ Calling _updateNotesStream()...'));
+      _updateNotesStream(); // Initial fetch
+      
+      unawaited(StartupLogger.log('⏳ Adding searchController listener...'));
+      _searchController.addListener(_onSearchChanged);
+      
+      unawaited(StartupLogger.log('✅ NotesScreen.initState complete'));
+    } catch (e, stack) {
+      unawaited(StartupLogger.log('🔥 CRASH in NotesScreen.initState: $e'));
+      unawaited(StartupLogger.log(stack.toString()));
+    }
   }
 
   @override
