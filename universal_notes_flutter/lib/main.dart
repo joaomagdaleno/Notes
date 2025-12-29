@@ -108,7 +108,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
           const windowOptions = WindowOptions(
             size: Size(1280, 800),
             center: true,
-            backgroundColor: Colors.transparent,
+            backgroundColor: Colors.white,
             skipTaskbar: false,
             titleBarStyle: TitleBarStyle.normal,
           );
