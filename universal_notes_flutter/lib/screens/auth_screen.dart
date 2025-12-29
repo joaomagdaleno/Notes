@@ -114,97 +114,102 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationView(
-      appBar: NavigationAppBar(
-        title: Text(_showSignUp ? 'Criar Conta' : 'Entrar'),
-      ),
-      content: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          padding: const EdgeInsets.all(24),
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(FluentIcons.lock),
-                  const SizedBox(height: 24),
-                  if (_showSignUp) ...[
-                    InfoLabel(
-                      label: 'Nome de Exibição',
-                      child: TextBox(
-                        controller: _nameController,
-                        placeholder: 'Como você quer ser chamado',
-                        prefix: const Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Icon(Icons.person_outline),
+    final title = _showSignUp ? 'Criar Conta' : 'Entrar';
+    
+    return FluentTheme(
+      data: FluentThemeData.light(),
+      child: ScaffoldPage(
+        header: PageHeader(
+          title: Text(title),
+        ),
+        content: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            padding: const EdgeInsets.all(24),
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(FluentIcons.lock),
+                    const SizedBox(height: 24),
+                    if (_showSignUp) ...[
+                      InfoLabel(
+                        label: 'Nome de Exibição',
+                        child: TextBox(
+                          controller: _nameController,
+                          placeholder: 'Como você quer ser chamado',
+                          prefix: const Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Icon(Icons.person_outline),
+                          ),
                         ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    InfoLabel(
+                      label: 'Email',
+                      child: TextBox(
+                        controller: _emailController,
+                        placeholder: 'seu@email.com',
+                        keyboardType: TextInputType.emailAddress,
                       ),
                     ),
                     const SizedBox(height: 16),
-                  ],
-                  InfoLabel(
-                    label: 'Email',
-                    child: TextBox(
-                      controller: _emailController,
-                      placeholder: 'seu@email.com',
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  InfoLabel(
-                    label: 'Senha',
-                    child: PasswordBox(
-                      controller: _passwordController,
-                      placeholder: 'Sua senha segura',
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: (_isSigningIn || _isSigningUp)
-                          ? null
-                          : _handleEmailAuth,
-                      child: _isSigningIn || _isSigningUp
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: ProgressRing(),
-                            )
-                          : Text(_showSignUp ? 'Cadastrar' : 'Entrar'),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  HyperlinkButton(
-                    child: Text(
-                      _showSignUp
-                          ? 'Já tem uma conta? Entre aqui'
-                          : 'Não tem conta? Crie uma agora',
-                    ),
-                    onPressed: () => setState(() => _showSignUp = !_showSignUp),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(),
-                  ),
-                  const Text('Ou entre com'),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Button(
-                      onPressed: _handleGoogleAuth,
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(FluentIcons.chrome_back),
-                          SizedBox(width: 8),
-                          Text('Google'),
-                        ],
+                    InfoLabel(
+                      label: 'Senha',
+                      child: PasswordBox(
+                        controller: _passwordController,
+                        placeholder: 'Sua senha segura',
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: (_isSigningIn || _isSigningUp)
+                            ? null
+                            : () => unawaited(_handleEmailAuth()),
+                        child: _isSigningIn || _isSigningUp
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: ProgressRing(),
+                              )
+                            : Text(_showSignUp ? 'Cadastrar' : 'Entrar'),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    HyperlinkButton(
+                      child: Text(
+                        _showSignUp
+                            ? 'Já tem uma conta? Entre aqui'
+                            : 'Não tem conta? Crie uma agora',
+                      ),
+                      onPressed: () => setState(() => _showSignUp = !_showSignUp),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Divider(),
+                    ),
+                    const Text('Ou entre com'),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Button(
+                        onPressed: () => unawaited(_handleGoogleAuth()),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(FluentIcons.chrome_back),
+                            SizedBox(width: 8),
+                            Text('Google'),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
+import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
 import 'package:universal_notes_flutter/editor/editor_toolbar.dart';
@@ -18,6 +21,7 @@ import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
+import 'package:universal_notes_flutter/editor/writer_toolbar.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/models/reading_annotation.dart';
 import 'package:universal_notes_flutter/models/reading_bookmark.dart';
@@ -84,6 +88,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   // final bool _showCursor = false; // Blinking cursor
   bool _isDrawingMode = false; // Handwriting mode
   bool _softWrap = true;
+  late EditorPersona _persona;
 
   // Undo/Redo Stacks
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
@@ -91,6 +96,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   final ScrollController _scrollController = ScrollController();
   final GlobalKey<EditorWidgetState> _editorKey =
       GlobalKey<EditorWidgetState>();
+  final GlobalKey _stackKey = GlobalKey();
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
@@ -143,6 +149,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     super.initState();
     _firestoreRepository =
         widget.firestoreRepository ?? FirestoreRepository.instance;
+    _persona = widget.initialPersona ?? EditorPersona.architect;
     _note = widget.note;
     _currentTags = _note?.tags.toList() ?? [];
     WidgetsBinding.instance.addObserver(this);
@@ -1396,8 +1403,153 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     );
   }
 
+  Widget _buildFluentUI() {
+    unawaited(StartupLogger.log('🧪 [EDITOR] _buildFluentUI: Rendering WinUI 3 Sidebar + Editor'));
+    final title = widget.note == null ? 'New Note' : 'Edit Note';
+
+    return fluent.FluentTheme(
+      data: fluent.FluentThemeData.light(),
+      child: fluent.ScaffoldPage(
+        header: fluent.PageHeader(
+          padding: 8.0,
+          title: fluent.Text(title, style: const fluent.TextStyle(fontSize: 14, fontWeight: fluent.FontWeight.normal)),
+          commandBar: fluent.Row(
+            mainAxisSize: fluent.MainAxisSize.min,
+            children: [
+              fluent.Tooltip(
+                message: 'Save Note',
+                child: fluent.IconButton(
+                  icon: const fluent.Icon(fluent.FluentIcons.save, size: 14),
+                  onPressed: _saveNote,
+                ),
+              ),
+              const fluent.SizedBox(width: 4),
+              fluent.Tooltip(
+                message: 'Search in Note',
+                child: fluent.IconButton(
+                  icon: const fluent.Icon(fluent.FluentIcons.search, size: 14),
+                  onPressed: () => setState(() => _isFindBarVisible = !_isFindBarVisible),
+                ),
+              ),
+              const fluent.SizedBox(width: 4),
+              fluent.Tooltip(
+                message: 'History',
+                child: fluent.IconButton(
+                  icon: const fluent.Icon(fluent.FluentIcons.history, size: 14),
+                  onPressed: _showHistoryDialog,
+                ),
+              ),
+            ],
+          ),
+        ),
+        content: fluent.Stack(
+          key: _stackKey,
+          children: [
+            fluent.Column(
+              children: [
+                if (_isFindBarVisible)
+                  Material(
+                    type: MaterialType.transparency,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: FindReplaceBar(
+                        onFindChanged: _onFindChanged,
+                        onFindNext: _findNext,
+                        onFindPrevious: _findPrevious,
+                        onReplace: _replace,
+                        onReplaceAll: _replaceAll,
+                        onClose: () => setState(() => _isFindBarVisible = false),
+                      ),
+                    ),
+                  ),
+                if (_persona == EditorPersona.writer)
+                  WriterToolbar(
+                    onBold: () => _toggleStyle(StyleAttribute.bold),
+                    onItalic: () => _toggleStyle(StyleAttribute.italic),
+                    onUnderline: () => _toggleStyle(StyleAttribute.underline),
+                    onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
+                    onColor: _showColorPicker,
+                    onFontSize: _showFontSizePicker,
+                    onAlignment: (String align) => _toggleBlockAttribute('align', align),
+                    onIndent: _indentBlock,
+                    onList: (String type) => _toggleBlockAttribute('list', type),
+                    onImage: _attachImage,
+                    onLink: _showLinkDialog,
+                    onUndo: _undo,
+                    onRedo: _redo,
+                    canUndo: _canUndo,
+                    canRedo: _canRedo,
+                    onStyleToggle: (String style) {
+                      if (style == 'normal') {
+                        _toggleBlockAttribute('header', null);
+                      } else {
+                        final level = int.tryParse(style.replaceAll('h', '')) ?? 1;
+                        _toggleBlockAttribute('header', level);
+                      }
+                    },
+                  ),
+                fluent.Expanded(
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: fluent.Padding(
+                      padding: const fluent.EdgeInsets.symmetric(horizontal: 24),
+                      child: EditorWidget(
+                        key: _editorKey,
+                        document: _document,
+                        onDocumentChanged: _onDocumentChanged,
+                        selection: _selection,
+                        onSelectionChanged: _onSelectionChanged,
+                        onSelectionRectChanged: _onSelectionRectChanged,
+                        scrollController: _scrollController,
+                        remoteCursors: _remoteCursors,
+                        onStyleToggle: _toggleStyle,
+                        onUndo: _undo,
+                        onRedo: _redo,
+                        onSave: _saveNote,
+                        onFind: () => setState(() => _isFindBarVisible = true),
+                        onEscape: () {
+                          if (_isFocusMode) _toggleFocusMode();
+                          else if (_isFindBarVisible) setState(() => _isFindBarVisible = false);
+                        },
+                        isDrawingMode: _isDrawingMode,
+                        softWrap: _softWrap,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (_isToolbarVisible && _stackKey.currentContext != null)
+              () {
+                final RenderBox stackBox =
+                    _stackKey.currentContext!.findRenderObject() as RenderBox;
+                final localPos = stackBox.globalToLocal(_selectionRect!.topLeft);
+                return fluent.Positioned(
+                  top: localPos.dy - 60, 
+                  left: localPos.dx,
+                  child: FloatingToolbar(
+                    onBold: () => _toggleStyle(StyleAttribute.bold),
+                    onItalic: () => _toggleStyle(StyleAttribute.italic),
+                    onUnderline: () => _toggleStyle(StyleAttribute.underline),
+                    onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
+                    onColor: _showColorPicker,
+                    onLink: _showLinkDialog,
+                    onHighlight: _addHighlight,
+                    onAddNote: _addAnnotationNote,
+                  ),
+                );
+              }(),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!kIsWeb && Platform.isWindows) {
+      return _buildFluentUI();
+    }
     // Add the remote cursors to the editor widget
     final editor = EditorWidget(
       key: _editorKey,
@@ -1614,6 +1766,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                 top: !_isFocusMode,
                 bottom: !_isFocusMode,
                 child: Stack(
+                  key: _stackKey,
                   children: [
                     Column(
                       children: [
@@ -1685,23 +1838,30 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                           ),
                       ],
                     ),
-                    if (_isToolbarVisible)
-                      Positioned(
-                        top: _selectionRect!.top - 55,
-                        left: _selectionRect!.left,
-                        child: FloatingToolbar(
-                          onBold: () => _toggleStyle(StyleAttribute.bold),
-                          onItalic: () => _toggleStyle(StyleAttribute.italic),
-                          onUnderline: () =>
-                              _toggleStyle(StyleAttribute.underline),
-                          onStrikethrough: () =>
-                              _toggleStyle(StyleAttribute.strikethrough),
-                          onColor: _showColorPicker,
-                          onLink: _showLinkDialog,
-                          onHighlight: _addHighlight,
-                          onAddNote: _addAnnotationNote,
-                        ),
-                      ),
+                    if (_isToolbarVisible && _stackKey.currentContext != null)
+                      () {
+                        final RenderBox stackBox =
+                            _stackKey.currentContext!.findRenderObject() as RenderBox;
+                        final localPos = stackBox.globalToLocal(
+                          _selectionRect!.topLeft,
+                        );
+                        return Positioned(
+                          top: localPos.dy - 55,
+                          left: localPos.dx,
+                          child: FloatingToolbar(
+                            onBold: () => _toggleStyle(StyleAttribute.bold),
+                            onItalic: () => _toggleStyle(StyleAttribute.italic),
+                            onUnderline: () =>
+                                _toggleStyle(StyleAttribute.underline),
+                            onStrikethrough: () =>
+                                _toggleStyle(StyleAttribute.strikethrough),
+                            onColor: _showColorPicker,
+                            onLink: _showLinkDialog,
+                            onHighlight: _addHighlight,
+                            onAddNote: _addAnnotationNote,
+                          ),
+                        );
+                      }(),
                     if (_isReadAloudControlsVisible)
                       Positioned(
                         left: 0,
@@ -2144,7 +2304,7 @@ class _CollaboratorAvatars extends StatelessWidget {
               backgroundColor: Color(collaborators[i]['color'] as int),
               child: Text(
                 (collaborators[i]['name'] as String).substring(0, 2),
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                style: TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
           ),
