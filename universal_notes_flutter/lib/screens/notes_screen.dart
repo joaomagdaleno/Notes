@@ -975,7 +975,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 }
 
-class _DashboardCard extends StatelessWidget {
+class _DashboardCard extends StatefulWidget {
   const _DashboardCard({
     required this.title,
     required this.subtitle,
@@ -1007,31 +1007,66 @@ class _DashboardCard extends StatelessWidget {
   );
 
   @override
+  State<_DashboardCard> createState() => _DashboardCardState();
+}
+
+class _DashboardCardState extends State<_DashboardCard> {
+  // ⚡ Bolt: Caching computed styles in the state.
+  // This is a key performance optimization. Instead of re-creating
+  // BoxDecoration and TextStyles on every build, we compute them once in
+  // initState and only re-compute them in didUpdateWidget if the underlying
+  // data (the color) has actually changed. This avoids expensive object
+  // allocations in the build method, leading to a smoother UI.
+  late BoxDecoration _decoration;
+  late TextStyle _titleStyle;
+  late TextStyle _subtitleStyle;
+
+  @override
+  void initState() {
+    super.initState();
+    _computeStyles();
+  }
+
+  @override
+  void didUpdateWidget(_DashboardCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.color != oldWidget.color) {
+      _computeStyles();
+    }
+  }
+
+  void _computeStyles() {
+    _decoration = _DashboardCard._baseDecoration.copyWith(
+      color: widget.color.withOpacity(0.1),
+      border: Border.all(color: widget.color.withOpacity(0.2)),
+    );
+    _titleStyle = _DashboardCard._titleTextStyle.copyWith(color: widget.color);
+    _subtitleStyle = _DashboardCard._subtitleTextStyle.copyWith(
+      color: widget.color.withOpacity(0.7),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Container(
         width: 160,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(16),
-        decoration: _baseDecoration.copyWith(
-          color: color.withValues(alpha: 0.1),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
+        decoration: _decoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color, size: 32),
+            Icon(widget.icon, color: widget.color, size: 32),
             const SizedBox(height: 12),
             Text(
-              title,
-              style: _titleTextStyle.copyWith(color: color),
+              widget.title,
+              style: _titleStyle,
             ),
             Text(
-              subtitle,
-              style: _subtitleTextStyle.copyWith(
-                color: color.withValues(alpha: 0.7),
-              ),
+              widget.subtitle,
+              style: _subtitleStyle,
             ),
           ],
         ),
