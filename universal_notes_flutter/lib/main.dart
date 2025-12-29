@@ -31,6 +31,8 @@ void main() {
     (error, stack) {
       debugPrint('🔥 [FATAL] Global runZonedGuarded error: $error');
       debugPrint(stack.toString());
+      unawaited(StartupLogger.log('🔥 [FATAL] Global error: $error'));
+      unawaited(StartupLogger.log(stack.toString()));
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         unawaited(
           FirebaseCrashlytics.instance.recordError(error, stack, fatal: true),
