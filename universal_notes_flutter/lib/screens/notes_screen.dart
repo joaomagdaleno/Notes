@@ -717,6 +717,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                         return _searchController.text.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear),
+                                tooltip: 'Limpar busca',
                                 onPressed: _searchController.clear,
                               )
                             : const SizedBox.shrink();
