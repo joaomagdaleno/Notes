@@ -129,13 +129,16 @@ class _NoteCardState extends State<NoteCard> {
   }
 
   void _showFluentContextMenu(Offset globalPosition) {
-    final renderBox = context.findRenderObject()! as RenderBox;
-    final offset = renderBox.globalToLocal(globalPosition);
-
+    if (!mounted) return;
+    
     unawaited(
       _flyoutController.showFlyout<void>(
-        placementMode: fluent.FlyoutPlacementMode.topLeft,
-        additionalOffset: offset.dy,
+        autoModeConfiguration: fluent.FlyoutAutoConfiguration(
+          preferredMode: fluent.FlyoutPlacementMode.bottomRight,
+        ),
+        barrierDismissible: true,
+        dismissOnPointerMoveAway: false,
+        dismissWithEsc: true,
         builder: (context) {
           return fluent.MenuFlyout(
             items: widget.note.isInTrash

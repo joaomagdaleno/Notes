@@ -71,7 +71,10 @@ class FluentEditorView extends StatelessWidget {
                   ),
                   fluent.IconButton(
                     icon: Icon(
-                      isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
+                      isFocusMode
+                          ? fluent.FluentIcons.back_to_window
+                          : fluent.FluentIcons.full_screen,
+                      size: 16,
                     ),
                     onPressed: onToggleFocusMode,
                   ),

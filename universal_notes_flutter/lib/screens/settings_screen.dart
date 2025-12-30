@@ -37,18 +37,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     if (defaultTargetPlatform == TargetPlatform.windows) {
-      // ⚡ Bolt: Wrap in FluentTheme and Directionality to ensure Fluent UI
-      // widgets have the necessary context when pushed from a Material context.
-      return fluent.FluentTheme(
-        data: fluent.FluentThemeData(),
-        child: const Directionality(
-          textDirection: TextDirection.ltr,
-          child: _FluentSettingsContent(),
-        ),
-      );
+      return _buildFluentUI(context);
     } else {
       return _buildMaterialUI(context);
     }
+  }
+
+  Widget _buildFluentUI(BuildContext context) {
+    return fluent.ScaffoldPage(
+      header: const fluent.PageHeader(
+        title: Text('Configurações'),
+      ),
+      content: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          fluent.Card(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                fluent.ListTile(
+                  title: const Text('Sobre'),
+                  leading: const fluent.Icon(fluent.FluentIcons.info),
+                  onPressed: _packageInfo == null
+                      ? null
+                      : () {
+                          unawaited(
+                            Navigator.of(context).push(
+                              fluent.FluentPageRoute<void>(
+                                builder: (context) =>
+                                    AboutScreen(packageInfo: _packageInfo!),
+                              ),
+                            ),
+                          );
+                        },
+                  trailing: _packageInfo == null
+                      ? const fluent.ProgressRing(
+                          strokeWidth: 2,
+                        )
+                      : const fluent.Icon(fluent.FluentIcons.chevron_right),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildMaterialUI(BuildContext context) {
@@ -59,66 +92,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           _MaterialSettingsItem(packageInfo: _packageInfo),
-        ],
-      ),
-    );
-  }
-}
-
-class _FluentSettingsContent extends StatefulWidget {
-  const _FluentSettingsContent();
-
-  @override
-  State<_FluentSettingsContent> createState() => _FluentSettingsContentState();
-}
-
-class _FluentSettingsContentState extends State<_FluentSettingsContent> {
-  PackageInfo? _packageInfo;
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_initPackageInfo());
-  }
-
-  Future<void> _initPackageInfo() async {
-    final info = await PackageInfo.fromPlatform();
-    if (mounted) {
-      setState(() {
-        _packageInfo = info;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return fluent.ScaffoldPage(
-      header: const fluent.PageHeader(
-        title: Text('Configurações'),
-      ),
-      content: ListView(
-        children: [
-          fluent.ListTile.selectable(
-            title: const Text('Sobre'),
-            leading: const fluent.Icon(fluent.FluentIcons.info),
-            onPressed: _packageInfo == null
-                ? null
-                : () {
-                    unawaited(
-                      Navigator.of(context).push(
-                        fluent.FluentPageRoute<void>(
-                          builder: (context) =>
-                              AboutScreen(packageInfo: _packageInfo!),
-                        ),
-                      ),
-                    );
-                  },
-            trailing: _packageInfo == null
-                ? const fluent.ProgressRing(
-                    strokeWidth: 2,
-                  )
-                : null,
-          ),
         ],
       ),
     );
