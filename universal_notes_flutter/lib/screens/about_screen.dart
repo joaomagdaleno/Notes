@@ -101,6 +101,10 @@ class _AboutScreenState extends State<AboutScreen> {
       child: fluent.ScaffoldPage(
         header: fluent.PageHeader(
           title: const Text('Sobre'),
+          leading: fluent.IconButton(
+            icon: const fluent.Icon(fluent.FluentIcons.back),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
         content: ListView(
           padding: const EdgeInsets.all(24),
