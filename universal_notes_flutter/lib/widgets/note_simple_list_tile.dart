@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
-import 'package:universal_notes_flutter/widgets/fluent_context_menu_helper.dart';
 
 /// A widget that displays a note as a simple list tile.
 class NoteSimpleListTile extends StatelessWidget {

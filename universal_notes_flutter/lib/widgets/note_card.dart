@@ -10,6 +10,9 @@ import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
 import 'package:universal_notes_flutter/widgets/note_preview_dialog.dart';
 
+import 'package:universal_notes_flutter/widgets/note_card/views/fluent_note_card_view.dart';
+import 'package:universal_notes_flutter/widgets/note_card/views/material_note_card_view.dart';
+
 /// A widget that displays a note as a card, adaptive for Windows and Mobile.
 class NoteCard extends StatefulWidget {
   /// Creates a new instance of [NoteCard].
@@ -52,28 +55,6 @@ class _NoteCardState extends State<NoteCard> {
   late String _plainTextContent;
   final _flyoutController = fluent.FlyoutController();
 
-  static final _gradientDecoration = BoxDecoration(
-    gradient: LinearGradient(
-      colors: [
-        Colors.black.withAlpha(153),
-        Colors.transparent,
-        Colors.black.withAlpha(204),
-      ],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-  );
-
-  static final _favoriteBackgroundDecoration = BoxDecoration(
-    color: Colors.amber,
-    borderRadius: BorderRadius.circular(12),
-  );
-
-  static final _deleteBackgroundDecoration = BoxDecoration(
-    color: Colors.red,
-    borderRadius: BorderRadius.circular(12),
-  );
-
   @override
   void initState() {
     super.initState();
@@ -108,93 +89,39 @@ class _NoteCardState extends State<NoteCard> {
   @override
   Widget build(BuildContext context) {
     if (defaultTargetPlatform == TargetPlatform.windows) {
-      return _buildFluentCard(context);
-    } else {
-      return _buildMaterialCard(context);
-    }
-  }
-
-  // ==================== FLUENT UI (Windows) ====================
-  Widget _buildFluentCard(BuildContext context) {
-    final theme = fluent.FluentTheme.of(context);
-
-    return fluent.FlyoutTarget(
-      controller: _flyoutController,
-      child: GestureDetector(
+      return FluentNoteCardView(
+        note: widget.note,
+        plainTextContent: _plainTextContent,
+        isHovered: _isHovered,
+        flyoutController: _flyoutController,
+        dateFormat: NoteCard._dateFormat,
         onTap: widget.onTap,
-        onSecondaryTapUp: (details) {
-          _showFluentContextMenu(details.globalPosition);
+        onSecondaryTapUp: (details) => _showFluentContextMenu(details.globalPosition),
+        onLongPressStart: (details) => _showFluentContextMenu(details.globalPosition),
+        onHoverChanged: (val) => setState(() => _isHovered = val),
+        onShowPreview: () => unawaited(_showFluentPreview(context)),
+      );
+    } else {
+      return MaterialNoteCardView(
+        note: widget.note,
+        plainTextContent: _plainTextContent,
+        isHovered: _isHovered,
+        dateFormat: NoteCard._dateFormat,
+        onTap: widget.onTap,
+        onLongPress: () {
+          final renderBox = context.findRenderObject() as RenderBox?;
+          if (renderBox != null) {
+            final offset = renderBox.localToGlobal(
+              renderBox.size.center(Offset.zero),
+            );
+            _showMaterialContextMenu(context, offset);
+          }
         },
-        onLongPressStart: (details) {
-          _showFluentContextMenu(details.globalPosition);
-        },
-        child: MouseRegion(
-          onEnter: (_) => setState(() => _isHovered = true),
-          onExit: (_) => setState(() => _isHovered = false),
-          child: fluent.Card(
-            backgroundColor: _isHovered
-                ? theme.selectionColor.withValues(alpha: 0.1)
-                : theme.cardColor,
-            child: Stack(
-              children: [
-                if (widget.note.isFavorite)
-                  Positioned(
-                    top: 4,
-                    left: 4,
-                    child: Semantics(
-                      label: 'Favorite',
-                      child: fluent.Icon(
-                        fluent.FluentIcons.favorite_star_fill,
-                        color: theme.accentColor,
-                        size: 16,
-                      ),
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.note.title,
-                        style: theme.typography.bodyLarge,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: Text(
-                          _plainTextContent,
-                          style: theme.typography.body,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 5,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        NoteCard._dateFormat.format(widget.note.date),
-                        style: theme.typography.caption,
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: fluent.Tooltip(
-                    message: 'Preview',
-                    child: fluent.IconButton(
-                      icon: const fluent.Icon(fluent.FluentIcons.view),
-                      onPressed: () => unawaited(_showFluentPreview(context)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+        onHoverChanged: (val) => setState(() => _isHovered = val),
+        onFavorite: widget.onFavorite,
+        onTrash: widget.onTrash,
+      );
+    }
   }
 
   void _showFluentContextMenu(Offset globalPosition) {
@@ -289,150 +216,13 @@ class _NoteCardState extends State<NoteCard> {
     );
   }
 
-  // ==================== MATERIAL (Android/iOS) ====================
-  Widget _buildMaterialCard(BuildContext context) {
-    final hasImage = widget.note.imageUrl?.isNotEmpty ?? false;
-
-    final card = Card(
-      elevation: _isHovered ? 8 : 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: InkWell(
-          onTap: widget.onTap,
-          onLongPress: () {
-            final renderBox = context.findRenderObject() as RenderBox?;
-            if (renderBox != null) {
-              final offset = renderBox.localToGlobal(
-                renderBox.size.center(Offset.zero),
-              );
-              _showMaterialContextMenu(context, offset);
-            }
-          },
-          child: Semantics(
-            label: widget.note.title.isNotEmpty
-                ? 'Nota: ${widget.note.title}'
-                : 'Nota Sem Título',
-            hint:
-                'Modificado em '
-                '${NoteCard._dateFormat.format(widget.note.lastModified)}',
-            button: true,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (hasImage)
-                  Image.network(
-                    widget.note.imageUrl!,
-                    fit: BoxFit.cover,
-                  ),
-                Container(
-                  decoration: _gradientDecoration,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      if (widget.note.isFavorite)
-                        const Align(
-                          alignment: Alignment.topRight,
-                          child: Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                            size: 20,
-                          ),
-                        ),
-                      Text(
-                        widget.note.title,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      if (_plainTextContent.isNotEmpty)
-                        Flexible(
-                          child: Text(
-                            _plainTextContent,
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.white70,
-                                      fontSize: 11,
-                                    ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      const SizedBox(height: 2),
-                      Text(
-                        NoteCard._dateFormat.format(widget.note.lastModified),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.white70,
-                              fontSize: 10,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    if (widget.onFavorite == null && widget.onTrash == null) {
-      return card;
-    }
-
-    return Dismissible(
-      key: Key(widget.note.id),
-      confirmDismiss: (direction) async {
-        if (direction == DismissDirection.startToEnd) {
-          widget.onFavorite?.call(widget.note);
-          return false;
-        } else if (direction == DismissDirection.endToStart) {
-          widget.onTrash?.call(widget.note);
-          return false;
-        }
-        return false;
-      },
-      background: Container(
-        decoration: _favoriteBackgroundDecoration,
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: 20),
-        child: Icon(
-          widget.note.isFavorite ? Icons.star_border : Icons.star,
-          color: Colors.white,
-          size: 32,
-        ),
-      ),
-      secondaryBackground: Container(
-        decoration: _deleteBackgroundDecoration,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        child: const Icon(Icons.delete, color: Colors.white, size: 32),
-      ),
-      child: card,
-    );
-  }
-
   void _showMaterialContextMenu(BuildContext context, Offset globalPosition) {
     unawaited(
       ContextMenuHelper.showContextMenu(
         context: context,
         position: globalPosition,
         note: widget.note,
-        onSave: widget.onSave,
+        onSave: (note) async => widget.onSave(note),
         onDelete: widget.onDelete,
       ),
     );

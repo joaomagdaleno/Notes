@@ -82,7 +82,7 @@ class _ReadingSearchBarState extends State<ReadingSearchBar> {
               controller: _controller,
               autofocus: true,
               placeholder: 'Search in note...',
-              decoration: const BoxDecoration(),
+              decoration: fluent.WidgetStateProperty.all(const BoxDecoration()),
               onChanged: widget.onFindChanged,
             ),
           ),

@@ -70,7 +70,7 @@ class ReadingBookmarksList extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            fluent.FluentIcons.bookmark,
+            fluent.FluentIcons.bookmarks,
             size: 48,
             color: theme.resources.textFillColorSecondary,
           ),
@@ -93,7 +93,7 @@ class ReadingBookmarksList extends StatelessWidget {
       itemBuilder: (context, index) {
         final bookmark = bookmarks[index];
         return fluent.ListTile.selectable(
-          leading: Icon(fluent.FluentIcons.bookmark, color: theme.accentColor),
+          leading: Icon(fluent.FluentIcons.bookmarks, color: theme.accentColor),
           title: Text(
             bookmark.name ?? 'Bookmark ${index + 1}',
             maxLines: 1,

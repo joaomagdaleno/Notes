@@ -3,12 +3,21 @@ library;
 
 import 'package:alchemist/alchemist.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
+import 'package:universal_notes_flutter/widgets/note_card.dart';
 
 void main() async {
-  group('FluentNoteCard Golden Tests', () {
+  group('NoteCard Golden Tests (Fluent)', () {
+    setUp(() {
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+    });
+
+    tearDown(() {
+      debugDefaultTargetPlatformOverride = null;
+    });
+
     testWidgets('renders correctly', (tester) async {
       await goldenTest(
         'renders correctly',
@@ -26,7 +35,7 @@ void main() async {
                   child: SizedBox(
                     width: 300,
                     height: 200,
-                    child: FluentNoteCard(
+                    child: NoteCard(
                       note: Note(
                         id: '1',
                         title: 'Test Note',
@@ -56,7 +65,7 @@ void main() async {
                   child: SizedBox(
                     width: 300,
                     height: 200,
-                    child: FluentNoteCard(
+                    child: NoteCard(
                       note: Note(
                         id: '2',
                         title:

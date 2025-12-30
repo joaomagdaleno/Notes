@@ -16,6 +16,7 @@ class ContextMenuHelper {
     required Note note,
     required void Function(Note) onSave,
     required void Function(Note) onDelete,
+    dynamic controller,
   }) async {
     if (defaultTargetPlatform == TargetPlatform.windows) {
       await _showFluentContextMenu(
@@ -24,6 +25,7 @@ class ContextMenuHelper {
         note: note,
         onSave: onSave,
         onDelete: onDelete,
+        controller: controller,
       );
     } else {
       await _showMaterialContextMenu(
@@ -43,14 +45,17 @@ class ContextMenuHelper {
     required Note note,
     required void Function(Note) onSave,
     required void Function(Note) onDelete,
+    dynamic controller,
   }) async {
-    await fluent_context.FluentContextMenuHelper.showContextMenu(
-      context: context,
-      position: position,
-      note: note,
-      onSave: onSave,
-      onDelete: onDelete,
-    );
+    if (controller != null) {
+      await fluent_context.FluentContextMenuHelper.showContextMenu(
+        context: context,
+        controller: controller as fluent.FlyoutController,
+        note: note,
+        onSave: onSave,
+        onDelete: onDelete,
+      );
+    }
   }
 
   /// Shows Material-style context menu (Android/iOS)

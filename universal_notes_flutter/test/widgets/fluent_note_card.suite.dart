@@ -2,13 +2,22 @@
 library;
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
+import 'package:universal_notes_flutter/widgets/note_card.dart';
 
 void main() {
-  group('FluentNoteCard', () {
+  group('NoteCard (Fluent)', () {
+    setUp(() {
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+    });
+
+    tearDown(() {
+      debugDefaultTargetPlatformOverride = null;
+    });
+
     final noteWithValidContent = Note(
       id: '1',
       title: 'Test Note',
@@ -33,7 +42,7 @@ void main() {
       await tester.pumpWidget(
         fluent.FluentApp(
           home: Scaffold(
-            body: FluentNoteCard(
+            body: NoteCard(
               note: noteWithValidContent,
               onDelete: (note) {},
               onSave: (note) async => note,
@@ -53,7 +62,7 @@ void main() {
       await tester.pumpWidget(
         fluent.FluentApp(
           home: Scaffold(
-            body: FluentNoteCard(
+            body: NoteCard(
               note: noteWithInvalidContent,
               onDelete: (note) {},
               onSave: (note) async => note,
@@ -67,14 +76,14 @@ void main() {
       expect(find.text('invalid content'), findsOneWidget);
     });
 
-    testWidgets('tapping FluentNoteCard calls onTap', (
+    testWidgets('tapping NoteCard calls onTap', (
       WidgetTester tester,
     ) async {
       var tapped = false;
       await tester.pumpWidget(
         fluent.FluentApp(
           home: Scaffold(
-            body: FluentNoteCard(
+            body: NoteCard(
               note: noteWithValidContent,
               onDelete: (note) {},
               onSave: (note) async => note,
@@ -86,20 +95,20 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byType(FluentNoteCard));
+      await tester.tap(find.byType(NoteCard));
       await tester.pump();
 
       expect(tapped, isTrue);
     });
 
-    testWidgets('tapping FluentNoteCard triggers default navigation', (
+    testWidgets('tapping NoteCard triggers default navigation', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         fluent.FluentApp(
           home: Builder(
             builder: (context) {
-              return FluentNoteCard(
+              return NoteCard(
                 note: noteWithValidContent,
                 onDelete: (note) {},
                 onSave: (note) async => note,
@@ -120,11 +129,11 @@ void main() {
         ),
       );
 
-      // Verify the FluentNoteCard is rendered
-      expect(find.byType(FluentNoteCard), findsOneWidget);
+      // Verify the NoteCard is rendered
+      expect(find.byType(NoteCard), findsOneWidget);
 
-      // Tap the FluentNoteCard
-      await tester.tap(find.byType(FluentNoteCard));
+      // Tap the NoteCard
+      await tester.tap(find.byType(NoteCard));
       await tester.pumpAndSettle(); // Wait for navigation to complete
 
       // Verify that navigation occurred by finding text on the new screen
