@@ -1,7 +1,8 @@
 import 'dart:async';
-
+import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -295,61 +296,13 @@ class EditorWidgetState extends State<EditorWidget> {
   }
 
   Widget _buildPersonaSwitcher() {
-    return Container(
-      height: 40,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
-      child: IntrinsicWidth(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _PersonaSegment(
-              persona: EditorPersona.architect,
-              activePersona: _activePersona,
-              icon: Icons.architecture,
-              label: 'Architect',
-              onTap: () => setState(() {
-                _activePersona = EditorPersona.architect;
-              }),
-              isFirst: true,
-            ),
-            _PersonaSegment(
-              persona: EditorPersona.writer,
-              activePersona: _activePersona,
-              icon: Icons.description,
-              label: 'Writer',
-              onTap: () => setState(() {
-                _activePersona = EditorPersona.writer;
-              }),
-            ),
-            _PersonaSegment(
-              persona: EditorPersona.brainstorm,
-              activePersona: _activePersona,
-              icon: Icons.gesture,
-              label: 'Brainstorm',
-              onTap: () => setState(() {
-                _activePersona = EditorPersona.brainstorm;
-              }),
-            ),
-            _PersonaSegment(
-              persona: EditorPersona.reading,
-              activePersona: _activePersona,
-              icon: Icons.auto_stories,
-              label: 'Reading',
-              onTap: () => setState(() {
-                _activePersona = EditorPersona.reading;
-              }),
-              isLast: true,
-            ),
-          ],
-        ),
-      ),
+    return _AnimatedPersonaSwitcher(
+      activePersona: _activePersona,
+      onChanged: (persona) {
+        setState(() {
+          _activePersona = persona;
+        });
+      },
     );
   }
 
@@ -1779,66 +1732,144 @@ class EditorWidgetState extends State<EditorWidget> {
   }
 }
 
-class _PersonaSegment extends StatelessWidget {
-  const _PersonaSegment({
-    required this.persona,
+class _AnimatedPersonaSwitcher extends StatelessWidget {
+  const _AnimatedPersonaSwitcher({
     required this.activePersona,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.isFirst = false,
-    this.isLast = false,
+    required this.onChanged,
   });
 
-  final EditorPersona persona;
   final EditorPersona activePersona;
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final bool isFirst;
-  final bool isLast;
+  final ValueChanged<EditorPersona> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isActive = persona == activePersona;
+    if (Platform.isWindows) {
+      return _buildFluentSwitcher(context);
+    } else {
+      return _buildMaterialSwitcher(context);
+    }
+  }
 
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 40,
-          decoration: BoxDecoration(
-            color: isActive ? theme.colorScheme.primary : Colors.transparent,
-            borderRadius: BorderRadius.horizontal(
-              left: isFirst ? const Radius.circular(20) : Radius.zero,
-              right: isLast ? const Radius.circular(20) : Radius.zero,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildFluentSwitcher(BuildContext context) {
+    final personas = [
+      (EditorPersona.architect, fluent.FluentIcons.design, 'Architect'),
+      (EditorPersona.writer, fluent.FluentIcons.edit_note, 'Writer'),
+      (EditorPersona.brainstorm, fluent.FluentIcons.lightbulb, 'Brainstorm'),
+      (EditorPersona.reading, fluent.FluentIcons.reading_mode, 'Reading'),
+    ];
+
+    final theme = fluent.FluentTheme.of(context);
+    final activeIndex = personas.indexWhere((p) => p.$1 == activePersona);
+
+    return Container(
+      height: 40,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      constraints: const BoxConstraints(maxWidth: 600),
+      decoration: BoxDecoration(
+        color: theme.resources.cardBackgroundFillColorDefault,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: theme.resources.surfaceStrokeColorDefault),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth / personas.length;
+          return Stack(
             children: [
-              Icon(
-                icon,
-                size: 18,
-                color: isActive
-                    ? theme.colorScheme.onPrimary
-                    : theme.colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                  color: isActive
-                      ? theme.colorScheme.onPrimary
-                      : theme.colorScheme.onSurfaceVariant,
+              // Sliding Pill
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutExpo,
+                left: activeIndex * width,
+                top: 2,
+                bottom: 2,
+                width: width,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(
+                    color: theme.accentColor,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              // Buttons
+              Row(
+                children: personas.map((p) {
+                  final isActive = p.$1 == activePersona;
+                  return Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () => onChanged(p.$1),
+                      child: Center(
+                        child: AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 200),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight:
+                                isActive ? FontWeight.w600 : FontWeight.normal,
+                            color: isActive
+                                ? Colors.white
+                                : theme.resources.textFillColorPrimary,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                p.$2,
+                                size: 16,
+                                color: isActive
+                                    ? Colors.white
+                                    : theme.resources.textFillColorPrimary,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(p.$3),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
             ],
-          ),
-        ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMaterialSwitcher(BuildContext context) {
+    final personas = [
+      (EditorPersona.architect, Icons.architecture, 'Architect'),
+      (EditorPersona.writer, Icons.edit_note, 'Writer'),
+      (EditorPersona.brainstorm, Icons.lightbulb_outline, 'Brainstorm'),
+      (EditorPersona.reading, Icons.menu_book, 'Reading'),
+    ];
+
+    return Container(
+      height: 48,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: SegmentedButton<EditorPersona>(
+        segments: personas.map((p) {
+          return ButtonSegment<EditorPersona>(
+            value: p.$1,
+            label: Text(p.$3),
+            icon: Icon(p.$2),
+          );
+        }).toList(),
+        selected: {activePersona},
+        onSelectionChanged: (selection) {
+          if (selection.isNotEmpty) {
+            onChanged(selection.first);
+          }
+        },
+        showSelectedIcon: false,
       ),
     );
   }

@@ -194,7 +194,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
     unawaited(StartupLogger.log(
         '🎨 [BUILD] AppBootstrap.build called - '
         '_isInitialized=$_isInitialized, _errorMessage=$_errorMessage',
-    ));
+    ),);
     if (_errorMessage != null) {
       return MaterialApp(
         home: Scaffold(
@@ -366,7 +366,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
     unawaited(StartupLogger.log(
       '🎨 [BUILD] AuthWrapper.build called - '
       '_isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated',
-    ));
+    ),);
 
     if (_isCheckingAuth) {
       unawaited(

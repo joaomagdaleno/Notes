@@ -1,11 +1,19 @@
 import 'dart:async';
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
+import 'package:universal_notes_flutter/widgets/note_card/views/fluent_note_card_view.dart';
+import 'package:universal_notes_flutter/widgets/note_card/views/material_note_card_view.dart';
+import 'package:universal_notes_flutter/widgets/note_preview_dialog.dart';
 
-/// A widget that displays a note as a card.
+/// A widget that displays a note as a card, adaptive for Windows and Mobile.
 class NoteCard extends StatefulWidget {
   /// Creates a new instance of [NoteCard].
   const NoteCard({
@@ -36,10 +44,7 @@ class NoteCard extends StatefulWidget {
   /// Callback when swiped left (move to trash).
   final void Function(Note)? onTrash;
 
-  // ⚡ Bolt: Memoize DateFormat for better performance.
   static final _dateFormat = DateFormat('d MMM. yyyy');
-
-  // static const _gradientDecoration = ... (Removed duplicate/unused)
 
   @override
   State<NoteCard> createState() => _NoteCardState();
@@ -48,35 +53,7 @@ class NoteCard extends StatefulWidget {
 class _NoteCardState extends State<NoteCard> {
   bool _isHovered = false;
   late String _plainTextContent;
-  // String _plainTextContent = '';
-  // ⚡ Bolt: Hoisting the gradient decoration for performance.
-  // This avoids re-creating the BoxDecoration on every build, which is
-  // a common performance anti-pattern in Flutter.
-  static final _gradientDecoration = BoxDecoration(
-    gradient: LinearGradient(
-      colors: [
-        Colors.black.withAlpha(153), // 0.6 alpha
-        Colors.transparent,
-        Colors.black.withAlpha(204), // 0.8 alpha
-      ],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-  );
-
-  // ⚡ Bolt: Hoist the favorite background decoration for performance.
-  // This avoids re-creating the BoxDecoration on every build.
-  static final _favoriteBackgroundDecoration = BoxDecoration(
-    color: Colors.amber,
-    borderRadius: BorderRadius.circular(12),
-  );
-
-  // ⚡ Bolt: Hoist the delete background decoration for performance.
-  // This avoids re-creating the BoxDecoration on every build.
-  static final _deleteBackgroundDecoration = BoxDecoration(
-    color: Colors.red,
-    borderRadius: BorderRadius.circular(12),
-  );
+  final _flyoutController = fluent.FlyoutController();
 
   @override
   void initState() {
@@ -92,166 +69,164 @@ class _NoteCardState extends State<NoteCard> {
     }
   }
 
-  // ⚡ Bolt: Caching the plain text content of a note.
-  // Parsing JSON on every build is expensive. This computes it once
-  // when the widget is created or when the note content changes.
+  @override
+  void dispose() {
+    _flyoutController.dispose();
+    super.dispose();
+  }
+
   String _computePlainText(String jsonContent) {
     if (jsonContent.isEmpty) {
       return '';
     }
-    return DocumentAdapter.fromJson(jsonContent).toPlainText();
+    try {
+      return DocumentAdapter.fromJson(jsonContent).toPlainText();
+    } on Exception {
+      return '';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final hasImage = widget.note.imageUrl?.isNotEmpty ?? false;
-
-    final card = Card(
-      elevation: _isHovered ? 8 : 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      clipBehavior: Clip.antiAlias, // Important for the image background
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: InkWell(
-          onTap: widget.onTap,
-          onLongPress: () {
-            final renderBox = context.findRenderObject() as RenderBox?;
-            if (renderBox != null) {
-              final offset = renderBox.localToGlobal(
-                renderBox.size.center(Offset.zero),
-              );
-              _showContextMenu(context, offset);
-            }
-          },
-          child: Semantics(
-            label: widget.note.title.isNotEmpty
-                ? 'Nota: ${widget.note.title}'
-                : 'Nota Sem Título',
-            hint:
-                'Modificado em '
-                '${NoteCard._dateFormat.format(widget.note.lastModified)}',
-            button: true,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (hasImage)
-                  Image.network(
-                    widget.note.imageUrl!,
-                    fit: BoxFit.cover,
-                  ),
-                // Gradient overlay for text readability
-                Container(
-                  decoration: _gradientDecoration,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // Favorite indicator
-                      if (widget.note.isFavorite)
-                        const Align(
-                          alignment: Alignment.topRight,
-                          child: Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                            size: 20,
-                          ),
-                        ),
-                      Text(
-                        widget.note.title,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14, // Slightly smaller
-                            ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      if (_plainTextContent.isNotEmpty)
-                        Flexible(
-                          child: Text(
-                            _plainTextContent,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Colors.white70,
-                                  fontSize: 11,
-                                ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      const SizedBox(height: 2),
-                      Text(
-                        NoteCard._dateFormat.format(widget.note.lastModified),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white70,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    // If no swipe callbacks, return plain card
-    if (widget.onFavorite == null && widget.onTrash == null) {
-      return card;
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return FluentNoteCardView(
+        note: widget.note,
+        plainTextContent: _plainTextContent,
+        isHovered: _isHovered,
+        flyoutController: _flyoutController,
+        dateFormat: NoteCard._dateFormat,
+        onTap: widget.onTap,
+        onSecondaryTapUp: (details) =>
+            _showFluentContextMenu(details.globalPosition),
+        onLongPressStart: (details) =>
+            _showFluentContextMenu(details.globalPosition),
+        onHoverChanged: ({required isHovered}) =>
+            setState(() => _isHovered = isHovered),
+        onShowPreview: () => unawaited(_showFluentPreview(context)),
+      );
+    } else {
+      return MaterialNoteCardView(
+        note: widget.note,
+        plainTextContent: _plainTextContent,
+        isHovered: _isHovered,
+        dateFormat: NoteCard._dateFormat,
+        onTap: widget.onTap,
+        onLongPress: () {
+          final renderBox = context.findRenderObject() as RenderBox?;
+          if (renderBox != null) {
+            final offset = renderBox.localToGlobal(
+              renderBox.size.center(Offset.zero),
+            );
+            _showMaterialContextMenu(context, offset);
+          }
+        },
+        onHoverChanged: ({required isHovered}) =>
+            setState(() => _isHovered = isHovered),
+        onFavorite: widget.onFavorite,
+        onTrash: widget.onTrash,
+      );
     }
+  }
 
-    // Wrap with Dismissible for swipe gestures
-    return Dismissible(
-      key: Key(widget.note.id),
-      confirmDismiss: (direction) async {
-        if (direction == DismissDirection.startToEnd) {
-          // Swipe right → Toggle favorite
-          widget.onFavorite?.call(widget.note);
-          return false; // Don't dismiss, just toggle
-        } else if (direction == DismissDirection.endToStart) {
-          // Swipe left → Move to trash
-          widget.onTrash?.call(widget.note);
-          return false; // Don't dismiss, let callback handle it
-        }
-        return false;
-      },
-      background: Container(
-        decoration: _favoriteBackgroundDecoration,
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: 20),
-        child: Icon(
-          widget.note.isFavorite ? Icons.star_border : Icons.star,
-          color: Colors.white,
-          size: 32,
-        ),
+  void _showFluentContextMenu(Offset globalPosition) {
+    final renderBox = context.findRenderObject()! as RenderBox;
+    final offset = renderBox.globalToLocal(globalPosition);
+
+    unawaited(
+      _flyoutController.showFlyout<void>(
+        placementMode: fluent.FlyoutPlacementMode.topLeft,
+        additionalOffset: offset.dy,
+        builder: (context) {
+          return fluent.MenuFlyout(
+            items: widget.note.isInTrash
+                ? _buildFluentTrashMenuItems(context)
+                : _buildFluentDefaultMenuItems(context),
+          );
+        },
       ),
-      secondaryBackground: Container(
-        decoration: _deleteBackgroundDecoration,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        child: const Icon(Icons.delete, color: Colors.white, size: 32),
-      ),
-      child: card,
     );
   }
 
-  void _showContextMenu(BuildContext context, Offset globalPosition) {
+  List<fluent.MenuFlyoutItemBase> _buildFluentDefaultMenuItems(
+    BuildContext context,
+  ) {
+    return [
+      fluent.MenuFlyoutItem(
+        text: Text(widget.note.isFavorite ? 'Desfavoritar' : 'Favoritar'),
+        leading: fluent.Icon(
+          widget.note.isFavorite
+              ? fluent.FluentIcons.favorite_star
+              : fluent.FluentIcons.favorite_star_fill,
+        ),
+        onPressed: () async {
+          final updatedNote =
+              widget.note.copyWith(isFavorite: !widget.note.isFavorite);
+          await widget.onSave(updatedNote);
+          if (context.mounted) {
+            fluent.Navigator.of(context).pop();
+          }
+        },
+      ),
+      fluent.MenuFlyoutItem(
+        text: const Text('Mover para a lixeira'),
+        leading: const fluent.Icon(fluent.FluentIcons.delete),
+        onPressed: () async {
+          final updatedNote = widget.note.copyWith(isInTrash: true);
+          await widget.onSave(updatedNote);
+          if (context.mounted) {
+            fluent.Navigator.of(context).pop();
+          }
+        },
+      ),
+    ];
+  }
+
+  List<fluent.MenuFlyoutItemBase> _buildFluentTrashMenuItems(
+    BuildContext context,
+  ) {
+    return [
+      fluent.MenuFlyoutItem(
+        text: const Text('Restaurar'),
+        leading: const fluent.Icon(fluent.FluentIcons.redo),
+        onPressed: () async {
+          final updatedNote = widget.note.copyWith(isInTrash: false);
+          await widget.onSave(updatedNote);
+          if (context.mounted) {
+            fluent.Navigator.of(context).pop();
+          }
+        },
+      ),
+      fluent.MenuFlyoutItem(
+        text: const Text('Excluir permanentemente'),
+        leading: const fluent.Icon(fluent.FluentIcons.delete),
+        onPressed: () {
+          widget.onDelete(widget.note);
+          if (context.mounted) {
+            fluent.Navigator.of(context).pop();
+          }
+        },
+      ),
+    ];
+  }
+
+  Future<void> _showFluentPreview(BuildContext context) async {
+    final noteWithContent = await NoteRepository.instance.getNoteWithContent(
+      widget.note.id,
+    );
+    final tags = await NoteRepository.instance.getTagsForNote(widget.note.id);
+    if (!context.mounted) return;
+    unawaited(
+      NotePreviewDialog.show(context, note: noteWithContent, tags: tags),
+    );
+  }
+
+  void _showMaterialContextMenu(BuildContext context, Offset globalPosition) {
     unawaited(
       ContextMenuHelper.showContextMenu(
         context: context,
         position: globalPosition,
         note: widget.note,
-        onSave: widget.onSave,
+        onSave: (note) async => widget.onSave(note),
         onDelete: widget.onDelete,
       ),
     );

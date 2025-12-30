@@ -1,4 +1,7 @@
 import 'dart:async';
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -32,6 +35,30 @@ class _GraphViewState extends State<GraphView> {
 
   @override
   Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return _buildFluentUI(context);
+    } else {
+      return _buildMaterialUI(context);
+    }
+  }
+
+  Widget _buildFluentUI(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: fluent.ProgressRing());
+    }
+
+    return fluent.ScaffoldPage(
+      header: const fluent.PageHeader(
+        title: Text('Local Graph View'),
+      ),
+      content: CustomPaint(
+        painter: GraphPainter(notes: _notes),
+        child: Container(),
+      ),
+    );
+  }
+
+  Widget _buildMaterialUI(BuildContext context) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }

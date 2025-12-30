@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// A quick editor for creating simple notes.
@@ -24,7 +26,6 @@ class _QuickNoteEditorState extends State<QuickNoteEditor> {
   @override
   void initState() {
     super.initState();
-    // Autosave every 10 seconds
     _autosaveTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       if (_controller.text.isNotEmpty) {
         widget.onSave(_controller.text);
@@ -48,6 +49,56 @@ class _QuickNoteEditorState extends State<QuickNoteEditor> {
 
   @override
   Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return _buildFluentEditor(context);
+    } else {
+      return _buildMaterialEditor(context);
+    }
+  }
+
+  Widget _buildFluentEditor(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        left: 16,
+        right: 16,
+        top: 16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Nota Rápida',
+            style: fluent.FluentTheme.of(context).typography.subtitle,
+          ),
+          const SizedBox(height: 16),
+          fluent.TextBox(
+            controller: _controller,
+            autofocus: true,
+            maxLines: 5,
+            placeholder: 'Digite sua nota rápida...',
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              fluent.Button(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              const SizedBox(width: 8),
+              fluent.FilledButton(
+                onPressed: _handleSave,
+                child: const Text('Salvar'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMaterialEditor(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,

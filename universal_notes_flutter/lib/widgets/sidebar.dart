@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/auth_screen.dart';
@@ -10,6 +13,8 @@ import 'package:universal_notes_flutter/services/auth_service.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
+import 'package:universal_notes_flutter/widgets/sidebar/fluent_sidebar_view.dart';
+import 'package:universal_notes_flutter/widgets/sidebar/material_sidebar_view.dart';
 
 /// The type of item selected in the sidebar.
 enum SidebarItemType {
@@ -73,7 +78,6 @@ class Sidebar extends StatefulWidget {
 }
 
 class _SidebarState extends State<Sidebar> {
-  // Folder logic
   late final Stream<List<Folder>> _foldersStream;
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final BackupService _backupService = BackupService.instance;
@@ -90,27 +94,53 @@ class _SidebarState extends State<Sidebar> {
 
   Future<void> _createNewFolder() async {
     final controller = TextEditingController();
-    final name = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('New Folder'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'Folder Name'),
-          autofocus: true,
+    String? name;
+
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      name = await fluent.showDialog<String>(
+        context: context,
+        builder: (context) => fluent.ContentDialog(
+          title: const Text('New Folder'),
+          content: fluent.TextBox(
+            controller: controller,
+            placeholder: 'Folder Name',
+            autofocus: true,
+          ),
+          actions: [
+            fluent.Button(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            fluent.FilledButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Create'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+      );
+    } else {
+      name = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('New Folder'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(hintText: 'Folder Name'),
+            autofocus: true,
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Create'),
-          ),
-        ],
-      ),
-    );
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Create'),
+            ),
+          ],
+        ),
+      );
+    }
 
     if (name != null && name.trim().isNotEmpty) {
       await _noteRepository.createFolder(name.trim());
@@ -119,7 +149,6 @@ class _SidebarState extends State<Sidebar> {
   }
 
   Future<void> _deleteFolder(String folderId) async {
-    // If selected folder is deleted, switch to All Notes
     if (_selection.type == SidebarItemType.folder &&
         _selection.folder?.id == folderId) {
       const newSelection = SidebarSelection(SidebarItemType.all);
@@ -132,270 +161,247 @@ class _SidebarState extends State<Sidebar> {
 
   Future<void> _performBackup() async {
     final controller = TextEditingController();
-    final password = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Encrypt Backup'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'Enter Backup Password'),
-          obscureText: true,
-          autofocus: true,
+    String? password;
+
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      password = await fluent.showDialog<String>(
+        context: context,
+        builder: (context) => fluent.ContentDialog(
+          title: const Text('Encrypt Backup'),
+          content: fluent.PasswordBox(
+            controller: controller,
+            placeholder: 'Enter Backup Password',
+          ),
+          actions: [
+            fluent.Button(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            fluent.FilledButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Export'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+      );
+    } else {
+      password = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Encrypt Backup'),
+          content: TextField(
+            controller: controller,
+            decoration:
+                const InputDecoration(hintText: 'Enter Backup Password'),
+            obscureText: true,
+            autofocus: true,
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Export'),
-          ),
-        ],
-      ),
-    );
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Export'),
+            ),
+          ],
+        ),
+      );
+    }
 
     if (password == null || password.isEmpty) return;
 
     try {
       final path = await _backupService.exportBackup(password);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Encrypted backup saved to: $path')),
-      );
+
+      if (defaultTargetPlatform == TargetPlatform.windows) {
+        await fluent.displayInfoBar(
+          context,
+          builder: (context, close) => fluent.InfoBar(
+            title: const Text('Backup Saved'),
+            content: Text('Encrypted backup saved to: $path'),
+            severity: fluent.InfoBarSeverity.success,
+            onClose: close,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Encrypted backup saved to: $path')),
+        );
+      }
     } on Exception catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Backup failed: $e')),
-      );
+
+      if (defaultTargetPlatform == TargetPlatform.windows) {
+        await fluent.displayInfoBar(
+          context,
+          builder: (context, close) => fluent.InfoBar(
+            title: const Text('Backup Failed'),
+            content: Text('$e'),
+            severity: fluent.InfoBarSeverity.error,
+            onClose: close,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Backup failed: $e')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     unawaited(StartupLogger.log('🎨 [BUILD] Sidebar.build called'));
-    unawaited(
-      StartupLogger.log('🎨 [BUILD] Sidebar.build - context: $context'),
-    );
-    // Use a Container on desktop to avoid Material Drawer conflicts with
-    // Fluent UI
-    return Container(
-      width: 280,
-      color: Theme.of(context).colorScheme.surface,
-      child: Column(
-        children: [
-          Container(
-            height: 80,
-            padding: const EdgeInsets.all(16),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'My Notes',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                ListTile(
-                  key: const ValueKey('all_notes'),
-                  leading: const Icon(Icons.notes),
-                  title: const Text('All Notes'),
-                  selected: _selection.type == SidebarItemType.all,
-                  onTap: () {
-                    const newSelection = SidebarSelection(SidebarItemType.all);
-                    setState(() => _selection = newSelection);
-                    widget.onSelectionChanged(newSelection);
-                  },
-                ),
-                ListTile(
-                  key: const ValueKey('favorites'),
-                  leading: const Icon(Icons.favorite_border),
-                  title: const Text('Favorites'),
-                  selected: _selection.type == SidebarItemType.favorites,
-                  onTap: () {
-                    const newSelection =
-                        SidebarSelection(SidebarItemType.favorites);
-                    setState(() => _selection = newSelection);
-                    widget.onSelectionChanged(newSelection);
-                  },
-                ),
-                ListTile(
-                  key: const ValueKey('trash'),
-                  leading: const Icon(Icons.delete_outline),
-                  title: const Text('Trash'),
-                  selected: _selection.type == SidebarItemType.trash,
-                  onTap: () {
-                    const newSelection =
-                        SidebarSelection(SidebarItemType.trash);
-                    setState(() => _selection = newSelection);
-                    widget.onSelectionChanged(newSelection);
-                  },
-                ),
-                const Divider(),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text(
-                    'Folders',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                StreamBuilder<List<Folder>>(
-                  stream: _foldersStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return const SizedBox.shrink();
-                    final folders = snapshot.data!;
-                    return Column(
-                      children: folders.map((folder) {
-                        return ListTile(
-                          leading: const Icon(
-                            Icons.folder_outlined,
-                          ), // Changed to outlined
-                          title: Text(folder.name),
-                          selected: _selection.type == SidebarItemType.folder &&
-                              _selection.folder?.id == folder.id,
-                          trailing: PopupMenuButton(
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Text('Delete'),
-                              ),
-                            ],
-                            onSelected: (value) async {
-                              if (value == 'delete') {
-                                await _deleteFolder(folder.id);
-                              }
-                            },
-                          ),
-                          onTap: () {
-                            final newSelection = SidebarSelection(
-                              SidebarItemType.folder,
-                              folder: folder,
-                            );
-                            setState(() => _selection = newSelection);
-                            widget.onSelectionChanged(newSelection);
-                          },
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-                const Divider(),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text(
-                    'Tags',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                StreamBuilder<List<String>>(
-                  stream: _tagsStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return const SizedBox.shrink();
-                    final tags = snapshot.data!;
-                    if (tags.isEmpty) return const SizedBox.shrink();
-                    return Column(
-                      children: tags.map((tag) {
-                        return ListTile(
-                          title: Text(tag),
-                          leading: const Icon(Icons.label_outline),
-                          selected: _selection.type == SidebarItemType.tag &&
-                              _selection.tag == tag,
-                          onTap: () {
-                            final newSelection = SidebarSelection(
-                              SidebarItemType.tag,
-                              tag: tag,
-                            );
-                            setState(() => _selection = newSelection);
-                            widget.onSelectionChanged(newSelection);
-                          },
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.add_circle_outline),
-                  title: const Text('New Folder'),
-                  onTap: () => unawaited(_createNewFolder()),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.backup),
-                  title: const Text('Backup Notes'),
-                  onTap: () => unawaited(_performBackup()),
-                ),
-                const Divider(),
-                // --- Account / Auth Section ---
-                Builder(
-                  builder: (context) {
-                    final user = context.watch<User?>();
-                    if (user == null) {
-                      return ListTile(
-                        leading: const Icon(Icons.login),
-                        title: const Text('Sign In to Sync'),
-                        onTap: () {
-                          Navigator.pop(context); // Close drawer
-                          unawaited(
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AuthScreen(),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    }
 
-                    return Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 12,
-                                child: Text(
-                                  user.email?.substring(0, 1).toUpperCase() ??
-                                      'U',
-                                  style: const TextStyle(fontSize: 10),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  user.email ?? 'Authenticated',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.logout),
-                          title: const Text('Sign Out'),
-                          onTap: () async {
-                            Navigator.pop(context); // Close drawer
-                            await AuthService().signOut();
-                          },
-                        ),
-                      ],
-                    );
-                  },
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return FluentSidebarView(
+        selection: _selection,
+        onSelectionChanged: (selection) {
+          setState(() => _selection = selection);
+          widget.onSelectionChanged(selection);
+        },
+        foldersStream: _foldersStream,
+        tagsStream: _tagsStream,
+        onCreateFolder: () => unawaited(_createNewFolder()),
+        onDeleteFolder: (id) => unawaited(_deleteFolder(id)),
+        onPerformBackup: () => unawaited(_performBackup()),
+        accountSection: _buildAccountSection(isFluent: true),
+      );
+    } else {
+      return MaterialSidebarView(
+        selection: _selection,
+        onSelectionChanged: (selection) {
+          setState(() => _selection = selection);
+          widget.onSelectionChanged(selection);
+        },
+        foldersStream: _foldersStream,
+        tagsStream: _tagsStream,
+        onCreateFolder: () => unawaited(_createNewFolder()),
+        onDeleteFolder: (id) => unawaited(_deleteFolder(id)),
+        onPerformBackup: () => unawaited(_performBackup()),
+        accountSection: _buildAccountSection(isFluent: false),
+      );
+    }
+  }
+
+
+  Widget _buildAccountSection({required bool isFluent}) {
+    return Builder(
+      builder: (context) {
+        final user = context.watch<User?>();
+        if (user == null) {
+          if (isFluent) {
+            return fluent.ListTile.selectable(
+              leading: const Icon(fluent.FluentIcons.signin),
+              title: const Text('Sign In to Sync'),
+              onPressed: () {
+                Navigator.pop(context);
+                unawaited(
+                  Navigator.push(
+                    context,
+                    fluent.FluentPageRoute(
+                      builder: (context) => const AuthScreen(),
+                    ),
+                  ),
+                );
+              },
+            );
+          } else {
+            return ListTile(
+              leading: const Icon(Icons.login),
+              title: const Text('Sign In to Sync'),
+              onTap: () {
+                Navigator.pop(context);
+                unawaited(
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AuthScreen(),
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+        }
+
+        if (isFluent) {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 12,
+                      child: Text(
+                        user.email?.substring(0, 1).toUpperCase() ?? 'U',
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        user.email ?? 'Authenticated',
+                        style: fluent.FluentTheme.of(context)
+                            .typography
+                            .caption,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ],
-      ),
+              ),
+              fluent.ListTile.selectable(
+                leading: const Icon(fluent.FluentIcons.sign_out),
+                title: const Text('Sign Out'),
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await AuthService().signOut();
+                },
+              ),
+            ],
+          );
+        } else {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 12,
+                      child: Text(
+                        user.email?.substring(0, 1).toUpperCase() ?? 'U',
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        user.email ?? 'Authenticated',
+                        style: Theme.of(context).textTheme.bodySmall,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Sign Out'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await AuthService().signOut();
+                },
+              ),
+            ],
+          );
+        }
+      },
     );
   }
 }

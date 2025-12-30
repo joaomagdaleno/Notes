@@ -1,3 +1,5 @@
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// A floating search bar for reading mode.
@@ -46,6 +48,71 @@ class _ReadingSearchBarState extends State<ReadingSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return _buildFluentBar(context);
+    } else {
+      return _buildMaterialBar(context);
+    }
+  }
+
+  Widget _buildFluentBar(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: theme.resources.dividerStrokeColorDefault),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          const Icon(fluent.FluentIcons.search, size: 16),
+          const SizedBox(width: 12),
+          Expanded(
+            child: fluent.TextBox(
+              controller: _controller,
+              autofocus: true,
+              placeholder: 'Search in note...',
+              decoration: fluent.WidgetStateProperty.all(const BoxDecoration()),
+              onChanged: widget.onFindChanged,
+            ),
+          ),
+          if (widget.resultsCount > 0)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                '${widget.currentIndex + 1} of ${widget.resultsCount}',
+                style: theme.typography.caption,
+              ),
+            ),
+          fluent.IconButton(
+            icon: const Icon(fluent.FluentIcons.up, size: 16),
+            onPressed: widget.resultsCount > 0 ? widget.onFindPrevious : null,
+          ),
+          fluent.IconButton(
+            icon: const Icon(fluent.FluentIcons.down, size: 16),
+            onPressed: widget.resultsCount > 0 ? widget.onFindNext : null,
+          ),
+          const SizedBox(width: 8),
+          fluent.IconButton(
+            icon: const Icon(fluent.FluentIcons.chrome_close, size: 14),
+            onPressed: widget.onClose,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMaterialBar(BuildContext context) {
     final theme = Theme.of(context);
 
     return Card(

@@ -1,5 +1,6 @@
-import 'package:fluent_ui/fluent_ui.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart' as material;
+import 'package:flutter/widgets.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
@@ -9,15 +10,14 @@ class FluentContextMenuHelper {
   /// Shows the context menu.
   static Future<void> showContextMenu({
     required BuildContext context,
-    required FlyoutController controller,
+    required fluent.FlyoutController controller,
     required Note note,
     required void Function(Note) onSave,
     required void Function(Note) onDelete,
   }) async {
     await controller.showFlyout<void>(
-      dismissOnPointerMoveAway: true,
       builder: (flyoutContext) {
-        return MenuFlyout(
+        return fluent.MenuFlyout(
           items: note.isInTrash
               ? _buildTrashContextMenu(note, onSave, onDelete)
               : _buildDefaultContextMenu(context, note, onSave),
@@ -26,18 +26,18 @@ class FluentContextMenuHelper {
     );
   }
 
-  static List<MenuFlyoutItemBase> _buildDefaultContextMenu(
+  static List<fluent.MenuFlyoutItemBase> _buildDefaultContextMenu(
     BuildContext context,
     Note note,
     void Function(Note) onSave,
   ) {
     final exportService = ExportService();
     return [
-      MenuFlyoutItem(
-        leading: Icon(
+      fluent.MenuFlyoutItem(
+        leading: fluent.Icon(
           note.isFavorite
-              ? FluentIcons.favorite_star_fill
-              : FluentIcons.favorite_star,
+              ? fluent.FluentIcons.favorite_star_fill
+              : fluent.FluentIcons.favorite_star,
         ),
         text: Text(note.isFavorite ? 'Unfavorite' : 'Favorite'),
         onPressed: () {
@@ -45,18 +45,18 @@ class FluentContextMenuHelper {
           onSave(updatedNote);
         },
       ),
-      const MenuFlyoutSeparator(),
-      MenuFlyoutItem(
-        leading: const Icon(FluentIcons.delete),
+      const fluent.MenuFlyoutSeparator(),
+      fluent.MenuFlyoutItem(
+        leading: const fluent.Icon(fluent.FluentIcons.delete),
         text: const Text('Move to trash'),
         onPressed: () {
           final updatedNote = note.copyWith(isInTrash: true);
           onSave(updatedNote);
         },
       ),
-      const MenuFlyoutSeparator(),
-      MenuFlyoutItem(
-        leading: const Icon(FluentIcons.save_as),
+      const fluent.MenuFlyoutSeparator(),
+      fluent.MenuFlyoutItem(
+        leading: const fluent.Icon(fluent.FluentIcons.save_as),
         text: const Text('Export to TXT'),
         onPressed: () async {
           material.ScaffoldMessenger.of(context).showSnackBar(
@@ -67,8 +67,8 @@ class FluentContextMenuHelper {
           await exportService.exportToTxt(noteWithContent);
         },
       ),
-      MenuFlyoutItem(
-        leading: const Icon(FluentIcons.pdf),
+      fluent.MenuFlyoutItem(
+        leading: const fluent.Icon(fluent.FluentIcons.pdf),
         text: const Text('Export to PDF'),
         onPressed: () async {
           material.ScaffoldMessenger.of(context).showSnackBar(
@@ -82,23 +82,23 @@ class FluentContextMenuHelper {
     ];
   }
 
-  static List<MenuFlyoutItemBase> _buildTrashContextMenu(
+  static List<fluent.MenuFlyoutItemBase> _buildTrashContextMenu(
     Note note,
     void Function(Note) onSave,
     void Function(Note) onDelete,
   ) {
     return [
-      MenuFlyoutItem(
-        leading: const Icon(FluentIcons.undo),
+      fluent.MenuFlyoutItem(
+        leading: const fluent.Icon(fluent.FluentIcons.undo),
         text: const Text('Restore'),
         onPressed: () {
           final updatedNote = note.copyWith(isInTrash: false);
           onSave(updatedNote);
         },
       ),
-      const MenuFlyoutSeparator(),
-      MenuFlyoutItem(
-        leading: const Icon(FluentIcons.delete),
+      const fluent.MenuFlyoutSeparator(),
+      fluent.MenuFlyoutItem(
+        leading: const fluent.Icon(fluent.FluentIcons.delete),
         text: const Text('Delete permanently'),
         onPressed: () {
           onDelete(note);

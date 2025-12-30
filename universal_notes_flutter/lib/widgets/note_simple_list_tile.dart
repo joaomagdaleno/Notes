@@ -1,3 +1,5 @@
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
@@ -28,13 +30,32 @@ class NoteSimpleListTile extends StatelessWidget {
   /// If null, it will navigate to the [NoteEditorScreen].
   final VoidCallback? onTap;
 
-  // ⚡ Bolt: Memoize DateFormat for performance.
-  // Re-creating DateFormat on every build is inefficient.
-  // This avoids repeated object creation.
   static final _dateFormat = DateFormat('d MMM');
 
   @override
   Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return _buildFluentTile(context);
+    } else {
+      return _buildMaterialTile(context);
+    }
+  }
+
+  Widget _buildFluentTile(BuildContext context) {
+    return fluent.ListTile.selectable(
+      title: Text(note.title),
+      trailing: Text(_dateFormat.format(note.date)),
+      leading: Container(
+        width: 40,
+        height: 40,
+        color: Colors.grey[300],
+        child: const Icon(fluent.FluentIcons.image_search, color: Colors.grey),
+      ),
+      onPressed: onTap,
+    );
+  }
+
+  Widget _buildMaterialTile(BuildContext context) {
     return ListTile(
       key: key,
       contentPadding: const EdgeInsets.symmetric(

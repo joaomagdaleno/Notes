@@ -1,12 +1,65 @@
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
+import 'package:universal_notes_flutter/widgets/fluent_context_menu_helper.dart'
+    as fluent_context;
 
 /// A helper class for showing a context menu for a note.
 class ContextMenuHelper {
   /// Shows the context menu.
   static Future<void> showContextMenu({
+    required BuildContext context,
+    required Offset position,
+    required Note note,
+    required void Function(Note) onSave,
+    required void Function(Note) onDelete,
+    dynamic controller,
+  }) async {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      await _showFluentContextMenu(
+        context: context,
+        position: position,
+        note: note,
+        onSave: onSave,
+        onDelete: onDelete,
+        controller: controller,
+      );
+    } else {
+      await _showMaterialContextMenu(
+        context: context,
+        position: position,
+        note: note,
+        onSave: onSave,
+        onDelete: onDelete,
+      );
+    }
+  }
+
+  /// Shows Fluent-style context menu (Windows)
+  static Future<void> _showFluentContextMenu({
+    required BuildContext context,
+    required Offset position,
+    required Note note,
+    required void Function(Note) onSave,
+    required void Function(Note) onDelete,
+    dynamic controller,
+  }) async {
+    if (controller != null) {
+      await fluent_context.FluentContextMenuHelper.showContextMenu(
+        context: context,
+        controller: controller as fluent.FlyoutController,
+        note: note,
+        onSave: onSave,
+        onDelete: onDelete,
+      );
+    }
+  }
+
+  /// Shows Material-style context menu (Android/iOS)
+  static Future<void> _showMaterialContextMenu({
     required BuildContext context,
     required Offset position,
     required Note note,

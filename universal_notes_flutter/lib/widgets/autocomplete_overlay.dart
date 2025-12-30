@@ -1,4 +1,8 @@
 import 'dart:async';
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// A floating overlay that displays autocomplete suggestions.
@@ -55,6 +59,56 @@ class _AutocompleteOverlayState extends State<AutocompleteOverlay>
 
   @override
   Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return _buildFluentOverlay(context);
+    } else {
+      return _buildMaterialOverlay(context);
+    }
+  }
+
+  Widget _buildFluentOverlay(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
+
+    return Positioned(
+      left: widget.position.dx,
+      top: widget.position.dy,
+      child: FadeTransition(
+        opacity: _animation,
+        child: Container(
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: theme.resources.dividerStrokeColorDefault,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          constraints: const BoxConstraints(maxHeight: 200, maxWidth: 250),
+          child: ListView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            itemCount: widget.suggestions.length,
+            itemBuilder: (context, index) {
+              final suggestion = widget.suggestions[index];
+              return fluent.ListTile.selectable(
+                title: Text(suggestion),
+                selected: index == widget.selectedIndex,
+                onPressed: () => widget.onSuggestionSelected(suggestion),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMaterialOverlay(BuildContext context) {
     return Positioned(
       left: widget.position.dx,
       top: widget.position.dy,
