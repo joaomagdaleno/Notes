@@ -95,66 +95,82 @@ class _AboutScreenState extends State<AboutScreen> {
   }
 
   Widget _buildFluentUI(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
     return Semantics(
       label: 'About Universal Notes',
       child: fluent.ScaffoldPage(
         header: fluent.PageHeader(
           title: const Text('Sobre'),
-          leading: fluent.CommandBar(
-            overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
-            primaryItems: [
-              fluent.CommandBarButton(
-                icon: const fluent.Icon(fluent.FluentIcons.back),
-                label: const Text('Back'),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
         ),
-        content: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Versão atual: ${widget.packageInfo.version}'),
-              const SizedBox(height: 20),
-              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the
-              // button when the `_isChecking` state changes. This is more
-              // efficient than rebuilding the entire screen with `setState`.
-              ValueListenableBuilder<bool>(
-                valueListenable: _isChecking,
-                builder: (context, isChecking, child) {
-                  return fluent.FilledButton(
-                    onPressed: isChecking ? null : _checkForUpdateWindows,
-                    child: isChecking
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: fluent.ProgressRing(
-                              key: Key('loading_indicator'),
-                            ),
-                          )
-                        : const Text('Verificar Atualizações'),
-                  );
-                },
+        content: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            fluent.Card(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Universal Notes',
+                    style: theme.typography.subtitle,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Versão atual: ${widget.packageInfo.version}',
+                    style: theme.typography.body,
+                  ),
+                  const fluent.Divider(
+                    style: fluent.DividerThemeData(
+                      horizontalMargin: EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _isChecking,
+                    builder: (context, isChecking, child) {
+                      return Row(
+                        children: [
+                          fluent.FilledButton(
+                            onPressed:
+                                isChecking ? null : _checkForUpdateWindows,
+                            child: isChecking
+                                ? const SizedBox(
+                                    height: 16,
+                                    width: 16,
+                                    child: fluent.ProgressRing(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text('Verificar Atualizações'),
+                          ),
+                          const SizedBox(width: 16),
+                          ValueListenableBuilder<String>(
+                            valueListenable: _updateStatus,
+                            builder: (context, updateStatus, child) {
+                              if (updateStatus.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+                              return Expanded(
+                                child: Text(
+                                  updateStatus,
+                                  style: theme.typography.caption,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
               ),
-              // 🎨 Palette: Using ValueListenableBuilder to rebuild only the
-              // status text when the `_updateStatus` state changes.
-              ValueListenableBuilder<String>(
-                valueListenable: _updateStatus,
-                builder: (context, updateStatus, child) {
-                  if (updateStatus.isEmpty) {
-                    return const SizedBox.shrink();
-                  }
-                  return Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      Text(updateStatus, textAlign: TextAlign.center),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              '© 2024 Google DeepMind - Advanced Agentic Coding Team',
+              style: theme.typography.caption,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );

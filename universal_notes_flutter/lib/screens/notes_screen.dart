@@ -257,9 +257,77 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       _selection = selection;
       _updateNotesStream();
     });
-    if (context.mounted) {
+    // Don't pop on Windows as we use NavigationView which is persistent
+    if (defaultTargetPlatform != TargetPlatform.windows && context.mounted) {
       Navigator.of(context).pop();
     }
+  }
+
+  Future<void> _createNewFolder() async {
+    final controller = TextEditingController();
+    String? name;
+
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+      name = await fluent.showDialog<String>(
+        context: context,
+        builder: (context) => fluent.ContentDialog(
+          title: const Text('New Folder'),
+          content: fluent.TextBox(
+            controller: controller,
+            placeholder: 'Folder Name',
+            autofocus: true,
+          ),
+          actions: [
+            fluent.Button(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            fluent.FilledButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Create'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      name = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('New Folder'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(hintText: 'Folder Name'),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Create'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (name != null && name.trim().isNotEmpty) {
+      await NoteRepository.instance.createFolder(name.trim());
+      await _syncService.refreshLocalData();
+    }
+  }
+
+  Future<void> _deleteFolder(String folderId) async {
+    if (_selection.type == SidebarItemType.folder &&
+        _selection.folder?.id == folderId) {
+      const newSelection = SidebarSelection(SidebarItemType.all);
+      setState(() => _selection = newSelection);
+      _onSelectionChanged(newSelection);
+    }
+    await NoteRepository.instance.deleteFolder(folderId);
+    await _syncService.refreshLocalData();
   }
 
   Future<void> _createNewNote() async {
@@ -653,14 +721,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             defaultTargetPlatform == TargetPlatform.linux ||
             defaultTargetPlatform == TargetPlatform.macOS)) {
       return FluentNotesView(
-        sidebar: Material(
-          key: const ValueKey('sidebar_material_wrapper'),
-          type: MaterialType.transparency,
-          child: Sidebar(
-            key: const ValueKey('fluent_sidebar'),
-            onSelectionChanged: _onSelectionChanged,
-          ),
-        ),
+        selection: _selection,
+        onSelectionChanged: _onSelectionChanged,
+        foldersStream: _syncService.foldersStream,
+        tagsStream: _syncService.tagsStream,
         title: _getAppBarTitle(),
         viewModeNotifier: _viewModeNotifier,
         onCycleViewMode: _cycleViewMode,
@@ -687,13 +751,12 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           );
         },
         searchController: _searchController,
-        content: Material(
-          type: MaterialType.transparency,
-          child: _buildContent(),
-        ),
+        content: _buildContent(),
         isTrashView: _selection.type == SidebarItemType.trash,
         onCreateNote: _createNewNote,
         onOpenQuickEditor: _abrirEditorRapido,
+        onCreateFolder: _createNewFolder,
+        onDeleteFolder: _deleteFolder,
       );
     }
     unawaited(

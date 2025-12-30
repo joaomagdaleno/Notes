@@ -75,7 +75,7 @@ class FluentAuthView extends StatelessWidget {
                             placeholder: 'Como você quer ser chamado',
                             prefix: const Padding(
                               padding: EdgeInsets.only(left: 8),
-                              child: Icon(Icons.person_outline),
+                              child: Icon(fluent.FluentIcons.contact),
                             ),
                           ),
                         ),

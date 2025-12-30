@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -114,7 +115,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
           const windowOptions = WindowOptions(
             size: Size(1280, 800),
             center: true,
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.transparent,
             skipTaskbar: false,
             titleBarStyle: TitleBarStyle.normal,
           );
@@ -196,7 +197,48 @@ class _AppBootstrapState extends State<AppBootstrap> {
         '_isInitialized=$_isInitialized, _errorMessage=$_errorMessage',
     ),);
     if (_errorMessage != null) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        return fluent.FluentApp(
+          debugShowCheckedModeBanner: false,
+          home: fluent.ScaffoldPage(
+            content: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      fluent.FluentIcons.error,
+                      size: 64,
+                      color: fluent.Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 24),
+                    fluent.FilledButton(
+                      onPressed: () {
+                        setState(() {
+                          _errorMessage = null;
+                          _isInitialized = false;
+                          _currentStep = 'Retrying...';
+                        });
+                        unawaited(_initializeApp());
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
       return MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: Center(
             child: Padding(
@@ -232,7 +274,25 @@ class _AppBootstrapState extends State<AppBootstrap> {
     }
 
     if (!_isInitialized) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        return fluent.FluentApp(
+          debugShowCheckedModeBanner: false,
+          home: fluent.ScaffoldPage(
+            content: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const fluent.ProgressRing(),
+                  const SizedBox(height: 24),
+                  Text(_currentStep, style: const TextStyle(fontSize: 16)),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
       return MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: Center(
             child: Column(
@@ -274,12 +334,23 @@ class MyApp extends StatelessWidget {
     unawaited(StartupLogger.log('🎨 [BUILD] MyApp.build called'));
     return Consumer<ThemeService>(
       builder: (context, themeService, child) {
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+          return fluent.FluentApp(
+            title: 'Universal Notes',
+            theme: AppThemes.fluentLightTheme,
+            darkTheme: AppThemes.fluentDarkTheme,
+            themeMode: themeService.themeMode,
+            home: child,
+            debugShowCheckedModeBanner: false,
+          );
+        }
         return MaterialApp(
           title: 'Universal Notes',
           theme: AppThemes.lightTheme,
           darkTheme: AppThemes.darkTheme,
           themeMode: themeService.themeMode,
           home: child,
+          debugShowCheckedModeBanner: false,
         );
       },
       child: Builder(
@@ -372,10 +443,34 @@ class _AuthWrapperState extends State<AuthWrapper> {
       unawaited(
         StartupLogger.log('🎨 [BUILD] AuthWrapper showing loading spinner'),
       );
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        return const fluent.ScaffoldPage(
+          content: Center(child: fluent.ProgressRing()),
+        );
+      }
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (!_isAuthenticated) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        return fluent.ScaffoldPage(
+          content: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(fluent.FluentIcons.lock, size: 48),
+                const SizedBox(height: 16),
+                const Text('App Locked'),
+                const SizedBox(height: 16),
+                fluent.FilledButton(
+                  onPressed: _checkBiometrics,
+                  child: const Text('Unlock'),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
       return Scaffold(
         body: Center(
           child: Column(

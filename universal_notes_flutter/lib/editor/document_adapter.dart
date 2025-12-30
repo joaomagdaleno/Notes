@@ -13,7 +13,17 @@ class DocumentAdapter {
       );
     }
     try {
-      final jsonList = json.decode(jsonString) as List<dynamic>;
+      final dynamic decoded = json.decode(jsonString);
+      final List<dynamic> jsonList;
+      
+      if (decoded is Map<String, dynamic> && decoded.containsKey('blocks')) {
+        jsonList = decoded['blocks'] as List<dynamic>;
+      } else if (decoded is List) {
+        jsonList = decoded;
+      } else {
+        throw const FormatException('Invalid document JSON format');
+      }
+
       final blocks = jsonList.map((jsonItem) {
         final itemMap = jsonItem as Map<String, dynamic>;
         final type = itemMap['type'];
