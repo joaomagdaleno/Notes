@@ -70,6 +70,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final _searchResultsNotifier = ValueNotifier<List<Note>?>(null);
   final _isSearchingNotifier = ValueNotifier<bool>(false);
 
+  // ⚡ Bolt: Cache TextStyles to avoid expensive Theme lookups on every build.
+  TextStyle? _dashboardTitleStyle;
+  TextStyle? _dashboardSubtitleStyle;
+
   // 🎨 Palette: Cycle through view modes to provide a dynamic button.
   void _cycleViewMode() {
     const modes = ['grid_medium', 'grid_large', 'list'];
@@ -161,6 +165,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       unawaited(StartupLogger.log('🔥 CRASH in NotesScreen.initState: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // ⚡ Bolt: Initialize styles here. This is called once when dependencies
+    // change (like theme), which is more efficient than in the build method.
+    _dashboardTitleStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+        );
+    _dashboardSubtitleStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
+          color: Colors.grey.shade600,
+        );
   }
 
   @override
@@ -564,9 +581,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         children: [
           Text(
             'Quick Start',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: _dashboardTitleStyle,
           ),
           const SizedBox(height: 12),
           SingleChildScrollView(
@@ -607,9 +622,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           const Divider(height: 32),
           Text(
             'Recent Notes',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
+            style: _dashboardSubtitleStyle,
           ),
         ],
       ),
