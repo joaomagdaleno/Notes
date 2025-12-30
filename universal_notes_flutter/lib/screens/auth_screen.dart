@@ -159,6 +159,12 @@ class _AuthScreenState extends State<AuthScreen> {
                           placeholder: 'seu@email.com',
                           keyboardType: TextInputType.emailAddress,
                         ),
+                        validator: (text) {
+                          if (text == null || text.isEmpty) {
+                            return 'O nome não pode ficar em branco';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 16),
                       InfoLabel(
