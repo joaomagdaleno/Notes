@@ -34,7 +34,6 @@ class RecoveryDialog extends StatefulWidget {
     if (defaultTargetPlatform == TargetPlatform.windows) {
       return fluent.showDialog<void>(
         context: context,
-        barrierDismissible: false,
         builder: (context) => RecoveryDialog(
           recoveryService: recoveryService,
           onRecoveryComplete: onRecoveryComplete,
@@ -43,7 +42,6 @@ class RecoveryDialog extends StatefulWidget {
     } else {
       return showDialog<void>(
         context: context,
-        barrierDismissible: false,
         builder: (context) => RecoveryDialog(
           recoveryService: recoveryService,
           onRecoveryComplete: onRecoveryComplete,

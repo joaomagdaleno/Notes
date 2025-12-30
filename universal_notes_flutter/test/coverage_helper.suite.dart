@@ -28,7 +28,6 @@ import 'package:universal_notes_flutter/services/update_service.dart';
 import 'package:universal_notes_flutter/utils/update_helper.dart';
 import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
-import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_card.dart';
 import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
 

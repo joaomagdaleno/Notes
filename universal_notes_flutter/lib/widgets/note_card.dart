@@ -1,9 +1,11 @@
 import 'dart:async';
 
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:intl/intl.dart';
+
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -98,7 +100,7 @@ class _NoteCardState extends State<NoteCard> {
         onTap: widget.onTap,
         onSecondaryTapUp: (details) => _showFluentContextMenu(details.globalPosition),
         onLongPressStart: (details) => _showFluentContextMenu(details.globalPosition),
-        onHoverChanged: (val) => setState(() => _isHovered = val),
+        onHoverChanged: ({required isHovered}) => setState(() => _isHovered = isHovered),
         onShowPreview: () => unawaited(_showFluentPreview(context)),
       );
     } else {
@@ -117,7 +119,7 @@ class _NoteCardState extends State<NoteCard> {
             _showMaterialContextMenu(context, offset);
           }
         },
-        onHoverChanged: (val) => setState(() => _isHovered = val),
+        onHoverChanged: ({required isHovered}) => setState(() => _isHovered = isHovered),
         onFavorite: widget.onFavorite,
         onTrash: widget.onTrash,
       );

@@ -1,6 +1,10 @@
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 import 'package:universal_notes_flutter/services/encryption_service.dart';
 import 'package:universal_notes_flutter/services/recovery_service.dart';
 import 'package:universal_notes_flutter/widgets/recovery/fluent_setup_recovery_view.dart';
@@ -34,7 +38,6 @@ class SetupRecoveryDialog extends StatefulWidget {
     if (defaultTargetPlatform == TargetPlatform.windows) {
       result = await fluent.showDialog<bool>(
         context: context,
-        barrierDismissible: false,
         builder: (context) => SetupRecoveryDialog(
           recoveryService: recoveryService,
           password: password,
@@ -43,7 +46,6 @@ class SetupRecoveryDialog extends StatefulWidget {
     } else {
       result = await showDialog<bool>(
         context: context,
-        barrierDismissible: false,
         builder: (context) => SetupRecoveryDialog(
           recoveryService: recoveryService,
           password: password,
@@ -96,13 +98,14 @@ class _SetupRecoveryDialogState extends State<SetupRecoveryDialog> {
 
   void _verifyEmail() {
     if (defaultTargetPlatform == TargetPlatform.windows) {
-      fluent.displayInfoBar(
-        context,
-        builder: (context, close) => fluent.InfoBar(
-          title: const Text('Email enviado'),
-          content: const Text('Verifique seu email para confirmar'),
-          severity: fluent.InfoBarSeverity.info,
-          onClose: close,
+      unawaited(
+        fluent.displayInfoBar(
+          context,
+          builder: (context, close) => fluent.InfoBar(
+            title: const Text('Email enviado'),
+            content: const Text('Verifique seu email para confirmar'),
+            onClose: close,
+          ),
         ),
       );
     } else {

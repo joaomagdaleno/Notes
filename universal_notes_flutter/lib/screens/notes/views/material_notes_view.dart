@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+/// A Material Design view for the notes list screen.
 class MaterialNotesView extends StatelessWidget {
+  /// Creates a [MaterialNotesView].
   const MaterialNotesView({
     required this.sidebar,
     required this.title,
@@ -23,22 +25,56 @@ class MaterialNotesView extends StatelessWidget {
     super.key,
   });
 
+  /// Sidebar widget (typically a Drawer).
   final Widget sidebar;
+
+  /// The title of the current view.
   final String title;
+
+  /// Notifier for the current view mode.
   final ValueListenable<String> viewModeNotifier;
+
+  /// Callback to cycle view modes.
   final VoidCallback onCycleViewMode;
-  final ({IconData icon, String tooltip}) Function(String) nextViewModePropsGetter;
+
+  /// Function to get next view mode properties.
+  final ({IconData icon, String tooltip}) Function(String)
+      nextViewModePropsGetter;
+
+  /// Callback to toggle theme.
   final VoidCallback onToggleTheme;
+
+  /// Callback to check for updates.
   final VoidCallback onCheckUpdate;
+
+  /// Callback to open settings.
   final VoidCallback onOpenSettings;
+
+  /// Notifier for the current sort order.
   final ValueListenable<dynamic> sortOrderNotifier;
+
+  /// Callback when sort order is changed.
   final ValueChanged<dynamic> onSortOrderChanged;
+
+  /// Items to display in the sort order menu.
   final List<PopupMenuEntry<dynamic>> sortOrderItems;
+
+  /// Controller for the search field.
   final TextEditingController searchController;
+
+  /// Notifier for whether a search is currently in progress.
   final ValueListenable<bool> isSearchingNotifier;
+
+  /// The main content widget.
   final Widget content;
+
+  /// Whether we are currently in trash view.
   final bool isTrashView;
+
+  /// Callback to create a note.
   final VoidCallback onCreateNote;
+
+  /// Callback to open quick editor.
   final VoidCallback onOpenQuickEditor;
 
   @override

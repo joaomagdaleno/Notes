@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// A Material Design view for password recovery flow.
 class MaterialRecoveryView extends StatelessWidget {
+  /// Creates a [MaterialRecoveryView].
   const MaterialRecoveryView({
     required this.currentStep,
     required this.isLoading,
@@ -23,22 +25,55 @@ class MaterialRecoveryView extends StatelessWidget {
     super.key,
   });
 
+  /// The current step in the recovery flow (0: send, 1: verify, 2: reset).
   final int currentStep;
+
+  /// Whether an operation is currently in progress.
   final bool isLoading;
+
+  /// Error message to display, if any.
   final String? errorMessage;
+
+  /// Controller for the verification code input.
   final TextEditingController codeController;
+
+  /// Controller for the new password input.
   final TextEditingController passwordController;
+
+  /// Controller for confirming the new password.
   final TextEditingController confirmController;
+
+  /// Formatted string showing time remaining for the code.
   final String formattedTime;
+
+  /// Number of seconds remaining before the code expires.
   final int secondsRemaining;
+
+  /// The email address of the user recovering their password.
   final String userEmail;
+
+  /// Whether to obscure the password text.
   final bool obscurePassword;
+
+  /// Whether to obscure the confirm password text.
   final bool obscureConfirm;
+
+  /// Callback to send a verification code.
   final VoidCallback onSendCode;
+
+  /// Callback to verify the entered code.
   final VoidCallback onVerifyCode;
+
+  /// Callback to submit the new password.
   final VoidCallback onSubmitNewPassword;
+
+  /// Callback to cancel the recovery flow.
   final VoidCallback onCancel;
+
+  /// Callback to toggle password visibility.
   final VoidCallback onToggleObscurePassword;
+
+  /// Callback to toggle confirm password visibility.
   final VoidCallback onToggleObscureConfirm;
 
   @override

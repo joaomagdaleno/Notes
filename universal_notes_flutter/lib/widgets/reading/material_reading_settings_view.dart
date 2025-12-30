@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/reading_settings.dart';
 
+/// A Material Design view for customizing reading mode settings.
 class MaterialReadingSettingsView extends StatelessWidget {
+  /// Creates a [MaterialReadingSettingsView].
   const MaterialReadingSettingsView({
     required this.settings,
     required this.onSettingsChanged,
@@ -12,11 +14,22 @@ class MaterialReadingSettingsView extends StatelessWidget {
     super.key,
   });
 
+  /// Current reading settings.
   final ReadingSettings settings;
+
+  /// Callback when settings are changed.
   final ValueChanged<ReadingSettings> onSettingsChanged;
+
+  /// Current reading goal in minutes.
   final int currentGoalMinutes;
+
+  /// Callback to reset settings to default.
   final VoidCallback? onReset;
+
+  /// Callback to toggle Read Aloud.
   final VoidCallback? onReadAloudToggle;
+
+  /// Callback when the reading goal is changed.
   final ValueChanged<int>? onGoalChanged;
 
   @override

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
 
+/// A Material Design view for the application sidebar.
 class MaterialSidebarView extends StatelessWidget {
+  /// Creates a [MaterialSidebarView].
   const MaterialSidebarView({
     required this.selection,
     required this.onSelectionChanged,
@@ -15,13 +17,28 @@ class MaterialSidebarView extends StatelessWidget {
     super.key,
   });
 
+  /// The current sidebar selection.
   final SidebarSelection selection;
+
+  /// Callback when the sidebar selection is changed.
   final ValueChanged<SidebarSelection> onSelectionChanged;
+
+  /// Stream of available folders.
   final Stream<List<Folder>> foldersStream;
+
+  /// Stream of available tags.
   final Stream<List<String>> tagsStream;
+
+  /// Callback to create a new folder.
   final VoidCallback onCreateFolder;
+
+  /// Callback to delete a folder by its ID.
   final ValueChanged<String> onDeleteFolder;
+
+  /// Callback to perform a manual backup.
   final VoidCallback onPerformBackup;
+
+  /// The widget representing the user account section.
   final Widget accountSection;
 
   @override

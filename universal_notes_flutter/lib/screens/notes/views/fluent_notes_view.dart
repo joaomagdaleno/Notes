@@ -1,8 +1,10 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Tooltip, IconButton;
+import 'package:flutter/material.dart' hide IconButton, Tooltip;
 
+/// A Windows-specific view for the notes list screen.
 class FluentNotesView extends StatelessWidget {
+  /// Creates a [FluentNotesView].
   const FluentNotesView({
     required this.sidebar,
     required this.title,
@@ -20,18 +22,44 @@ class FluentNotesView extends StatelessWidget {
     super.key,
   });
 
+  /// Sidebar widget to display on the left.
   final Widget sidebar;
+
+  /// The title of the current view (e.g., 'All Notes').
   final String title;
+
+  /// Notifier for the current view mode (grid/list).
   final ValueListenable<String> viewModeNotifier;
+
+  /// Callback to cycle through different view modes.
   final VoidCallback onCycleViewMode;
-  final ({IconData icon, String tooltip}) Function(String) nextViewModePropsGetter;
+
+  /// Function to get the properties (icon, tooltip) for the next view mode.
+  final ({IconData icon, String tooltip}) Function(String)
+      nextViewModePropsGetter;
+
+  /// Callback to toggle the application theme.
   final VoidCallback onToggleTheme;
+
+  /// Callback to check for application updates.
   final VoidCallback onCheckUpdate;
+
+  /// Callback to open the settings screen.
   final VoidCallback onOpenSettings;
+
+  /// Controller for the search input field.
   final TextEditingController searchController;
+
+  /// The main content widget (the list of notes).
   final Widget content;
+
+  /// Whether the current view is the trash.
   final bool isTrashView;
+
+  /// Callback to create a new note.
   final VoidCallback onCreateNote;
+
+  /// Callback to open the quick note editor.
   final VoidCallback onOpenQuickEditor;
 
   @override

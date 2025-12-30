@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:universal_notes_flutter/services/auth_service.dart';
+
 import 'package:universal_notes_flutter/screens/auth/views/fluent_auth_view.dart';
 import 'package:universal_notes_flutter/screens/auth/views/material_auth_view.dart';
+import 'package:universal_notes_flutter/services/auth_service.dart';
 
 /// The authentication screen with platform-adaptive UI.
 class AuthScreen extends StatefulWidget {

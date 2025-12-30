@@ -1,9 +1,11 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:flutter/material.dart' hide ListTile, Divider, IconButton;
+import 'package:flutter/material.dart' hide Divider, IconButton, ListTile;
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
 
+/// A Windows-specific view for the application sidebar.
 class FluentSidebarView extends StatelessWidget {
+  /// Creates a [FluentSidebarView].
   const FluentSidebarView({
     required this.selection,
     required this.onSelectionChanged,
@@ -16,13 +18,28 @@ class FluentSidebarView extends StatelessWidget {
     super.key,
   });
 
+  /// The current sidebar selection.
   final SidebarSelection selection;
+
+  /// Callback when the sidebar selection is changed.
   final ValueChanged<SidebarSelection> onSelectionChanged;
+
+  /// Stream of available folders.
   final Stream<List<Folder>> foldersStream;
+
+  /// Stream of available tags.
   final Stream<List<String>> tagsStream;
+
+  /// Callback to create a new folder.
   final VoidCallback onCreateFolder;
+
+  /// Callback to delete a folder by its ID.
   final ValueChanged<String> onDeleteFolder;
+
+  /// Callback to perform a manual backup.
   final VoidCallback onPerformBackup;
+
+  /// The widget representing the user account section.
   final Widget accountSection;
 
   @override

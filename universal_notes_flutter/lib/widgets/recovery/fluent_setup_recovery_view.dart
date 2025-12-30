@@ -1,7 +1,9 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 
+/// A Windows-specific view for setting up password recovery.
 class FluentSetupRecoveryView extends StatelessWidget {
+  /// Creates a [FluentSetupRecoveryView].
   const FluentSetupRecoveryView({
     required this.canSetup,
     required this.email,
@@ -15,14 +17,31 @@ class FluentSetupRecoveryView extends StatelessWidget {
     super.key,
   });
 
+  /// Whether recovery can be set up (usually depends on email verification).
   final bool canSetup;
+
+  /// The user's email address.
   final String? email;
+
+  /// Whether the user has confirmed they understand the consequences.
   final bool understood;
+
+  /// Whether an operation is currently in progress.
   final bool isLoading;
+
+  /// Error message to display, if any.
   final String? errorMessage;
+
+  /// Callback when the understood checkbox is changed.
   final ValueChanged<bool?> onUnderstoodChanged;
+
+  /// Callback to proceed with setting up recovery.
   final VoidCallback onSetupRecovery;
+
+  /// Callback to cancel the setup process.
   final VoidCallback onCancel;
+
+  /// Callback to initiate email verification.
   final VoidCallback onVerifyEmail;
 
   @override
@@ -66,7 +85,9 @@ class FluentSetupRecoveryView extends StatelessWidget {
           if (!canSetup) ...[
             fluent.InfoBar(
               title: const Text('Verificação necessária'),
-              content: Text('Você precisa verificar seu email ($email) para configurar a recuperação.'),
+              content: Text(
+                'Você precisa verificar seu email ($email) para configurar a recuperação.',
+              ),
               severity: fluent.InfoBarSeverity.warning,
             ),
             const SizedBox(height: 16),

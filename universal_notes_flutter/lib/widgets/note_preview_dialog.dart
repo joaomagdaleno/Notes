@@ -30,12 +30,18 @@ class NotePreviewDialog extends StatelessWidget {
     if (defaultTargetPlatform == TargetPlatform.windows) {
       return fluent.showDialog<void>(
         context: context,
-        builder: (context) => NotePreviewDialog(note: note, tags: tags),
+        builder: (context) => NotePreviewDialog(
+          note: note,
+          tags: tags,
+        ),
       );
     } else {
       return showDialog<void>(
         context: context,
-        builder: (context) => NotePreviewDialog(note: note, tags: tags),
+        builder: (context) => NotePreviewDialog(
+          note: note,
+          tags: tags,
+        ),
       );
     }
   }

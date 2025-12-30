@@ -2,7 +2,9 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/reading_settings.dart';
 
+/// A Windows-specific view for customizing reading mode settings.
 class FluentReadingSettingsView extends StatelessWidget {
+  /// Creates a [FluentReadingSettingsView].
   const FluentReadingSettingsView({
     required this.settings,
     required this.onSettingsChanged,
@@ -13,11 +15,22 @@ class FluentReadingSettingsView extends StatelessWidget {
     super.key,
   });
 
+  /// Current reading settings.
   final ReadingSettings settings;
+
+  /// Callback when settings are changed.
   final ValueChanged<ReadingSettings> onSettingsChanged;
+
+  /// Current reading goal in minutes.
   final int currentGoalMinutes;
+
+  /// Callback to reset settings to default.
   final VoidCallback? onReset;
+
+  /// Callback to toggle Read Aloud.
   final VoidCallback? onReadAloudToggle;
+
+  /// Callback when the reading goal is changed.
   final ValueChanged<int>? onGoalChanged;
 
   @override
@@ -42,12 +55,12 @@ class FluentReadingSettingsView extends StatelessWidget {
                 if (onReset != null)
                   fluent.HyperlinkButton(
                     onPressed: onReset,
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(fluent.FluentIcons.refresh, size: 14),
-                        const SizedBox(width: 4),
-                        const Text('Reset'),
+                        Icon(fluent.FluentIcons.refresh, size: 14),
+                        SizedBox(width: 4),
+                        Text('Reset'),
                       ],
                     ),
                   ),

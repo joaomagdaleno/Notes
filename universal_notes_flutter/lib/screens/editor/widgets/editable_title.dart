@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 
+/// A widget that allows editing a title in-place.
 class EditableTitle extends StatefulWidget {
+  /// Creates an [EditableTitle].
   const EditableTitle({
     required this.initialTitle,
     required this.onChanged,
     super.key,
   });
 
+  /// The initial title to display.
   final String initialTitle;
+
+  /// Callback when the title is changed and submitted.
   final ValueChanged<String> onChanged;
 
   @override

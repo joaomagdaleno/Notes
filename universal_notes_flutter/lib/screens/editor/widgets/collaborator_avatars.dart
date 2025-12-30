@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+/// A widget that displays avatars for active collaborators in a row.
 class CollaboratorAvatars extends StatelessWidget {
+  /// Creates a [CollaboratorAvatars].
   const CollaboratorAvatars({
     required this.remoteCursors,
     super.key,
   });
 
+  /// A map of remote cursors containing collaborator information (name, color).
   final Map<String, Map<String, dynamic>> remoteCursors;
 
   @override

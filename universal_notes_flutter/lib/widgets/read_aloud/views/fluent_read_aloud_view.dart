@@ -2,7 +2,9 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/widgets.dart';
 import 'package:universal_notes_flutter/services/read_aloud_service.dart';
 
+/// A Windows-specific view for Read Aloud (TTS) controls.
 class FluentReadAloudView extends StatelessWidget {
+  /// Creates a [FluentReadAloudView].
   const FluentReadAloudView({
     required this.state,
     required this.speed,
@@ -15,13 +17,28 @@ class FluentReadAloudView extends StatelessWidget {
     super.key,
   });
 
+  /// The current state of the TTS engine.
   final ReadAloudState state;
+
+  /// The current playback speed.
   final double speed;
+
+  /// Whether to display a compact or full UI.
   final bool compact;
+
+  /// The text content being read aloud.
   final String text;
+
+  /// Callback to play or pause playback.
   final VoidCallback onTogglePlayPause;
+
+  /// Callback to stop playback completely.
   final VoidCallback onStop;
+
+  /// Callback when the playback speed is changed.
   final ValueChanged<double> onSpeedChanged;
+
+  /// Optional callback to close the controls.
   final VoidCallback? onClose;
 
   @override
@@ -134,7 +151,7 @@ class FluentReadAloudView extends StatelessWidget {
                 child: fluent.Slider(
                   value: speed,
                   min: 0.5,
-                  max: 2,
+                  max: 2.0,
                   divisions: 6,
                   label: '${speed.toStringAsFixed(1)}x',
                   onChanged: onSpeedChanged,
@@ -171,13 +188,34 @@ class _FluentSpeedButton extends StatelessWidget {
         style: theme.typography.bodyStrong,
       ),
       items: [
-        fluent.MenuFlyoutItem(text: const Text('0.5x'), onPressed: () => onChanged(0.5)),
-        fluent.MenuFlyoutItem(text: const Text('0.75x'), onPressed: () => onChanged(0.75)),
-        fluent.MenuFlyoutItem(text: const Text('1.0x (Normal)'), onPressed: () => onChanged(1.0)),
-        fluent.MenuFlyoutItem(text: const Text('1.25x'), onPressed: () => onChanged(1.25)),
-        fluent.MenuFlyoutItem(text: const Text('1.5x'), onPressed: () => onChanged(1.5)),
-        fluent.MenuFlyoutItem(text: const Text('1.75x'), onPressed: () => onChanged(1.75)),
-        fluent.MenuFlyoutItem(text: const Text('2.0x'), onPressed: () => onChanged(2.0)),
+        fluent.MenuFlyoutItem(
+          text: const Text('0.5x'),
+          onPressed: () => onChanged(0.5),
+        ),
+        fluent.MenuFlyoutItem(
+          text: const Text('0.75x'),
+          onPressed: () => onChanged(0.75),
+        ),
+        fluent.MenuFlyoutItem(
+          text: const Text('1.0x (Normal)'),
+          onPressed: () => onChanged(1.0),
+        ),
+        fluent.MenuFlyoutItem(
+          text: const Text('1.25x'),
+          onPressed: () => onChanged(1.25),
+        ),
+        fluent.MenuFlyoutItem(
+          text: const Text('1.5x'),
+          onPressed: () => onChanged(1.5),
+        ),
+        fluent.MenuFlyoutItem(
+          text: const Text('1.75x'),
+          onPressed: () => onChanged(1.75),
+        ),
+        fluent.MenuFlyoutItem(
+          text: const Text('2.0x'),
+          onPressed: () => onChanged(2.0),
+        ),
       ],
     );
   }

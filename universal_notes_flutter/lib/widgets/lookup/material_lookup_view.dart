@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/services/word_lookup_service.dart';
 
+/// A Material Design view for dictionary and Wikipedia lookup.
 class MaterialLookupView extends StatelessWidget {
+  /// Creates a [MaterialLookupView].
   const MaterialLookupView({
     required this.word,
     required this.definition,
@@ -16,15 +18,34 @@ class MaterialLookupView extends StatelessWidget {
     super.key,
   });
 
+  /// The word being looked up.
   final String word;
+
+  /// The dictionary definition, if found.
   final WordDefinition? definition;
+
+  /// The Wikipedia summary, if found.
   final WikipediaSummary? wikipedia;
+
+  /// Whether the dictionary definition is currently loading.
   final bool loadingDef;
+
+  /// Whether the Wikipedia summary is currently loading.
   final bool loadingWiki;
+
+  /// Error message if the dictionary lookup failed.
   final String? errorDef;
+
+  /// Error message if the Wikipedia lookup failed.
   final String? errorWiki;
+
+  /// Controller for the tabbed interface.
   final TabController tabController;
+
+  /// Callback to close the lookup view.
   final VoidCallback? onClose;
+
+  /// Callback to open an external URL.
   final ValueChanged<String> onOpenUrl;
 
   @override

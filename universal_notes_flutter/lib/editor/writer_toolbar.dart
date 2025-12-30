@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
+import 'package:universal_notes_flutter/editor/editor_widget.dart';
 
+/// A platform-adaptive toolbar for the [EditorWidget] with formatting controls.
 class WriterToolbar extends StatelessWidget {
   /// Creates a [WriterToolbar].
   const WriterToolbar({

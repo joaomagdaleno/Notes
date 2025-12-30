@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 
+/// A Material Design view for the note list item (card).
 class MaterialNoteCardView extends StatelessWidget {
+  /// Creates a [MaterialNoteCardView].
   const MaterialNoteCardView({
     required this.note,
     required this.plainTextContent,
@@ -16,14 +18,31 @@ class MaterialNoteCardView extends StatelessWidget {
     super.key,
   });
 
+  /// The note to display in the card.
   final Note note;
+
+  /// The plain text summary of the note content.
   final String plainTextContent;
+
+  /// Whether the card is currently being hovered.
   final bool isHovered;
+
+  /// Format for displaying the note's date.
   final DateFormat dateFormat;
+
+  /// Callback when the card is tapped.
   final VoidCallback? onTap;
+
+  /// Callback when the card is long pressed.
   final VoidCallback onLongPress;
-  final void Function(bool) onHoverChanged;
+
+  /// Callback when the hover state changes.
+  final void Function({required bool isHovered}) onHoverChanged;
+
+  /// Callback to toggle the favorite status of the note.
   final void Function(Note)? onFavorite;
+
+  /// Callback to move the note to trash.
   final void Function(Note)? onTrash;
 
   static final _gradientDecoration = BoxDecoration(
@@ -59,8 +78,8 @@ class MaterialNoteCardView extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: MouseRegion(
-        onEnter: (_) => onHoverChanged(true),
-        onExit: (_) => onHoverChanged(false),
+        onEnter: (_) => onHoverChanged(isHovered: true),
+        onExit: (_) => onHoverChanged(isHovered: false),
         child: InkWell(
           onTap: onTap,
           onLongPress: onLongPress,

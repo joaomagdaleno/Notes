@@ -1,7 +1,9 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:flutter/material.dart' hide ListTile, Divider, IconButton;
+import 'package:flutter/material.dart' hide Divider, IconButton, ListTile;
 
+/// A Windows-specific view for authentication (login and signup).
 class FluentAuthView extends StatelessWidget {
+  /// Creates a [FluentAuthView].
   const FluentAuthView({
     required this.formKey,
     required this.emailController,
@@ -15,14 +17,31 @@ class FluentAuthView extends StatelessWidget {
     super.key,
   });
 
+  /// The form key for the auth form.
   final GlobalKey<FormState> formKey;
+
+  /// Controller for the email input field.
   final TextEditingController emailController;
+
+  /// Controller for the password input field.
   final TextEditingController passwordController;
+
+  /// Controller for the name input field (used in sign up).
   final TextEditingController nameController;
+
+  /// Whether to show the sign up form instead of login.
   final bool showSignUp;
+
+  /// Whether an authentication process is currently running.
   final bool isProcessing;
+
+  /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
+
+  /// Callback when the user toggles between login and sign up.
   final VoidCallback onToggleMode;
+
+  /// Callback when the Google auth button is pressed.
   final VoidCallback onGoogleAuth;
 
   @override
@@ -135,7 +154,10 @@ class FluentAuthView extends StatelessWidget {
                                     width: 18,
                                     height: 18,
                                     errorBuilder: (ctx, err, stack) =>
-                                        const Icon(fluent.FluentIcons.chrome_back, size: 18),
+                                        const Icon(
+                                      fluent.FluentIcons.chrome_back,
+                                      size: 18,
+                                    ),
                                   ),
                                   const SizedBox(width: 12),
                                   const Text(

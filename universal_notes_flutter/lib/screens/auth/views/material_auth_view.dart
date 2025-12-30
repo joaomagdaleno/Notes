@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// A Material Design view for authentication (login and signup).
 class MaterialAuthView extends StatelessWidget {
+  /// Creates a [MaterialAuthView].
   const MaterialAuthView({
     required this.formKey,
     required this.emailController,
@@ -14,14 +16,31 @@ class MaterialAuthView extends StatelessWidget {
     super.key,
   });
 
+  /// The form key for the auth form.
   final GlobalKey<FormState> formKey;
+
+  /// Controller for the email input field.
   final TextEditingController emailController;
+
+  /// Controller for the password input field.
   final TextEditingController passwordController;
+
+  /// Controller for the name input field (used in sign up).
   final TextEditingController nameController;
+
+  /// Whether to show the sign up form instead of login.
   final bool showSignUp;
+
+  /// Whether an authentication process is currently running.
   final bool isProcessing;
+
+  /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
+
+  /// Callback when the user toggles between login and sign up.
   final VoidCallback onToggleMode;
+
+  /// Callback when the Google auth button is pressed.
   final VoidCallback onGoogleAuth;
 
   @override

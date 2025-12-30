@@ -1,8 +1,11 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
+
 import 'package:universal_notes_flutter/services/word_lookup_service.dart';
 
+/// A Windows-specific view for dictionary and Wikipedia lookup.
 class FluentLookupView extends StatelessWidget {
+  /// Creates a [FluentLookupView].
   const FluentLookupView({
     required this.word,
     required this.definition,
@@ -18,16 +21,37 @@ class FluentLookupView extends StatelessWidget {
     super.key,
   });
 
+  /// The word being looked up.
   final String word;
+
+  /// The dictionary definition, if found.
   final WordDefinition? definition;
+
+  /// The Wikipedia summary, if found.
   final WikipediaSummary? wikipedia;
+
+  /// Whether the dictionary definition is currently loading.
   final bool loadingDef;
+
+  /// Whether the Wikipedia summary is currently loading.
   final bool loadingWiki;
+
+  /// Error message if the dictionary lookup failed.
   final String? errorDef;
+
+  /// Error message if the Wikipedia lookup failed.
   final String? errorWiki;
+
+  /// The current active tab index.
   final int tabIndex;
+
+  /// Callback when the active tab is changed.
   final ValueChanged<int> onTabChanged;
+
+  /// Callback to close the lookup view.
   final VoidCallback? onClose;
+
+  /// Callback to open an external URL.
   final ValueChanged<String> onOpenUrl;
 
   @override
@@ -57,7 +81,9 @@ class FluentLookupView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: theme.accentColor.withValues(alpha: 0.2),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
             ),
             child: Row(
               children: [
@@ -214,12 +240,12 @@ class FluentLookupView extends StatelessWidget {
             const SizedBox(height: 12),
             fluent.HyperlinkButton(
               onPressed: () => onOpenUrl(wikipedia!.pageUrl!),
-              child: Row(
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(fluent.FluentIcons.open_in_new_window, size: 14),
-                  const SizedBox(width: 4),
-                  const Text('Read more on Wikipedia'),
+                  Icon(fluent.FluentIcons.open_in_new_window, size: 14),
+                  SizedBox(width: 4),
+                  Text('Read more on Wikipedia'),
                 ],
               ),
             ),

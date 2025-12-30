@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
@@ -16,8 +17,8 @@ import 'package:universal_notes_flutter/editor/editor_widget.dart';
 import 'package:universal_notes_flutter/editor/floating_toolbar.dart';
 import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
-import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/editor/writer_toolbar.dart';
+import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
@@ -28,6 +29,8 @@ import 'package:universal_notes_flutter/models/reading_settings.dart';
 import 'package:universal_notes_flutter/models/reading_stats.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/screens/editor/views/fluent_editor_view.dart';
+import 'package:universal_notes_flutter/screens/editor/views/material_editor_view.dart';
 import 'package:universal_notes_flutter/screens/snippets_screen.dart';
 import 'package:universal_notes_flutter/services/event_replayer.dart';
 import 'package:universal_notes_flutter/services/export_service.dart';
@@ -44,10 +47,6 @@ import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:universal_notes_flutter/widgets/reading_bookmarks_list.dart';
 import 'package:universal_notes_flutter/widgets/reading_mode_settings.dart';
 import 'package:universal_notes_flutter/widgets/reading_outline_navigator.dart';
-import 'package:universal_notes_flutter/screens/editor/views/fluent_editor_view.dart';
-import 'package:universal_notes_flutter/screens/editor/views/material_editor_view.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:uuid/uuid.dart';
 
 /// A screen for editing a note.
 class NoteEditorScreen extends StatefulWidget {

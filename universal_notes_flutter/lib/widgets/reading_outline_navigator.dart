@@ -1,6 +1,7 @@
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 /// Widget for navigating document outline (headings).
 ///
@@ -255,7 +256,7 @@ class _FluentHeadingTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: isActive
                 ? theme.accentColor.withValues(alpha: 0.1)
-                : states.isHovering
+                : states.isHovered
                     ? theme.resources.subtleFillColorSecondary
                     : null,
             border: isActive

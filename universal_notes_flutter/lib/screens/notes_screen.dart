@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide MenuAnchor, MenuBar, MenuItemButton, SearchBar;
+import 'package:flutter/material.dart'
+    hide MenuAnchor, MenuBar, MenuItemButton, SearchBar;
 import 'package:provider/provider.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
@@ -87,30 +88,36 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         case 'grid_medium':
           return (
             icon: fluent.FluentIcons.grid_view_large,
-            tooltip: 'Grid View (Large)'
+            tooltip: 'Grid View (Large)',
           );
         case 'grid_large':
           return (icon: fluent.FluentIcons.list, tooltip: 'List View');
         case 'list':
           return (
             icon: fluent.FluentIcons.view_all,
-            tooltip: 'Grid View (Medium)'
+            tooltip: 'Grid View (Medium)',
           );
       }
     } else {
       switch (currentMode) {
         case 'grid_medium':
-          return (icon: Icons.view_comfy, tooltip: 'Grid View (Large)');
+          return (
+            icon: Icons.view_comfy,
+            tooltip: 'Grid View (Large)',
+          );
         case 'grid_large':
           return (icon: Icons.view_list, tooltip: 'List View');
         case 'list':
-          return (icon: Icons.view_module, tooltip: 'Grid View (Medium)');
+          return (
+            icon: Icons.view_module,
+            tooltip: 'Grid View (Medium)',
+          );
       }
     }
     // Default fallback
     return (
       icon: isFluent ? fluent.FluentIcons.view_all : Icons.view_module,
-      tooltip: 'Grid View (Medium)'
+      tooltip: 'Grid View (Medium)',
     );
   }
 
@@ -751,4 +758,3 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     );
   }
 }
-

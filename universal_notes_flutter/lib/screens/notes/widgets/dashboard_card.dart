@@ -1,7 +1,9 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 
+/// A card displayed on the dashboard with a title, subtitle, and icon.
 class DashboardCard extends StatelessWidget {
+  /// Creates a [DashboardCard].
   const DashboardCard({
     required this.title,
     required this.subtitle,
@@ -11,10 +13,19 @@ class DashboardCard extends StatelessWidget {
     super.key,
   });
 
+  /// The primary title shown on the card.
   final String title;
+
+  /// A descriptive subtitle shown below the title.
   final String subtitle;
+
+  /// The icon to display on the card.
   final IconData icon;
+
+  /// The base color for the card's theme.
   final Color color;
+
+  /// Callback when the card is tapped.
   final VoidCallback onTap;
 
   static const _titleTextStyle = TextStyle(

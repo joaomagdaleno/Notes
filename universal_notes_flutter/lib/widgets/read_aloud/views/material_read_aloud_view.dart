@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/services/read_aloud_service.dart';
 
+/// A Material Design view for Read Aloud (TTS) controls.
 class MaterialReadAloudView extends StatelessWidget {
+  /// Creates a [MaterialReadAloudView].
   const MaterialReadAloudView({
     required this.state,
     required this.speed,
@@ -14,13 +16,28 @@ class MaterialReadAloudView extends StatelessWidget {
     super.key,
   });
 
+  /// The current state of the TTS engine.
   final ReadAloudState state;
+
+  /// The current playback speed.
   final double speed;
+
+  /// Whether to display a compact or full UI.
   final bool compact;
+
+  /// The text content being read aloud.
   final String text;
+
+  /// Callback to play or pause playback.
   final VoidCallback onTogglePlayPause;
+
+  /// Callback to stop playback completely.
   final VoidCallback onStop;
+
+  /// Callback when the playback speed is changed.
   final ValueChanged<double> onSpeedChanged;
+
+  /// Optional callback to close the controls.
   final VoidCallback? onClose;
 
   @override

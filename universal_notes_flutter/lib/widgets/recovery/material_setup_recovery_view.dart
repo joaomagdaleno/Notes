@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// A Material Design view for setting up password recovery.
 class MaterialSetupRecoveryView extends StatelessWidget {
+  /// Creates a [MaterialSetupRecoveryView].
   const MaterialSetupRecoveryView({
     required this.canSetup,
     required this.email,
@@ -14,14 +16,31 @@ class MaterialSetupRecoveryView extends StatelessWidget {
     super.key,
   });
 
+  /// Whether recovery can be set up (usually depends on email verification).
   final bool canSetup;
+
+  /// The user's email address.
   final String? email;
+
+  /// Whether the user has confirmed they understand the consequences.
   final bool understood;
+
+  /// Whether an operation is currently in progress.
   final bool isLoading;
+
+  /// Error message to display, if any.
   final String? errorMessage;
+
+  /// Callback when the understood checkbox is changed.
   final ValueChanged<bool?> onUnderstoodChanged;
+
+  /// Callback to proceed with setting up recovery.
   final VoidCallback onSetupRecovery;
+
+  /// Callback to cancel the setup process.
   final VoidCallback onCancel;
+
+  /// Callback to initiate email verification.
   final VoidCallback onVerifyEmail;
 
   @override
@@ -62,7 +81,8 @@ class MaterialSetupRecoveryView extends StatelessWidget {
             const SizedBox(height: 8),
             _StepItem(
               number: '1',
-              text: 'Uma chave de recuperação será criada e armazenada de forma segura',
+              text:
+                  'Uma chave de recuperação será criada e armazenada de forma segura',
               primaryColor: Theme.of(context).colorScheme.primary,
             ),
             _StepItem(

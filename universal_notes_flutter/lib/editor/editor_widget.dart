@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'dart:math' as math;
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
@@ -1792,7 +1790,7 @@ class _AnimatedPersonaSwitcher extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),

@@ -31,7 +31,6 @@ class PasswordDialog extends StatefulWidget {
     if (defaultTargetPlatform == TargetPlatform.windows) {
       return fluent.showDialog<String>(
         context: context,
-        barrierDismissible: false,
         builder: (context) => PasswordDialog(
           title: title,
           isCreatingPassword: isCreatingPassword,
@@ -41,7 +40,6 @@ class PasswordDialog extends StatefulWidget {
     } else {
       return showDialog<String>(
         context: context,
-        barrierDismissible: false,
         builder: (context) => PasswordDialog(
           title: title,
           isCreatingPassword: isCreatingPassword,

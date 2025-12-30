@@ -3,7 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 
+/// A Windows-specific view for the note list item (card).
 class FluentNoteCardView extends StatelessWidget {
+  /// Creates a [FluentNoteCardView].
   const FluentNoteCardView({
     required this.note,
     required this.plainTextContent,
@@ -18,15 +20,34 @@ class FluentNoteCardView extends StatelessWidget {
     super.key,
   });
 
+  /// The note to display in the card.
   final Note note;
+
+  /// The plain text summary of the note content.
   final String plainTextContent;
+
+  /// Whether the card is currently being hovered.
   final bool isHovered;
+
+  /// Controller for the flyout menu.
   final fluent.FlyoutController flyoutController;
+
+  /// Format for displaying the note's date.
   final DateFormat dateFormat;
+
+  /// Callback when the card is tapped.
   final VoidCallback? onTap;
+
+  /// Callback for secondary tap (right click).
   final void Function(TapUpDetails) onSecondaryTapUp;
+
+  /// Callback when a long press starts.
   final void Function(LongPressStartDetails) onLongPressStart;
-  final void Function(bool) onHoverChanged;
+
+  /// Callback when the hover state changes.
+  final void Function({required bool isHovered}) onHoverChanged;
+
+  /// Callback to show the note preview.
   final VoidCallback onShowPreview;
 
   @override
@@ -40,8 +61,8 @@ class FluentNoteCardView extends StatelessWidget {
         onSecondaryTapUp: onSecondaryTapUp,
         onLongPressStart: onLongPressStart,
         child: MouseRegion(
-          onEnter: (_) => onHoverChanged(true),
-          onExit: (_) => onHoverChanged(false),
+          onEnter: (_) => onHoverChanged(isHovered: true),
+          onExit: (_) => onHoverChanged(isHovered: false),
           child: fluent.Card(
             backgroundColor: isHovered
                 ? theme.selectionColor.withValues(alpha: 0.1)
