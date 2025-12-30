@@ -116,34 +116,34 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     super.initState();
     unawaited(StartupLogger.log(
         '🎬 NotesScreen.initState starting after super.initState',
-    ));
+    ),);
     try {
       unawaited(StartupLogger.log(
           '⏳ NotesScreen.initState: assigning _updateService...',
-      ));
+      ),);
       _updateService = widget.updateService ?? UpdateService();
       unawaited(StartupLogger.log(
           '✅ NotesScreen.initState: _updateService assigned',
-      ));
+      ),);
 
       unawaited(StartupLogger.log(
           '⏳ NotesScreen.initstate: connecting to notesStream...',
-      ));
+      ),);
       _notesStream = _syncService.notesStream;
 
       unawaited(StartupLogger.log(
           '⏳ NotesScreen.initState: adding windowManager listener...',
-      ));
+      ),);
       windowManager.addListener(this);
 
       unawaited(StartupLogger.log(
           '⏳ NotesScreen.initState: calling _updateNotesStream()...',
-      ));
+      ),);
       _updateNotesStream();
 
       unawaited(StartupLogger.log(
           '⏳ NotesScreen.initState: adding searchController listener...',
-      ));
+      ),);
       _searchController.addListener(_onSearchChanged);
 
       unawaited(StartupLogger.log('✅ NotesScreen.initState complete'));
@@ -792,7 +792,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   Widget _buildFluentUI() {
     unawaited(StartupLogger.log(
       '🧪 [HYBRID] _buildFluentUI: Reconstructing UI with Row + ScaffoldPage',
-    ));
+    ),);
     try {
       final isTrashView = _selection.type == SidebarItemType.trash;
       final title = _getAppBarTitle();
@@ -917,7 +917,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                           unawaited(StartupLogger.log(
                             '🧪 [HYBRID] StreamBuilder pulse - hasData: '
                             '${snapshot.hasData}, items: ${snapshot.data?.length}',
-                          ));
+                          ),);
                           if (snapshot.connectionState == ConnectionState.waiting &&
                               !snapshot.hasData) {
                             return const Center(child: fluent.ProgressRing());

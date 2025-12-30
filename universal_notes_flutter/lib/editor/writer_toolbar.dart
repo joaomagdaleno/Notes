@@ -88,7 +88,6 @@ class WriterToolbar extends StatelessWidget {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(width: 12),
             // Undo/Redo Group

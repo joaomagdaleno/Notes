@@ -1412,7 +1412,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                     ),
                     if (_isToolbarVisible)
                       () {
-                        final RenderBox? stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
+                        final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
                         if (stackBox == null || _selectionRect == null) return const SizedBox.shrink();
                         final localPos = stackBox.globalToLocal(_selectionRect!.topLeft);
                         return Positioned(
@@ -1857,7 +1857,7 @@ class _CollaboratorAvatars extends StatelessWidget {
               backgroundColor: Color(collaborators[i]['color'] as int),
               child: Text(
                 (collaborators[i]['name'] as String).substring(0, 2),
-                style: TextStyle(color: Colors.white, fontSize: 12),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
           ),
