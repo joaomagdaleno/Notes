@@ -5,6 +5,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
@@ -1312,12 +1314,24 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   Widget _buildUnifiedUI(Widget editor) {
     final shortcuts = {
-      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ): const _UndoIntent(),
-      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ): const _UndoIntent(),
-      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.shift, LogicalKeyboardKey.keyZ): const _RedoIntent(),
-      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.shift, LogicalKeyboardKey.keyZ): const _RedoIntent(),
-      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY): const _RedoIntent(),
-      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyY): const _RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ):
+          const _UndoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ):
+          const _UndoIntent(),
+      LogicalKeySet(
+        LogicalKeyboardKey.control,
+        LogicalKeyboardKey.shift,
+        LogicalKeyboardKey.keyZ,
+      ): const _RedoIntent(),
+      LogicalKeySet(
+        LogicalKeyboardKey.meta,
+        LogicalKeyboardKey.shift,
+        LogicalKeyboardKey.keyZ,
+      ): const _RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY):
+          const _RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyY):
+          const _RedoIntent(),
     };
 
     final actions = <Type, Action<Intent>>{
@@ -1329,7 +1343,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
     return CallbackShortcuts(
       bindings: {
-        const SingleActivator(LogicalKeyboardKey.keyK, control: true): _showContextCommandPalette,
+        const SingleActivator(LogicalKeyboardKey.keyK, control: true):
+            _showContextCommandPalette,
       },
       child: PopScope(
         canPop: false,
@@ -1342,100 +1357,168 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           actions: actions,
           child: Shortcuts(
             shortcuts: shortcuts,
-            child: Scaffold(
-              appBar: _isFocusMode
-                  ? null
-                  : AppBar(
-                      title: _EditableTitle(
-                        initialTitle: _note?.title ?? '',
-                        onChanged: (newTitle) {
-                          setState(() {
-                            if (_note != null) {
-                              _note = _note!.copyWith(title: newTitle);
-                            }
-                          });
-                        },
-                      ),
-                      actions: [
-                        if (_isCollaborative)
-                          _CollaboratorAvatars(remoteCursors: _remoteCursors),
-                        IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: () => setState(() => _isFindBarVisible = !_isFindBarVisible),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.history),
-                          onPressed: _showHistoryDialog,
-                        ),
-                        IconButton(
-                          icon: Icon(_isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen),
-                          onPressed: _toggleFocusMode,
-                        ),
-                      ],
-                    ),
-              body: SafeArea(
-                child: Stack(
-                  key: _stackKey,
-                  children: [
-                    Column(
-                      children: [
-                        if (_isFindBarVisible)
-                          FindReplaceBar(
-                            onFindChanged: _onFindChanged,
-                            onFindNext: _findNext,
-                            onFindPrevious: _findPrevious,
-                            onReplace: _replace,
-                            onReplaceAll: _replaceAll,
-                            onClose: () => setState(() => _isFindBarVisible = false),
-                          ),
-                        Expanded(child: editor),
-                        if (!_isFocusMode && _persona == EditorPersona.writer)
-                          WriterToolbar(
-                            onBold: () => _toggleStyle(StyleAttribute.bold),
-                            onItalic: () => _toggleStyle(StyleAttribute.italic),
-                            onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                            onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
-                            onColor: _showColorPicker,
-                            onFontSize: _showFontSizePicker,
-                            onAlignment: (align) => _toggleBlockAttribute('align', align),
-                            onIndent: _indentBlock,
-                            onList: (type) => _toggleBlockAttribute('list', type),
-                            onImage: _attachImage,
-                            onLink: _showLinkDialog,
-                            onUndo: _undo,
-                            onRedo: _redo,
-                            onStyleToggle: (s) => _toggleBlockAttribute('header', s == 'normal' ? null : int.tryParse(s.replaceAll('h', ''))),
-                            canUndo: _canUndo,
-                            canRedo: _canRedo,
-                          ),
-                      ],
-                    ),
-                    if (_isToolbarVisible)
-                      () {
-                        final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-                        if (stackBox == null || _selectionRect == null) return const SizedBox.shrink();
-                        final localPos = stackBox.globalToLocal(_selectionRect!.topLeft);
-                        return Positioned(
-                          top: localPos.dy - 60,
-                          left: localPos.dx,
-                          child: FloatingToolbar(
-                            onBold: () => _toggleStyle(StyleAttribute.bold),
-                            onItalic: () => _toggleStyle(StyleAttribute.italic),
-                            onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                            onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
-                            onColor: _showColorPicker,
-                            onLink: _showLinkDialog,
-                            onHighlight: _addHighlight,
-                            onAddNote: _addAnnotationNote,
-                          ),
-                        );
-                      }(),
-                  ],
-                ),
-              ),
-            ),
+            child: Platform.isWindows
+                ? _buildFluentShell(editor)
+                : _buildMaterialShell(editor),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildFluentShell(Widget editor) {
+    return fluent.ScaffoldPage(
+      header: _isFocusMode
+          ? null
+          : fluent.PageHeader(
+              title: _EditableTitle(
+                initialTitle: _note?.title ?? '',
+                onChanged: (newTitle) {
+                  setState(() {
+                    if (_note != null) {
+                      _note = _note!.copyWith(title: newTitle);
+                    }
+                  });
+                },
+              ),
+              commandBar: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_isCollaborative)
+                    _CollaboratorAvatars(remoteCursors: _remoteCursors),
+                  fluent.IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () => setState(
+                      () => _isFindBarVisible = !_isFindBarVisible,
+                    ),
+                  ),
+                  fluent.IconButton(
+                    icon: const Icon(Icons.history),
+                    onPressed: _showHistoryDialog,
+                  ),
+                  fluent.IconButton(
+                    icon: Icon(
+                      _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
+                    ),
+                    onPressed: _toggleFocusMode,
+                  ),
+                ],
+              ),
+            ),
+      content: _buildEditorContent(editor),
+    );
+  }
+
+  Widget _buildMaterialShell(Widget editor) {
+    return Scaffold(
+      appBar: _isFocusMode
+          ? null
+          : AppBar(
+              title: _EditableTitle(
+                initialTitle: _note?.title ?? '',
+                onChanged: (newTitle) {
+                  setState(() {
+                    if (_note != null) {
+                      _note = _note!.copyWith(title: newTitle);
+                    }
+                  });
+                },
+              ),
+              actions: [
+                if (_isCollaborative)
+                  _CollaboratorAvatars(remoteCursors: _remoteCursors),
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () => setState(
+                    () => _isFindBarVisible = !_isFindBarVisible,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.history),
+                  onPressed: _showHistoryDialog,
+                ),
+                IconButton(
+                  icon: Icon(
+                    _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
+                  ),
+                  onPressed: _toggleFocusMode,
+                ),
+              ],
+            ),
+      body: _buildEditorContent(editor),
+    );
+  }
+
+  Widget _buildEditorContent(Widget editor) {
+    return SafeArea(
+      child: Stack(
+        key: _stackKey,
+        children: [
+          Column(
+            children: [
+              if (_isFindBarVisible)
+                FindReplaceBar(
+                  onFindChanged: _onFindChanged,
+                  onFindNext: _findNext,
+                  onFindPrevious: _findPrevious,
+                  onReplace: _replace,
+                  onReplaceAll: _replaceAll,
+                  onClose: () => setState(() => _isFindBarVisible = false),
+                ),
+              Expanded(child: editor),
+              if (!_isFocusMode && _persona == EditorPersona.writer)
+                WriterToolbar(
+                  onBold: () => _toggleStyle(StyleAttribute.bold),
+                  onItalic: () => _toggleStyle(StyleAttribute.italic),
+                  onUnderline: () => _toggleStyle(StyleAttribute.underline),
+                  onStrikethrough:
+                      () => _toggleStyle(StyleAttribute.strikethrough),
+                  onColor: _showColorPicker,
+                  onFontSize: _showFontSizePicker,
+                  onAlignment:
+                      (align) => _toggleBlockAttribute('align', align),
+                  onIndent: _indentBlock,
+                  onList: (type) => _toggleBlockAttribute('list', type),
+                  onImage: _attachImage,
+                  onLink: _showLinkDialog,
+                  onUndo: _undo,
+                  onRedo: _redo,
+                  onStyleToggle: (s) => _toggleBlockAttribute(
+                    'header',
+                    s == 'normal' ? null : int.tryParse(s.replaceAll('h', '')),
+                  ),
+                  canUndo: _canUndo,
+                  canRedo: _canRedo,
+                ),
+            ],
+          ),
+          if (_isToolbarVisible)
+            () {
+              final stackBox = _stackKey.currentContext?.findRenderObject()
+                  as RenderBox?;
+              if (stackBox == null || _selectionRect == null) {
+                return const SizedBox.shrink();
+              }
+              final localPos = stackBox.globalToLocal(
+                _selectionRect!.topLeft,
+              );
+              return Positioned(
+                top: localPos.dy - 60,
+                left: localPos.dx,
+                child: FloatingToolbar(
+                  onBold: () => _toggleStyle(StyleAttribute.bold),
+                  onItalic: () => _toggleStyle(StyleAttribute.italic),
+                  onUnderline: () => _toggleStyle(StyleAttribute.underline),
+                  onStrikethrough:
+                      () => _toggleStyle(StyleAttribute.strikethrough),
+                  onColor: _showColorPicker,
+                  onLink: _showLinkDialog,
+                  onHighlight: _addHighlight,
+                  onAddNote: _addAnnotationNote,
+                ),
+              );
+            }(),
+        ],
       ),
     );
   }

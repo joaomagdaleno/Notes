@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart' as material;
 
 class WriterToolbar extends StatelessWidget {
   /// Creates a [WriterToolbar].
@@ -72,10 +75,17 @@ class WriterToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isWindows) {
+      return _buildFluentToolbar(context);
+    } else {
+      return _buildMaterialToolbar(context);
+    }
+  }
+
+  Widget _buildFluentToolbar(BuildContext context) {
     final theme = FluentTheme.of(context);
     return Container(
-      height: 42,
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
         border: Border(
@@ -85,159 +95,244 @@ class WriterToolbar extends StatelessWidget {
           ),
         ),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
+      child: CommandBar(
+        primaryItems: [
+          // Undo/Redo
+          CommandBarButton(
+            icon: const Icon(FluentIcons.undo),
+            label: const Text('Desfazer'),
+            onPressed: canUndo ? onUndo : null,
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.redo),
+            label: const Text('Refazer'),
+            onPressed: canRedo ? onRedo : null,
+          ),
+          const CommandBarSeparator(),
+
+          // Text Style
+          CommandBarBuilderItem(
+            builder: (context, mode, w) {
+              return Tooltip(
+                message: 'Estilo do Texto',
+                child: DropDownButton(
+                  leading: const Icon(FluentIcons.text_field, size: 14),
+                  title: const Text('Estilo', style: TextStyle(fontSize: 12)),
+                  items: [
+                    MenuFlyoutItem(
+                      text: const Text('Texto normal'),
+                      onPressed: () => onStyleToggle('normal'),
+                    ),
+                    MenuFlyoutItem(
+                      text: const Text('Título 1'),
+                      onPressed: () => onStyleToggle('h1'),
+                    ),
+                    MenuFlyoutItem(
+                      text: const Text('Título 2'),
+                      onPressed: () => onStyleToggle('h2'),
+                    ),
+                    MenuFlyoutItem(
+                      text: const Text('Título 3'),
+                      onPressed: () => onStyleToggle('h3'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            wrappedItem: CommandBarButton(
+              icon: const Icon(FluentIcons.text_field),
+              label: const Text('Estilo'),
+              onPressed: () {},
+            ),
+          ),
+          const CommandBarSeparator(),
+
+          // Formatting
+          CommandBarButton(
+            icon: const Icon(FluentIcons.bold),
+            label: const Text('Negrito'),
+            onPressed: onBold,
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.italic),
+            label: const Text('Itálico'),
+            onPressed: onItalic,
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.underline),
+            label: const Text('Sublinhado'),
+            onPressed: onUnderline,
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.strikethrough),
+            label: const Text('Tachado'),
+            onPressed: onStrikethrough,
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.font_color),
+            label: const Text('Cor'),
+            onPressed: onColor,
+          ),
+          const CommandBarSeparator(),
+
+          // Alignment
+          CommandBarButton(
+            icon: const Icon(FluentIcons.align_left),
+            label: const Text('Esquerda'),
+            onPressed: () => onAlignment('left'),
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.align_center),
+            label: const Text('Centro'),
+            onPressed: () => onAlignment('center'),
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.align_right),
+            label: const Text('Direita'),
+            onPressed: () => onAlignment('right'),
+          ),
+          const CommandBarSeparator(),
+
+          // Lists
+          CommandBarButton(
+            icon: const Icon(FluentIcons.bulleted_list),
+            label: const Text('Marcadores'),
+            onPressed: () => onList('unordered'),
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.numbered_list),
+            label: const Text('Numerada'),
+            onPressed: () => onList('ordered'),
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.check_list),
+            label: const Text('Tarefas'),
+            onPressed: () => onList('checklist'),
+          ),
+          const CommandBarSeparator(),
+
+          // Indent
+          CommandBarButton(
+            icon: const Icon(FluentIcons.decrease_indent),
+            label: const Text('Diminuir Recuo'),
+            onPressed: () => onIndent(-1),
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.increase_indent),
+            label: const Text('Aumentar Recuo'),
+            onPressed: () => onIndent(1),
+          ),
+          const CommandBarSeparator(),
+
+          // Insert
+          CommandBarButton(
+            icon: const Icon(FluentIcons.link),
+            label: const Text('Link'),
+            onPressed: onLink,
+          ),
+          CommandBarButton(
+            icon: const Icon(FluentIcons.photo2),
+            label: const Text('Imagem'),
+            onPressed: onImage,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMaterialToolbar(BuildContext context) {
+    // We explicitly use Material widgets here
+    return material.Material(
+      color: material.Theme.of(context).colorScheme.surfaceContainer,
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: material.Theme.of(context).dividerColor,
+            ),
+          ),
+        ),
+        child: material.ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           children: [
-            const SizedBox(width: 12),
-            // Undo/Redo Group
-            _buildAction(
-              icon: FluentIcons.undo,
+            material.IconButton(
+              icon: const material.Icon(material.Icons.undo),
               onPressed: canUndo ? onUndo : null,
-              tooltip: 'Desfazer (Ctrl+Z)',
+              tooltip: 'Undo',
             ),
-            _buildAction(
-              icon: FluentIcons.redo,
+            material.IconButton(
+              icon: const material.Icon(material.Icons.redo),
               onPressed: canRedo ? onRedo : null,
-              tooltip: 'Refazer (Ctrl+Y)',
+              tooltip: 'Redo',
             ),
-            _buildDivider(theme),
-
-            // Style Group (H1, H2, H3, Body)
-            Tooltip(
-              message: 'Estilo do Texto',
-              child: DropDownButton(
-                leading: const Icon(FluentIcons.text_field, size: 14),
-                title: const Text('Texto normal', style: TextStyle(fontSize: 12)),
-                items: [
-                  MenuFlyoutItem(text: const Text('Texto normal'), onPressed: () => onStyleToggle('normal')),
-                  MenuFlyoutItem(text: const Text('Título 1'), onPressed: () => onStyleToggle('h1')),
-                  MenuFlyoutItem(text: const Text('Título 2'), onPressed: () => onStyleToggle('h2')),
-                  MenuFlyoutItem(text: const Text('Título 3'), onPressed: () => onStyleToggle('h3')),
-                ],
-              ),
-            ),
-            _buildDivider(theme),
-
-            // Formatting Group
-            _buildAction(
-              icon: FluentIcons.bold,
+            const material.VerticalDivider(indent: 12, endIndent: 12),
+            material.IconButton(
+              icon: const material.Icon(material.Icons.format_bold),
               onPressed: onBold,
-              tooltip: 'Negrito (Ctrl+B)',
+              tooltip: 'Bold',
             ),
-            _buildAction(
-              icon: FluentIcons.italic,
+            material.IconButton(
+              icon: const material.Icon(material.Icons.format_italic),
               onPressed: onItalic,
-              tooltip: 'Itálico (Ctrl+I)',
+              tooltip: 'Italic',
             ),
-            _buildAction(
-              icon: FluentIcons.underline,
+            material.IconButton(
+              icon: const material.Icon(material.Icons.format_underlined),
               onPressed: onUnderline,
-              tooltip: 'Sublinhado (Ctrl+U)',
+              tooltip: 'Underline',
             ),
-            _buildAction(
-              icon: FluentIcons.strikethrough,
+            material.IconButton(
+              icon: const material.Icon(material.Icons.strikethrough_s),
               onPressed: onStrikethrough,
-              tooltip: 'Tachado',
+              tooltip: 'Strikethrough',
             ),
-            _buildAction(
-              icon: FluentIcons.font_color,
-              onPressed: onColor,
-              tooltip: 'Cor do Texto',
-            ),
-            _buildDivider(theme),
-
-            // Link & Image
-            _buildAction(
-              icon: FluentIcons.link,
-              onPressed: onLink,
-              tooltip: 'Inserir Link',
-            ),
-            _buildAction(
-              icon: FluentIcons.photo2,
-              onPressed: onImage,
-              tooltip: 'Inserir Imagem',
-            ),
-            _buildDivider(theme),
-
-            // Alignment Group
-            _buildAction(
-              icon: FluentIcons.align_left,
+            const material.VerticalDivider(indent: 12, endIndent: 12),
+            material.IconButton(
+              icon: const material.Icon(material.Icons.format_align_left),
               onPressed: () => onAlignment('left'),
-              tooltip: 'Alinhar à Esquerda',
             ),
-            _buildAction(
-              icon: FluentIcons.align_center,
+            material.IconButton(
+              icon: const material.Icon(material.Icons.format_align_center),
               onPressed: () => onAlignment('center'),
-              tooltip: 'Centralizar',
             ),
-            _buildAction(
-              icon: FluentIcons.align_right,
+            material.IconButton(
+              icon: const material.Icon(material.Icons.format_align_right),
               onPressed: () => onAlignment('right'),
-              tooltip: 'Alinhar à Direita',
             ),
-            _buildDivider(theme),
-
-            // Lists Group
-            _buildAction(
-              icon: FluentIcons.bulleted_list,
+            const material.VerticalDivider(indent: 12, endIndent: 12),
+            material.IconButton(
+              icon: const material.Icon(material.Icons.format_list_bulleted),
               onPressed: () => onList('unordered'),
-              tooltip: 'Lista com Marcadores',
             ),
-            _buildAction(
-              icon: FluentIcons.numbered_list,
+            material.IconButton(
+              icon: const material.Icon(material.Icons.format_list_numbered),
               onPressed: () => onList('ordered'),
-              tooltip: 'Lista Numerada',
             ),
-            _buildAction(
-              icon: FluentIcons.check_list,
+            material.IconButton(
+              icon: const material.Icon(material.Icons.checklist),
               onPressed: () => onList('checklist'),
-              tooltip: 'Lista de Verificação',
             ),
-            _buildDivider(theme),
-
-            // Indent Group
-            _buildAction(
-              icon: FluentIcons.decrease_indent,
+            const material.VerticalDivider(indent: 12, endIndent: 12),
+            material.IconButton(
+              icon: const material.Icon(material.Icons.format_indent_decrease),
               onPressed: () => onIndent(-1),
-              tooltip: 'Diminuir Recuo',
             ),
-            _buildAction(
-              icon: FluentIcons.increase_indent,
+            material.IconButton(
+              icon: const material.Icon(material.Icons.format_indent_increase),
               onPressed: () => onIndent(1),
-              tooltip: 'Aumentar Recuo',
             ),
-            const SizedBox(width: 8),
+            const material.VerticalDivider(indent: 12, endIndent: 12),
+            material.IconButton(
+              icon: const material.Icon(material.Icons.link),
+              onPressed: onLink,
+            ),
+            material.IconButton(
+              icon: const material.Icon(material.Icons.image),
+              onPressed: onImage,
+            ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAction({
-    required IconData icon,
-    required VoidCallback? onPressed,
-    required String tooltip,
-  }) {
-    return Tooltip(
-      message: tooltip,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: IconButton(
-          icon: Icon(icon, size: 14),
-          onPressed: onPressed,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDivider(FluentThemeData theme) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6),
-      child: SizedBox(
-        height: 24,
-        child: Divider(
-          direction: Axis.vertical,
         ),
       ),
     );
