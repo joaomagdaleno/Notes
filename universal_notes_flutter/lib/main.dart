@@ -31,6 +31,8 @@ void main() {
     (error, stack) {
       debugPrint('🔥 [FATAL] Global runZonedGuarded error: $error');
       debugPrint(stack.toString());
+      unawaited(StartupLogger.log('🔥 [FATAL] Global error: $error'));
+      unawaited(StartupLogger.log(stack.toString()));
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         unawaited(
           FirebaseCrashlytics.instance.recordError(error, stack, fatal: true),
@@ -191,7 +193,8 @@ class _AppBootstrapState extends State<AppBootstrap> {
   Widget build(BuildContext context) {
     unawaited(StartupLogger.log(
         '🎨 [BUILD] AppBootstrap.build called - '
-        '_isInitialized=$_isInitialized, _errorMessage=$_errorMessage'));
+        '_isInitialized=$_isInitialized, _errorMessage=$_errorMessage',
+    ));
     if (_errorMessage != null) {
       return MaterialApp(
         home: Scaffold(

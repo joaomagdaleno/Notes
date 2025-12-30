@@ -10,12 +10,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
-import 'package:universal_notes_flutter/editor/editor_toolbar.dart';
 import 'package:universal_notes_flutter/editor/editor_widget.dart';
 import 'package:universal_notes_flutter/editor/floating_toolbar.dart';
 import 'package:universal_notes_flutter/editor/history_manager.dart';
 import 'package:universal_notes_flutter/editor/snippet_converter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/editor/writer_toolbar.dart';
 import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
@@ -39,7 +39,6 @@ import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/services/template_service.dart';
 import 'package:universal_notes_flutter/widgets/command_palette.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
-import 'package:universal_notes_flutter/widgets/read_aloud_controls.dart';
 import 'package:universal_notes_flutter/widgets/reading_bookmarks_list.dart';
 import 'package:universal_notes_flutter/widgets/reading_mode_settings.dart';
 import 'package:universal_notes_flutter/widgets/reading_outline_navigator.dart';
@@ -82,8 +81,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   Note? _note;
   late DocumentModel _document;
   // final bool _showCursor = false; // Blinking cursor
-  bool _isDrawingMode = false; // Handwriting mode
-  bool _softWrap = true;
+  final bool _isDrawingMode = false; // Handwriting mode
+  final bool _softWrap = true;
+  late EditorPersona _persona;
 
   // Undo/Redo Stacks
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
@@ -91,6 +91,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   final ScrollController _scrollController = ScrollController();
   final GlobalKey<EditorWidgetState> _editorKey =
       GlobalKey<EditorWidgetState>();
+  final GlobalKey _stackKey = GlobalKey();
   Timer? _recordHistoryTimer;
   Timer? _debounceTimer;
   Timer? _throttleTimer;
@@ -137,12 +138,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   (int, int)? _readAloudHighlightRange;
   bool _isReadAloudControlsVisible = false;
   late SharedPreferences _prefs;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _firestoreRepository =
         widget.firestoreRepository ?? FirestoreRepository.instance;
+    _persona = widget.initialPersona ?? EditorPersona.architect;
     _note = widget.note;
     _currentTags = _note?.tags.toList() ?? [];
     WidgetsBinding.instance.addObserver(this);
@@ -163,6 +166,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     unawaited(SnippetConverter.precacheSnippets());
     unawaited(_loadReadingSettings());
     unawaited(_loadReadingData());
+    _focusNode.requestFocus();
 
     // Listen to read aloud position for highlighting
     _readAloudService.positionStream.listen((pos) {
@@ -270,6 +274,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     if (_isCollaborative && _note != null) {
       unawaited(_firestoreRepository.removeCursor(_note!.id));
     }
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -812,157 +817,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     await SnippetConverter.precacheSnippets();
   }
 
-  // --- Tag Methods ---
 
-  void _addTag(String tagName) {
-    if (tagName.isNotEmpty && !_currentTags.contains(tagName)) {
-      setState(() {
-        _currentTags.add(tagName);
-      });
-      _tagController.clear();
-    }
-  }
 
-  void _removeTag(String tagName) {
-    setState(() {
-      _currentTags.remove(tagName);
-    });
-  }
-
-  Widget _buildTagEditor() {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: _currentTags
-                .map(
-                  (tag) => Chip(
-                    label: Text(tag),
-                    onDeleted: () => _removeTag(tag),
-                  ),
-                )
-                .toList(),
-          ),
-          TextField(
-            controller: _tagController,
-            decoration: const InputDecoration(
-              hintText: 'Add a tag...',
-              border: InputBorder.none,
-            ),
-            onSubmitted: _addTag,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showShareDialog() {
-    final emailController = TextEditingController();
-    var permission = 'viewer'; // Default permission
-
-    unawaited(
-      showDialog<void>(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Share Note'),
-            content: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                return SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Add new collaborator:'),
-                      TextField(
-                        controller: emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'User Email',
-                        ),
-                      ),
-                      DropdownButton<String>(
-                        value: permission,
-                        onChanged: (String? newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              permission = newValue;
-                            });
-                          }
-                        },
-                        items: <String>['viewer', 'editor']
-                            .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            })
-                            .toList(),
-                      ),
-                      const Divider(),
-                      const Text('Current collaborators:'),
-                      if (_note!.collaborators.isEmpty)
-                        const Text('None')
-                      else
-                        ..._note!.collaborators.entries.map((entry) {
-                          return ListTile(
-                            title: Text(entry.key), // Ideally, show email/name
-                            subtitle: Text(entry.value),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.remove_circle_outline),
-                              onPressed: () async {
-                                await _firestoreRepository
-                                    .unshareNoteWithCollaborator(
-                                      _note!.id,
-                                      entry.key,
-                                    );
-                                // Refresh note from parent
-                              },
-                            ),
-                          );
-                        }),
-                    ],
-                  ),
-                );
-              },
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  final messenger = ScaffoldMessenger.of(context);
-                  final navigator = Navigator.of(context);
-                  final success = await _firestoreRepository.shareNoteWithEmail(
-                    _note!.id,
-                    emailController.text,
-                    permission,
-                  );
-                  if (!context.mounted) return;
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        success
-                            ? 'Note shared successfully!'
-                            : 'User not found.',
-                      ),
-                    ),
-                  );
-                  navigator.pop();
-                },
-                child: const Text('Share'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
 
   final bool _canUndo = false;
   final bool _canRedo = false;
@@ -1398,7 +1254,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Add the remote cursors to the editor widget
+    // Define the editor widget
     final editor = EditorWidget(
       key: _editorKey,
       document: _document,
@@ -1408,7 +1264,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       onSelectionRectChanged: _onSelectionRectChanged,
       scrollController: _scrollController,
       remoteCursors: _remoteCursors,
-      // Keyboard shortcut callbacks
       onStyleToggle: _toggleStyle,
       onUndo: _undo,
       onRedo: _redo,
@@ -1426,7 +1281,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           final titleEncoded = url.replaceFirst('note://find-by-title/', '');
           final title = Uri.decodeComponent(titleEncoded);
           debugPrint('Navigating to note: $title');
-          // _navigateToNoteByTitle(title);
         } else {
           unawaited(launchUrl(Uri.parse(url)));
         }
@@ -1443,45 +1297,29 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       readAloudHighlightRange: _readAloudHighlightRange,
       annotations: _annotations,
       readingStats: _readingStats,
-      onSetReadingGoal: (minutes) =>
-          _statsService.setReadingGoal(_note!.id, minutes),
+      onSetReadingGoal: (minutes) => _statsService.setReadingGoal(_note!.id, minutes),
       onNextSmart: () => _navigateSmart(true),
       onPrevSmart: () => _navigateSmart(false),
       onNextPlanNote: _onNextPlanNote,
       onPrevPlanNote: _onPrevPlanNote,
     );
 
-    // Define the keyboard shortcuts
+    // Final build result
+    return _buildUnifiedUI(editor);
+  }
+
+
+
+  Widget _buildUnifiedUI(Widget editor) {
     final shortcuts = {
-      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ):
-          const _UndoIntent(),
-      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ):
-          const _UndoIntent(),
-      LogicalKeySet(
-        LogicalKeyboardKey.control,
-        LogicalKeyboardKey.shift,
-        LogicalKeyboardKey.keyZ,
-      ): const _RedoIntent(),
-      LogicalKeySet(
-        LogicalKeyboardKey.meta,
-        LogicalKeyboardKey.shift,
-        LogicalKeyboardKey.keyZ,
-      ): const _RedoIntent(),
-      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY):
-          const _RedoIntent(),
-      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyY):
-          const _RedoIntent(),
-      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyE):
-          const _CenterLineIntent(),
-      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyE):
-          const _CenterLineIntent(),
-      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyP):
-          const _ShowFormatMenuIntent(),
-      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyP):
-          const _ShowFormatMenuIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ): const _UndoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ): const _UndoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.shift, LogicalKeyboardKey.keyZ): const _RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.shift, LogicalKeyboardKey.keyZ): const _RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY): const _RedoIntent(),
+      LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyY): const _RedoIntent(),
     };
 
-    // Define the actions
     final actions = <Type, Action<Intent>>{
       _UndoIntent: _UndoAction(this),
       _RedoIntent: _RedoAction(this),
@@ -1491,15 +1329,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
     return CallbackShortcuts(
       bindings: {
-        const SingleActivator(LogicalKeyboardKey.keyK, control: true):
-            _showContextCommandPalette,
+        const SingleActivator(LogicalKeyboardKey.keyK, control: true): _showContextCommandPalette,
       },
       child: PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) async {
           if (didPop) return;
           await _saveNote();
-          if (context.mounted) Navigator.of(context).pop();
+          if (mounted) Navigator.of(context).pop();
         },
         child: Actions(
           actions: actions,
@@ -1509,214 +1346,90 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
               appBar: _isFocusMode
                   ? null
                   : AppBar(
-                      title: Text(
-                        widget.note == null ? 'New Note' : 'Edit Note',
+                      title: _EditableTitle(
+                        initialTitle: _note?.title ?? '',
+                        onChanged: (newTitle) {
+                          setState(() {
+                            if (_note != null) {
+                              _note = _note!.copyWith(title: newTitle);
+                            }
+                          });
+                        },
                       ),
                       actions: [
                         if (_isCollaborative)
                           _CollaboratorAvatars(remoteCursors: _remoteCursors),
                         IconButton(
                           icon: const Icon(Icons.search),
-                          onPressed: () => setState(
-                            () => _isFindBarVisible = !_isFindBarVisible,
-                          ),
-                        ),
-                        if (widget.note != null)
-                          IconButton(
-                            icon: const Icon(Icons.share),
-                            onPressed: _showShareDialog,
-                          ),
-                        IconButton(
-                          icon: const Icon(Icons.attach_file),
-                          onPressed: _attachImage,
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            _isFocusMode
-                                ? Icons.fullscreen_exit
-                                : Icons.fullscreen,
-                          ),
-                          onPressed: _toggleFocusMode,
-                        ),
-                        PopupMenuButton<String>(
-                          onSelected: (value) async {
-                            if (widget.note == null) return;
-                            final exportService = ExportService();
-
-                            if (value == 'txt') {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Exportando para TXT...'),
-                                  duration: Duration(seconds: 1),
-                                ),
-                              );
-                              await exportService.exportToTxt(widget.note!);
-                            } else if (value == 'pdf') {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Exportando para PDF...'),
-                                  duration: Duration(seconds: 1),
-                                ),
-                              );
-                              await exportService.exportToPdf(widget.note!);
-                            } else if (value == 'toggle_wrap') {
-                              setState(() {
-                                _softWrap = !_softWrap;
-                              });
-                            }
-                          },
-                          itemBuilder: (BuildContext context) =>
-                              <PopupMenuEntry<String>>[
-                                const PopupMenuItem<String>(
-                                  value: 'txt',
-                                  child: Text('Exportar para TXT'),
-                                ),
-                                const PopupMenuItem<String>(
-                                  value: 'pdf',
-                                  child: Text('Exportar para PDF'),
-                                ),
-                                const PopupMenuDivider(),
-                                PopupMenuItem<String>(
-                                  value: 'toggle_wrap',
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        _softWrap
-                                            ? Icons.wrap_text
-                                            : Icons.format_align_left,
-                                        color: Colors.black87,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        _softWrap
-                                            ? 'Disable Word Wrap'
-                                            : 'Enable Word Wrap',
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                          onPressed: () => setState(() => _isFindBarVisible = !_isFindBarVisible),
                         ),
                         IconButton(
                           icon: const Icon(Icons.history),
-                          tooltip: 'Ver Histórico',
                           onPressed: _showHistoryDialog,
+                        ),
+                        IconButton(
+                          icon: Icon(_isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen),
+                          onPressed: _toggleFocusMode,
                         ),
                       ],
                     ),
-              floatingActionButton: _isFocusMode
-                  ? null
-                  : FloatingActionButton(
-                      onPressed: _saveNote,
-                      child: const Icon(Icons.save),
-                    ),
               body: SafeArea(
-                top: !_isFocusMode,
-                bottom: !_isFocusMode,
                 child: Stack(
+                  key: _stackKey,
                   children: [
                     Column(
                       children: [
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          transitionBuilder:
-                              (Widget child, Animation<double> animation) {
-                                return SizeTransition(
-                                  sizeFactor: animation,
-                                  child: child,
-                                );
-                              },
-                          child: _isFindBarVisible && !_isFocusMode
-                              ? FindReplaceBar(
-                                  key: const ValueKey('findBar'),
-                                  onFindChanged: _onFindChanged,
-                                  onFindNext: _findNext,
-                                  onFindPrevious: _findPrevious,
-                                  onReplace: _replace,
-                                  onReplaceAll: _replaceAll,
-                                  onClose: () => setState(
-                                    () => _isFindBarVisible = false,
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                        if (!_isFocusMode) _buildTagEditor(),
-                        if (_note?.imageUrl != null)
-                          Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Image.network(_note!.imageUrl!),
+                        if (_isFindBarVisible)
+                          FindReplaceBar(
+                            onFindChanged: _onFindChanged,
+                            onFindNext: _findNext,
+                            onFindPrevious: _findPrevious,
+                            onReplace: _replace,
+                            onReplaceAll: _replaceAll,
+                            onClose: () => setState(() => _isFindBarVisible = false),
                           ),
-
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: editor,
-                          ),
-                        ),
-                        if (!_isFocusMode)
-                          EditorToolbar(
-                            isDrawingMode: _isDrawingMode,
-                            onToggleDrawingMode: () {
-                              setState(() {
-                                _isDrawingMode = !_isDrawingMode;
-                              });
-                            },
+                        Expanded(child: editor),
+                        if (!_isFocusMode && _persona == EditorPersona.writer)
+                          WriterToolbar(
                             onBold: () => _toggleStyle(StyleAttribute.bold),
                             onItalic: () => _toggleStyle(StyleAttribute.italic),
-                            onUnderline: () =>
-                                _toggleStyle(StyleAttribute.underline),
-                            onStrikethrough: () =>
-                                _toggleStyle(StyleAttribute.strikethrough),
+                            onUnderline: () => _toggleStyle(StyleAttribute.underline),
+                            onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
                             onColor: _showColorPicker,
                             onFontSize: _showFontSizePicker,
-                            onSnippets: _showSnippetsScreen,
+                            onAlignment: (align) => _toggleBlockAttribute('align', align),
+                            onIndent: _indentBlock,
+                            onList: (type) => _toggleBlockAttribute('list', type),
                             onImage: _attachImage,
+                            onLink: _showLinkDialog,
                             onUndo: _undo,
                             onRedo: _redo,
+                            onStyleToggle: (s) => _toggleBlockAttribute('header', s == 'normal' ? null : int.tryParse(s.replaceAll('h', ''))),
                             canUndo: _canUndo,
                             canRedo: _canRedo,
-                            wordCountNotifier: _wordCountNotifier,
-                            charCountNotifier: _charCountNotifier,
-                            onAlignment: (align) =>
-                                _toggleBlockAttribute('align', align),
-                            onIndent: _indentBlock,
-                            onList: (type) =>
-                                _toggleBlockAttribute('list', type),
                           ),
                       ],
                     ),
                     if (_isToolbarVisible)
-                      Positioned(
-                        top: _selectionRect!.top - 55,
-                        left: _selectionRect!.left,
-                        child: FloatingToolbar(
-                          onBold: () => _toggleStyle(StyleAttribute.bold),
-                          onItalic: () => _toggleStyle(StyleAttribute.italic),
-                          onUnderline: () =>
-                              _toggleStyle(StyleAttribute.underline),
-                          onStrikethrough: () =>
-                              _toggleStyle(StyleAttribute.strikethrough),
-                          onColor: _showColorPicker,
-                          onLink: _showLinkDialog,
-                          onHighlight: _addHighlight,
-                          onAddNote: _addAnnotationNote,
-                        ),
-                      ),
-                    if (_isReadAloudControlsVisible)
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        child: ReadAloudControls(
-                          service: _readAloudService,
-                          text: _document.toPlainText(),
-                          onClose: () {
-                            setState(() {
-                              _isReadAloudControlsVisible = false;
-                            });
-                          },
-                        ),
-                      ),
+                      () {
+                        final RenderBox? stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
+                        if (stackBox == null || _selectionRect == null) return const SizedBox.shrink();
+                        final localPos = stackBox.globalToLocal(_selectionRect!.topLeft);
+                        return Positioned(
+                          top: localPos.dy - 60,
+                          left: localPos.dx,
+                          child: FloatingToolbar(
+                            onBold: () => _toggleStyle(StyleAttribute.bold),
+                            onItalic: () => _toggleStyle(StyleAttribute.italic),
+                            onUnderline: () => _toggleStyle(StyleAttribute.underline),
+                            onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
+                            onColor: _showColorPicker,
+                            onLink: _showLinkDialog,
+                            onHighlight: _addHighlight,
+                            onAddNote: _addAnnotationNote,
+                          ),
+                        );
+                      }(),
                   ],
                 ),
               ),
@@ -2144,11 +1857,87 @@ class _CollaboratorAvatars extends StatelessWidget {
               backgroundColor: Color(collaborators[i]['color'] as int),
               child: Text(
                 (collaborators[i]['name'] as String).substring(0, 2),
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                style: TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
           ),
       ],
+    );
+  }
+}
+
+class _EditableTitle extends StatefulWidget {
+  const _EditableTitle({required this.initialTitle, required this.onChanged});
+  final String initialTitle;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_EditableTitle> createState() => _EditableTitleState();
+}
+
+class _EditableTitleState extends State<_EditableTitle> {
+  late TextEditingController _controller;
+  bool _isEditing = false;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialTitle);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+
+  @override
+  void didUpdateWidget(_EditableTitle oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialTitle != oldWidget.initialTitle && !_isEditing) {
+      _controller.text = widget.initialTitle;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isEditing) {
+      return TextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        autofocus: true,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        decoration: const InputDecoration(
+          border: InputBorder.none,
+          isDense: true,
+          hintText: 'Edit Note',
+        ),
+        onSubmitted: (value) {
+          setState(() => _isEditing = false);
+          widget.onChanged(value);
+        },
+        onTapOutside: (_) {
+          setState(() => _isEditing = false);
+          widget.onChanged(_controller.text);
+        },
+      );
+    }
+    return GestureDetector(
+      onTap: () => setState(() {
+        _isEditing = true;
+        _focusNode.requestFocus();
+      }),
+      child: Text(
+        _controller.text.isEmpty ? 'Edit Note' : _controller.text,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: _controller.text.isEmpty ? Colors.grey : null,
+        ),
+      ),
     );
   }
 }

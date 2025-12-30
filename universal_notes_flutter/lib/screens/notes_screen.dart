@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide MenuAnchor, MenuBar, MenuItemButton, SearchBar;
 import 'package:provider/provider.dart';
-import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/screens/settings_screen.dart';
 import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
@@ -115,28 +115,35 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   void initState() {
     super.initState();
     unawaited(StartupLogger.log(
-        '🎬 NotesScreen.initState starting after super.initState'));
+        '🎬 NotesScreen.initState starting after super.initState',
+    ));
     try {
       unawaited(StartupLogger.log(
-          '⏳ NotesScreen.initState: assigning _updateService...'));
+          '⏳ NotesScreen.initState: assigning _updateService...',
+      ));
       _updateService = widget.updateService ?? UpdateService();
       unawaited(StartupLogger.log(
-          '✅ NotesScreen.initState: _updateService assigned'));
+          '✅ NotesScreen.initState: _updateService assigned',
+      ));
 
       unawaited(StartupLogger.log(
-          '⏳ NotesScreen.initstate: connecting to notesStream...'));
+          '⏳ NotesScreen.initstate: connecting to notesStream...',
+      ));
       _notesStream = _syncService.notesStream;
 
       unawaited(StartupLogger.log(
-          '⏳ NotesScreen.initState: adding windowManager listener...'));
+          '⏳ NotesScreen.initState: adding windowManager listener...',
+      ));
       windowManager.addListener(this);
 
       unawaited(StartupLogger.log(
-          '⏳ NotesScreen.initState: calling _updateNotesStream()...'));
+          '⏳ NotesScreen.initState: calling _updateNotesStream()...',
+      ));
       _updateNotesStream();
 
       unawaited(StartupLogger.log(
-          '⏳ NotesScreen.initState: adding searchController listener...'));
+          '⏳ NotesScreen.initState: adding searchController listener...',
+      ));
       _searchController.addListener(_onSearchChanged);
 
       unawaited(StartupLogger.log('✅ NotesScreen.initState complete'));
@@ -249,8 +256,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final note = Note(
       id: const Uuid().v4(),
       title: 'Nova Nota',
-      content:
-          DocumentModel.empty().toJson().toString(), // Or empty string literal
+      content: '', // Use empty string for new notes
       createdAt: DateTime.now(),
       lastModified: DateTime.now(),
       ownerId: 'user', // Default user
@@ -269,7 +275,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final note = Note(
       id: const Uuid().v4(),
       title: title,
-      content: DocumentModel.empty().toJson().toString(),
+      content: '',
       createdAt: DateTime.now(),
       lastModified: DateTime.now(),
       ownerId: 'user',
@@ -637,6 +643,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               }
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () {
+              unawaited(
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                ),
+              );
+            },
+          ),
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
             tooltip: 'Sort Order',
@@ -771,48 +790,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Widget _buildFluentUI() {
-    unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: Entry'));
+    unawaited(StartupLogger.log(
+      '🧪 [HYBRID] _buildFluentUI: Reconstructing UI with Row + ScaffoldPage',
+    ));
     try {
       final isTrashView = _selection.type == SidebarItemType.trash;
       final title = _getAppBarTitle();
-      unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: vars - '
-          'isTrashView=$isTrashView, title=$title'));
 
-      final appBar = fluent.NavigationAppBar(
-        automaticallyImplyLeading: false,
-        title: Text(title),
-        actions: Padding(
-          padding: const EdgeInsets.only(right: 16),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ValueListenableBuilder<String>(
-                valueListenable: _viewModeNotifier,
-                builder: (context, currentMode, child) {
-                  final props = _getNextViewModeProperties(
-                    currentMode,
-                    isFluent: true,
-                  );
-                  return fluent.IconButton(
-                    icon: Icon(props.icon),
-                    onPressed: _cycleViewMode,
-                  );
-                },
-              ),
-              const SizedBox(width: 8),
-              fluent.IconButton(
-                icon: const Icon(fluent.FluentIcons.refresh),
-                onPressed: () => unawaited(_updateService.checkForUpdate()),
-              ),
-            ],
-          ),
-        ),
-      );
-      unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: appBar created'));
+      unawaited(StartupLogger.log('🧪 [HYBRID] Rendering with title: $title'));
 
       final content = Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Wrap Sidebar in its own Material for ListTile/Theme context
+          // Sidebar on the left
           Material(
             key: const ValueKey('sidebar_material_wrapper'),
             type: MaterialType.transparency,
@@ -821,101 +811,176 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               onSelectionChanged: _onSelectionChanged,
             ),
           ),
+          
+          // Main content on the right
           Expanded(
-            child: Material(
-              key: const ValueKey('content_material_wrapper'),
-              type: MaterialType.transparency,
-              child: fluent.ScaffoldPage(
-                header: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: fluent.TextBox(
-                    controller: _searchController,
-                    placeholder: 'Search is temporarily disabled...',
-                    prefix: const Padding(
-                      padding: EdgeInsets.only(left: 8),
-                      child: Icon(fluent.FluentIcons.search),
-                    ),
-                    enabled: false,
+            child: fluent.ScaffoldPage(
+              header: fluent.PageHeader(
+                padding: 12,
+                title: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                content: StreamBuilder<List<Note>>(
-                  stream: _notesStream,
-                  initialData: _syncService.currentNotes,
-                  builder: (context, snapshot) {
-                    unawaited(StartupLogger.log(
-                        '🎨 [TRACE] StreamBuilder inner - hasData: '
-                        '${snapshot.hasData}, items: ${snapshot.data?.length}'));
-                    if (snapshot.connectionState == ConnectionState.waiting &&
-                        !snapshot.hasData) {
-                      return const Center(child: fluent.ProgressRing());
-                    }
-                    if (snapshot.hasError) {
-                      unawaited(StartupLogger.log(
-                        '❌ [TRACE] StreamBuilder error: ${snapshot.error}',
-                      ));
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    }
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const EmptyState(
-                        icon: fluent.FluentIcons.note_forward,
-                        message: 'No notes yet. Create one!',
-                      );
-                    }
-                    return _buildNotesList(snapshot.data!);
-                  },
-                ),
-                bottomBar: isTrashView
-                    ? null
-                    : Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          mainAxisAlignment: fluent.MainAxisAlignment.end,
-                          children: [
-                            fluent.FilledButton(
-                              onPressed: _createNewNote,
-                              child: const Row(
-                                mainAxisSize: fluent.MainAxisSize.min,
-                                children: [
-                                  Icon(fluent.FluentIcons.add),
-                                  SizedBox(width: 8),
-                                  Text('New Note'),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            fluent.Button(
-                              onPressed: _abrirEditorRapido,
-                              child: const Row(
-                                mainAxisSize: fluent.MainAxisSize.min,
-                                children: [
-                                  Icon(fluent.FluentIcons.quick_note),
-                                  SizedBox(width: 8),
-                                  Text('Quick Note'),
-                                ],
-                              ),
-                            ),
-                          ],
+                commandBar: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Persona / View Mode (Discrete)
+                    ValueListenableBuilder<String>(
+                      valueListenable: _viewModeNotifier,
+                      builder: (context, currentMode, child) {
+                        final props = _getNextViewModeProperties(
+                          currentMode,
+                          isFluent: true,
+                        );
+                        return fluent.Tooltip(
+                          message: 'Persona: ${props.tooltip}',
+                          child: fluent.IconButton(
+                            icon: Icon(props.icon, size: 16),
+                            onPressed: _cycleViewMode,
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 4),
+                    fluent.Tooltip(
+                      message: 'Toggle Theme',
+                      child: fluent.IconButton(
+                        icon: const Icon(
+                          fluent.FluentIcons.brightness,
+                          size: 16,
                         ),
+                        onPressed: () {
+                          if (context.mounted) {
+                            unawaited(
+                              Provider.of<ThemeService>(
+                                context,
+                                listen: false,
+                              ).toggleTheme(),
+                            );
+                          }
+                        },
                       ),
+                    ),
+                    const SizedBox(width: 4),
+                    fluent.Tooltip(
+                      message: 'Check for Updates',
+                      child: fluent.IconButton(
+                        icon: const Icon(
+                          fluent.FluentIcons.update_restore,
+                          size: 16,
+                        ),
+                        onPressed: () => unawaited(_updateService.checkForUpdate()),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    fluent.Tooltip(
+                      message: 'Settings',
+                      child: fluent.IconButton(
+                        icon: const Icon(fluent.FluentIcons.settings, size: 16),
+                        onPressed: () {
+                          unawaited(
+                            Navigator.of(context).push(
+                              fluent.FluentPageRoute<void>(
+                                builder: (context) => const SettingsScreen(),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              content: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                    child: fluent.TextBox(
+                      controller: _searchController,
+                      placeholder: 'Search notes...',
+                      prefix: const Padding(
+                        padding: EdgeInsets.only(left: 8),
+                        child: Icon(fluent.FluentIcons.search, size: 14),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: StreamBuilder<List<Note>>(
+                        stream: _notesStream,
+                        initialData: _syncService.currentNotes,
+                        builder: (context, snapshot) {
+                          unawaited(StartupLogger.log(
+                            '🧪 [HYBRID] StreamBuilder pulse - hasData: '
+                            '${snapshot.hasData}, items: ${snapshot.data?.length}',
+                          ));
+                          if (snapshot.connectionState == ConnectionState.waiting &&
+                              !snapshot.hasData) {
+                            return const Center(child: fluent.ProgressRing());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          }
+                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return const EmptyState(
+                              icon: fluent.FluentIcons.note_forward,
+                              message: 'No notes yet. Create one!',
+                            );
+                          }
+                          return _buildNotesList(snapshot.data!);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              bottomBar: isTrashView
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          fluent.FilledButton(
+                            onPressed: _createNewNote,
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(fluent.FluentIcons.add),
+                                SizedBox(width: 8),
+                                Text('New Note'),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          fluent.Button(
+                            onPressed: _abrirEditorRapido,
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(fluent.FluentIcons.quick_note),
+                                SizedBox(width: 8),
+                                Text('Quick Note'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
             ),
           ),
         ],
       );
-      unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: content created'));
 
-      final navigationView = fluent.NavigationView(
-        appBar: appBar,
-        content: content,
-      );
-      unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: navigationView created'));
-
-      unawaited(StartupLogger.log('🎨 [TRACE] _buildFluentUI: returning FluentTheme'));
       return fluent.FluentTheme(
         data: fluent.FluentThemeData.light(),
-        child: navigationView,
+        child: content,
       );
-    } catch (e, stack) {
+    } on Object catch (e, stack) {
       unawaited(StartupLogger.log('🔥 [CRASH] _buildFluentUI: $e'));
       unawaited(StartupLogger.log(stack.toString()));
       return Scaffold(body: Center(child: Text('UI Crash: $e')));
@@ -945,7 +1010,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 }
 
-class _DashboardCard extends StatelessWidget {
+class _DashboardCard extends StatefulWidget {
   const _DashboardCard({
     required this.title,
     required this.subtitle,
@@ -972,39 +1037,79 @@ class _DashboardCard extends StatelessWidget {
   );
 
   // being recreated on every build.
-  static const _baseDecoration = BoxDecoration(
-    borderRadius: BorderRadius.all(Radius.circular(16)),
-  );
+
+  @override
+  State<_DashboardCard> createState() => _DashboardCardState();
+}
+
+class _DashboardCardState extends State<_DashboardCard> {
+  // ⚡ Bolt: Caching computed styles in the state.
+  // This is a key performance optimization. Instead of re-creating
+  // BoxDecoration and TextStyles on every build, we compute them once in
+  // initState and only re-compute them in didUpdateWidget if the underlying
+  // data (the color) has actually changed. This avoids expensive object
+  // allocations in the build method, leading to a smoother UI.
+  late BoxDecoration _decoration;
+  late TextStyle _titleStyle;
+  late TextStyle _subtitleStyle;
+
+  @override
+  void initState() {
+    super.initState();
+    _computeStyles();
+  }
+
+  @override
+  void didUpdateWidget(_DashboardCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.color != oldWidget.color) {
+      _computeStyles();
+    }
+  }
+
+  void _computeStyles() {
+    _decoration = _DashboardCard._baseDecoration.copyWith(
+      color: widget.color.withOpacity(0.1),
+      border: Border.all(color: widget.color.withOpacity(0.2)),
+    );
+    _titleStyle = _DashboardCard._titleTextStyle.copyWith(color: widget.color);
+    _subtitleStyle = _DashboardCard._subtitleTextStyle.copyWith(
+      color: widget.color.withOpacity(0.7),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 160,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: _baseDecoration.copyWith(
-          color: color.withValues(alpha: 0.1),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: _titleTextStyle.copyWith(color: color),
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: fluent.HoverButton(
+        onPressed: onTap,
+        builder: (context, states) {
+          return fluent.Card(
+            padding: const EdgeInsets.all(16),
+            backgroundColor: states.isHovered 
+                ? color.withValues(alpha: 0.15) 
+                : color.withValues(alpha: 0.1),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                fluent.Icon(icon, color: color, size: 32),
+                const SizedBox(height: 12),
+                fluent.Text(
+                  title,
+                  style: _titleTextStyle.copyWith(color: color),
+                ),
+                fluent.Text(
+                  subtitle,
+                  style: _subtitleTextStyle.copyWith(
+                    color: color.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
             ),
-            Text(
-              subtitle,
-              style: _subtitleTextStyle.copyWith(
-                color: color.withValues(alpha: 0.7),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

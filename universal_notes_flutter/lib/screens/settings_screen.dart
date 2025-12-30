@@ -37,13 +37,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     if (defaultTargetPlatform == TargetPlatform.windows) {
-      return _buildFluentUI(context);
+      // ⚡ Bolt: Wrap in FluentTheme and Directionality to ensure Fluent UI
+      // widgets have the necessary context when pushed from a Material context.
+      return fluent.FluentTheme(
+        data: fluent.FluentThemeData(),
+        child: const Directionality(
+          textDirection: TextDirection.ltr,
+          child: _FluentSettingsContent(),
+        ),
+      );
     } else {
       return _buildMaterialUI(context);
     }
   }
 
-  Widget _buildFluentUI(BuildContext context) {
+  Widget _buildMaterialUI(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Configurações'),
+      ),
+      body: ListView(
+        children: [
+          _MaterialSettingsItem(packageInfo: _packageInfo),
+        ],
+      ),
+    );
+  }
+}
+
+class _FluentSettingsContent extends StatefulWidget {
+  const _FluentSettingsContent();
+
+  @override
+  State<_FluentSettingsContent> createState() => _FluentSettingsContentState();
+}
+
+class _FluentSettingsContentState extends State<_FluentSettingsContent> {
+  PackageInfo? _packageInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_initPackageInfo());
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() {
+        _packageInfo = info;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return fluent.ScaffoldPage(
       header: const fluent.PageHeader(
         title: Text('Configurações'),
@@ -75,41 +123,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+}
 
-  Widget _buildMaterialUI(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Configurações'),
-      ),
-      body: ListView(
-        children: [
-          ListTile(
-            title: const Text('Sobre'),
-            leading: const Icon(Icons.info_outline),
-            onTap: _packageInfo == null
-                ? null
-                : () {
-                    unawaited(
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (context) =>
-                              AboutScreen(packageInfo: _packageInfo!),
-                        ),
-                      ),
-                    );
-                  },
-            trailing: _packageInfo == null
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
-                  )
-                : null,
-          ),
-        ],
-      ),
+class _MaterialSettingsItem extends StatelessWidget {
+  const _MaterialSettingsItem({required this.packageInfo});
+  final PackageInfo? packageInfo;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: const Text('Sobre'),
+      leading: const Icon(Icons.info_outline),
+      onTap: packageInfo == null
+          ? null
+          : () {
+              unawaited(
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) =>
+                        AboutScreen(packageInfo: packageInfo!),
+                  ),
+                ),
+              );
+            },
+      trailing: packageInfo == null
+          ? const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : null,
     );
   }
 }
