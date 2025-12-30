@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_notes_flutter/services/recovery_service.dart';
@@ -25,14 +27,25 @@ class RecoveryDialog extends StatefulWidget {
     required RecoveryService recoveryService,
     required ValueChanged<String> onRecoveryComplete,
   }) {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => RecoveryDialog(
-        recoveryService: recoveryService,
-        onRecoveryComplete: onRecoveryComplete,
-      ),
-    );
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return fluent.showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => RecoveryDialog(
+          recoveryService: recoveryService,
+          onRecoveryComplete: onRecoveryComplete,
+        ),
+      );
+    } else {
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => RecoveryDialog(
+          recoveryService: recoveryService,
+          onRecoveryComplete: onRecoveryComplete,
+        ),
+      );
+    }
   }
 
   @override
@@ -44,12 +57,10 @@ class _RecoveryDialogState extends State<RecoveryDialog> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Step 1: Code verification
   final _codeController = TextEditingController();
   Timer? _expirationTimer;
-  int _secondsRemaining = 600; // 10 minutes
+  int _secondsRemaining = 600;
 
-  // Step 2: New password
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   bool _obscurePassword = true;
@@ -82,9 +93,7 @@ class _RecoveryDialogState extends State<RecoveryDialog> {
   String get _formattedTime {
     final minutes = _secondsRemaining ~/ 60;
     final seconds = _secondsRemaining % 60;
-    final minuteStr = minutes.toString().padLeft(2, '0');
-    final secondStr = seconds.toString().padLeft(2, '0');
-    return '$minuteStr:$secondStr';
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   Future<void> _sendCode() async {
@@ -183,7 +192,31 @@ class _RecoveryDialogState extends State<RecoveryDialog> {
     widget.onRecoveryComplete(_passwordController.text);
   }
 
-  Widget _buildStep0() {
+  @override
+  Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return _buildFluentDialog(context);
+    } else {
+      return _buildMaterialDialog(context);
+    }
+  }
+
+  Widget _buildFluentDialog(BuildContext context) {
+    return fluent.ContentDialog(
+      constraints: const BoxConstraints(maxWidth: 450),
+      content: SizedBox(
+        width: 400,
+        child: switch (_currentStep) {
+          0 => _buildFluentStep0(),
+          1 => _buildFluentStep1(),
+          2 => _buildFluentStep2(),
+          _ => const SizedBox.shrink(),
+        },
+      ),
+    );
+  }
+
+  Widget _buildFluentStep0() {
     final email = widget.recoveryService.userEmail ?? 'seu email';
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -194,9 +227,197 @@ class _RecoveryDialogState extends State<RecoveryDialog> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        Text(
-          'Enviaremos um código de verificação para:\n$email',
+        Text('Enviaremos um código de verificação para:\n$email'),
+        const SizedBox(height: 24),
+        if (_errorMessage != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text(
+              _errorMessage!,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            fluent.Button(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            const SizedBox(width: 8),
+            fluent.FilledButton(
+              onPressed: _isLoading ? null : _sendCode,
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: fluent.ProgressRing(strokeWidth: 2),
+                    )
+                  : const Text('Enviar Código'),
+            ),
+          ],
         ),
+      ],
+    );
+  }
+
+  Widget _buildFluentStep1() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Digite o Código',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Verifique seu email e digite o código de 6 dígitos.',
+          style: TextStyle(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Expira em: $_formattedTime',
+          style: TextStyle(
+            color: _secondsRemaining < 60 ? Colors.red : Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 16),
+        fluent.TextBox(
+          controller: _codeController,
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          maxLength: 6,
+          style: const TextStyle(fontSize: 24, letterSpacing: 8),
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          placeholder: '000000',
+          onSubmitted: (_) => _verifyCode(),
+        ),
+        if (_errorMessage != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Text(
+              _errorMessage!,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        const SizedBox(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            fluent.HyperlinkButton(
+              onPressed: _isLoading ? null : _sendCode,
+              child: const Text('Reenviar código'),
+            ),
+            Row(
+              children: [
+                fluent.Button(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancelar'),
+                ),
+                const SizedBox(width: 8),
+                fluent.FilledButton(
+                  onPressed: _isLoading ? null : _verifyCode,
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: fluent.ProgressRing(strokeWidth: 2),
+                        )
+                      : const Text('Verificar'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFluentStep2() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Nova Senha',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Crie uma nova senha para suas notas bloqueadas.',
+          style: TextStyle(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 16),
+        fluent.InfoLabel(
+          label: 'Nova senha',
+          child: fluent.PasswordBox(
+            controller: _passwordController,
+            placeholder: 'Digite sua nova senha',
+          ),
+        ),
+        const SizedBox(height: 16),
+        fluent.InfoLabel(
+          label: 'Confirmar senha',
+          child: fluent.PasswordBox(
+            controller: _confirmController,
+            placeholder: 'Confirme sua senha',
+          ),
+        ),
+        if (_errorMessage != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Text(
+              _errorMessage!,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        const SizedBox(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            fluent.Button(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            const SizedBox(width: 8),
+            fluent.FilledButton(
+              onPressed: _submitNewPassword,
+              child: const Text('Salvar'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMaterialDialog(BuildContext context) {
+    return AlertDialog(
+      content: SizedBox(
+        width: 400,
+        child: switch (_currentStep) {
+          0 => _buildMaterialStep0(),
+          1 => _buildMaterialStep1(),
+          2 => _buildMaterialStep2(),
+          _ => const SizedBox.shrink(),
+        },
+      ),
+    );
+  }
+
+  Widget _buildMaterialStep0() {
+    final email = widget.recoveryService.userEmail ?? 'seu email';
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Recuperação de Senha',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        Text('Enviaremos um código de verificação para:\n$email'),
         const SizedBox(height: 24),
         if (_errorMessage != null)
           Padding(
@@ -230,7 +451,7 @@ class _RecoveryDialogState extends State<RecoveryDialog> {
     );
   }
 
-  Widget _buildStep1() {
+  Widget _buildMaterialStep1() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,7 +531,7 @@ class _RecoveryDialogState extends State<RecoveryDialog> {
     );
   }
 
-  Widget _buildStep2() {
+  Widget _buildMaterialStep2() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,21 +608,6 @@ class _RecoveryDialogState extends State<RecoveryDialog> {
           ],
         ),
       ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      content: SizedBox(
-        width: 400,
-        child: switch (_currentStep) {
-          0 => _buildStep0(),
-          1 => _buildStep1(),
-          2 => _buildStep2(),
-          _ => const SizedBox.shrink(),
-        },
-      ),
     );
   }
 }

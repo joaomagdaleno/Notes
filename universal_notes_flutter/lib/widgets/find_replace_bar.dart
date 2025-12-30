@@ -1,3 +1,5 @@
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// A bar for finding and replacing text.
@@ -56,6 +58,72 @@ class _FindReplaceBarState extends State<FindReplaceBar> {
 
   @override
   Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return _buildFluentBar(context);
+    } else {
+      return _buildMaterialBar(context);
+    }
+  }
+
+  Widget _buildFluentBar(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      color: theme.scaffoldBackgroundColor,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: fluent.TextBox(
+                  controller: _findController,
+                  placeholder: 'Find',
+                ),
+              ),
+              const SizedBox(width: 4),
+              fluent.IconButton(
+                icon: const Icon(fluent.FluentIcons.up),
+                onPressed: widget.onFindPrevious,
+              ),
+              fluent.IconButton(
+                icon: const Icon(fluent.FluentIcons.down),
+                onPressed: widget.onFindNext,
+              ),
+              fluent.IconButton(
+                icon: const Icon(fluent.FluentIcons.chrome_close),
+                onPressed: widget.onClose,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: fluent.TextBox(
+                  controller: _replaceController,
+                  placeholder: 'Replace with',
+                ),
+              ),
+              const SizedBox(width: 4),
+              fluent.Button(
+                onPressed: () => widget.onReplace(_replaceController.text),
+                child: const Text('Replace'),
+              ),
+              const SizedBox(width: 4),
+              fluent.Button(
+                onPressed: () => widget.onReplaceAll(_replaceController.text),
+                child: const Text('Replace All'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMaterialBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
       color: Colors.grey[300],

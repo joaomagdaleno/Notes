@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -65,6 +66,146 @@ class _CommandPaletteState extends State<CommandPalette> {
 
   @override
   Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return _buildFluentPalette(context);
+    } else {
+      return _buildMaterialPalette(context);
+    }
+  }
+
+  Widget _buildFluentPalette(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
+
+    return Container(
+      width: 600,
+      height: 480,
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: theme.resources.dividerStrokeColorDefault),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: fluent.TextBox(
+              controller: _searchController,
+              autofocus: true,
+              placeholder: 'Search notes or type ">" for commands...',
+              prefix: const Padding(
+                padding: EdgeInsets.only(left: 8),
+                child: Icon(fluent.FluentIcons.search, size: 14),
+              ),
+              onChanged: _onSearch,
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: fluent.ProgressRing())
+                : ListView(
+                    children: [
+                      if (_searchController.text.startsWith('>')) ...[
+                        _buildFluentCommandItem(
+                          context,
+                          'Open Graph View',
+                          fluent.FluentIcons.chart,
+                          () {
+                            Navigator.of(context).pop();
+                            unawaited(
+                              Navigator.of(context).push(
+                                fluent.FluentPageRoute<void>(
+                                  builder: (context) => const GraphView(),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        ...widget.actions
+                            .where(
+                              (action) => action.title.toLowerCase().contains(
+                                    _searchController.text
+                                        .substring(1)
+                                        .trim()
+                                        .toLowerCase(),
+                                  ),
+                            )
+                            .map(
+                              (action) => _buildFluentCommandItem(
+                                context,
+                                action.title,
+                                action.icon,
+                                () {
+                                  Navigator.of(context).pop();
+                                  action.onSelect();
+                                },
+                              ),
+                            ),
+                      ] else ...[
+                        ..._results.map(
+                          (result) {
+                            final snippet = result.content.length > 50
+                                ? result.content.substring(0, 50)
+                                : result.content;
+                            return fluent.ListTile.selectable(
+                              title: Text(result.title),
+                              subtitle: Text(
+                                snippet,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                unawaited(
+                                  Navigator.of(context).push(
+                                    fluent.FluentPageRoute<void>(
+                                      builder: (context) => NoteEditorScreen(
+                                        note: result,
+                                        onSave: (updatedNote) async {
+                                          await NoteRepository.instance
+                                              .updateNote(updatedNote);
+                                          await SyncService.instance
+                                              .refreshLocalData();
+                                          return updatedNote;
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFluentCommandItem(
+    BuildContext context,
+    String title,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
+    return fluent.ListTile.selectable(
+      leading: Icon(icon),
+      title: Text(title),
+      onPressed: onTap,
+    );
+  }
+
+  Widget _buildMaterialPalette(BuildContext context) {
     return Container(
       width: 600,
       height: 480,
@@ -101,7 +242,7 @@ class _CommandPaletteState extends State<CommandPalette> {
                 : ListView(
                     children: [
                       if (_searchController.text.startsWith('>')) ...[
-                        _buildCommandItem(
+                        _buildMaterialCommandItem(
                           context,
                           'Open Graph View',
                           Icons.auto_graph,
@@ -109,7 +250,7 @@ class _CommandPaletteState extends State<CommandPalette> {
                             Navigator.of(context).pop();
                             unawaited(
                               Navigator.of(context).push(
-                                fluent.FluentPageRoute<void>(
+                                MaterialPageRoute<void>(
                                   builder: (context) => const GraphView(),
                                 ),
                               ),
@@ -119,14 +260,14 @@ class _CommandPaletteState extends State<CommandPalette> {
                         ...widget.actions
                             .where(
                               (action) => action.title.toLowerCase().contains(
-                                _searchController.text
-                                    .substring(1)
-                                    .trim()
-                                    .toLowerCase(),
-                              ),
+                                    _searchController.text
+                                        .substring(1)
+                                        .trim()
+                                        .toLowerCase(),
+                                  ),
                             )
                             .map(
-                              (action) => _buildCommandItem(
+                              (action) => _buildMaterialCommandItem(
                                 context,
                                 action.title,
                                 action.icon,
@@ -153,14 +294,12 @@ class _CommandPaletteState extends State<CommandPalette> {
                                 Navigator.of(context).pop();
                                 unawaited(
                                   Navigator.of(context).push(
-                                    fluent.FluentPageRoute<void>(
+                                    MaterialPageRoute<void>(
                                       builder: (context) => NoteEditorScreen(
                                         note: result,
                                         onSave: (updatedNote) async {
                                           await NoteRepository.instance
-                                              .updateNote(
-                                                updatedNote,
-                                              );
+                                              .updateNote(updatedNote);
                                           await SyncService.instance
                                               .refreshLocalData();
                                           return updatedNote;
@@ -182,7 +321,7 @@ class _CommandPaletteState extends State<CommandPalette> {
     );
   }
 
-  Widget _buildCommandItem(
+  Widget _buildMaterialCommandItem(
     BuildContext context,
     String title,
     IconData icon,

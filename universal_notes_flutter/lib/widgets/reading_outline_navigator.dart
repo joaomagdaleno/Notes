@@ -1,3 +1,5 @@
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Widget for navigating document outline (headings).
@@ -36,6 +38,82 @@ class _ReadingOutlineNavigatorState extends State<ReadingOutlineNavigator> {
 
   @override
   Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return _buildFluentNavigator(context);
+    } else {
+      return _buildMaterialNavigator(context);
+    }
+  }
+
+  Widget _buildFluentNavigator(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Text('Contents', style: theme.typography.subtitle),
+                const Spacer(),
+                if (widget.progressPercent != null)
+                  Text(
+                    '${(widget.progressPercent! * 100).toInt()}%',
+                    style: theme.typography.caption?.copyWith(
+                      color: theme.accentColor,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (widget.progressPercent != null)
+            fluent.ProgressBar(value: widget.progressPercent! * 100),
+          const Divider(height: 1),
+          Expanded(
+            child: widget.headings.isEmpty
+                ? Center(
+                    child: Text(
+                      'No headings found',
+                      style: theme.typography.body,
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: widget.headings.length,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemBuilder: (context, index) {
+                      final heading = widget.headings[index];
+                      final isActive = widget.currentHeadingIndex == index;
+                      final hasChildren = _hasChildren(index);
+                      final isExpanded = _expandedIndices.contains(index);
+                      final isVisible = _isVisible(index);
+
+                      if (!isVisible) return const SizedBox.shrink();
+
+                      return _FluentHeadingTile(
+                        heading: heading,
+                        isActive: isActive,
+                        hasChildren: hasChildren,
+                        isExpanded: isExpanded,
+                        onTap: () => widget.onHeadingTap(heading),
+                        onExpandToggle: hasChildren
+                            ? () => _toggleExpanded(index)
+                            : null,
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMaterialNavigator(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
@@ -46,15 +124,11 @@ class _ReadingOutlineNavigatorState extends State<ReadingOutlineNavigator> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with progress
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Text(
-                  'Contents',
-                  style: theme.textTheme.titleLarge,
-                ),
+                Text('Contents', style: theme.textTheme.titleLarge),
                 const Spacer(),
                 if (widget.progressPercent != null)
                   Text(
@@ -66,17 +140,12 @@ class _ReadingOutlineNavigatorState extends State<ReadingOutlineNavigator> {
               ],
             ),
           ),
-
-          // Progress bar
           if (widget.progressPercent != null)
             LinearProgressIndicator(
               value: widget.progressPercent,
               minHeight: 3,
             ),
-
           const Divider(height: 1),
-
-          // Headings list
           Expanded(
             child: widget.headings.isEmpty
                 ? Center(
@@ -99,7 +168,7 @@ class _ReadingOutlineNavigatorState extends State<ReadingOutlineNavigator> {
 
                       if (!isVisible) return const SizedBox.shrink();
 
-                      return _HeadingTile(
+                      return _MaterialHeadingTile(
                         heading: heading,
                         isActive: isActive,
                         hasChildren: hasChildren,
@@ -127,12 +196,10 @@ class _ReadingOutlineNavigatorState extends State<ReadingOutlineNavigator> {
   bool _isVisible(int index) {
     if (index == 0) return true;
 
-    // Find parent heading
     final heading = widget.headings[index];
     for (var i = index - 1; i >= 0; i--) {
       final parent = widget.headings[i];
       if (parent.level < heading.level) {
-        // This is the parent - check if it's expanded
         if (!_expandedIndices.contains(i)) {
           return false;
         }
@@ -153,8 +220,90 @@ class _ReadingOutlineNavigatorState extends State<ReadingOutlineNavigator> {
   }
 }
 
-class _HeadingTile extends StatelessWidget {
-  const _HeadingTile({
+class _FluentHeadingTile extends StatelessWidget {
+  const _FluentHeadingTile({
+    required this.heading,
+    required this.isActive,
+    required this.hasChildren,
+    required this.isExpanded,
+    required this.onTap,
+    this.onExpandToggle,
+  });
+
+  final OutlineHeading heading;
+  final bool isActive;
+  final bool hasChildren;
+  final bool isExpanded;
+  final VoidCallback onTap;
+  final VoidCallback? onExpandToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
+    final indent = (heading.level - 1) * 16.0;
+
+    return fluent.HoverButton(
+      onPressed: onTap,
+      builder: (context, states) {
+        return Container(
+          padding: EdgeInsets.only(
+            left: 16 + indent,
+            right: 8,
+            top: 12,
+            bottom: 12,
+          ),
+          decoration: BoxDecoration(
+            color: isActive
+                ? theme.accentColor.withValues(alpha: 0.1)
+                : states.isHovering
+                    ? theme.resources.subtleFillColorSecondary
+                    : null,
+            border: isActive
+                ? Border(
+                    left: BorderSide(color: theme.accentColor, width: 3),
+                  )
+                : null,
+          ),
+          child: Row(
+            children: [
+              if (hasChildren)
+                GestureDetector(
+                  onTap: onExpandToggle,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Icon(
+                      isExpanded
+                          ? fluent.FluentIcons.chevron_down
+                          : fluent.FluentIcons.chevron_right,
+                      size: 12,
+                    ),
+                  ),
+                ),
+              Expanded(
+                child: Text(
+                  heading.text,
+                  style: theme.typography.body?.copyWith(
+                    fontWeight: heading.level == 1
+                        ? FontWeight.bold
+                        : heading.level == 2
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                    color: isActive ? theme.accentColor : null,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _MaterialHeadingTile extends StatelessWidget {
+  const _MaterialHeadingTile({
     required this.heading,
     required this.isActive,
     required this.hasChildren,
@@ -220,8 +369,8 @@ class _HeadingTile extends StatelessWidget {
                   fontWeight: heading.level == 1
                       ? FontWeight.bold
                       : heading.level == 2
-                      ? FontWeight.w600
-                      : FontWeight.normal,
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                   color: isActive
                       ? theme.colorScheme.primary
                       : theme.colorScheme.onSurface,

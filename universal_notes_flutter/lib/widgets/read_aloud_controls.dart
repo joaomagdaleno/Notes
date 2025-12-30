@@ -1,4 +1,7 @@
 import 'dart:async';
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/services/read_aloud_service.dart';
 
@@ -61,13 +64,155 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.compact) {
-      return _buildCompact(context);
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return widget.compact
+          ? _buildFluentCompact(context)
+          : _buildFluentFull(context);
+    } else {
+      return widget.compact
+          ? _buildMaterialCompact(context)
+          : _buildMaterialFull(context);
     }
-    return _buildFull(context);
   }
 
-  Widget _buildCompact(BuildContext context) {
+  Widget _buildFluentCompact(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
+
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: theme.resources.subtleFillColorSecondary,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          fluent.IconButton(
+            icon: Icon(
+              _state == ReadAloudState.playing
+                  ? fluent.FluentIcons.pause
+                  : fluent.FluentIcons.play,
+            ),
+            onPressed: () {
+              if (_state == ReadAloudState.playing) {
+                unawaited(widget.service.pause());
+              } else {
+                unawaited(widget.service.speak(widget.text));
+              }
+            },
+          ),
+          if (_state != ReadAloudState.stopped)
+            fluent.IconButton(
+              icon: const Icon(fluent.FluentIcons.stop),
+              onPressed: () => unawaited(widget.service.stop()),
+            ),
+          _FluentSpeedButton(
+            rate: _speed,
+            onChanged: (val) => widget.service.setSpeechRate(val),
+            compact: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFluentFull(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(width: 48),
+              Text('Read Aloud', style: theme.typography.bodyStrong),
+              if (widget.onClose != null)
+                fluent.IconButton(
+                  icon: const Icon(fluent.FluentIcons.chrome_close),
+                  onPressed: () {
+                    unawaited(widget.service.stop());
+                    widget.onClose?.call();
+                  },
+                )
+              else
+                const SizedBox(width: 48),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              fluent.IconButton(
+                onPressed: _state == ReadAloudState.stopped
+                    ? null
+                    : () => unawaited(widget.service.stop()),
+                icon: const Icon(fluent.FluentIcons.stop, size: 24),
+              ),
+              const SizedBox(width: 16),
+              fluent.FilledButton(
+                onPressed: () {
+                  if (_state == ReadAloudState.playing) {
+                    unawaited(widget.service.pause());
+                  } else {
+                    unawaited(widget.service.speak(widget.text));
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(
+                    _state == ReadAloudState.playing
+                        ? fluent.FluentIcons.pause
+                        : fluent.FluentIcons.play,
+                    size: 32,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              _FluentSpeedButton(
+                rate: _speed,
+                onChanged: (val) => widget.service.setSpeechRate(val),
+                compact: false,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Icon(fluent.FluentIcons.play, size: 16),
+              Expanded(
+                child: fluent.Slider(
+                  value: _speed,
+                  min: 0.5,
+                  max: 2,
+                  divisions: 6,
+                  label: '${_speed.toStringAsFixed(1)}x',
+                  onChanged: (val) => widget.service.setSpeechRate(val),
+                ),
+              ),
+              const Icon(fluent.FluentIcons.fast_forward, size: 16),
+            ],
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMaterialCompact(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
@@ -96,7 +241,7 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
               icon: const Icon(Icons.stop),
               onPressed: () => unawaited(widget.service.stop()),
             ),
-          _SpeedButton(
+          _MaterialSpeedButton(
             rate: _speed,
             onChanged: (val) => widget.service.setSpeechRate(val),
             compact: true,
@@ -106,7 +251,7 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
     );
   }
 
-  Widget _buildFull(BuildContext context) {
+  Widget _buildMaterialFull(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
@@ -125,15 +270,11 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SizedBox(width: 48), // Spacer
-              Text(
-                'Read Aloud',
-                style: theme.textTheme.titleMedium,
-              ),
+              const SizedBox(width: 48),
+              Text('Read Aloud', style: theme.textTheme.titleMedium),
               if (widget.onClose != null)
                 IconButton(
                   icon: const Icon(Icons.close),
@@ -147,12 +288,9 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
             ],
           ),
           const SizedBox(height: 16),
-
-          // Playback controls
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Stop
               IconButton.filled(
                 onPressed: _state == ReadAloudState.stopped
                     ? null
@@ -164,8 +302,6 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
                 ),
               ),
               const SizedBox(width: 16),
-
-              // Play/Pause (larger)
               IconButton.filled(
                 onPressed: () {
                   if (_state == ReadAloudState.playing) {
@@ -187,19 +323,14 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
                 ),
               ),
               const SizedBox(width: 16),
-
-              // Speed
-              _SpeedButton(
+              _MaterialSpeedButton(
                 rate: _speed,
                 onChanged: (val) => widget.service.setSpeechRate(val),
                 compact: false,
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          // Speed slider
           Row(
             children: [
               const Icon(Icons.slow_motion_video, size: 20),
@@ -216,7 +347,6 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
               const Icon(Icons.speed, size: 20),
             ],
           ),
-
           const SizedBox(height: 8),
         ],
       ),
@@ -224,8 +354,41 @@ class _ReadAloudControlsState extends State<ReadAloudControls> {
   }
 }
 
-class _SpeedButton extends StatelessWidget {
-  const _SpeedButton({
+class _FluentSpeedButton extends StatelessWidget {
+  const _FluentSpeedButton({
+    required this.rate,
+    required this.onChanged,
+    required this.compact,
+  });
+
+  final double rate;
+  final ValueChanged<double> onChanged;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
+
+    return fluent.DropDownButton(
+      title: Text(
+        '${rate.toStringAsFixed(1)}x',
+        style: theme.typography.bodyStrong,
+      ),
+      items: [
+        fluent.MenuFlyoutItem(text: const Text('0.5x'), onPressed: () => onChanged(0.5)),
+        fluent.MenuFlyoutItem(text: const Text('0.75x'), onPressed: () => onChanged(0.75)),
+        fluent.MenuFlyoutItem(text: const Text('1.0x (Normal)'), onPressed: () => onChanged(1.0)),
+        fluent.MenuFlyoutItem(text: const Text('1.25x'), onPressed: () => onChanged(1.25)),
+        fluent.MenuFlyoutItem(text: const Text('1.5x'), onPressed: () => onChanged(1.5)),
+        fluent.MenuFlyoutItem(text: const Text('1.75x'), onPressed: () => onChanged(1.75)),
+        fluent.MenuFlyoutItem(text: const Text('2.0x'), onPressed: () => onChanged(2.0)),
+      ],
+    );
+  }
+}
+
+class _MaterialSpeedButton extends StatelessWidget {
+  const _MaterialSpeedButton({
     required this.rate,
     required this.onChanged,
     required this.compact,

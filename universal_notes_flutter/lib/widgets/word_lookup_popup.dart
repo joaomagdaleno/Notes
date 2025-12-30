@@ -1,4 +1,7 @@
 import 'dart:async';
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/services/word_lookup_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -96,6 +99,216 @@ class _WordLookupPopupState extends State<WordLookupPopup>
 
   @override
   Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return _buildFluentPopup(context);
+    } else {
+      return _buildMaterialPopup(context);
+    }
+  }
+
+  Widget _buildFluentPopup(BuildContext context) {
+    final theme = fluent.FluentTheme.of(context);
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      width: 350,
+      height: 400,
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.resources.dividerStrokeColorDefault),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: theme.accentColor.withValues(alpha: 0.2),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.word,
+                    style: theme.typography.subtitle,
+                  ),
+                ),
+                if (_definition?.phonetic != null)
+                  Text(
+                    _definition!.phonetic!,
+                    style: theme.typography.caption?.copyWith(
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                fluent.IconButton(
+                  icon: const Icon(fluent.FluentIcons.chrome_close),
+                  onPressed: widget.onClose,
+                ),
+              ],
+            ),
+          ),
+
+          // Tabs
+          fluent.TabView(
+            currentIndex: _tabController.index,
+            onChanged: (index) {
+              setState(() {
+                _tabController.animateTo(index);
+              });
+            },
+            tabs: [
+              fluent.Tab(
+                text: const Text('Dictionary'),
+                body: _buildFluentDictionaryTab(),
+              ),
+              fluent.Tab(
+                text: const Text('Wikipedia'),
+                body: _buildFluentWikipediaTab(),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFluentDictionaryTab() {
+    final theme = fluent.FluentTheme.of(context);
+
+    if (_loadingDef) {
+      return const Center(child: fluent.ProgressRing());
+    }
+
+    if (_errorDef != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            _errorDef!,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.red[400]),
+          ),
+        ),
+      );
+    }
+
+    if (_definition == null) {
+      return const Center(child: Text('No definition found'));
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _definition!.definitions.length,
+      itemBuilder: (context, index) {
+        final def = _definition!.definitions[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: theme.accentColor.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  def.partOfSpeech,
+                  style: theme.typography.caption,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(def.definition),
+              if (def.example != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  '"${def.example}"',
+                  style: theme.typography.caption?.copyWith(
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFluentWikipediaTab() {
+    final theme = fluent.FluentTheme.of(context);
+
+    if (_loadingWiki) {
+      return const Center(child: fluent.ProgressRing());
+    }
+
+    if (_errorWiki != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            _errorWiki!,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.red[400]),
+          ),
+        ),
+      );
+    }
+
+    if (_wikipedia == null) {
+      return const Center(child: Text('No article found'));
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_wikipedia!.thumbnailUrl != null) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                _wikipedia!.thumbnailUrl!,
+                height: 120,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (a, b, c) => const SizedBox.shrink(),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          Text(_wikipedia!.title, style: theme.typography.bodyStrong),
+          const SizedBox(height: 8),
+          Text(_wikipedia!.extract),
+          if (_wikipedia!.pageUrl != null) ...[
+            const SizedBox(height: 12),
+            fluent.HyperlinkButton(
+              onPressed: () => unawaited(_openUrl(_wikipedia!.pageUrl!)),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(fluent.FluentIcons.open_in_new_window, size: 14),
+                  const SizedBox(width: 4),
+                  const Text('Read more on Wikipedia'),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMaterialPopup(BuildContext context) {
     final theme = Theme.of(context);
 
     return Card(
@@ -159,8 +372,8 @@ class _WordLookupPopupState extends State<WordLookupPopup>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  _buildDictionaryTab(),
-                  _buildWikipediaTab(),
+                  _buildMaterialDictionaryTab(),
+                  _buildMaterialWikipediaTab(),
                 ],
               ),
             ),
@@ -170,7 +383,7 @@ class _WordLookupPopupState extends State<WordLookupPopup>
     );
   }
 
-  Widget _buildDictionaryTab() {
+  Widget _buildMaterialDictionaryTab() {
     if (_loadingDef) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -234,7 +447,7 @@ class _WordLookupPopupState extends State<WordLookupPopup>
     );
   }
 
-  Widget _buildWikipediaTab() {
+  Widget _buildMaterialWikipediaTab() {
     if (_loadingWiki) {
       return const Center(child: CircularProgressIndicator());
     }
