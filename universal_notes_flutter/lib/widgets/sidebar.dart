@@ -12,6 +12,8 @@ import 'package:universal_notes_flutter/services/auth_service.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
+import 'package:universal_notes_flutter/widgets/sidebar/fluent_sidebar_view.dart';
+import 'package:universal_notes_flutter/widgets/sidebar/material_sidebar_view.dart';
 
 /// The type of item selected in the sidebar.
 enum SidebarItemType {
@@ -254,320 +256,36 @@ class _SidebarState extends State<Sidebar> {
     unawaited(StartupLogger.log('🎨 [BUILD] Sidebar.build called'));
 
     if (defaultTargetPlatform == TargetPlatform.windows) {
-      return _buildFluentSidebar(context);
+      return FluentSidebarView(
+        selection: _selection,
+        onSelectionChanged: (selection) {
+          setState(() => _selection = selection);
+          widget.onSelectionChanged(selection);
+        },
+        foldersStream: _foldersStream,
+        tagsStream: _tagsStream,
+        onCreateFolder: () => unawaited(_createNewFolder()),
+        onDeleteFolder: (id) => unawaited(_deleteFolder(id)),
+        onPerformBackup: () => unawaited(_performBackup()),
+        accountSection: _buildAccountSection(isFluent: true),
+      );
     } else {
-      return _buildMaterialSidebar(context);
+      return MaterialSidebarView(
+        selection: _selection,
+        onSelectionChanged: (selection) {
+          setState(() => _selection = selection);
+          widget.onSelectionChanged(selection);
+        },
+        foldersStream: _foldersStream,
+        tagsStream: _tagsStream,
+        onCreateFolder: () => unawaited(_createNewFolder()),
+        onDeleteFolder: (id) => unawaited(_deleteFolder(id)),
+        onPerformBackup: () => unawaited(_performBackup()),
+        accountSection: _buildAccountSection(isFluent: false),
+      );
     }
   }
 
-  Widget _buildFluentSidebar(BuildContext context) {
-    final theme = fluent.FluentTheme.of(context);
-
-    return Container(
-      width: 280,
-      color: theme.scaffoldBackgroundColor,
-      child: Column(
-        children: [
-          Container(
-            height: 80,
-            padding: const EdgeInsets.all(16),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'My Notes',
-              style: theme.typography.subtitle,
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                fluent.ListTile.selectable(
-                  leading: const Icon(fluent.FluentIcons.quick_note),
-                  title: const Text('All Notes'),
-                  selected: _selection.type == SidebarItemType.all,
-                  onPressed: () {
-                    const newSelection = SidebarSelection(SidebarItemType.all);
-                    setState(() => _selection = newSelection);
-                    widget.onSelectionChanged(newSelection);
-                  },
-                ),
-                fluent.ListTile.selectable(
-                  leading: const Icon(fluent.FluentIcons.favorite_star),
-                  title: const Text('Favorites'),
-                  selected: _selection.type == SidebarItemType.favorites,
-                  onPressed: () {
-                    const newSelection =
-                        SidebarSelection(SidebarItemType.favorites);
-                    setState(() => _selection = newSelection);
-                    widget.onSelectionChanged(newSelection);
-                  },
-                ),
-                fluent.ListTile.selectable(
-                  leading: const Icon(fluent.FluentIcons.delete),
-                  title: const Text('Trash'),
-                  selected: _selection.type == SidebarItemType.trash,
-                  onPressed: () {
-                    const newSelection =
-                        SidebarSelection(SidebarItemType.trash);
-                    setState(() => _selection = newSelection);
-                    widget.onSelectionChanged(newSelection);
-                  },
-                ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text(
-                    'Folders',
-                    style: theme.typography.caption,
-                  ),
-                ),
-                StreamBuilder<List<Folder>>(
-                  stream: _foldersStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return const SizedBox.shrink();
-                    final folders = snapshot.data!;
-                    return Column(
-                      children: folders.map((folder) {
-                        return fluent.ListTile.selectable(
-                          leading: const Icon(fluent.FluentIcons.folder),
-                          title: Text(folder.name),
-                          selected:
-                              _selection.type == SidebarItemType.folder &&
-                                  _selection.folder?.id == folder.id,
-                          trailing: fluent.IconButton(
-                            icon: const Icon(fluent.FluentIcons.delete),
-                            onPressed: () =>
-                                unawaited(_deleteFolder(folder.id)),
-                          ),
-                          onPressed: () {
-                            final newSelection = SidebarSelection(
-                              SidebarItemType.folder,
-                              folder: folder,
-                            );
-                            setState(() => _selection = newSelection);
-                            widget.onSelectionChanged(newSelection);
-                          },
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text(
-                    'Tags',
-                    style: theme.typography.caption,
-                  ),
-                ),
-                StreamBuilder<List<String>>(
-                  stream: _tagsStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return const SizedBox.shrink();
-                    final tags = snapshot.data!;
-                    if (tags.isEmpty) return const SizedBox.shrink();
-                    return Column(
-                      children: tags.map((tag) {
-                        return fluent.ListTile.selectable(
-                          leading: const Icon(fluent.FluentIcons.tag),
-                          title: Text(tag),
-                          selected: _selection.type == SidebarItemType.tag &&
-                              _selection.tag == tag,
-                          onPressed: () {
-                            final newSelection = SidebarSelection(
-                              SidebarItemType.tag,
-                              tag: tag,
-                            );
-                            setState(() => _selection = newSelection);
-                            widget.onSelectionChanged(newSelection);
-                          },
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-                const Divider(),
-                fluent.ListTile.selectable(
-                  leading: const Icon(fluent.FluentIcons.add),
-                  title: const Text('New Folder'),
-                  onPressed: () => unawaited(_createNewFolder()),
-                ),
-                fluent.ListTile.selectable(
-                  leading: const Icon(fluent.FluentIcons.cloud_download),
-                  title: const Text('Backup Notes'),
-                  onPressed: () => unawaited(_performBackup()),
-                ),
-                const Divider(),
-                _buildAccountSection(isFluent: true),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMaterialSidebar(BuildContext context) {
-    return Container(
-      width: 280,
-      color: Theme.of(context).colorScheme.surface,
-      child: Column(
-        children: [
-          Container(
-            height: 80,
-            padding: const EdgeInsets.all(16),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'My Notes',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                ListTile(
-                  key: const ValueKey('all_notes'),
-                  leading: const Icon(Icons.notes),
-                  title: const Text('All Notes'),
-                  selected: _selection.type == SidebarItemType.all,
-                  onTap: () {
-                    const newSelection = SidebarSelection(SidebarItemType.all);
-                    setState(() => _selection = newSelection);
-                    widget.onSelectionChanged(newSelection);
-                  },
-                ),
-                ListTile(
-                  key: const ValueKey('favorites'),
-                  leading: const Icon(Icons.favorite_border),
-                  title: const Text('Favorites'),
-                  selected: _selection.type == SidebarItemType.favorites,
-                  onTap: () {
-                    const newSelection =
-                        SidebarSelection(SidebarItemType.favorites);
-                    setState(() => _selection = newSelection);
-                    widget.onSelectionChanged(newSelection);
-                  },
-                ),
-                ListTile(
-                  key: const ValueKey('trash'),
-                  leading: const Icon(Icons.delete_outline),
-                  title: const Text('Trash'),
-                  selected: _selection.type == SidebarItemType.trash,
-                  onTap: () {
-                    const newSelection =
-                        SidebarSelection(SidebarItemType.trash);
-                    setState(() => _selection = newSelection);
-                    widget.onSelectionChanged(newSelection);
-                  },
-                ),
-                const Divider(),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text(
-                    'Folders',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                StreamBuilder<List<Folder>>(
-                  stream: _foldersStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return const SizedBox.shrink();
-                    final folders = snapshot.data!;
-                    return Column(
-                      children: folders.map((folder) {
-                        return ListTile(
-                          leading: const Icon(Icons.folder_outlined),
-                          title: Text(folder.name),
-                          selected:
-                              _selection.type == SidebarItemType.folder &&
-                                  _selection.folder?.id == folder.id,
-                          trailing: PopupMenuButton(
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Text('Delete'),
-                              ),
-                            ],
-                            onSelected: (value) async {
-                              if (value == 'delete') {
-                                await _deleteFolder(folder.id);
-                              }
-                            },
-                          ),
-                          onTap: () {
-                            final newSelection = SidebarSelection(
-                              SidebarItemType.folder,
-                              folder: folder,
-                            );
-                            setState(() => _selection = newSelection);
-                            widget.onSelectionChanged(newSelection);
-                          },
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-                const Divider(),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text(
-                    'Tags',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                StreamBuilder<List<String>>(
-                  stream: _tagsStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return const SizedBox.shrink();
-                    final tags = snapshot.data!;
-                    if (tags.isEmpty) return const SizedBox.shrink();
-                    return Column(
-                      children: tags.map((tag) {
-                        return ListTile(
-                          title: Text(tag),
-                          leading: const Icon(Icons.label_outline),
-                          selected: _selection.type == SidebarItemType.tag &&
-                              _selection.tag == tag,
-                          onTap: () {
-                            final newSelection = SidebarSelection(
-                              SidebarItemType.tag,
-                              tag: tag,
-                            );
-                            setState(() => _selection = newSelection);
-                            widget.onSelectionChanged(newSelection);
-                          },
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.add_circle_outline),
-                  title: const Text('New Folder'),
-                  onTap: () => unawaited(_createNewFolder()),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.backup),
-                  title: const Text('Backup Notes'),
-                  onTap: () => unawaited(_performBackup()),
-                ),
-                const Divider(),
-                _buildAccountSection(isFluent: false),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildAccountSection({required bool isFluent}) {
     return Builder(

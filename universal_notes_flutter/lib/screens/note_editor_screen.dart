@@ -44,6 +44,8 @@ import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:universal_notes_flutter/widgets/reading_bookmarks_list.dart';
 import 'package:universal_notes_flutter/widgets/reading_mode_settings.dart';
 import 'package:universal_notes_flutter/widgets/reading_outline_navigator.dart';
+import 'package:universal_notes_flutter/screens/editor/views/fluent_editor_view.dart';
+import 'package:universal_notes_flutter/screens/editor/views/material_editor_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
@@ -1358,96 +1360,50 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           child: Shortcuts(
             shortcuts: shortcuts,
             child: Platform.isWindows
-                ? _buildFluentShell(editor)
-                : _buildMaterialShell(editor),
+                ? FluentEditorView(
+                    editor: _buildEditorContent(editor),
+                    isFocusMode: _isFocusMode,
+                    noteTitle: _note?.title ?? '',
+                    onTitleChanged: (newTitle) {
+                      setState(() {
+                        if (_note != null) {
+                          _note = _note!.copyWith(title: newTitle);
+                        }
+                      });
+                    },
+                    isCollaborative: _isCollaborative,
+                    remoteCursors: _remoteCursors,
+                    onToggleFindBar: () => setState(
+                      () => _isFindBarVisible = !_isFindBarVisible,
+                    ),
+                    onShowHistory: _showHistoryDialog,
+                    onToggleFocusMode: _toggleFocusMode,
+                  )
+                : MaterialEditorView(
+                    editor: _buildEditorContent(editor),
+                    isFocusMode: _isFocusMode,
+                    noteTitle: _note?.title ?? '',
+                    onTitleChanged: (newTitle) {
+                      setState(() {
+                        if (_note != null) {
+                          _note = _note!.copyWith(title: newTitle);
+                        }
+                      });
+                    },
+                    isCollaborative: _isCollaborative,
+                    remoteCursors: _remoteCursors,
+                    onToggleFindBar: () => setState(
+                      () => _isFindBarVisible = !_isFindBarVisible,
+                    ),
+                    onShowHistory: _showHistoryDialog,
+                    onToggleFocusMode: _toggleFocusMode,
+                  ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildFluentShell(Widget editor) {
-    return fluent.ScaffoldPage(
-      header: _isFocusMode
-          ? null
-          : fluent.PageHeader(
-              title: _EditableTitle(
-                initialTitle: _note?.title ?? '',
-                onChanged: (newTitle) {
-                  setState(() {
-                    if (_note != null) {
-                      _note = _note!.copyWith(title: newTitle);
-                    }
-                  });
-                },
-              ),
-              commandBar: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_isCollaborative)
-                    _CollaboratorAvatars(remoteCursors: _remoteCursors),
-                  fluent.IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () => setState(
-                      () => _isFindBarVisible = !_isFindBarVisible,
-                    ),
-                  ),
-                  fluent.IconButton(
-                    icon: const Icon(Icons.history),
-                    onPressed: _showHistoryDialog,
-                  ),
-                  fluent.IconButton(
-                    icon: Icon(
-                      _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
-                    ),
-                    onPressed: _toggleFocusMode,
-                  ),
-                ],
-              ),
-            ),
-      content: _buildEditorContent(editor),
-    );
-  }
-
-  Widget _buildMaterialShell(Widget editor) {
-    return Scaffold(
-      appBar: _isFocusMode
-          ? null
-          : AppBar(
-              title: _EditableTitle(
-                initialTitle: _note?.title ?? '',
-                onChanged: (newTitle) {
-                  setState(() {
-                    if (_note != null) {
-                      _note = _note!.copyWith(title: newTitle);
-                    }
-                  });
-                },
-              ),
-              actions: [
-                if (_isCollaborative)
-                  _CollaboratorAvatars(remoteCursors: _remoteCursors),
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () => setState(
-                    () => _isFindBarVisible = !_isFindBarVisible,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.history),
-                  onPressed: _showHistoryDialog,
-                ),
-                IconButton(
-                  icon: Icon(
-                    _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
-                  ),
-                  onPressed: _toggleFocusMode,
-                ),
-              ],
-            ),
-      body: _buildEditorContent(editor),
-    );
-  }
 
   Widget _buildEditorContent(Widget editor) {
     return SafeArea(
@@ -1923,104 +1879,3 @@ class _ShowFormatMenuAction extends Action<_ShowFormatMenuIntent> {
   }
 }
 
-class _CollaboratorAvatars extends StatelessWidget {
-  const _CollaboratorAvatars({required this.remoteCursors});
-
-  final Map<String, Map<String, dynamic>> remoteCursors;
-
-  @override
-  Widget build(BuildContext context) {
-    final collaborators = remoteCursors.values.toList();
-    return Row(
-      children: [
-        for (int i = 0; i < collaborators.length; i++)
-          Align(
-            widthFactor: 0.7,
-            child: CircleAvatar(
-              backgroundColor: Color(collaborators[i]['color'] as int),
-              child: Text(
-                (collaborators[i]['name'] as String).substring(0, 2),
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _EditableTitle extends StatefulWidget {
-  const _EditableTitle({required this.initialTitle, required this.onChanged});
-  final String initialTitle;
-  final ValueChanged<String> onChanged;
-
-  @override
-  State<_EditableTitle> createState() => _EditableTitleState();
-}
-
-class _EditableTitleState extends State<_EditableTitle> {
-  late TextEditingController _controller;
-  bool _isEditing = false;
-  final FocusNode _focusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialTitle);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-
-  @override
-  void didUpdateWidget(_EditableTitle oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.initialTitle != oldWidget.initialTitle && !_isEditing) {
-      _controller.text = widget.initialTitle;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isEditing) {
-      return TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        autofocus: true,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        decoration: const InputDecoration(
-          border: InputBorder.none,
-          isDense: true,
-          hintText: 'Edit Note',
-        ),
-        onSubmitted: (value) {
-          setState(() => _isEditing = false);
-          widget.onChanged(value);
-        },
-        onTapOutside: (_) {
-          setState(() => _isEditing = false);
-          widget.onChanged(_controller.text);
-        },
-      );
-    }
-    return GestureDetector(
-      onTap: () => setState(() {
-        _isEditing = true;
-        _focusNode.requestFocus();
-      }),
-      child: Text(
-        _controller.text.isEmpty ? 'Edit Note' : _controller.text,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: _controller.text.isEmpty ? Colors.grey : null,
-        ),
-      ),
-    );
-  }
-}

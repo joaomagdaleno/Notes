@@ -19,6 +19,9 @@ import 'package:universal_notes_flutter/widgets/quick_note_editor.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:universal_notes_flutter/screens/notes/views/fluent_notes_view.dart';
+import 'package:universal_notes_flutter/screens/notes/views/material_notes_view.dart';
+import 'package:universal_notes_flutter/screens/notes/widgets/dashboard_card.dart';
 
 /// The main screen displaying the list of notes.
 class NotesScreen extends StatefulWidget {
@@ -563,7 +566,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _DashboardCard(
+                DashboardCard(
                   title: 'Architect',
                   subtitle: 'Nova Nota',
                   icon: Icons.edit_note,
@@ -571,7 +574,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                   onTap: () =>
                       _createNewNoteWithPersona(EditorPersona.architect),
                 ),
-                _DashboardCard(
+                DashboardCard(
                   title: 'Writer',
                   subtitle: 'Novo Documento',
                   icon: Icons.description,
@@ -581,7 +584,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                     'Novo Documento',
                   ),
                 ),
-                _DashboardCard(
+                DashboardCard(
                   title: 'Brainstorm',
                   subtitle: 'Novo Quadro',
                   icon: Icons.dashboard,
@@ -603,165 +606,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildMaterialUI() {
-    final isTrashView = _selection.type == SidebarItemType.trash;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_getAppBarTitle()),
-        actions: [
-          // 🎨 Palette: A single, dynamic button to cycle through view modes.
-          ValueListenableBuilder<String>(
-            valueListenable: _viewModeNotifier,
-            builder: (context, currentMode, child) {
-              final nextMode = _getNextViewModeProperties(currentMode);
-              return IconButton(
-                icon: Icon(nextMode.icon),
-                tooltip: nextMode.tooltip,
-                onPressed: _cycleViewMode,
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.update),
-            tooltip: 'Check for Updates',
-            onPressed: () => unawaited(_updateService.checkForUpdate()),
-          ),
-          IconButton(
-            icon: const Icon(Icons.brightness_6),
-            tooltip: 'Toggle Theme',
-            onPressed: () {
-              if (context.mounted) {
-                unawaited(
-                  Provider.of<ThemeService>(
-                    context,
-                    listen: false,
-                  ).toggleTheme(),
-                );
-              }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: 'Settings',
-            onPressed: () {
-              unawaited(
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (context) => const SettingsScreen(),
-                  ),
-                ),
-              );
-            },
-          ),
-          PopupMenuButton<SortOrder>(
-            icon: const Icon(Icons.sort),
-            tooltip: 'Sort Order',
-            onSelected: (SortOrder result) {
-              // ⚡ Bolt: Update notifier directly, no setState needed.
-              _sortOrderNotifier.value = result;
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<SortOrder>>[
-              const PopupMenuItem<SortOrder>(
-                value: SortOrder.dateDesc,
-                child: Text('Data (Mais Recentes)'),
-              ),
-              const PopupMenuItem<SortOrder>(
-                value: SortOrder.dateAsc,
-                child: Text('Data (Mais Antigas)'),
-              ),
-              const PopupMenuItem<SortOrder>(
-                value: SortOrder.titleAsc,
-                child: Text('Título (A-Z)'),
-              ),
-              const PopupMenuItem<SortOrder>(
-                value: SortOrder.titleDesc,
-                child: Text('Título (Z-A)'),
-              ),
-            ],
-          ),
-        ],
-      ),
-      drawer: Sidebar(onSelectionChanged: _onSelectionChanged),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Buscar em todas as notas...',
-                prefixIcon: const Icon(Icons.search),
-                // ⚡ Bolt: Use a ValueListenableBuilder for the suffix icon
-                // to ensure only the icon rebuilds, not the whole TextField.
-                suffixIcon: ValueListenableBuilder<bool>(
-                  valueListenable: _isSearchingNotifier,
-                  builder: (context, isSearching, child) {
-                    if (isSearching) {
-                      return const Padding(
-                        padding: EdgeInsets.all(12),
-                        child: SizedBox(
-                          height: 12,
-                          width: 12,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      );
-                    }
-                    // Use a second builder for the clear button to react to
-                    // text changes without rebuilding the search indicator.
-                    return ValueListenableBuilder(
-                      valueListenable: _searchController,
-                      builder: (context, text, child) {
-                        return _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: _searchController.clear,
-                              )
-                            : const SizedBox.shrink();
-                      },
-                    );
-                  },
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-              ),
-            ),
-          ),
-          Expanded(
-            child: _buildContent(),
-          ),
-        ],
-      ),
-      floatingActionButton: isTrashView
-          ? null
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FloatingActionButton(
-                  onPressed: _createNewNote,
-                  tooltip: 'Nova Nota',
-                  heroTag: 'add_note',
-                  child: const Icon(Icons.add),
-                ),
-                const SizedBox(width: 16),
-                FloatingActionButton.large(
-                  onPressed: _abrirEditorRapido,
-                  heroTag: 'quick_note',
-                  child: const Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.note_add),
-                      Text('Nota Rápida', style: TextStyle(fontSize: 10)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
     );
   }
 
@@ -789,204 +633,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     }
   }
 
-  Widget _buildFluentUI() {
-    unawaited(StartupLogger.log(
-      '🧪 [HYBRID] _buildFluentUI: Reconstructing UI with Row + ScaffoldPage',
-    ),);
-    try {
-      final isTrashView = _selection.type == SidebarItemType.trash;
-      final title = _getAppBarTitle();
-
-      unawaited(StartupLogger.log('🧪 [HYBRID] Rendering with title: $title'));
-
-      final content = Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Sidebar on the left
-          Material(
-            key: const ValueKey('sidebar_material_wrapper'),
-            type: MaterialType.transparency,
-            child: Sidebar(
-              key: const ValueKey('fluent_sidebar'),
-              onSelectionChanged: _onSelectionChanged,
-            ),
-          ),
-          
-          // Main content on the right
-          Expanded(
-            child: fluent.ScaffoldPage(
-              header: fluent.PageHeader(
-                padding: 12,
-                title: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                commandBar: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Persona / View Mode (Discrete)
-                    ValueListenableBuilder<String>(
-                      valueListenable: _viewModeNotifier,
-                      builder: (context, currentMode, child) {
-                        final props = _getNextViewModeProperties(
-                          currentMode,
-                          isFluent: true,
-                        );
-                        return fluent.Tooltip(
-                          message: 'Persona: ${props.tooltip}',
-                          child: fluent.IconButton(
-                            icon: Icon(props.icon, size: 16),
-                            onPressed: _cycleViewMode,
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 4),
-                    fluent.Tooltip(
-                      message: 'Toggle Theme',
-                      child: fluent.IconButton(
-                        icon: const Icon(
-                          fluent.FluentIcons.brightness,
-                          size: 16,
-                        ),
-                        onPressed: () {
-                          if (context.mounted) {
-                            unawaited(
-                              Provider.of<ThemeService>(
-                                context,
-                                listen: false,
-                              ).toggleTheme(),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    fluent.Tooltip(
-                      message: 'Check for Updates',
-                      child: fluent.IconButton(
-                        icon: const Icon(
-                          fluent.FluentIcons.update_restore,
-                          size: 16,
-                        ),
-                        onPressed: () => unawaited(_updateService.checkForUpdate()),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    fluent.Tooltip(
-                      message: 'Settings',
-                      child: fluent.IconButton(
-                        icon: const Icon(fluent.FluentIcons.settings, size: 16),
-                        onPressed: () {
-                          unawaited(
-                            Navigator.of(context).push(
-                              fluent.FluentPageRoute<void>(
-                                builder: (context) => const SettingsScreen(),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              content: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-                    child: fluent.TextBox(
-                      controller: _searchController,
-                      placeholder: 'Search notes...',
-                      prefix: const Padding(
-                        padding: EdgeInsets.only(left: 8),
-                        child: Icon(fluent.FluentIcons.search, size: 14),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: StreamBuilder<List<Note>>(
-                        stream: _notesStream,
-                        initialData: _syncService.currentNotes,
-                        builder: (context, snapshot) {
-                          unawaited(StartupLogger.log(
-                            '🧪 [HYBRID] StreamBuilder pulse - hasData: '
-                            '${snapshot.hasData}, items: ${snapshot.data?.length}',
-                          ),);
-                          if (snapshot.connectionState == ConnectionState.waiting &&
-                              !snapshot.hasData) {
-                            return const Center(child: fluent.ProgressRing());
-                          }
-                          if (snapshot.hasError) {
-                            return Center(child: Text('Error: ${snapshot.error}'));
-                          }
-                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return const EmptyState(
-                              icon: fluent.FluentIcons.note_forward,
-                              message: 'No notes yet. Create one!',
-                            );
-                          }
-                          return _buildNotesList(snapshot.data!);
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              bottomBar: isTrashView
-                  ? null
-                  : Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          fluent.FilledButton(
-                            onPressed: _createNewNote,
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(fluent.FluentIcons.add),
-                                SizedBox(width: 8),
-                                Text('New Note'),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          fluent.Button(
-                            onPressed: _abrirEditorRapido,
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(fluent.FluentIcons.quick_note),
-                                SizedBox(width: 8),
-                                Text('Quick Note'),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-            ),
-          ),
-        ],
-      );
-
-      return fluent.FluentTheme(
-        data: fluent.FluentThemeData.light(),
-        child: content,
-      );
-    } on Object catch (e, stack) {
-      unawaited(StartupLogger.log('🔥 [CRASH] _buildFluentUI: $e'));
-      unawaited(StartupLogger.log(stack.toString()));
-      return Scaffold(body: Center(child: Text('UI Crash: $e')));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     unawaited(
@@ -999,78 +645,110 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         (defaultTargetPlatform == TargetPlatform.windows ||
             defaultTargetPlatform == TargetPlatform.linux ||
             defaultTargetPlatform == TargetPlatform.macOS)) {
-      return _buildFluentUI();
+      return FluentNotesView(
+        sidebar: Material(
+          key: const ValueKey('sidebar_material_wrapper'),
+          type: MaterialType.transparency,
+          child: Sidebar(
+            key: const ValueKey('fluent_sidebar'),
+            onSelectionChanged: _onSelectionChanged,
+          ),
+        ),
+        title: _getAppBarTitle(),
+        viewModeNotifier: _viewModeNotifier,
+        onCycleViewMode: _cycleViewMode,
+        nextViewModePropsGetter: (mode) =>
+            _getNextViewModeProperties(mode, isFluent: true),
+        onToggleTheme: () {
+          if (mounted) {
+            unawaited(
+              Provider.of<ThemeService>(
+                context,
+                listen: false,
+              ).toggleTheme(),
+            );
+          }
+        },
+        onCheckUpdate: () => unawaited(_updateService.checkForUpdate()),
+        onOpenSettings: () {
+          unawaited(
+            Navigator.of(context).push(
+              fluent.FluentPageRoute<void>(
+                builder: (context) => const SettingsScreen(),
+              ),
+            ),
+          );
+        },
+        searchController: _searchController,
+        content: Material(
+          type: MaterialType.transparency,
+          child: _buildContent(),
+        ),
+        isTrashView: _selection.type == SidebarItemType.trash,
+        onCreateNote: _createNewNote,
+        onOpenQuickEditor: _abrirEditorRapido,
+      );
     }
     unawaited(
       StartupLogger.log(
         '🎨 [BUILD] NotesScreen returning MaterialUI (mobile)',
       ),
     );
-    return _buildMaterialUI();
-  }
-}
-
-class _DashboardCard extends StatelessWidget {
-  const _DashboardCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
-  // ⚡ Bolt: Hoist constant styles to prevent them from being recreated on
-  // every build. `copyWith` is used to apply instance-specific colors.
-  // This is more efficient than creating new TextStyle objects on each build.
-  static const _titleTextStyle = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 16,
-  );
-  static const _subtitleTextStyle = TextStyle(
-    fontSize: 12,
-  );
-
-  // being recreated on every build.
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 12),
-      child: fluent.HoverButton(
-        onPressed: onTap,
-        builder: (context, states) {
-          return fluent.Card(
-            padding: const EdgeInsets.all(16),
-            backgroundColor: states.isHovered 
-                ? color.withValues(alpha: 0.15) 
-                : color.withValues(alpha: 0.1),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                fluent.Icon(icon, color: color, size: 32),
-                const SizedBox(height: 12),
-                fluent.Text(
-                  title,
-                  style: _titleTextStyle.copyWith(color: color),
-                ),
-                fluent.Text(
-                  subtitle,
-                  style: _subtitleTextStyle.copyWith(
-                    color: color.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
-            ),
+    return MaterialNotesView(
+      sidebar: Sidebar(onSelectionChanged: _onSelectionChanged),
+      title: _getAppBarTitle(),
+      viewModeNotifier: _viewModeNotifier,
+      onCycleViewMode: _cycleViewMode,
+      nextViewModePropsGetter: _getNextViewModeProperties,
+      onToggleTheme: () {
+        if (mounted) {
+          unawaited(
+            Provider.of<ThemeService>(
+              context,
+              listen: false,
+            ).toggleTheme(),
           );
-        },
-      ),
+        }
+      },
+      onCheckUpdate: () => unawaited(_updateService.checkForUpdate()),
+      onOpenSettings: () {
+        unawaited(
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (context) => const SettingsScreen(),
+            ),
+          ),
+        );
+      },
+      sortOrderNotifier: _sortOrderNotifier,
+      onSortOrderChanged: (result) {
+        _sortOrderNotifier.value = result as SortOrder;
+      },
+      sortOrderItems: <PopupMenuEntry<SortOrder>>[
+        const PopupMenuItem<SortOrder>(
+          value: SortOrder.dateDesc,
+          child: Text('Data (Mais Recentes)'),
+        ),
+        const PopupMenuItem<SortOrder>(
+          value: SortOrder.dateAsc,
+          child: Text('Data (Mais Antigas)'),
+        ),
+        const PopupMenuItem<SortOrder>(
+          value: SortOrder.titleAsc,
+          child: Text('Título (A-Z)'),
+        ),
+        const PopupMenuItem<SortOrder>(
+          value: SortOrder.titleDesc,
+          child: Text('Título (Z-A)'),
+        ),
+      ],
+      searchController: _searchController,
+      isSearchingNotifier: _isSearchingNotifier,
+      content: _buildContent(),
+      isTrashView: _selection.type == SidebarItemType.trash,
+      onCreateNote: _createNewNote,
+      onOpenQuickEditor: _abrirEditorRapido,
     );
   }
 }
+
