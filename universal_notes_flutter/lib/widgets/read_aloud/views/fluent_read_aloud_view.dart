@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/widgets.dart';
+
 import 'package:universal_notes_flutter/services/read_aloud_service.dart';
 
 /// A Windows-specific view for Read Aloud (TTS) controls.
@@ -151,7 +152,7 @@ class FluentReadAloudView extends StatelessWidget {
                 child: fluent.Slider(
                   value: speed,
                   min: 0.5,
-                  max: 2.0,
+                  max: 2,
                   divisions: 6,
                   label: '${speed.toStringAsFixed(1)}x',
                   onChanged: onSpeedChanged,
@@ -198,7 +199,7 @@ class _FluentSpeedButton extends StatelessWidget {
         ),
         fluent.MenuFlyoutItem(
           text: const Text('1.0x (Normal)'),
-          onPressed: () => onChanged(1.0),
+          onPressed: () => onChanged(1),
         ),
         fluent.MenuFlyoutItem(
           text: const Text('1.25x'),
@@ -214,7 +215,7 @@ class _FluentSpeedButton extends StatelessWidget {
         ),
         fluent.MenuFlyoutItem(
           text: const Text('2.0x'),
-          onPressed: () => onChanged(2.0),
+          onPressed: () => onChanged(2),
         ),
       ],
     );

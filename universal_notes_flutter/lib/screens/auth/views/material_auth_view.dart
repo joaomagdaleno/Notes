@@ -122,12 +122,12 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
+                    onPressed: onToggleMode,
                     child: Text(
                       showSignUp
                           ? 'Já tem uma conta? Entre aqui'
                           : 'Não tem conta? Crie uma agora',
                     ),
-                    onPressed: onToggleMode,
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),

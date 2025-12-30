@@ -84,7 +84,9 @@ class MaterialNoteCardView extends StatelessWidget {
           onTap: onTap,
           onLongPress: onLongPress,
           child: Semantics(
-            label: note.title.isNotEmpty ? 'Nota: ${note.title}' : 'Nota Sem Título',
+            label: note.title.isNotEmpty
+                ? 'Nota: ${note.title}'
+                : 'Nota Sem Título',
             hint: 'Modificado em ${dateFormat.format(note.lastModified)}',
             button: true,
             child: Stack(
@@ -115,7 +117,8 @@ class MaterialNoteCardView extends StatelessWidget {
                         ),
                       Text(
                         note.title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -128,7 +131,8 @@ class MaterialNoteCardView extends StatelessWidget {
                         Flexible(
                           child: Text(
                             plainTextContent,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Colors.white70,
                                   fontSize: 11,
                                 ),

@@ -101,7 +101,10 @@ class FluentNotesView extends StatelessWidget {
                     fluent.Tooltip(
                       message: 'Toggle Theme',
                       child: fluent.IconButton(
-                        icon: const Icon(fluent.FluentIcons.brightness, size: 16),
+                        icon: const Icon(
+                          fluent.FluentIcons.brightness,
+                          size: 16,
+                        ),
                         onPressed: onToggleTheme,
                       ),
                     ),
@@ -109,7 +112,10 @@ class FluentNotesView extends StatelessWidget {
                     fluent.Tooltip(
                       message: 'Check for Updates',
                       child: fluent.IconButton(
-                        icon: const Icon(fluent.FluentIcons.update_restore, size: 16),
+                        icon: const Icon(
+                          fluent.FluentIcons.update_restore,
+                          size: 16,
+                        ),
                         onPressed: onCheckUpdate,
                       ),
                     ),

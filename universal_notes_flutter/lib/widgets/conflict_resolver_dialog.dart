@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:universal_notes_flutter/models/sync_conflict.dart';
 import 'package:universal_notes_flutter/models/sync_status.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
@@ -33,7 +34,8 @@ class ConflictResolverDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'A change was made on another device. How would you like to resolve it?',
+              'A change was made on another device. How would you like to '
+              'resolve it?',
             ),
             const SizedBox(height: 16),
             const Text(
@@ -92,7 +94,8 @@ class ConflictResolverDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'A change was made on another device. How would you like to resolve it?',
+              'A change was made on another device. How would you like to '
+              'resolve it?',
             ),
             const SizedBox(height: 16),
             const Text(

@@ -68,19 +68,25 @@ class FluentSidebarView extends StatelessWidget {
                   leading: const Icon(fluent.FluentIcons.quick_note),
                   title: const Text('All Notes'),
                   selected: selection.type == SidebarItemType.all,
-                  onPressed: () => onSelectionChanged(const SidebarSelection(SidebarItemType.all)),
+                  onPressed: () => onSelectionChanged(
+                    const SidebarSelection(SidebarItemType.all),
+                  ),
                 ),
                 fluent.ListTile.selectable(
                   leading: const Icon(fluent.FluentIcons.favorite_star),
                   title: const Text('Favorites'),
                   selected: selection.type == SidebarItemType.favorites,
-                  onPressed: () => onSelectionChanged(const SidebarSelection(SidebarItemType.favorites)),
+                  onPressed: () => onSelectionChanged(
+                    const SidebarSelection(SidebarItemType.favorites),
+                  ),
                 ),
                 fluent.ListTile.selectable(
                   leading: const Icon(fluent.FluentIcons.delete),
                   title: const Text('Trash'),
                   selected: selection.type == SidebarItemType.trash,
-                  onPressed: () => onSelectionChanged(const SidebarSelection(SidebarItemType.trash)),
+                  onPressed: () => onSelectionChanged(
+                    const SidebarSelection(SidebarItemType.trash),
+                  ),
                 ),
                 const fluent.Divider(),
                 Padding(
@@ -106,10 +112,12 @@ class FluentSidebarView extends StatelessWidget {
                             icon: const Icon(fluent.FluentIcons.delete),
                             onPressed: () => onDeleteFolder(folder.id),
                           ),
-                          onPressed: () => onSelectionChanged(SidebarSelection(
-                            SidebarItemType.folder,
-                            folder: folder,
-                          )),
+                            onPressed: () => onSelectionChanged(
+                              SidebarSelection(
+                                SidebarItemType.folder,
+                                folder: folder,
+                              ),
+                            ),
                         );
                       }).toList(),
                     );
@@ -136,10 +144,12 @@ class FluentSidebarView extends StatelessWidget {
                           title: Text(tag),
                           selected: selection.type == SidebarItemType.tag &&
                                   selection.tag == tag,
-                          onPressed: () => onSelectionChanged(SidebarSelection(
-                            SidebarItemType.tag,
-                            tag: tag,
-                          )),
+                          onPressed: () => onSelectionChanged(
+                            SidebarSelection(
+                              SidebarItemType.tag,
+                              tag: tag,
+                            ),
+                          ),
                         );
                       }).toList(),
                     );

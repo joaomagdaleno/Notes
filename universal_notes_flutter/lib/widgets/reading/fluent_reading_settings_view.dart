@@ -128,7 +128,9 @@ class FluentReadingSettingsView extends StatelessWidget {
                   'Roboto',
                   'Lora',
                   'Merriweather',
-                ].map((f) => fluent.ComboBoxItem(value: f, child: Text(f))).toList(),
+                ].map(
+                  (f) => fluent.ComboBoxItem(value: f, child: Text(f)),
+                ).toList(),
                 onChanged: (value) {
                   if (value != null) {
                     onSettingsChanged(settings.copyWith(fontFamily: value));
@@ -185,7 +187,9 @@ class FluentReadingSettingsView extends StatelessWidget {
                   max: 0.8,
                   divisions: 7,
                   onChanged: (value) {
-                    onSettingsChanged(settings.copyWith(nightLightIntensity: value));
+                    onSettingsChanged(
+                      settings.copyWith(nightLightIntensity: value),
+                    );
                   },
                 ),
               ),
@@ -245,7 +249,10 @@ class _SettingRow extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label),
-            Text(value, style: fluent.FluentTheme.of(context).typography.caption),
+            Text(
+              value,
+              style: fluent.FluentTheme.of(context).typography.caption,
+            ),
           ],
         ),
         child,

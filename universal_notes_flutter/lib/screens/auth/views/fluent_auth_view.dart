@@ -109,7 +109,9 @@ class FluentAuthView extends StatelessWidget {
                                     SizedBox(
                                       width: 16,
                                       height: 16,
-                                      child: fluent.ProgressRing(strokeWidth: 2),
+                                      child: fluent.ProgressRing(
+                                        strokeWidth: 2,
+                                      ),
                                     ),
                                     SizedBox(width: 8),
                                     Text('Processando...'),
@@ -119,13 +121,13 @@ class FluentAuthView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      fluent.HyperlinkButton(
+                       fluent.HyperlinkButton(
+                        onPressed: onToggleMode,
                         child: Text(
                           showSignUp
                               ? 'Já tem uma conta? Entre aqui'
                               : 'Não tem conta? Crie uma agora',
                         ),
-                        onPressed: onToggleMode,
                       ),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
@@ -162,7 +164,9 @@ class FluentAuthView extends StatelessWidget {
                                   const SizedBox(width: 12),
                                   const Text(
                                     'Continuar com Google',
-                                    style: TextStyle(fontWeight: FontWeight.w500),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),

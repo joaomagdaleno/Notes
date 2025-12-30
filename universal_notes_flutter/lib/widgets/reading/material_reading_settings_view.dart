@@ -121,7 +121,9 @@ class MaterialReadingSettingsView extends StatelessWidget {
                   'Roboto',
                   'Lora',
                   'Merriweather',
-                ].map((f) => DropdownMenuItem(value: f, child: Text(f))).toList(),
+                ].map(
+                  (f) => DropdownMenuItem(value: f, child: Text(f)),
+                ).toList(),
                 onChanged: (value) {
                   if (value != null) {
                     onSettingsChanged(settings.copyWith(fontFamily: value));
@@ -191,7 +193,9 @@ class MaterialReadingSettingsView extends StatelessWidget {
                   max: 0.8,
                   divisions: 7,
                   onChanged: (value) {
-                    onSettingsChanged(settings.copyWith(nightLightIntensity: value));
+                    onSettingsChanged(
+                      settings.copyWith(nightLightIntensity: value),
+                    );
                   },
                 ),
               ),

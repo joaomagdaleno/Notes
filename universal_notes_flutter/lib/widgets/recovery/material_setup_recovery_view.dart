@@ -65,10 +65,11 @@ class MaterialSetupRecoveryView extends StatelessWidget {
                   const Icon(Icons.info_outline, color: Colors.blue),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      'Configure a recuperação para não perder acesso às suas notas caso esqueça a senha.',
-                      style: TextStyle(color: Colors.blue[800]),
-                    ),
+                      child: Text(
+                        'Configure a recuperação para não perder acesso às suas '
+                        'notas caso esqueça a senha.',
+                        style: TextStyle(color: Colors.blue[800]),
+                      ),
                   ),
                 ],
               ),
@@ -81,8 +82,8 @@ class MaterialSetupRecoveryView extends StatelessWidget {
             const SizedBox(height: 8),
             _StepItem(
               number: '1',
-              text:
-                  'Uma chave de recuperação será criada e armazenada de forma segura',
+              text: 'Uma chave de recuperação será criada e armazenada de '
+                  'forma segura',
               primaryColor: Theme.of(context).colorScheme.primary,
             ),
             _StepItem(
@@ -92,7 +93,8 @@ class MaterialSetupRecoveryView extends StatelessWidget {
             ),
             _StepItem(
               number: '3',
-              text: 'Um código de verificação será enviado para confirmar sua identidade',
+              text: 'Um código de verificação será enviado para confirmar sua '
+                  'identidade',
               primaryColor: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(height: 20),
@@ -110,7 +112,8 @@ class MaterialSetupRecoveryView extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Você precisa verificar seu email ($email) para configurar a recuperação.',
+                        'Você precisa verificar seu email ($email) para '
+                        'configurar a recuperação.',
                         style: TextStyle(color: Colors.orange[800]),
                       ),
                     ),
@@ -145,7 +148,8 @@ class MaterialSetupRecoveryView extends StatelessWidget {
               value: understood,
               onChanged: onUnderstoodChanged,
               title: const Text(
-                'Entendo que sem a recuperação configurada, não poderei acessar minhas notas se esquecer a senha',
+                'Entendo que sem a recuperação configurada, não poderei '
+                'acessar minhas notas se esquecer a senha',
               ),
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: EdgeInsets.zero,

@@ -1,19 +1,17 @@
 import 'dart:async';
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:intl/intl.dart';
 
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/widgets/context_menu_helper.dart';
-import 'package:universal_notes_flutter/widgets/note_preview_dialog.dart';
-
 import 'package:universal_notes_flutter/widgets/note_card/views/fluent_note_card_view.dart';
 import 'package:universal_notes_flutter/widgets/note_card/views/material_note_card_view.dart';
+import 'package:universal_notes_flutter/widgets/note_preview_dialog.dart';
 
 /// A widget that displays a note as a card, adaptive for Windows and Mobile.
 class NoteCard extends StatefulWidget {
@@ -98,9 +96,12 @@ class _NoteCardState extends State<NoteCard> {
         flyoutController: _flyoutController,
         dateFormat: NoteCard._dateFormat,
         onTap: widget.onTap,
-        onSecondaryTapUp: (details) => _showFluentContextMenu(details.globalPosition),
-        onLongPressStart: (details) => _showFluentContextMenu(details.globalPosition),
-        onHoverChanged: ({required isHovered}) => setState(() => _isHovered = isHovered),
+        onSecondaryTapUp: (details) =>
+            _showFluentContextMenu(details.globalPosition),
+        onLongPressStart: (details) =>
+            _showFluentContextMenu(details.globalPosition),
+        onHoverChanged: ({required isHovered}) =>
+            setState(() => _isHovered = isHovered),
         onShowPreview: () => unawaited(_showFluentPreview(context)),
       );
     } else {
@@ -119,7 +120,8 @@ class _NoteCardState extends State<NoteCard> {
             _showMaterialContextMenu(context, offset);
           }
         },
-        onHoverChanged: ({required isHovered}) => setState(() => _isHovered = isHovered),
+        onHoverChanged: ({required isHovered}) =>
+            setState(() => _isHovered = isHovered),
         onFavorite: widget.onFavorite,
         onTrash: widget.onTrash,
       );

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:universal_notes_flutter/services/recovery_service.dart';
 import 'package:universal_notes_flutter/widgets/recovery/fluent_recovery_view.dart';
 import 'package:universal_notes_flutter/widgets/recovery/material_recovery_view.dart';
@@ -100,7 +101,8 @@ class _RecoveryDialogState extends State<RecoveryDialog> {
   String get _formattedTime {
     final minutes = _secondsRemaining ~/ 60;
     final seconds = _secondsRemaining % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    return '${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
   }
 
   Future<void> _sendCode() async {
@@ -248,8 +250,10 @@ class _RecoveryDialogState extends State<RecoveryDialog> {
         onVerifyCode: _verifyCode,
         onSubmitNewPassword: _submitNewPassword,
         onCancel: () => Navigator.of(context).pop(),
-        onToggleObscurePassword: () => setState(() => _obscurePassword = !_obscurePassword),
-        onToggleObscureConfirm: () => setState(() => _obscureConfirm = !_obscureConfirm),
+        onToggleObscurePassword: () =>
+            setState(() => _obscurePassword = !_obscurePassword),
+        onToggleObscureConfirm: () =>
+            setState(() => _obscureConfirm = !_obscureConfirm),
       );
     }
   }

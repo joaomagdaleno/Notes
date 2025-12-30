@@ -66,21 +66,27 @@ class MaterialSidebarView extends StatelessWidget {
                   leading: const Icon(Icons.notes),
                   title: const Text('All Notes'),
                   selected: selection.type == SidebarItemType.all,
-                  onTap: () => onSelectionChanged(const SidebarSelection(SidebarItemType.all)),
+                  onTap: () => onSelectionChanged(
+                    const SidebarSelection(SidebarItemType.all),
+                  ),
                 ),
                 ListTile(
                   key: const ValueKey('favorites'),
                   leading: const Icon(Icons.favorite_border),
                   title: const Text('Favorites'),
                   selected: selection.type == SidebarItemType.favorites,
-                  onTap: () => onSelectionChanged(const SidebarSelection(SidebarItemType.favorites)),
+                  onTap: () => onSelectionChanged(
+                    const SidebarSelection(SidebarItemType.favorites),
+                  ),
                 ),
                 ListTile(
                   key: const ValueKey('trash'),
                   leading: const Icon(Icons.delete_outline),
                   title: const Text('Trash'),
                   selected: selection.type == SidebarItemType.trash,
-                  onTap: () => onSelectionChanged(const SidebarSelection(SidebarItemType.trash)),
+                  onTap: () => onSelectionChanged(
+                    const SidebarSelection(SidebarItemType.trash),
+                  ),
                 ),
                 const Divider(),
                 const Padding(
@@ -118,10 +124,12 @@ class MaterialSidebarView extends StatelessWidget {
                               }
                             },
                           ),
-                          onTap: () => onSelectionChanged(SidebarSelection(
-                            SidebarItemType.folder,
-                            folder: folder,
-                          )),
+                          onTap: () => onSelectionChanged(
+                            SidebarSelection(
+                              SidebarItemType.folder,
+                              folder: folder,
+                            ),
+                          ),
                         );
                       }).toList(),
                     );
@@ -151,10 +159,12 @@ class MaterialSidebarView extends StatelessWidget {
                           leading: const Icon(Icons.label_outline),
                           selected: selection.type == SidebarItemType.tag &&
                                   selection.tag == tag,
-                          onTap: () => onSelectionChanged(SidebarSelection(
-                            SidebarItemType.tag,
-                            tag: tag,
-                          )),
+                          onTap: () => onSelectionChanged(
+                            SidebarSelection(
+                              SidebarItemType.tag,
+                              tag: tag,
+                            ),
+                          ),
                         );
                       }).toList(),
                     );

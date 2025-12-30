@@ -7,9 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:uuid/uuid.dart';
-
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
@@ -47,6 +44,8 @@ import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:universal_notes_flutter/widgets/reading_bookmarks_list.dart';
 import 'package:universal_notes_flutter/widgets/reading_mode_settings.dart';
 import 'package:universal_notes_flutter/widgets/reading_outline_navigator.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 /// A screen for editing a note.
 class NoteEditorScreen extends StatefulWidget {
@@ -1300,7 +1299,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       readAloudHighlightRange: _readAloudHighlightRange,
       annotations: _annotations,
       readingStats: _readingStats,
-      onSetReadingGoal: (minutes) => _statsService.setReadingGoal(_note!.id, minutes),
+      onSetReadingGoal: (minutes) =>
+          _statsService.setReadingGoal(_note!.id, minutes),
       onNextSmart: () => _navigateSmart(true),
       onPrevSmart: () => _navigateSmart(false),
       onNextPlanNote: _onNextPlanNote,

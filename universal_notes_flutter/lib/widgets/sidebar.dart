@@ -5,6 +5,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/auth_screen.dart';
@@ -345,7 +346,9 @@ class _SidebarState extends State<Sidebar> {
                     Expanded(
                       child: Text(
                         user.email ?? 'Authenticated',
-                        style: fluent.FluentTheme.of(context).typography.caption,
+                        style: fluent.FluentTheme.of(context)
+                            .typography
+                            .caption,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),

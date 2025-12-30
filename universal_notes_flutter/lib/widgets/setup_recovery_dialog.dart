@@ -1,9 +1,8 @@
 import 'dart:async';
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import 'package:universal_notes_flutter/services/encryption_service.dart';
 import 'package:universal_notes_flutter/services/recovery_service.dart';
@@ -129,7 +128,8 @@ class _SetupRecoveryDialogState extends State<SetupRecoveryDialog> {
         understood: _understood,
         isLoading: _isLoading,
         errorMessage: _errorMessage,
-        onUnderstoodChanged: (value) => setState(() => _understood = value ?? false),
+        onUnderstoodChanged: (value) =>
+            setState(() => _understood = value ?? false),
         onSetupRecovery: _setupRecovery,
         onCancel: () => Navigator.of(context).pop(false),
         onVerifyEmail: _verifyEmail,
@@ -141,7 +141,8 @@ class _SetupRecoveryDialogState extends State<SetupRecoveryDialog> {
         understood: _understood,
         isLoading: _isLoading,
         errorMessage: _errorMessage,
-        onUnderstoodChanged: (value) => setState(() => _understood = value ?? false),
+        onUnderstoodChanged: (value) =>
+            setState(() => _understood = value ?? false),
         onSetupRecovery: _setupRecovery,
         onCancel: () => Navigator.of(context).pop(false),
         onVerifyEmail: _verifyEmail,

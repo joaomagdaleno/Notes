@@ -53,12 +53,12 @@ class FluentSetupRecoveryView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          fluent.InfoBar(
-            title: const Text('Importante'),
-            content: const Text(
-              'Configure a recuperação para não perder acesso às suas notas caso esqueça a senha.',
+          const fluent.InfoBar(
+            title: Text('Importante'),
+            content: Text(
+              'Configure a recuperação para não perder acesso às suas notas '
+              'caso esqueça a senha.',
             ),
-            severity: fluent.InfoBarSeverity.info,
           ),
           const SizedBox(height: 20),
           const Text(
@@ -68,7 +68,8 @@ class FluentSetupRecoveryView extends StatelessWidget {
           const SizedBox(height: 8),
           _StepItem(
             number: '1',
-            text: 'Uma chave de recuperação será criada e armazenada de forma segura',
+            text: 'Uma chave de recuperação será criada e armazenada de forma '
+                'segura',
             accentColor: fluent.FluentTheme.of(context).accentColor,
           ),
           _StepItem(
@@ -78,7 +79,8 @@ class FluentSetupRecoveryView extends StatelessWidget {
           ),
           _StepItem(
             number: '3',
-            text: 'Um código de verificação será enviado para confirmar sua identidade',
+            text: 'Um código de verificação será enviado para confirmar sua '
+                'identidade',
             accentColor: fluent.FluentTheme.of(context).accentColor,
           ),
           const SizedBox(height: 20),
@@ -86,7 +88,8 @@ class FluentSetupRecoveryView extends StatelessWidget {
             fluent.InfoBar(
               title: const Text('Verificação necessária'),
               content: Text(
-                'Você precisa verificar seu email ($email) para configurar a recuperação.',
+                'Você precisa verificar seu email ($email) para configurar a '
+                'recuperação.',
               ),
               severity: fluent.InfoBarSeverity.warning,
             ),
@@ -103,7 +106,8 @@ class FluentSetupRecoveryView extends StatelessWidget {
             checked: understood,
             onChanged: onUnderstoodChanged,
             content: const Text(
-              'Entendo que sem a recuperação configurada, não poderei acessar minhas notas se esquecer a senha',
+              'Entendo que sem a recuperação configurada, não poderei acessar '
+              'minhas notas se esquecer a senha',
             ),
           ),
           if (errorMessage != null)

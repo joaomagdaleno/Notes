@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/tag.dart';
@@ -135,8 +136,9 @@ class NotePreviewDialog extends StatelessWidget {
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 4,
-                  children:
-                      tags.map((tag) => Chip(label: Text(tag.name))).toList(),
+                  children: tags
+                      .map((tag) => Chip(label: Text(tag.name)))
+                      .toList(),
                 ),
               ),
             const SizedBox(height: 16),

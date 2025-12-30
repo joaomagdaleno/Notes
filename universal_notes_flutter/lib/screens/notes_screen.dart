@@ -9,6 +9,9 @@ import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/screens/notes/views/fluent_notes_view.dart';
+import 'package:universal_notes_flutter/screens/notes/views/material_notes_view.dart';
+import 'package:universal_notes_flutter/screens/notes/widgets/dashboard_card.dart';
 import 'package:universal_notes_flutter/screens/settings_screen.dart';
 import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
@@ -20,9 +23,6 @@ import 'package:universal_notes_flutter/widgets/quick_note_editor.dart';
 import 'package:universal_notes_flutter/widgets/sidebar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:universal_notes_flutter/screens/notes/views/fluent_notes_view.dart';
-import 'package:universal_notes_flutter/screens/notes/views/material_notes_view.dart';
-import 'package:universal_notes_flutter/screens/notes/widgets/dashboard_card.dart';
 
 /// The main screen displaying the list of notes.
 class NotesScreen extends StatefulWidget {
@@ -731,20 +731,20 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       onSortOrderChanged: (result) {
         _sortOrderNotifier.value = result as SortOrder;
       },
-      sortOrderItems: <PopupMenuEntry<SortOrder>>[
-        const PopupMenuItem<SortOrder>(
+      sortOrderItems: const <PopupMenuEntry<SortOrder>>[
+        PopupMenuItem<SortOrder>(
           value: SortOrder.dateDesc,
           child: Text('Data (Mais Recentes)'),
         ),
-        const PopupMenuItem<SortOrder>(
+        PopupMenuItem<SortOrder>(
           value: SortOrder.dateAsc,
           child: Text('Data (Mais Antigas)'),
         ),
-        const PopupMenuItem<SortOrder>(
+        PopupMenuItem<SortOrder>(
           value: SortOrder.titleAsc,
           child: Text('Título (A-Z)'),
         ),
-        const PopupMenuItem<SortOrder>(
+        PopupMenuItem<SortOrder>(
           value: SortOrder.titleDesc,
           child: Text('Título (Z-A)'),
         ),

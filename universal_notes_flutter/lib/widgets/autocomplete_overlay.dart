@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -77,7 +78,9 @@ class _AutocompleteOverlayState extends State<AutocompleteOverlay>
           decoration: BoxDecoration(
             color: theme.scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: theme.resources.dividerStrokeColorDefault),
+            border: Border.all(
+              color: theme.resources.dividerStrokeColorDefault,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.2),
