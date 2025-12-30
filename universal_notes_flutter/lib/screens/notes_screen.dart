@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide MenuAnchor, MenuBar, MenuItemButton, SearchBar;
 import 'package:provider/provider.dart';
-import 'package:universal_notes_flutter/models/document_model.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/screens/settings_screen.dart';
 import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 import 'package:universal_notes_flutter/services/theme_service.dart';
@@ -114,26 +114,40 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   @override
   void initState() {
     super.initState();
-    unawaited(StartupLogger.log('🎬 NotesScreen.initState starting after super.initState'));
+    unawaited(StartupLogger.log(
+        '🎬 NotesScreen.initState starting after super.initState',
+    ));
     try {
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: assigning _updateService...'));
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: assigning _updateService...',
+      ));
       _updateService = widget.updateService ?? UpdateService();
-      unawaited(StartupLogger.log('✅ NotesScreen.initState: _updateService assigned'));
+      unawaited(StartupLogger.log(
+          '✅ NotesScreen.initState: _updateService assigned',
+      ));
 
-      unawaited(StartupLogger.log('⏳ NotesScreen.initstate: connecting to notesStream...'));
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initstate: connecting to notesStream...',
+      ));
       _notesStream = _syncService.notesStream;
-      
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: adding windowManager listener...'));
+
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: adding windowManager listener...',
+      ));
       windowManager.addListener(this);
-      
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: calling _updateNotesStream()...'));
+
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: calling _updateNotesStream()...',
+      ));
       _updateNotesStream();
-      
-      unawaited(StartupLogger.log('⏳ NotesScreen.initState: adding searchController listener...'));
+
+      unawaited(StartupLogger.log(
+          '⏳ NotesScreen.initState: adding searchController listener...',
+      ));
       _searchController.addListener(_onSearchChanged);
-      
+
       unawaited(StartupLogger.log('✅ NotesScreen.initState complete'));
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       unawaited(StartupLogger.log('🔥 CRASH in NotesScreen.initState: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
@@ -190,28 +204,28 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       switch (_selection.type) {
         case SidebarItemType.all:
           isInTrash = false;
-          break;
         case SidebarItemType.favorites:
           isFavorite = true;
           isInTrash = false;
-          break;
         case SidebarItemType.trash:
           isInTrash = true;
-          break;
         case SidebarItemType.folder:
           if (_selection.folder != null) {
             folderId = _selection.folder!.id;
             isInTrash = false;
           }
-          break;
         case SidebarItemType.tag:
           tagId = _selection.tag;
           isInTrash = false;
-          break;
       }
 
-      unawaited(StartupLogger.log('🌊 NotesScreen._updateNotesStream: filter params - '
-          'folderId: $folderId, tagId: $tagId, isFavorite: $isFavorite, isInTrash: $isInTrash'));
+      unawaited(
+        StartupLogger.log(
+          '🌊 NotesScreen._updateNotesStream: filter params - '
+          'folderId: $folderId, tagId: $tagId, isFavorite: $isFavorite, '
+          'isInTrash: $isInTrash',
+        ),
+      );
 
       // Trigger refresh of local data into the stream
       unawaited(
@@ -222,7 +236,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           isInTrash: isInTrash,
         ),
       );
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       unawaited(StartupLogger.log('🔥 ERROR in _updateNotesStream: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
@@ -242,8 +256,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final note = Note(
       id: const Uuid().v4(),
       title: 'Nova Nota',
-      content:
-          DocumentModel.empty().toJson().toString(), // Or empty string literal
+      content: '', // Use empty string for new notes
       createdAt: DateTime.now(),
       lastModified: DateTime.now(),
       ownerId: 'user', // Default user
@@ -262,7 +275,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final note = Note(
       id: const Uuid().v4(),
       title: title,
-      content: DocumentModel.empty().toJson().toString(),
+      content: '',
       createdAt: DateTime.now(),
       lastModified: DateTime.now(),
       ownerId: 'user',
@@ -630,6 +643,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               }
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () {
+              unawaited(
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                ),
+              );
+            },
+          ),
           PopupMenuButton<SortOrder>(
             icon: const Icon(Icons.sort),
             tooltip: 'Sort Order',
@@ -764,197 +790,198 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Widget _buildFluentUI() {
-    unawaited(StartupLogger.log('🎨 [BUILD] _buildFluentUI starting'));
+    unawaited(StartupLogger.log(
+      '🧪 [HYBRID] _buildFluentUI: Reconstructing UI with Row + ScaffoldPage',
+    ));
     try {
       final isTrashView = _selection.type == SidebarItemType.trash;
-      unawaited(StartupLogger.log('🎨 [BUILD] _buildFluentUI: isTrashView=$isTrashView'));
-      // Wrap with FluentTheme since we're inside MaterialApp
-      return fluent.FluentTheme(
-        data: fluent.FluentThemeData.light(),
-        child: fluent.NavigationView(
-          appBar: fluent.NavigationAppBar(
-            title: Text(_getAppBarTitle()),
-            actions: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: fluent.Row(
-                mainAxisSize: fluent.MainAxisSize.min,
-                mainAxisAlignment: fluent.MainAxisAlignment.end,
-                children: [
-                  fluent.Tooltip(
-                    message: 'Sort Order',
-                    child: fluent.DropDownButton(
-                      title: const Icon(fluent.FluentIcons.sort),
-                      items: [
-                        fluent.MenuFlyoutItem(
-                          text: const Text('Data (Mais Recentes)'),
-                          onPressed: () =>
-                              _sortOrderNotifier.value = SortOrder.dateDesc,
-                        ),
-                        fluent.MenuFlyoutItem(
-                          text: const Text('Data (Mais Antigas)'),
-                          onPressed: () =>
-                              _sortOrderNotifier.value = SortOrder.dateAsc,
-                        ),
-                        fluent.MenuFlyoutItem(
-                          text: const Text('Título (A-Z)'),
-                          onPressed: () =>
-                              _sortOrderNotifier.value = SortOrder.titleAsc,
-                        ),
-                        fluent.MenuFlyoutItem(
-                          text: const Text('Título (Z-A)'),
-                          onPressed: () =>
-                              _sortOrderNotifier.value = SortOrder.titleDesc,
-                        ),
-                      ],
-                    ),
+      final title = _getAppBarTitle();
+
+      unawaited(StartupLogger.log('🧪 [HYBRID] Rendering with title: $title'));
+
+      final content = Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Sidebar on the left
+          Material(
+            key: const ValueKey('sidebar_material_wrapper'),
+            type: MaterialType.transparency,
+            child: Sidebar(
+              key: const ValueKey('fluent_sidebar'),
+              onSelectionChanged: _onSelectionChanged,
+            ),
+          ),
+          
+          // Main content on the right
+          Expanded(
+            child: fluent.ScaffoldPage(
+              header: fluent.PageHeader(
+                padding: 12,
+                title: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
                   ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: ValueListenableBuilder<String>(
+                ),
+                commandBar: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Persona / View Mode (Discrete)
+                    ValueListenableBuilder<String>(
                       valueListenable: _viewModeNotifier,
                       builder: (context, currentMode, child) {
-                        final nextMode = _getNextViewModeProperties(
+                        final props = _getNextViewModeProperties(
                           currentMode,
                           isFluent: true,
                         );
-                        return fluent.CommandBar(
-                          primaryItems: [
-                            fluent.CommandBarButton(
-                              icon: Icon(nextMode.icon),
-                              tooltip: nextMode.tooltip,
-                              onPressed: _cycleViewMode,
-                            ),
-                            fluent.CommandBarButton(
-                              icon: const Icon(fluent.FluentIcons.update_restore),
-                              tooltip: 'Check for Updates',
-                              onPressed: () =>
-                                  unawaited(_updateService.checkForUpdate()),
-                            ),
-                            fluent.CommandBarButton(
-                              icon: const Icon(fluent.FluentIcons.brightness),
-                              tooltip: 'Toggle Theme',
-                              onPressed: () {
-                                if (context.mounted) {
-                                  unawaited(
-                                    Provider.of<ThemeService>(
-                                      context,
-                                      listen: false,
-                                    ).toggleTheme(),
-                                  );
-                                }
-                              },
-                            ),
-                          ],
+                        return fluent.Tooltip(
+                          message: 'Persona: ${props.tooltip}',
+                          child: fluent.IconButton(
+                            icon: Icon(props.icon, size: 16),
+                            onPressed: _cycleViewMode,
+                          ),
                         );
                       },
+                    ),
+                    const SizedBox(width: 4),
+                    fluent.Tooltip(
+                      message: 'Toggle Theme',
+                      child: fluent.IconButton(
+                        icon: const Icon(
+                          fluent.FluentIcons.brightness,
+                          size: 16,
+                        ),
+                        onPressed: () {
+                          if (context.mounted) {
+                            unawaited(
+                              Provider.of<ThemeService>(
+                                context,
+                                listen: false,
+                              ).toggleTheme(),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    fluent.Tooltip(
+                      message: 'Check for Updates',
+                      child: fluent.IconButton(
+                        icon: const Icon(
+                          fluent.FluentIcons.update_restore,
+                          size: 16,
+                        ),
+                        onPressed: () => unawaited(_updateService.checkForUpdate()),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    fluent.Tooltip(
+                      message: 'Settings',
+                      child: fluent.IconButton(
+                        icon: const Icon(fluent.FluentIcons.settings, size: 16),
+                        onPressed: () {
+                          unawaited(
+                            Navigator.of(context).push(
+                              fluent.FluentPageRoute<void>(
+                                builder: (context) => const SettingsScreen(),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              content: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                    child: fluent.TextBox(
+                      controller: _searchController,
+                      placeholder: 'Search notes...',
+                      prefix: const Padding(
+                        padding: EdgeInsets.only(left: 8),
+                        child: Icon(fluent.FluentIcons.search, size: 14),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: StreamBuilder<List<Note>>(
+                        stream: _notesStream,
+                        initialData: _syncService.currentNotes,
+                        builder: (context, snapshot) {
+                          unawaited(StartupLogger.log(
+                            '🧪 [HYBRID] StreamBuilder pulse - hasData: '
+                            '${snapshot.hasData}, items: ${snapshot.data?.length}',
+                          ));
+                          if (snapshot.connectionState == ConnectionState.waiting &&
+                              !snapshot.hasData) {
+                            return const Center(child: fluent.ProgressRing());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          }
+                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return const EmptyState(
+                              icon: fluent.FluentIcons.note_forward,
+                              message: 'No notes yet. Create one!',
+                            );
+                          }
+                          return _buildNotesList(snapshot.data!);
+                        },
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
-          pane: fluent.NavigationPane(
-            displayMode: fluent.PaneDisplayMode.top,
-            items: [],
-          ),
-          content: Material(
-            key: const ValueKey('fluent_content_wrapper'),
-            type: MaterialType.transparency,
-            child: Row(
-              children: [
-                Sidebar(
-                  key: const ValueKey('fluent_sidebar'),
-                  onSelectionChanged: _onSelectionChanged,
-                ),
-                Expanded(
-                  child: fluent.ScaffoldPage(
-                    header: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: fluent.TextBox(
-                        controller: _searchController,
-                        placeholder: 'Search is temporarily disabled...',
-                        prefix: const Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Icon(fluent.FluentIcons.search),
-                        ),
-                        enabled: false,
-                      ),
-                    ),
-                    content: StreamBuilder<List<Note>>(
-                      stream: _notesStream,
-                      initialData: _syncService.currentNotes,
-                      builder: (context, snapshot) {
-                        unawaited(StartupLogger.log(
-                            '🎨 [BUILD] StreamBuilder inner - '
-                            'hasData: ${snapshot.hasData}, '
-                            'items: ${snapshot.data?.length}'));
-                        if (snapshot.connectionState == ConnectionState.waiting &&
-                            !snapshot.hasData) {
-                          unawaited(StartupLogger.log(
-                              '🎨 [BUILD] NotesStream showing spinner'));
-                          return const Center(child: SizedBox(width: 20, height: 20));
-                        }
-                        if (snapshot.hasError) {
-                          unawaited(StartupLogger.log(
-                              '❌ [BUILD] NotesStream error: ${snapshot.error}'));
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        }
-                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          unawaited(StartupLogger.log(
-                              '🎨 [BUILD] NotesStream showing EmptyState'));
-                          return const EmptyState(
-                            icon: fluent.FluentIcons.note_forward,
-                            message: 'No notes yet. Create one!',
-                          );
-                        }
-                        unawaited(StartupLogger.log(
-                            '🎨 [BUILD] NotesStream showing notes list '
-                            '(${snapshot.data!.length} notes)'));
-                        return _buildNotesList(snapshot.data!);
-                      },
-                    ),
-                    bottomBar: isTrashView
-                        ? null
-                        : Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: fluent.Row(
-                              mainAxisAlignment: fluent.MainAxisAlignment.end,
+              bottomBar: isTrashView
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          fluent.FilledButton(
+                            onPressed: _createNewNote,
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                fluent.FilledButton(
-                                  onPressed: _createNewNote,
-                                  child: const fluent.Row(
-                                    mainAxisSize: fluent.MainAxisSize.min,
-                                    children: [
-                                      Icon(fluent.FluentIcons.add),
-                                      SizedBox(width: 8),
-                                      Text('New Note'),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                fluent.Button(
-                                  onPressed: _abrirEditorRapido,
-                                  child: const fluent.Row(
-                                    mainAxisSize: fluent.MainAxisSize.min,
-                                    children: [
-                                      Icon(fluent.FluentIcons.quick_note),
-                                      SizedBox(width: 8),
-                                      Text('Quick Note'),
-                                    ],
-                                  ),
-                                ),
+                                Icon(fluent.FluentIcons.add),
+                                SizedBox(width: 8),
+                                Text('New Note'),
                               ],
                             ),
                           ),
-                  ),
-                ),
-              ],
+                          const SizedBox(width: 16),
+                          fluent.Button(
+                            onPressed: _abrirEditorRapido,
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(fluent.FluentIcons.quick_note),
+                                SizedBox(width: 8),
+                                Text('Quick Note'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
             ),
           ),
-        ),
+        ],
       );
-    } catch (e, stack) {
-      unawaited(StartupLogger.log('🔥 CRASH in _buildFluentUI: $e'));
+
+      return fluent.FluentTheme(
+        data: fluent.FluentThemeData.light(),
+        child: content,
+      );
+    } on Object catch (e, stack) {
+      unawaited(StartupLogger.log('🔥 [CRASH] _buildFluentUI: $e'));
       unawaited(StartupLogger.log(stack.toString()));
       return Scaffold(body: Center(child: Text('UI Crash: $e')));
     }
@@ -962,15 +989,23 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    unawaited(StartupLogger.log(
-        '🎨 [BUILD] NotesScreen.build called - platform: $defaultTargetPlatform'));
+    unawaited(
+      StartupLogger.log(
+        '🎨 [BUILD] NotesScreen.build called - '
+        'platform: $defaultTargetPlatform',
+      ),
+    );
     if (!kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.windows ||
             defaultTargetPlatform == TargetPlatform.linux ||
             defaultTargetPlatform == TargetPlatform.macOS)) {
       return _buildFluentUI();
     }
-    unawaited(StartupLogger.log('🎨 [BUILD] NotesScreen returning MaterialUI (mobile)'));
+    unawaited(
+      StartupLogger.log(
+        '🎨 [BUILD] NotesScreen returning MaterialUI (mobile)',
+      ),
+    );
     return _buildMaterialUI();
   }
 }
@@ -1002,9 +1037,6 @@ class _DashboardCard extends StatefulWidget {
   );
 
   // being recreated on every build.
-  static const _baseDecoration = BoxDecoration(
-    borderRadius: BorderRadius.all(Radius.circular(16)),
-  );
 
   @override
   State<_DashboardCard> createState() => _DashboardCardState();
@@ -1048,28 +1080,36 @@ class _DashboardCardState extends State<_DashboardCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Container(
-        width: 160,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: _decoration,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(widget.icon, color: widget.color, size: 32),
-            const SizedBox(height: 12),
-            Text(
-              widget.title,
-              style: _titleStyle,
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: fluent.HoverButton(
+        onPressed: onTap,
+        builder: (context, states) {
+          return fluent.Card(
+            padding: const EdgeInsets.all(16),
+            backgroundColor: states.isHovered 
+                ? color.withValues(alpha: 0.15) 
+                : color.withValues(alpha: 0.1),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                fluent.Icon(icon, color: color, size: 32),
+                const SizedBox(height: 12),
+                fluent.Text(
+                  title,
+                  style: _titleTextStyle.copyWith(color: color),
+                ),
+                fluent.Text(
+                  subtitle,
+                  style: _subtitleTextStyle.copyWith(
+                    color: color.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
             ),
-            Text(
-              widget.subtitle,
-              style: _subtitleStyle,
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

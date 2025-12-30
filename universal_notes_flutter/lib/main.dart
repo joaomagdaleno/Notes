@@ -31,6 +31,8 @@ void main() {
     (error, stack) {
       debugPrint('🔥 [FATAL] Global runZonedGuarded error: $error');
       debugPrint(stack.toString());
+      unawaited(StartupLogger.log('🔥 [FATAL] Global error: $error'));
+      unawaited(StartupLogger.log(stack.toString()));
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         unawaited(
           FirebaseCrashlytics.instance.recordError(error, stack, fatal: true),
@@ -40,7 +42,8 @@ void main() {
   );
 }
 
-/// Bootstrap widget that handles async initialization and shows a splash screen.
+/// Bootstrap widget that handles async initialization and shows a splash
+/// screen.
 class AppBootstrap extends StatefulWidget {
   /// Creates a new instance of [AppBootstrap].
   const AppBootstrap({super.key});
@@ -83,12 +86,14 @@ class _AppBootstrapState extends State<AppBootstrap> {
         if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
           FlutterError.onError = (errorDetails) {
             unawaited(
-              FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails),
+              FirebaseCrashlytics.instance
+                  .recordFlutterFatalError(errorDetails),
             );
           };
           PlatformDispatcher.instance.onError = (error, stack) {
             unawaited(
-              FirebaseCrashlytics.instance.recordError(error, stack, fatal: true),
+              FirebaseCrashlytics.instance
+                  .recordError(error, stack, fatal: true),
             );
             return true;
           };
@@ -100,7 +105,8 @@ class _AppBootstrapState extends State<AppBootstrap> {
       }
 
       // Windows/Desktop window setup
-      if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+      if (!kIsWeb &&
+          (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
         _updateStep('Initializing Window...');
         await StartupLogger.log('⏳ Initializing WindowManager...');
         try {
@@ -124,7 +130,8 @@ class _AppBootstrapState extends State<AppBootstrap> {
       }
 
       // Initialize sqflite FFI for desktop platforms
-      if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+      if (!kIsWeb &&
+          (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
         _updateStep('Initializing Database...');
         await StartupLogger.log('⏳ Initializing sqflite FFI...');
         try {
@@ -184,7 +191,10 @@ class _AppBootstrapState extends State<AppBootstrap> {
 
   @override
   Widget build(BuildContext context) {
-    unawaited(StartupLogger.log('🎨 [BUILD] AppBootstrap.build called - _isInitialized=$_isInitialized, _errorMessage=$_errorMessage'));
+    unawaited(StartupLogger.log(
+        '🎨 [BUILD] AppBootstrap.build called - '
+        '_isInitialized=$_isInitialized, _errorMessage=$_errorMessage',
+    ));
     if (_errorMessage != null) {
       return MaterialApp(
         home: Scaffold(
@@ -237,7 +247,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
         ),
       );
     }
-    unawaited(StartupLogger.log('🎨 [BUILD] Returning MultiProvider with MyApp'));
+    unawaited(
+      StartupLogger.log('🎨 [BUILD] Returning MultiProvider with MyApp'),
+    );
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeService()),
@@ -327,7 +339,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           });
         }
       }
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       debugPrint('❌ [AUTH] Error during biometric check: $e');
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         await FirebaseCrashlytics.instance.recordError(
@@ -347,11 +359,19 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('🎨 [BUILD] AuthWrapper.build called - _isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated');
-    unawaited(StartupLogger.log('🎨 [BUILD] AuthWrapper.build called - _isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated'));
+    debugPrint(
+      '🎨 [BUILD] AuthWrapper.build called - '
+      '_isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated',
+    );
+    unawaited(StartupLogger.log(
+      '🎨 [BUILD] AuthWrapper.build called - '
+      '_isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated',
+    ));
 
     if (_isCheckingAuth) {
-      unawaited(StartupLogger.log('🎨 [BUILD] AuthWrapper showing loading spinner'));
+      unawaited(
+        StartupLogger.log('🎨 [BUILD] AuthWrapper showing loading spinner'),
+      );
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
