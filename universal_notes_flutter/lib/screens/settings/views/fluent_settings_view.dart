@@ -1,15 +1,19 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
 /// Fluent UI view for SettingsScreen - WinUI 3 styling
+/// Fluent UI view for SettingsScreen - WinUI 3 styling
 class FluentSettingsView extends StatelessWidget {
-  final bool isLoadingInfo;
-  final VoidCallback onOpenAbout;
-
+  /// Creates a [FluentSettingsView].
   const FluentSettingsView({
-    super.key,
     required this.isLoadingInfo,
     required this.onOpenAbout,
+    super.key,
   });
+
+  /// Whether the app is currently loading info.
+  final bool isLoadingInfo;
+  /// Callback for opening the about screen.
+  final VoidCallback onOpenAbout;
 
   @override
   Widget build(BuildContext context) {

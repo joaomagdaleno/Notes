@@ -867,7 +867,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         context: context,
         builder: (context) {
           return ReadingBookmarksList(
-            bookmarks: [], // Logic to fetch would go here
+            bookmarks: const [], // Logic to fetch would go here
             onBookmarkTap: (bookmark) {
               unawaited(
                 _scrollController.animateTo(
@@ -1127,7 +1127,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       Colors.black, Colors.grey, Colors.red, Colors.pink, Colors.purple,
       Colors.deepPurple, Colors.indigo, Colors.blue, Colors.lightBlue,
       Colors.cyan, Colors.teal, Colors.green, Colors.lightGreen, Colors.lime,
-      Colors.yellow, Colors.amber, Colors.orange, Colors.deepOrange, Colors.brown,
+      Colors.yellow, Colors.amber, Colors.orange, Colors.deepOrange,
+      Colors.brown,
     ];
 
     await showDialog<void>(
@@ -1180,10 +1181,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
             itemBuilder: (context, index) {
               final size = sizes[index];
               return ListTile(
-                title: Text('Size ${size.toInt()}', style: TextStyle(fontSize: size)),
+                title: Text(
+                  'Size ${size.toInt()}',
+                  style: TextStyle(fontSize: size),
+                ),
                 onTap: () {
                   Navigator.of(context).pop();
-                  final result = DocumentManipulator.applyFontSize(_document, _selection, size);
+                  final result = DocumentManipulator.applyFontSize(
+                    _document,
+                    _selection,
+                    size,
+                  );
                   _applyManipulation(result);
                 },
               );
@@ -1202,8 +1210,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         title: const Text('Insert Link'),
         content: TextField(controller: controller, autofocus: true),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.of(context).pop(controller.text), child: const Text('Insert')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(controller.text),
+            child: const Text('Insert'),
+          ),
         ],
       ),
     );
@@ -1264,8 +1278,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
   Widget _buildUnifiedUI(Widget editor) {
     final shortcuts = {
-      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ): const _UndoIntent(),
-      LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.shift, LogicalKeyboardKey.keyZ): const _RedoIntent(),
+      LogicalKeySet(
+        LogicalKeyboardKey.control,
+        LogicalKeyboardKey.shift,
+        LogicalKeyboardKey.keyZ,
+      ): const _RedoIntent(),
     };
 
     final actions = <Type, Action<Intent>>{
@@ -1277,7 +1294,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
     return CallbackShortcuts(
       bindings: {
-        const SingleActivator(LogicalKeyboardKey.keyK, control: true): _showContextCommandPalette,
+        const SingleActivator(
+          LogicalKeyboardKey.keyK,
+          control: true,
+        ): _showContextCommandPalette,
       },
       child: PopScope(
         canPop: false,
@@ -1295,10 +1315,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                     editor: _buildEditorContent(editor),
                     isFocusMode: _isFocusMode,
                     noteTitle: _note?.title ?? '',
-                    onTitleChanged: (newTitle) => setState(() => _note = _note?.copyWith(title: newTitle)),
+                    onTitleChanged: (newTitle) => setState(() {
+                      _note = _note?.copyWith(title: newTitle);
+                    }),
                     isCollaborative: _isCollaborative,
                     remoteCursors: _remoteCursors,
-                    onToggleFindBar: () => setState(() => _isFindBarVisible = !_isFindBarVisible),
+                    onToggleFindBar: () => setState(() {
+                      _isFindBarVisible = !_isFindBarVisible;
+                    }),
                     onShowHistory: _showHistoryDialog,
                     onToggleFocusMode: _toggleFocusMode,
                   )
@@ -1306,10 +1330,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                     editor: _buildEditorContent(editor),
                     isFocusMode: _isFocusMode,
                     noteTitle: _note?.title ?? '',
-                    onTitleChanged: (newTitle) => setState(() => _note = _note?.copyWith(title: newTitle)),
+                    onTitleChanged: (newTitle) => setState(() {
+                      _note = _note?.copyWith(title: newTitle);
+                    }),
                     isCollaborative: _isCollaborative,
                     remoteCursors: _remoteCursors,
-                    onToggleFindBar: () => setState(() => _isFindBarVisible = !_isFindBarVisible),
+                    onToggleFindBar: () => setState(() {
+                      _isFindBarVisible = !_isFindBarVisible;
+                    }),
                     onShowHistory: _showHistoryDialog,
                     onToggleFocusMode: _toggleFocusMode,
                   ),
@@ -1341,7 +1369,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                   onBold: () => _toggleStyle(StyleAttribute.bold),
                   onItalic: () => _toggleStyle(StyleAttribute.italic),
                   onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                  onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
+                  onStrikethrough: () =>
+                      _toggleStyle(StyleAttribute.strikethrough),
                   onColor: _showColorPicker,
                   onFontSize: _showFontSizePicker,
                   onAlignment: (align) => _toggleBlockAttribute('align', align),
@@ -1351,7 +1380,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                   onLink: _showLinkDialog,
                   onUndo: _undo,
                   onRedo: _redo,
-                  onStyleToggle: (s) => _toggleBlockAttribute('header', s == 'normal' ? null : int.tryParse(s.replaceAll('h', ''))),
+                  onStyleToggle: (s) => _toggleBlockAttribute(
+                    'header',
+                    s == 'normal' ? null : int.tryParse(s.replaceAll('h', '')),
+                  ),
                   canUndo: _canUndo,
                   canRedo: _canRedo,
                 ),
@@ -1359,8 +1391,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           ),
           if (_isToolbarVisible)
             () {
-              final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-              if (stackBox == null || _selectionRect == null) return const SizedBox.shrink();
+              final stackBox =
+                  _stackKey.currentContext?.findRenderObject() as RenderBox?;
+              if (stackBox == null || _selectionRect == null) {
+                return const SizedBox.shrink();
+              }
               final localPos = stackBox.globalToLocal(_selectionRect!.topLeft);
               return Positioned(
                 top: localPos.dy - 60,
@@ -1369,7 +1404,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                   onBold: () => _toggleStyle(StyleAttribute.bold),
                   onItalic: () => _toggleStyle(StyleAttribute.italic),
                   onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                  onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
+                  onStrikethrough: () =>
+                      _toggleStyle(StyleAttribute.strikethrough),
                   onColor: _showColorPicker,
                   onLink: _showLinkDialog,
                   onHighlight: _addHighlight,
@@ -1387,9 +1423,27 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       showCommandPalette(
         context,
         actions: [
-          CommandAction(title: 'New Note', icon: Icons.note_add, onSelect: () => unawaited(Navigator.of(context).push(MaterialPageRoute<void>(builder: (context) => NoteEditorScreen(onSave: widget.onSave))))),
-          CommandAction(title: 'Toggle Focus Mode', icon: _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen, onSelect: _toggleFocusMode),
-          CommandAction(title: 'Show Snippets', icon: Icons.smart_button, onSelect: _showSnippetsScreen),
+          CommandAction(
+            title: 'New Note',
+            icon: Icons.note_add,
+            onSelect: () => unawaited(
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (context) => NoteEditorScreen(onSave: widget.onSave),
+                ),
+              ),
+            ),
+          ),
+          CommandAction(
+            title: 'Toggle Focus Mode',
+            icon: _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
+            onSelect: _toggleFocusMode,
+          ),
+          CommandAction(
+            title: 'Show Snippets',
+            icon: Icons.smart_button,
+            onSelect: _showSnippetsScreen,
+          ),
         ],
       ),
     );
@@ -1416,11 +1470,15 @@ class _RedoAction extends Action<_RedoIntent> {
 class _CenterLineAction extends Action<_CenterLineIntent> {
   _CenterLineAction(this.state);
   final _NoteEditorScreenState state;
-  @override void invoke(_CenterLineIntent intent) => state._editorKey.currentState?.centerLine();
+  @override
+  void invoke(_CenterLineIntent intent) =>
+      state._editorKey.currentState?.centerLine();
 }
 
 class _ShowFormatMenuAction extends Action<_ShowFormatMenuIntent> {
   _ShowFormatMenuAction(this.state);
   final _NoteEditorScreenState state;
-  @override void invoke(_ShowFormatMenuIntent intent) => unawaited(state._showFontSizePicker());
+  @override
+  void invoke(_ShowFormatMenuIntent intent) =>
+      unawaited(state._showFontSizePicker());
 }

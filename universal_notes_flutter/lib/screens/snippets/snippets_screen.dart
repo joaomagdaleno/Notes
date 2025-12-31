@@ -8,8 +8,9 @@ import 'package:universal_notes_flutter/repositories/note_repository.dart';
 import 'package:universal_notes_flutter/screens/snippets/views/fluent_snippets_view.dart';
 import 'package:universal_notes_flutter/screens/snippets/views/material_snippets_view.dart';
 
-/// SnippetsScreen controller - platform-adaptive
+/// Controller for the snippets screen.
 class SnippetsScreen extends StatefulWidget {
+  /// Creates a [SnippetsScreen].
   const SnippetsScreen({super.key});
 
   @override

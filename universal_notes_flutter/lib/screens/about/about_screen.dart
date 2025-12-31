@@ -11,20 +11,20 @@ import 'package:universal_notes_flutter/utils/windows_update_helper.dart';
 
 /// AboutScreen controller - platform-adaptive
 class AboutScreen extends StatefulWidget {
+  /// Creates an [AboutScreen].
+  const AboutScreen({
+    required this.packageInfo,
+    this.debugPlatform,
+    this.updateService,
+    super.key,
+  });
+
   /// The information about the package.
   final PackageInfo packageInfo;
   /// The target platform for debugging.
   final TargetPlatform? debugPlatform;
   /// The update service.
   final UpdateService? updateService;
-
-  /// Creates an [AboutScreen].
-  const AboutScreen({
-    required this.packageInfo,
-    super.key,
-    this.debugPlatform,
-    this.updateService,
-  });
 
   @override
   State<AboutScreen> createState() => _AboutScreenState();
