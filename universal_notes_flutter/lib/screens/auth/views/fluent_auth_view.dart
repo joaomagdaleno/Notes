@@ -10,7 +10,8 @@ class FluentAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isProcessing,
+    required this.isEmailAuthLoading,
+    required this.isGoogleAuthLoading,
     required this.onAuth,
     required this.onToggleMode,
     required this.onGoogleAuth,
@@ -32,8 +33,11 @@ class FluentAuthView extends StatelessWidget {
   /// Whether to show the sign up form instead of login.
   final bool showSignUp;
 
-  /// Whether an authentication process is currently running.
-  final bool isProcessing;
+  /// Whether the email authentication process is currently running.
+  final bool isEmailAuthLoading;
+
+  /// Whether the Google authentication process is currently running.
+  final bool isGoogleAuthLoading;
 
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
@@ -101,8 +105,10 @@ class FluentAuthView extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: fluent.FilledButton(
-                          onPressed: isProcessing ? null : onAuth,
-                          child: isProcessing
+                          onPressed: isEmailAuthLoading || isGoogleAuthLoading
+                              ? null
+                              : onAuth,
+                          child: isEmailAuthLoading
                               ? const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -121,8 +127,10 @@ class FluentAuthView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                       fluent.HyperlinkButton(
-                        onPressed: onToggleMode,
+                      fluent.HyperlinkButton(
+                        onPressed: isEmailAuthLoading || isGoogleAuthLoading
+                            ? null
+                            : onToggleMode,
                         child: Text(
                           showSignUp
                               ? 'Já tem uma conta? Entre aqui'
@@ -137,7 +145,9 @@ class FluentAuthView extends StatelessWidget {
                       const SizedBox(height: 16),
                       Center(
                         child: fluent.HoverButton(
-                          onPressed: onGoogleAuth,
+                          onPressed: isEmailAuthLoading || isGoogleAuthLoading
+                              ? null
+                              : onGoogleAuth,
                           builder: (context, states) {
                             final theme = fluent.FluentTheme.of(context);
                             return fluent.Card(
@@ -151,16 +161,23 @@ class FluentAuthView extends StatelessWidget {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Image.network(
-                                    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
-                                    width: 18,
-                                    height: 18,
-                                    errorBuilder: (ctx, err, stack) =>
-                                        const Icon(
-                                      fluent.FluentIcons.chrome_back,
-                                      size: 18,
+                                  if (isGoogleAuthLoading)
+                                    const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: fluent.ProgressRing(strokeWidth: 2),
+                                    )
+                                  else
+                                    Image.network(
+                                      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
+                                      width: 18,
+                                      height: 18,
+                                      errorBuilder: (ctx, err, stack) =>
+                                          const Icon(
+                                        fluent.FluentIcons.chrome_back,
+                                        size: 18,
+                                      ),
                                     ),
-                                  ),
                                   const SizedBox(width: 12),
                                   const Text(
                                     'Continuar com Google',
