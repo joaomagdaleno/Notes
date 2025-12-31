@@ -9,6 +9,7 @@ import 'package:universal_notes_flutter/screens/settings/views/material_settings
 
 /// SettingsScreen controller - platform-adaptive
 class SettingsScreen extends StatefulWidget {
+  /// Creates a [SettingsScreen].
   const SettingsScreen({super.key});
 
   @override

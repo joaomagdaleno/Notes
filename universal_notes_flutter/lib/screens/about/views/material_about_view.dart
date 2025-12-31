@@ -2,17 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 /// Material Design view for AboutScreen
+/// Material Design view for AboutScreen
 class MaterialAboutView extends StatelessWidget {
-  final PackageInfo packageInfo;
-  final bool isChecking;
-  final VoidCallback onCheckUpdate;
-
+  /// Creates a [MaterialAboutView].
   const MaterialAboutView({
-    super.key,
     required this.packageInfo,
     required this.isChecking,
     required this.onCheckUpdate,
+    super.key,
   });
+
+  /// The information about the package.
+  final PackageInfo packageInfo;
+  /// Whether the app is currently checking for updates.
+  final bool isChecking;
+  /// Callback for checking updates.
+  final VoidCallback onCheckUpdate;
 
   @override
   Widget build(BuildContext context) {

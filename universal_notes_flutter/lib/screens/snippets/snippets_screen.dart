@@ -166,14 +166,14 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
       return FluentSnippetsView(
         snippets: _snippets,
         onAddSnippet: () => _handleEditSnippet(null),
-        onEditSnippet: (s) => _handleEditSnippet(s),
+        onEditSnippet: _handleEditSnippet,
         onDeleteSnippet: _handleDeleteSnippet,
       );
     } else {
       return MaterialSnippetsView(
         snippets: _snippets,
         onAddSnippet: () => _handleEditSnippet(null),
-        onEditSnippet: (s) => _handleEditSnippet(s),
+        onEditSnippet: _handleEditSnippet,
         onDeleteSnippet: _handleDeleteSnippet,
       );
     }

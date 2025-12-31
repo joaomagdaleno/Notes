@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 
 /// Material Design view for SettingsScreen
 class MaterialSettingsView extends StatelessWidget {
-  final bool isLoadingInfo;
-  final VoidCallback onOpenAbout;
-
+  /// Creates a [MaterialSettingsView].
   const MaterialSettingsView({
-    super.key,
     required this.isLoadingInfo,
     required this.onOpenAbout,
+    super.key,
   });
+
+  /// Whether the app is currently loading package information.
+  final bool isLoadingInfo;
+  /// Callback for opening the about screen.
+  final VoidCallback onOpenAbout;
 
   @override
   Widget build(BuildContext context) {

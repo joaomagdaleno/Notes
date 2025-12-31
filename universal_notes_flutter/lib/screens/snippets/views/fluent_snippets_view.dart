@@ -2,19 +2,25 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:universal_notes_flutter/models/snippet.dart';
 
 /// Fluent UI view for SnippetsScreen - WinUI 3 styling
+/// Fluent UI view for SnippetsScreen - WinUI 3 styling
 class FluentSnippetsView extends StatelessWidget {
-  final List<Snippet> snippets;
-  final VoidCallback onAddSnippet;
-  final void Function(Snippet) onEditSnippet;
-  final void Function(String) onDeleteSnippet;
-
+  /// Creates a [FluentSnippetsView].
   const FluentSnippetsView({
-    super.key,
     required this.snippets,
     required this.onAddSnippet,
     required this.onEditSnippet,
     required this.onDeleteSnippet,
+    super.key,
   });
+
+  /// The list of snippets to display.
+  final List<Snippet> snippets;
+  /// Callback for adding a new snippet.
+  final VoidCallback onAddSnippet;
+  /// Callback for editing a snippet.
+  final void Function(Snippet) onEditSnippet;
+  /// Callback for deleting a snippet.
+  final void Function(String) onDeleteSnippet;
 
   @override
   Widget build(BuildContext context) {

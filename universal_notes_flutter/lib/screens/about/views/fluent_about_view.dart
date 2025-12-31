@@ -2,21 +2,28 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 /// Fluent UI view for AboutScreen - WinUI 3 styling
+/// Fluent UI view for AboutScreen - WinUI 3 styling
 class FluentAboutView extends StatelessWidget {
-  final PackageInfo packageInfo;
-  final bool isChecking;
-  final String updateStatus;
-  final VoidCallback onCheckUpdate;
-  final VoidCallback onBack;
-
+  /// Creates a [FluentAboutView].
   const FluentAboutView({
-    super.key,
     required this.packageInfo,
     required this.isChecking,
     required this.updateStatus,
     required this.onCheckUpdate,
     required this.onBack,
+    super.key,
   });
+
+  /// The information about the package.
+  final PackageInfo packageInfo;
+  /// Whether the app is currently checking for updates.
+  final bool isChecking;
+  /// The current update status message.
+  final String updateStatus;
+  /// Callback for checking updates.
+  final VoidCallback onCheckUpdate;
+  /// Callback for navigating back.
+  final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {

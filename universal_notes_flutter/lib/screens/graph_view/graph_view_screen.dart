@@ -11,6 +11,7 @@ import 'package:universal_notes_flutter/screens/graph_view/views/material_graph_
 
 /// GraphView controller - platform-adaptive
 class GraphView extends StatefulWidget {
+  /// Creates a [GraphView].
   const GraphView({super.key});
 
   @override
@@ -74,7 +75,9 @@ class _GraphViewState extends State<GraphView> {
   }
 }
 
+/// Custom painter for the notes graph.
 class GraphPainter extends CustomPainter {
+  /// Creates a [GraphPainter].
   GraphPainter({
     required this.notes,
     required this.accentColor,
@@ -82,9 +85,13 @@ class GraphPainter extends CustomPainter {
     required this.nodeColor,
   });
 
+  /// The list of notes to display.
   final List<Note> notes;
+  /// The accent color for lines and nodes.
   final Color accentColor;
+  /// The color for text labels.
   final Color textColor;
+  /// The color for node backgrounds.
   final Color nodeColor;
 
   @override

@@ -3,16 +3,20 @@ import 'package:universal_notes_flutter/models/note.dart';
 
 /// Material Design view for GraphView
 class MaterialGraphView extends StatelessWidget {
-  final List<Note> notes;
-  final bool isLoading;
-  final CustomPainter painter;
-
+  /// Creates a [MaterialGraphView].
   const MaterialGraphView({
-    super.key,
     required this.notes,
     required this.isLoading,
     required this.painter,
+    super.key,
   });
+
+  /// The list of notes to display.
+  final List<Note> notes;
+  /// Whether the app is currently loading data.
+  final bool isLoading;
+  /// The painter for the graph.
+  final CustomPainter painter;
 
   @override
   Widget build(BuildContext context) {

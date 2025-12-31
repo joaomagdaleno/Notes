@@ -394,7 +394,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
               'base': cursorData['baseOffset'],
               'extent': cursorData['extentOffset'],
             },
-            'color': cursorData['colorValue'] ?? Colors.grey.value,
+            'color': cursorData['colorValue'] ?? Colors.grey.toARGB32(),
             'name': cursorData['displayName'] ?? 'Guest',
           };
         }
@@ -423,7 +423,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       selection.baseOffset,
       selection.extentOffset,
       user.displayName ?? 'Anonymous',
-      Colors.blue.value,
+      Colors.blue.toARGB32(),
     );
   }
 
@@ -1235,8 +1235,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       onSave: _saveNote,
       onFind: () => setState(() => _isFindBarVisible = true),
       onEscape: () {
-        if (_isFocusMode) _toggleFocusMode();
-        else if (_isFindBarVisible) setState(() => _isFindBarVisible = false);
+        if (_isFocusMode) {
+          _toggleFocusMode();
+        } else if (_isFindBarVisible) {
+          setState(() => _isFindBarVisible = false);
+        }
       },
       onLinkTap: (url) => unawaited(launchUrl(Uri.parse(url))),
       initialPersona: _persona,
