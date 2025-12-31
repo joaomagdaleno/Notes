@@ -1,0 +1,163 @@
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/screens/graph_view/views/fluent_graph_view.dart';
+import 'package:universal_notes_flutter/screens/graph_view/views/material_graph_view.dart';
+
+/// GraphView controller - platform-adaptive
+class GraphView extends StatefulWidget {
+  const GraphView({super.key});
+
+  @override
+  State<GraphView> createState() => _GraphViewState();
+}
+
+class _GraphViewState extends State<GraphView> {
+  List<Note> _notes = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_loadData());
+  }
+
+  Future<void> _loadData() async {
+    final notes = await NoteRepository.instance.getAllNotes();
+    setState(() {
+      _notes = notes;
+      _isLoading = false;
+    });
+  }
+
+  CustomPainter _createPainter(BuildContext context, bool isFluent) {
+    if (isFluent) {
+      final theme = fluent.FluentTheme.of(context);
+      return GraphPainter(
+        notes: _notes,
+        accentColor: theme.accentColor,
+        textColor: theme.typography.body?.color ?? fluent.Colors.black,
+        nodeColor: theme.accentColor.light,
+      );
+    } else {
+      return GraphPainter(
+        notes: _notes,
+        accentColor: Colors.blue,
+        textColor: Colors.black,
+        nodeColor: Colors.blue.withValues(alpha: 0.3),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isWindows = defaultTargetPlatform == TargetPlatform.windows;
+
+    if (isWindows) {
+      return FluentGraphView(
+        notes: _notes,
+        isLoading: _isLoading,
+        painter: _createPainter(context, true),
+      );
+    } else {
+      return MaterialGraphView(
+        notes: _notes,
+        isLoading: _isLoading,
+        painter: _createPainter(context, false),
+      );
+    }
+  }
+}
+
+class GraphPainter extends CustomPainter {
+  GraphPainter({
+    required this.notes,
+    required this.accentColor,
+    required this.textColor,
+    required this.nodeColor,
+  });
+
+  final List<Note> notes;
+  final Color accentColor;
+  final Color textColor;
+  final Color nodeColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (notes.isEmpty) return;
+
+    final paint = Paint()
+      ..color = accentColor.withValues(alpha: 0.2)
+      ..strokeWidth = 1.0;
+
+    final nodePaint = Paint()
+      ..color = accentColor
+      ..style = PaintingStyle.fill;
+
+    final nodeOutlinePaint = Paint()
+      ..color = nodeColor
+      ..style = PaintingStyle.fill;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final count = notes.length;
+
+    final positions = <Offset>[];
+    for (var i = 0; i < count; i++) {
+      final angle = (i * 2 * 3.14159) / count;
+      final dist = (size.width < size.height ? size.width : size.height) * 0.35;
+      positions.add(Offset(
+        center.dx +
+            dist *
+                (0.8 + 0.2 * (i % 2)) *
+                (i % 3 == 0 ? 0.9 : 1.1) *
+                (i.isEven ? 1 : 1.05) *
+                (i / count > 0.5 ? 0.95 : 1) *
+                math.cos(angle),
+        center.dy +
+            dist *
+                (0.8 + 0.2 * (i % 2)) *
+                (i % 3 == 0 ? 0.9 : 1.1) *
+                (i.isEven ? 1 : 1.05) *
+                (i / count > 0.5 ? 0.95 : 1) *
+                math.sin(angle),
+      ));
+    }
+
+    for (var i = 0; i < count; i++) {
+      if (notes[i].folderId != null) {
+        canvas.drawLine(positions[i], center, paint);
+      }
+    }
+
+    for (var i = 0; i < count; i++) {
+      canvas
+        ..drawCircle(positions[i], 8, nodeOutlinePaint)
+        ..drawCircle(positions[i], 4, nodePaint);
+
+      if (count < 20) {
+        TextPainter(
+          text: TextSpan(
+            text: notes[i].title.length > 15 
+              ? '${notes[i].title.substring(0, 12)}...' 
+              : notes[i].title,
+            style: TextStyle(color: textColor, fontSize: 10),
+          ),
+          textDirection: TextDirection.ltr,
+        )
+          ..layout()
+          ..paint(
+            canvas,
+            positions[i] + const Offset(10, -5),
+          );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}

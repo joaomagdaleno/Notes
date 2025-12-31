@@ -25,6 +25,7 @@ class FluentNotesView extends StatefulWidget {
     required this.onOpenQuickEditor,
     required this.onCreateFolder,
     required this.onDeleteFolder,
+    required this.isSearchingNotifier,
     super.key,
   });
 
@@ -82,6 +83,9 @@ class FluentNotesView extends StatefulWidget {
 
   /// Callback to delete a folder.
   final ValueChanged<String> onDeleteFolder;
+
+  /// Notifier for whether a search is in progress.
+  final ValueListenable<bool> isSearchingNotifier;
 
   @override
   State<FluentNotesView> createState() => _FluentNotesViewState();
@@ -286,6 +290,24 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                             prefix: const Padding(
                               padding: EdgeInsets.only(left: 8),
                               child: Icon(FluentIcons.search, size: 14),
+                            ),
+                            suffix: ValueListenableBuilder<bool>(
+                              valueListenable: widget.isSearchingNotifier,
+                              builder: (context, isSearching, child) {
+                                if (isSearching) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(8),
+                                    child: ProgressRing(strokeWidth: 2),
+                                  );
+                                }
+                                return widget.searchController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(FluentIcons.clear),
+                                        onPressed:
+                                            widget.searchController.clear,
+                                      )
+                                    : const SizedBox.shrink();
+                              },
                             ),
                           ),
                         ),

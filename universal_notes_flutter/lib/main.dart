@@ -11,7 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:universal_notes_flutter/firebase_options.dart';
-import 'package:universal_notes_flutter/screens/notes_screen.dart';
+import 'package:universal_notes_flutter/screens/notes/notes_screen.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
 import 'package:universal_notes_flutter/services/security_service.dart';
 import 'package:universal_notes_flutter/services/startup_logger.dart';

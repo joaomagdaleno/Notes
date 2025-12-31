@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 import 'package:universal_notes_flutter/models/folder.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/screens/auth_screen.dart';
+import 'package:universal_notes_flutter/screens/auth/auth_screen.dart';
 import 'package:universal_notes_flutter/services/auth_service.dart';
 import 'package:universal_notes_flutter/services/backup_service.dart';
 import 'package:universal_notes_flutter/services/startup_logger.dart';
