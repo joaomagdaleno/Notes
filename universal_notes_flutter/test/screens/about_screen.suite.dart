@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:universal_notes_flutter/screens/about_screen.dart';
+import 'package:universal_notes_flutter/screens/about/about_screen.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
 
 // --- Mocks and Fakes ---

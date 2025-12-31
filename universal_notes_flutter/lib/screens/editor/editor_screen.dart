@@ -22,7 +22,7 @@ import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/note_version.dart';
 import 'package:universal_notes_flutter/models/persona_model.dart';
 import 'package:universal_notes_flutter/models/reading_annotation.dart';
-import 'package:universal_notes_flutter/models/reading_bookmark.dart';
+
 import 'package:universal_notes_flutter/models/reading_plan_model.dart';
 import 'package:universal_notes_flutter/models/reading_settings.dart';
 import 'package:universal_notes_flutter/models/reading_stats.dart';
@@ -32,7 +32,7 @@ import 'package:universal_notes_flutter/screens/editor/views/fluent_editor_view.
 import 'package:universal_notes_flutter/screens/editor/views/material_editor_view.dart';
 import 'package:universal_notes_flutter/screens/snippets/snippets_screen.dart';
 import 'package:universal_notes_flutter/services/event_replayer.dart';
-import 'package:universal_notes_flutter/services/export_service.dart';
+
 import 'package:universal_notes_flutter/services/history_grouper.dart';
 import 'package:universal_notes_flutter/services/read_aloud_service.dart';
 import 'package:universal_notes_flutter/services/reading_bookmarks_service.dart';
@@ -41,7 +41,7 @@ import 'package:universal_notes_flutter/services/reading_plan_service.dart';
 import 'package:universal_notes_flutter/services/reading_stats_service.dart';
 import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/services/storage_service.dart';
-import 'package:universal_notes_flutter/services/template_service.dart';
+
 import 'package:universal_notes_flutter/widgets/command_palette.dart';
 import 'package:universal_notes_flutter/widgets/find_replace_bar.dart';
 import 'package:universal_notes_flutter/widgets/reading_bookmarks_list.dart';
@@ -85,8 +85,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     with WidgetsBindingObserver {
   Note? _note;
   late DocumentModel _document;
-  final bool _isDrawingMode = false; // Handwriting mode
-  final bool _softWrap = true;
+
   late EditorPersona _persona;
 
   TextSelection _selection = const TextSelection.collapsed(offset: 0);
@@ -1121,18 +1120,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     }
   }
 
-  void _insertCallout(CalloutType type) {
-    if (_selection.isCollapsed) {
-      final lineIndex = _getBlockIndexForOffset(_selection.baseOffset);
-      if (lineIndex < 0) return;
-      final result = DocumentManipulator.convertBlockToCallout(
-        _document,
-        lineIndex,
-        type,
-      );
-      _applyManipulation(result);
-    }
-  }
+
 
   Future<void> _showColorPicker() async {
     final colors = [
@@ -1226,29 +1214,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     }
   }
 
-  Future<void> _showTemplatePicker() async {
-    final templates = TemplateService.getTemplates();
-    await showDialog<void>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('Choose a Template'),
-        children: templates.map((t) {
-          return SimpleDialogOption(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _insertTemplate(t);
-            },
-            child: Text(t.name),
-          );
-        }).toList(),
-      ),
-    );
-  }
 
-  void _insertTemplate(NoteTemplate template) {
-    final result = DocumentManipulator.insertText(_document, _selection.baseOffset, template.contentMarkdown);
-    _applyManipulation(result);
-  }
+
+
 
   @override
   Widget build(BuildContext context) {

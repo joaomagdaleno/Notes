@@ -6,8 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:universal_notes_flutter/screens/about_screen.dart';
-import 'package:universal_notes_flutter/screens/settings_screen.dart';
+import 'package:universal_notes_flutter/screens/about/about_screen.dart';
+import 'package:universal_notes_flutter/screens/settings/settings_screen.dart';
 
 void main() {
   group('SettingsScreen', () {

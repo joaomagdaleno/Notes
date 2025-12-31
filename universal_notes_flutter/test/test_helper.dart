@@ -12,7 +12,7 @@ import 'package:universal_notes_flutter/models/note_event.dart';
 import 'package:universal_notes_flutter/models/reading_stats.dart';
 import 'package:universal_notes_flutter/repositories/firestore_repository.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/screens/notes_screen.dart';
+import 'package:universal_notes_flutter/screens/notes/notes_screen.dart';
 import 'package:universal_notes_flutter/services/encryption_service.dart';
 import 'package:universal_notes_flutter/services/firebase_service.dart';
 import 'package:universal_notes_flutter/services/media_service.dart';

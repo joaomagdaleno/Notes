@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/note.dart';
 import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/screens/graph_view_screen.dart';
-import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
+import 'package:universal_notes_flutter/screens/editor/editor_screen.dart';
+import 'package:universal_notes_flutter/screens/graph_view/graph_view_screen.dart';
 import 'package:universal_notes_flutter/services/sync_service.dart';
 
 /// A command action to be displayed in the palette.
