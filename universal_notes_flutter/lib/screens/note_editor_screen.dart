@@ -3,13 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
@@ -40,6 +39,7 @@ import 'package:universal_notes_flutter/services/reading_bookmarks_service.dart'
 import 'package:universal_notes_flutter/services/reading_interaction_service.dart';
 import 'package:universal_notes_flutter/services/reading_plan_service.dart';
 import 'package:universal_notes_flutter/services/reading_stats_service.dart';
+import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/services/storage_service.dart';
 import 'package:universal_notes_flutter/services/template_service.dart';
 import 'package:universal_notes_flutter/widgets/command_palette.dart';
@@ -1906,4 +1906,3 @@ class _ShowFormatMenuAction extends Action<_ShowFormatMenuIntent> {
     unawaited(state._showFontSizePicker());
   }
 }
-

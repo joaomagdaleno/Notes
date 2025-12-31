@@ -104,7 +104,9 @@ class _FluentNotesViewState extends State<FluentNotesView> {
     if (widget.selection.type == SidebarItemType.trash) return 2;
     
     if (widget.selection.type == SidebarItemType.folder) {
-      final index = folders.indexWhere((f) => f.id == widget.selection.folder?.id);
+      final index = folders.indexWhere(
+        (f) => f.id == widget.selection.folder?.id,
+      );
       if (index != -1) return 3 + index;
     }
     
@@ -146,7 +148,8 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                     ValueListenableBuilder<String>(
                       valueListenable: widget.viewModeNotifier,
                       builder: (context, currentMode, child) {
-                        final props = widget.nextViewModePropsGetter(currentMode);
+                        final props =
+                            widget.nextViewModePropsGetter(currentMode);
                         return Tooltip(
                           message: props.tooltip,
                           child: IconButton(
@@ -178,7 +181,7 @@ class _FluentNotesViewState extends State<FluentNotesView> {
               ),
               pane: NavigationPane(
                 selected: _calculateSelectedIndex(folders, tags),
-                displayMode: PaneDisplayMode.auto,
+                // displayMode default is auto
                 items: [
                   PaneItem(
                     icon: const Icon(FluentIcons.all_apps),
@@ -208,25 +211,28 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                   ...folders.map((folder) {
                     final controller = _folderFlyoutControllers.putIfAbsent(
                       folder.id,
-                      () => FlyoutController(),
+                      FlyoutController.new,
                     );
                     return PaneItem(
                       icon: const Icon(FluentIcons.folder_horizontal),
                       title: FlyoutTarget(
                         controller: controller,
                         child: GestureDetector(
-                          onSecondaryTapUp: (details) {
-                            controller.showFlyout<void>(
-                              autoModeConfiguration: FlyoutAutoConfiguration(
-                                preferredMode: FlyoutPlacementMode.bottomRight,
-                              ),
-                              barrierDismissible: true,
-                              builder: (context) => MenuFlyout(
+                            onSecondaryTapUp: (details) async {
+                              await controller.showFlyout<void>(
+                                autoModeConfiguration: FlyoutAutoConfiguration(
+                                  preferredMode:
+                                      FlyoutPlacementMode.bottomRight,
+                                ),
+                                barrierDismissible: true, // Default is true, 
+                                // but maybe explicit? Linter said redundant.
+                                builder: (context) => MenuFlyout(
                                 items: [
                                   MenuFlyoutItem(
                                     leading: const Icon(FluentIcons.delete),
                                     text: const Text('Delete'),
-                                    onPressed: () => widget.onDeleteFolder(folder.id),
+                                    onPressed: () =>
+                                        widget.onDeleteFolder(folder.id),
                                   ),
                                 ],
                               ),
@@ -237,7 +243,10 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                       ),
                       body: const SizedBox.shrink(),
                       onTap: () => widget.onSelectionChanged(
-                        SidebarSelection(SidebarItemType.folder, folder: folder),
+                        SidebarSelection(
+                          SidebarItemType.folder,
+                          folder: folder,
+                        ),
                       ),
                     );
                   }),
@@ -267,57 +276,59 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                   ),
                 ],
               ),
-              content: ScaffoldPage(
-                content: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
-                      child: TextBox(
-                        controller: widget.searchController,
-                        placeholder: 'Search notes...',
-                        prefix: const Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Icon(FluentIcons.search, size: 14),
+                paneBodyBuilder: (item, body) {
+                  return ScaffoldPage(
+                    content: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                          child: TextBox(
+                            controller: widget.searchController,
+                            placeholder: 'Search notes...',
+                            prefix: const Padding(
+                              padding: EdgeInsets.only(left: 8),
+                              child: Icon(FluentIcons.search, size: 14),
+                            ),
+                          ),
                         ),
-                      ),
+                        Expanded(child: widget.content),
+                      ],
                     ),
-                    Expanded(child: widget.content),
-                  ],
-                ),
-                bottomBar: widget.isTrashView
-                    ? null
-                    : Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            FilledButton(
-                              onPressed: widget.onCreateNote,
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(FluentIcons.add),
-                                  SizedBox(width: 8),
-                                  Text('New Note'),
-                                ],
-                              ),
+                    bottomBar: widget.isTrashView
+                        ? null
+                        : Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                FilledButton(
+                                  onPressed: widget.onCreateNote,
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(FluentIcons.add),
+                                      SizedBox(width: 8),
+                                      Text('New Note'),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Button(
+                                  onPressed: widget.onOpenQuickEditor,
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(FluentIcons.quick_note),
+                                      SizedBox(width: 8),
+                                      Text('Quick Note'),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 16),
-                            Button(
-                              onPressed: widget.onOpenQuickEditor,
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(FluentIcons.quick_note),
-                                  SizedBox(width: 8),
-                                  Text('Quick Note'),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-              ),
+                          ),
+                  );
+                },
             );
           },
         );

@@ -54,7 +54,7 @@ class _GraphViewState extends State<GraphView> {
       header: const fluent.PageHeader(
         title: Text('Local Graph View'),
       ),
-      content: Container(
+      content: ColoredBox(
         color: theme.scaffoldBackgroundColor,
         child: CustomPaint(
           painter: GraphPainter(
@@ -131,7 +131,7 @@ class GraphPainter extends CustomPainter {
     final count = notes.length;
 
     // Use a slightly more organic layout distribution
-    final List<Offset> positions = [];
+    final positions = <Offset>[];
     for (var i = 0; i < count; i++) {
       final angle = (i * 2 * 3.14159) / count;
       final dist = (size.width < size.height ? size.width : size.height) * 0.35;
@@ -150,7 +150,7 @@ class GraphPainter extends CustomPainter {
                 (i.isEven ? 1 : 1.05) *
                 (i / count > 0.5 ? 0.95 : 1) *
                 math.sin(angle),
-      ));
+      ),);
     }
 
     // Draw links
@@ -163,14 +163,16 @@ class GraphPainter extends CustomPainter {
     // Draw nodes
     for (var i = 0; i < count; i++) {
       // Glow/Outline
-      canvas.drawCircle(positions[i], 8, nodeOutlinePaint);
-      // Actual node
-      canvas.drawCircle(positions[i], 4, nodePaint);
+      canvas
+        ..drawCircle(positions[i], 8, nodeOutlinePaint)
+        // Actual node
+        ..drawCircle(positions[i], 4, nodePaint);
 
       // Label (Simplified)
       if (count < 20) {
         // Only draw labels if not too many nodes
-        final textPainter = TextPainter(
+        // Only draw labels if not too many nodes
+        TextPainter(
           text: TextSpan(
             text: notes[i].title.length > 15 
               ? '${notes[i].title.substring(0, 12)}...' 
@@ -178,12 +180,12 @@ class GraphPainter extends CustomPainter {
             style: TextStyle(color: textColor, fontSize: 10),
           ),
           textDirection: TextDirection.ltr,
-        )..layout();
-        
-        textPainter.paint(
-          canvas, 
-          positions[i] + const Offset(10, -5),
-        );
+        )
+          ..layout()
+          ..paint(
+            canvas,
+            positions[i] + const Offset(10, -5),
+          );
       }
     }
   }
@@ -191,4 +193,6 @@ class GraphPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
+
+
 

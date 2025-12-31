@@ -97,7 +97,8 @@ class NotePreviewDialog extends StatelessWidget {
                                 color: theme.accentColor,
                               ),
                             ),
-                          ))
+                          ),
+                        )
                       .toList(),
                 ),
               ),

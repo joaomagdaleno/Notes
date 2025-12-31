@@ -59,7 +59,7 @@ class AppThemes {
     }),
     visualDensity: fluent.VisualDensity.standard,
     focusTheme: fluent.FocusThemeData(
-      glowColor: fluent.Color(0xff0078d4).withOpacity(0.1),
+      glowColor: const fluent.Color(0xff0078d4).withValues(alpha: 0.1),
     ),
   );
 
@@ -78,7 +78,7 @@ class AppThemes {
     visualDensity: fluent.VisualDensity.standard,
     scaffoldBackgroundColor: const fluent.Color(0xFF202020),
     focusTheme: fluent.FocusThemeData(
-      glowColor: fluent.Color(0xff0078d4).withOpacity(0.1),
+      glowColor: const fluent.Color(0xff0078d4).withValues(alpha: 0.1),
     ),
   );
 }

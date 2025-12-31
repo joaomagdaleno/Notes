@@ -136,9 +136,9 @@ class _NoteCardState extends State<NoteCard> {
         autoModeConfiguration: fluent.FlyoutAutoConfiguration(
           preferredMode: fluent.FlyoutPlacementMode.bottomRight,
         ),
-        barrierDismissible: true,
-        dismissOnPointerMoveAway: false,
-        dismissWithEsc: true,
+
+        // Defaults match: barrierDismissible: true, dismissOnPointerMoveAway: 
+        //false, dismissWithEsc: true
         builder: (context) {
           return fluent.MenuFlyout(
             items: widget.note.isInTrash
