@@ -68,8 +68,8 @@ class MaterialSetupRecoveryView extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                       child: Text(
-                        'Configure a recuperação para não perder acesso às suas '
-                        'notas caso esqueça a senha.',
+                        'Configure a recuperação para não perder acesso '
+                        'às suas notas caso esqueça a senha.',
                         style: TextStyle(color: Colors.blue[800]),
                       ),
                   ),

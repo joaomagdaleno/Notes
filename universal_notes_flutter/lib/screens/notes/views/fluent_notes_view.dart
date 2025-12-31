@@ -224,8 +224,6 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                                   preferredMode:
                                       FlyoutPlacementMode.bottomRight,
                                 ),
-                                barrierDismissible: true, // Default is true, 
-                                // but maybe explicit? Linter said redundant.
                                 builder: (context) => MenuFlyout(
                                 items: [
                                   MenuFlyoutItem(
@@ -264,7 +262,7 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                       onTap: () => widget.onSelectionChanged(
                         SidebarSelection(SidebarItemType.tag, tag: tag),
                       ),
-                    )),
+                    ),),
                   ],
                 ],
                 footerItems: [
