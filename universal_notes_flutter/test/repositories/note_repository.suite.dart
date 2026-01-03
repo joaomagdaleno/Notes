@@ -179,10 +179,29 @@ void main() {
         await noteRepository.updateNote(fakeNote);
       });
 
-      test('searchAllNotes returns matching notes', () async {
-        await noteRepository.insertNote(note);
-        final results = await noteRepository.searchNotes('Test');
-        expect(results.any((n) => n.title.contains('Test')), true);
+      test('searchNotes returns only matching notes', () async {
+        final note1 = Note(
+          id: '1',
+          title: 'First Note',
+          content: 'This is about apples.',
+          createdAt: DateTime.now(),
+          lastModified: DateTime.now(),
+          ownerId: 'user1',
+        );
+        final note2 = Note(
+          id: '2',
+          title: 'Second Note',
+          content: 'This is about oranges.',
+          createdAt: DateTime.now(),
+          lastModified: DateTime.now(),
+          ownerId: 'user1',
+        );
+        await noteRepository.insertNote(note1);
+        await noteRepository.insertNote(note2);
+
+        final results = await noteRepository.searchNotes('apples');
+        expect(results.length, 1);
+        expect(results[0].id, '1');
       });
 
       test('searchAllNotes is case insensitive', () async {
