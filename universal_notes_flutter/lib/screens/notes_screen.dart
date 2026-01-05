@@ -564,15 +564,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     return ValueListenableBuilder<SortOrder>(
       valueListenable: _sortOrderNotifier,
       builder: (context, sortOrder, child) {
-        // Filter by search query
-        final query = _searchController.text.toLowerCase();
-        var displayNotes = notes;
-        if (query.isNotEmpty) {
-          displayNotes = notes.where((note) {
-            return note.title.toLowerCase().contains(query) ||
-                note.content.toLowerCase().contains(query);
-          }).toList();
-        }
+        // ⚡ Bolt: No synchronous filtering needed here. The search results
+        // are handled by a separate ValueListenableBuilder (_buildContent).
+        // This was causing redundant work on the UI thread.
+        final displayNotes = List<Note>.from(notes);
 
         // Apply client-side sorting
         displayNotes.sort((a, b) {
