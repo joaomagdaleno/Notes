@@ -728,10 +728,12 @@ class NoteRepository {
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
-  /// Searches all notes for the given term.
+  /// Searches all notes for the given term using the FTS5 index.
   Future<List<Note>> searchNotes(String searchTerm) async {
     final db = await database;
 
+    // 🛡️ Sentinel: Add input length validation to prevent local DoS attacks
+    // from excessively long search terms bogging down the FTS5 engine.
     if (searchTerm.length > 256) {
       return [];
     }
@@ -739,14 +741,33 @@ class NoteRepository {
     if (searchTerm.isEmpty) {
       return getAllNotes();
     }
-    final columnsToFetch = Note.fromMap(
-      const {},
-    ).toMap().keys.where((key) => key != 'content').toList();
+
+    // 🛡️ Sentinel: Use the FTS5 virtual table for efficient full-text search.
+    // This is significantly faster and more secure than using LIKE clauses.
+    // The query finds the rowids of matching notes.
+    final ftsMaps = await db.rawQuery(
+      'SELECT rowid FROM $_notesFtsTable WHERE $_notesFtsTable MATCH ?',
+      [searchTerm],
+    );
+
+    if (ftsMaps.isEmpty) {
+      return [];
+    }
+
+    final rowIds = ftsMaps.map((map) => map['rowid'] as int).toList();
+
+    // Fetch the actual notes from the main table using the retrieved rowids.
+    // This avoids fetching the full content for the list view, which is a
+    // performance best practice.
+    final columnsToFetch =
+        Note.fromMap(const {}).toMap().keys.where((k) => k != 'content');
+
     final maps = await db.query(
       _notesTable,
-      columns: columnsToFetch,
-      where: '(title LIKE ? OR content LIKE ?) AND isInTrash = 0',
-      whereArgs: ['%$searchTerm%', '%$searchTerm%'],
+      columns: columnsToFetch.toList(),
+      where: 'rowid IN (${List.filled(rowIds.length, '?').join(',')}) '
+          'AND isInTrash = 0',
+      whereArgs: rowIds,
       orderBy: 'date DESC',
     );
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
