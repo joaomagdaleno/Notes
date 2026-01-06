@@ -27,9 +27,11 @@ class AuthService {
   Future<void> _syncUserProfile(User user) async {
     try {
       await _firestoreRepository.createUser(user);
-    } on Exception catch (e) {
-      // ignore: avoid_print, Print is used here for fallback logging if Firestore fails during profile sync.
-      print('Warning: Failed to sync profile to Firestore: $e');
+    } on Exception {
+      // 🛡️ Sentinel: Rethrow the exception to ensure the caller can handle
+      // the failure. Swallowing this exception leads to an inconsistent user
+      // state where an authenticated user has no corresponding profile data.
+      rethrow;
     }
   }
 
@@ -94,7 +96,14 @@ class AuthService {
 
     final userCredential = await _firebaseAuth.signInWithCredential(credential);
     if (userCredential.user != null) {
-      await _syncUserProfile(userCredential.user!);
+      try {
+        await _syncUserProfile(userCredential.user!);
+      } on Exception {
+        // 🛡️ Sentinel: If profile sync fails, sign out the user to prevent
+        // an inconsistent state. This is a critical rollback mechanism.
+        await signOut();
+        rethrow;
+      }
     }
     return userCredential;
   }
