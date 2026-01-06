@@ -69,6 +69,9 @@ class MaterialNoteCardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ⚡ Bolt: Cache TextTheme to avoid multiple expensive lookups in the build
+    // method.
+    final textTheme = Theme.of(context).textTheme;
     final hasImage = note.imageUrl?.isNotEmpty ?? false;
 
     final card = Card(
@@ -117,8 +120,7 @@ class MaterialNoteCardView extends StatelessWidget {
                         ),
                       Text(
                         note.title,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: textTheme.titleMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -131,8 +133,7 @@ class MaterialNoteCardView extends StatelessWidget {
                         Flexible(
                           child: Text(
                             plainTextContent,
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                            style: textTheme.bodySmall?.copyWith(
                                   color: Colors.white70,
                                   fontSize: 11,
                                 ),
@@ -143,7 +144,7 @@ class MaterialNoteCardView extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         dateFormat.format(note.lastModified),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        style: textTheme.bodySmall?.copyWith(
                               color: Colors.white70,
                               fontSize: 10,
                             ),
