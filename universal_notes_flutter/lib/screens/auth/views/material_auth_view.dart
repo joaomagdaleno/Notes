@@ -10,6 +10,7 @@ class MaterialAuthView extends StatelessWidget {
     required this.nameController,
     required this.showSignUp,
     required this.isProcessing,
+    required this.isGoogleProcessing,
     required this.onAuth,
     required this.onToggleMode,
     required this.onGoogleAuth,
@@ -33,6 +34,9 @@ class MaterialAuthView extends StatelessWidget {
 
   /// Whether an authentication process is currently running.
   final bool isProcessing;
+
+  /// Whether the Google authentication process is currently running.
+  final bool isGoogleProcessing;
 
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
@@ -136,15 +140,27 @@ class MaterialAuthView extends StatelessWidget {
                   const Text('Ou entre com'),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: onGoogleAuth,
-                    icon: Image.network(
-                      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
-                      width: 18,
-                      height: 18,
-                      errorBuilder: (ctx, err, stack) =>
-                          const Icon(Icons.g_mobiledata, size: 18),
+                    onPressed: isProcessing || isGoogleProcessing
+                        ? null
+                        : onGoogleAuth,
+                    icon: isGoogleProcessing
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Image.network(
+                            'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
+                            width: 18,
+                            height: 18,
+                            errorBuilder: (ctx, err, stack) =>
+                                const Icon(Icons.g_mobiledata, size: 18),
+                          ),
+                    label: Text(
+                      isGoogleProcessing
+                          ? 'Conectando...'
+                          : 'Continuar com Google',
                     ),
-                    label: const Text('Continuar com Google'),
                   ),
                 ],
               ),
