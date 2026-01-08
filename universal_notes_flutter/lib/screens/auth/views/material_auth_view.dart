@@ -50,6 +50,8 @@ class MaterialAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
+    final isProcessing =
+        isSigningInWithEmail || isSigningUpWithEmail || isSigningInWithGoogle;
 
     return Scaffold(
       appBar: AppBar(
@@ -69,6 +71,7 @@ class MaterialAuthView extends StatelessWidget {
                   const SizedBox(height: 24),
                   if (showSignUp) ...[
                     TextFormField(
+                      enabled: !isProcessing,
                       controller: nameController,
                       decoration: const InputDecoration(
                         labelText: 'Nome de Exibição',
@@ -80,6 +83,7 @@ class MaterialAuthView extends StatelessWidget {
                     const SizedBox(height: 16),
                   ],
                   TextFormField(
+                    enabled: !isProcessing,
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
@@ -91,6 +95,7 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    enabled: !isProcessing,
                     controller: passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(

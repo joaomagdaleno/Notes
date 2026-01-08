@@ -57,6 +57,11 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _handleEmailAuth() async {
+    if (_isSigningInWithEmail ||
+        _isSigningUpWithEmail ||
+        _isSigningInWithGoogle) {
+      return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         _isEmailAuthLoading = true;

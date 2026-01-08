@@ -51,6 +51,8 @@ class FluentAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
+    final isProcessing =
+        isSigningInWithEmail || isSigningUpWithEmail || isSigningInWithGoogle;
 
     return fluent.FluentTheme(
       data: fluent.FluentThemeData.light(),
@@ -75,6 +77,7 @@ class FluentAuthView extends StatelessWidget {
                         fluent.InfoLabel(
                           label: 'Nome de Exibição',
                           child: fluent.TextBox(
+                            enabled: !isProcessing,
                             controller: nameController,
                             placeholder: 'Como você quer ser chamado',
                             prefix: const Padding(
@@ -88,6 +91,7 @@ class FluentAuthView extends StatelessWidget {
                       fluent.InfoLabel(
                         label: 'Email',
                         child: fluent.TextBox(
+                          enabled: !isProcessing,
                           controller: emailController,
                           placeholder: 'seu@email.com',
                           keyboardType: TextInputType.emailAddress,
@@ -97,6 +101,7 @@ class FluentAuthView extends StatelessWidget {
                       fluent.InfoLabel(
                         label: 'Senha',
                         child: fluent.PasswordBox(
+                          enabled: !isProcessing,
                           controller: passwordController,
                           placeholder: 'Sua senha segura',
                         ),
@@ -179,9 +184,11 @@ class FluentAuthView extends StatelessWidget {
                                       ),
                                     ),
                                   const SizedBox(width: 12),
-                                  const Text(
-                                    'Continuar com Google',
-                                    style: TextStyle(
+                                  Text(
+                                    isSigningInWithGoogle
+                                        ? 'Conectando...'
+                                        : 'Continuar com Google',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
