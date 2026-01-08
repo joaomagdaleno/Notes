@@ -483,9 +483,55 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _deletePermanently(Note note) async {
-    final noteRepository = NoteRepository.instance;
-    await noteRepository.deleteNotePermanently(note.id);
-    await _syncService.refreshLocalData();
+    final bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+          return fluent.ContentDialog(
+            title: const Text('Delete Permanently?'),
+            content: const Text(
+              'This action cannot be undone. Are you sure you want to permanently delete this note?',
+            ),
+            actions: [
+              fluent.Button(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              fluent.FilledButton(
+                style: fluent.ButtonStyle(
+                  backgroundColor: fluent.ButtonState.all(Colors.red.dark),
+                ),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Delete'),
+              ),
+            ],
+          );
+        }
+        return AlertDialog(
+          title: const Text('Delete Permanently?'),
+          content: const Text(
+            'This action cannot be undone. Are you sure you want to permanently delete this note?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      final noteRepository = NoteRepository.instance;
+      await noteRepository.deleteNotePermanently(note.id);
+      await _syncService.refreshLocalData();
+    }
   }
 
   String _getAppBarTitle() {
