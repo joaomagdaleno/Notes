@@ -155,6 +155,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isProcessing = _isSigningIn || _isSigningUp;
+    final isGoogleProcessing = _isSigningInWithGoogle;
+
     if (defaultTargetPlatform == TargetPlatform.windows) {
       return FluentAuthView(
         formKey: _formKey,
@@ -162,8 +165,8 @@ class _AuthScreenState extends State<AuthScreen> {
         passwordController: _passwordController,
         nameController: _nameController,
         showSignUp: _showSignUp,
-        isProcessing: _isSigningIn || _isSigningUp,
-        isGoogleProcessing: _isSigningInWithGoogle,
+        isProcessing: isProcessing,
+        isGoogleProcessing: isGoogleProcessing,
         onAuth: _handleEmailAuth,
         onToggleMode: () => setState(() => _showSignUp = !_showSignUp),
         onGoogleAuth: _handleGoogleAuth,
@@ -175,8 +178,8 @@ class _AuthScreenState extends State<AuthScreen> {
         passwordController: _passwordController,
         nameController: _nameController,
         showSignUp: _showSignUp,
-        isProcessing: _isSigningIn || _isSigningUp,
-        isGoogleProcessing: _isSigningInWithGoogle,
+        isProcessing: isProcessing,
+        isGoogleProcessing: isGoogleProcessing,
         onAuth: _handleEmailAuth,
         onToggleMode: () => setState(() => _showSignUp = !_showSignUp),
         onGoogleAuth: _handleGoogleAuth,

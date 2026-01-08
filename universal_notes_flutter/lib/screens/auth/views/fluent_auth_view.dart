@@ -42,6 +42,9 @@ class FluentAuthView extends StatelessWidget {
   /// Whether the Google authentication process is currently running.
   final bool isGoogleProcessing;
 
+  /// Whether the Google authentication process is currently running.
+  final bool isGoogleProcessing;
+
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
 
@@ -166,43 +169,39 @@ class FluentAuthView extends StatelessWidget {
                               backgroundColor: states.isHovered
                                   ? theme.resources.subtleFillColorTertiary
                                   : theme.resources.subtleFillColorSecondary,
-                              child: isGoogleProcessing
-                                  ? const Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: fluent.ProgressRing(
-                                            strokeWidth: 2,
-                                          ),
-                                        ),
-                                        SizedBox(width: 8),
-                                        Text('Entrando...'),
-                                      ],
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (isGoogleProcessing)
+                                    const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: fluent.ProgressRing(
+                                        strokeWidth: 2,
+                                      ),
                                     )
-                                  : Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Image.network(
-                                          'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
-                                          width: 18,
-                                          height: 18,
-                                          errorBuilder: (ctx, err, stack) =>
-                                              const Icon(
-                                            fluent.FluentIcons.chrome_back,
-                                            size: 18,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        const Text(
-                                          'Continuar com Google',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
+                                  else
+                                    Image.network(
+                                      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
+                                      width: 18,
+                                      height: 18,
+                                      errorBuilder: (ctx, err, stack) =>
+                                          const Icon(
+                                        fluent.FluentIcons.chrome_back,
+                                        size: 18,
+                                      ),
                                     ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    isGoogleProcessing
+                                        ? 'Entrando...'
+                                        : 'Continuar com Google',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             );
                           },
                         ),
