@@ -66,7 +66,7 @@ class AuthService {
 
       // Create user profile in Firestore
       try {
-        await _firestoreRepository.createUser(credential.user!);
+        await _syncUserProfile(credential.user!);
       } on Exception {
         await credential.user?.delete();
         rethrow;
@@ -95,6 +95,11 @@ class AuthService {
     );
 
     final userCredential = await _firebaseAuth.signInWithCredential(credential);
+    // 🛡️ Sentinel: This try-catch block is a critical security measure.
+    // If creating the user profile fails, we MUST roll back the Firebase
+    // authentication by signing the user out. This prevents the app from
+    // getting into an inconsistent state where a user is authenticated but
+    // has no profile data, which is a recipe for crashes and bugs.
     if (userCredential.user != null) {
       try {
         await _syncUserProfile(userCredential.user!);
