@@ -27,9 +27,11 @@ class AuthService {
   Future<void> _syncUserProfile(User user) async {
     try {
       await _firestoreRepository.createUser(user);
-    } on Exception catch (e) {
-      // ignore: avoid_print, Print is used here for fallback logging if Firestore fails during profile sync.
-      print('Warning: Failed to sync profile to Firestore: $e');
+    } on Exception {
+      // 🛡️ Sentinel: Rethrow the exception to ensure the caller can handle
+      // the failure. Swallowing this exception leads to an inconsistent user
+      // state where an authenticated user has no corresponding profile data.
+      rethrow;
     }
   }
 
@@ -64,7 +66,7 @@ class AuthService {
 
       // Create user profile in Firestore
       try {
-        await _firestoreRepository.createUser(credential.user!);
+        await _syncUserProfile(credential.user!);
       } on Exception {
         await credential.user?.delete();
         rethrow;
@@ -93,8 +95,20 @@ class AuthService {
     );
 
     final userCredential = await _firebaseAuth.signInWithCredential(credential);
+    // 🛡️ Sentinel: This try-catch block is a critical security measure.
+    // If creating the user profile fails, we MUST roll back the Firebase
+    // authentication by signing the user out. This prevents the app from
+    // getting into an inconsistent state where a user is authenticated but
+    // has no profile data, which is a recipe for crashes and bugs.
     if (userCredential.user != null) {
-      await _syncUserProfile(userCredential.user!);
+      try {
+        await _syncUserProfile(userCredential.user!);
+      } on Exception {
+        // 🛡️ Sentinel: If profile sync fails, sign out the user to prevent
+        // an inconsistent state. This is a critical rollback mechanism.
+        await signOut();
+        rethrow;
+      }
     }
     return userCredential;
   }

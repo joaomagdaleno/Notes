@@ -33,8 +33,14 @@ class FluentAuthView extends StatelessWidget {
   /// Whether to show the sign up form instead of login.
   final bool showSignUp;
 
-  /// Whether an authentication process is currently running.
-  final bool isProcessing;
+  /// Whether the email sign-in process is running.
+  final bool isSigningInWithEmail;
+
+  /// Whether the email sign-up process is running.
+  final bool isSigningUpWithEmail;
+
+  /// Whether the Google sign-in process is running.
+  final bool isSigningInWithGoogle;
 
   /// Whether the Google authentication process is currently running.
   final bool isGoogleProcessing;
@@ -51,6 +57,8 @@ class FluentAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
+    final isEmailProcessing = isSigningInWithEmail || isSigningUpWithEmail;
+    final isAnyProcessRunning = isEmailProcessing || isSigningInWithGoogle;
 
     return fluent.FluentTheme(
       data: fluent.FluentThemeData.light(),
@@ -75,12 +83,20 @@ class FluentAuthView extends StatelessWidget {
                         fluent.InfoLabel(
                           label: 'Nome de Exibição',
                           child: fluent.TextBox(
+                            enabled: !isProcessing,
                             controller: nameController,
+                            enabled: !isAnyProcessRunning,
                             placeholder: 'Como você quer ser chamado',
                             prefix: const Padding(
                               padding: EdgeInsets.only(left: 8),
                               child: Icon(fluent.FluentIcons.contact),
                             ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, insira seu nome';
+                              }
+                              return null;
+                            },
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -88,25 +104,43 @@ class FluentAuthView extends StatelessWidget {
                       fluent.InfoLabel(
                         label: 'Email',
                         child: fluent.TextBox(
+                          enabled: !isProcessing,
                           controller: emailController,
+                          enabled: !isAnyProcessRunning,
                           placeholder: 'seu@email.com',
                           keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || !value.contains('@')) {
+                              return 'Por favor, insira um email válido';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const SizedBox(height: 16),
                       fluent.InfoLabel(
                         label: 'Senha',
                         child: fluent.PasswordBox(
+                          enabled: !isProcessing,
                           controller: passwordController,
+                          enabled: !isAnyProcessRunning,
                           placeholder: 'Sua senha segura',
+                          validator: (value) {
+                            if (value == null || value.length < 6) {
+                              return 'A senha deve ter pelo menos 6 caracteres';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
                         child: fluent.FilledButton(
-                          onPressed: isProcessing ? null : onAuth,
-                          child: isProcessing
+                          onPressed: isAnyProcessRunning ? null : onAuth,
+                          child: (showSignUp
+                                  ? isSigningUpWithEmail
+                                  : isSigningInWithEmail)
                               ? const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -125,8 +159,8 @@ class FluentAuthView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                       fluent.HyperlinkButton(
-                        onPressed: onToggleMode,
+                      fluent.HyperlinkButton(
+                        onPressed: isAnyProcessRunning ? null : onToggleMode,
                         child: Text(
                           showSignUp
                               ? 'Já tem uma conta? Entre aqui'
@@ -184,9 +218,6 @@ class FluentAuthView extends StatelessWidget {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w500,
                                     ),
-                                  ),
-                                ],
-                              ),
                             );
                           },
                         ),

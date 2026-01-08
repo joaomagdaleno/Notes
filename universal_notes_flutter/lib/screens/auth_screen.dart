@@ -58,12 +58,17 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _handleEmailAuth() async {
+    if (_isSigningInWithEmail ||
+        _isSigningUpWithEmail ||
+        _isSigningInWithGoogle) {
+      return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         if (_showSignUp) {
-          _isSigningUp = true;
+          _isSigningUpWithEmail = true;
         } else {
-          _isSigningIn = true;
+          _isSigningInWithEmail = true;
         }
       });
 
@@ -120,8 +125,8 @@ class _AuthScreenState extends State<AuthScreen> {
       } finally {
         if (mounted) {
           setState(() {
-            _isSigningIn = false;
-            _isSigningUp = false;
+            _isSigningInWithEmail = false;
+            _isSigningUpWithEmail = false;
           });
         }
       }
@@ -155,6 +160,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isProcessing = _isSigningIn || _isSigningUp;
+    final isGoogleProcessing = _isSigningInWithGoogle;
+
     if (defaultTargetPlatform == TargetPlatform.windows) {
       return FluentAuthView(
         formKey: _formKey,
@@ -183,5 +191,4 @@ class _AuthScreenState extends State<AuthScreen> {
       );
     }
   }
-
 }

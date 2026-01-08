@@ -728,27 +728,36 @@ class NoteRepository {
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
-  /// Searches all notes for the given term.
+  /// Searches all notes for the given term using the FTS5 index.
   Future<List<Note>> searchNotes(String searchTerm) async {
     final db = await database;
 
+    // 🛡️ Sentinel: Add input length validation as a defense-in-depth measure
+    // against potential local Denial-of-Service (DoS) attacks from excessively
+    // long or complex search terms bogging down the FTS5 engine.
     if (searchTerm.length > 256) {
       return [];
     }
 
+    final db = await database;
     if (searchTerm.isEmpty) {
       return getAllNotes();
     }
-    final columnsToFetch = Note.fromMap(
-      const {},
-    ).toMap().keys.where((key) => key != 'content').toList();
-    final maps = await db.query(
-      _notesTable,
-      columns: columnsToFetch,
-      where: '(title LIKE ? OR content LIKE ?) AND isInTrash = 0',
-      whereArgs: ['%$searchTerm%', '%$searchTerm%'],
-      orderBy: 'date DESC',
-    );
+
+    // 🛡️ Sentinel: Use the FTS5 virtual table for efficient full-text search.
+    // This is significantly faster and more secure than using LIKE queries,
+    // which can cause performance issues (local DoS) on large datasets.
+    // The MATCH operator is optimized for text searches.
+    // We also use a parameterized query `?` to prevent any chance of
+    // SQL injection, even within an FTS context.
+    final query = '''
+      SELECT N.* FROM $_notesTable N
+      INNER JOIN $_notesFtsTable FTS ON N.rowid = FTS.rowid
+      WHERE FTS.$_notesFtsTable MATCH ? AND N.isInTrash = 0
+      ORDER BY N.date DESC
+    ''';
+
+    final maps = await db.rawQuery(query, [searchTerm]);
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 

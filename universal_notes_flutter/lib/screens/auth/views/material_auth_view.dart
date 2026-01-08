@@ -32,8 +32,14 @@ class MaterialAuthView extends StatelessWidget {
   /// Whether to show the sign up form instead of login.
   final bool showSignUp;
 
-  /// Whether an authentication process is currently running.
-  final bool isProcessing;
+  /// Whether the email sign-in process is running.
+  final bool isSigningInWithEmail;
+
+  /// Whether the email sign-up process is running.
+  final bool isSigningUpWithEmail;
+
+  /// Whether the Google sign-in process is running.
+  final bool isSigningInWithGoogle;
 
   /// Whether the Google authentication process is currently running.
   final bool isGoogleProcessing;
@@ -50,6 +56,8 @@ class MaterialAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
+    final isEmailProcessing = isSigningInWithEmail || isSigningUpWithEmail;
+    final isAnyProcessRunning = isEmailProcessing || isSigningInWithGoogle;
 
     return Scaffold(
       appBar: AppBar(
@@ -69,18 +77,28 @@ class MaterialAuthView extends StatelessWidget {
                   const SizedBox(height: 24),
                   if (showSignUp) ...[
                     TextFormField(
+                      enabled: !isProcessing,
                       controller: nameController,
+                      enabled: !isAnyProcessRunning,
                       decoration: const InputDecoration(
                         labelText: 'Nome de Exibição',
                         hintText: 'Como você quer ser chamado',
                         prefixIcon: Icon(Icons.person_outline),
                         border: OutlineInputBorder(),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira seu nome';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                   ],
                   TextFormField(
+                    enabled: !isProcessing,
                     controller: emailController,
+                    enabled: !isAnyProcessRunning,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       labelText: 'Email',
@@ -88,10 +106,18 @@ class MaterialAuthView extends StatelessWidget {
                       prefixIcon: Icon(Icons.email_outlined),
                       border: OutlineInputBorder(),
                     ),
+                    validator: (value) {
+                      if (value == null || !value.contains('@')) {
+                        return 'Por favor, insira um email válido';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    enabled: !isProcessing,
                     controller: passwordController,
+                    enabled: !isAnyProcessRunning,
                     obscureText: true,
                     decoration: const InputDecoration(
                       labelText: 'Senha',
@@ -99,13 +125,21 @@ class MaterialAuthView extends StatelessWidget {
                       prefixIcon: Icon(Icons.lock_outline),
                       border: OutlineInputBorder(),
                     ),
+                    validator: (value) {
+                      if (value == null || value.length < 6) {
+                        return 'A senha deve ter pelo menos 6 caracteres';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: isProcessing ? null : onAuth,
-                      child: isProcessing
+                      onPressed: isAnyProcessRunning ? null : onAuth,
+                      child: (showSignUp
+                              ? isSigningUpWithEmail
+                              : isSigningInWithEmail)
                           ? const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -126,7 +160,7 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: onToggleMode,
+                    onPressed: isAnyProcessRunning ? null : onToggleMode,
                     child: Text(
                       showSignUp
                           ? 'Já tem uma conta? Entre aqui'
