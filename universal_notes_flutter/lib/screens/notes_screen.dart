@@ -55,6 +55,28 @@ enum SortOrder {
 }
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
+  // ⚡ Bolt: Cache SliverGridDelegates to avoid re-creating them on every
+  // build. This is a significant performance win for list scrolling.
+  static const _gridDelegateLarge =
+      SliverGridDelegateWithMaxCrossAxisExtent(
+    maxCrossAxisExtent: 300,
+    childAspectRatio: 3 / 2,
+    crossAxisSpacing: 8,
+    mainAxisSpacing: 8,
+  );
+  static const _gridDelegateList =
+      SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 1,
+    childAspectRatio: 5 / 1,
+  );
+  static const _gridDelegateMedium =
+      SliverGridDelegateWithMaxCrossAxisExtent(
+    maxCrossAxisExtent: 200,
+    childAspectRatio: 3 / 2,
+    crossAxisSpacing: 8,
+    mainAxisSpacing: 8,
+  );
+
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final _sortOrderNotifier = ValueNotifier<SortOrder>(SortOrder.dateDesc);
   final SyncService _syncService = SyncService.instance;
@@ -73,6 +95,12 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   // ⚡ Bolt: Cache TextStyles to avoid expensive Theme lookups on every build.
   TextStyle? _dashboardTitleStyle;
   TextStyle? _dashboardSubtitleStyle;
+
+  // ⚡ Bolt: Cache the Dashboard widget itself.
+  // This prevents the dashboard from being rebuilt every time the note list
+  // changes, as the widget instance remains identical. It's only rebuilt in
+  // didChangeDependencies when the theme changes.
+  Widget? _dashboard;
 
   // 🎨 Palette: Cycle through view modes to provide a dynamic button.
   void _cycleViewMode() {
@@ -178,6 +206,11 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     _dashboardSubtitleStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
           color: Colors.grey.shade600,
         );
+    _dashboard = _Dashboard(
+      dashboardTitleStyle: _dashboardTitleStyle,
+      dashboardSubtitleStyle: _dashboardSubtitleStyle,
+      onCreateNewNoteWithPersona: _createNewNoteWithPersona,
+    );
   }
 
   @override
@@ -461,9 +494,55 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _deletePermanently(Note note) async {
-    final noteRepository = NoteRepository.instance;
-    await noteRepository.deleteNotePermanently(note.id);
-    await _syncService.refreshLocalData();
+    final bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+          return fluent.ContentDialog(
+            title: const Text('Delete Permanently?'),
+            content: const Text(
+              'This action cannot be undone. Are you sure you want to permanently delete this note?',
+            ),
+            actions: [
+              fluent.Button(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              fluent.FilledButton(
+                style: fluent.ButtonStyle(
+                  backgroundColor: fluent.ButtonState.all(Colors.red.dark),
+                ),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Delete'),
+              ),
+            ],
+          );
+        }
+        return AlertDialog(
+          title: const Text('Delete Permanently?'),
+          content: const Text(
+            'This action cannot be undone. Are you sure you want to permanently delete this note?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      final noteRepository = NoteRepository.instance;
+      await noteRepository.deleteNotePermanently(note.id);
+      await _syncService.refreshLocalData();
+    }
   }
 
   String _getAppBarTitle() {
@@ -595,8 +674,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         return Column(
           children: [
             if (_selection.type == SidebarItemType.all &&
-                _searchController.text.isEmpty)
-              _buildDashboard(),
+                _searchController.text.isEmpty &&
+                _dashboard != null)
+              _dashboard!,
             Expanded(
               child: ValueListenableBuilder<String>(
                 valueListenable: _viewModeNotifier,
@@ -636,83 +716,14 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     );
   }
 
-  Widget _buildDashboard() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Quick Start',
-            style: _dashboardTitleStyle,
-          ),
-          const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                DashboardCard(
-                  title: 'Architect',
-                  subtitle: 'Nova Nota',
-                  icon: Icons.edit_note,
-                  color: Colors.blue,
-                  onTap: () =>
-                      _createNewNoteWithPersona(EditorPersona.architect),
-                ),
-                DashboardCard(
-                  title: 'Writer',
-                  subtitle: 'Novo Documento',
-                  icon: Icons.description,
-                  color: Colors.orange,
-                  onTap: () => _createNewNoteWithPersona(
-                    EditorPersona.writer,
-                    'Novo Documento',
-                  ),
-                ),
-                DashboardCard(
-                  title: 'Brainstorm',
-                  subtitle: 'Novo Quadro',
-                  icon: Icons.dashboard,
-                  color: Colors.purple,
-                  onTap: () => _createNewNoteWithPersona(
-                    EditorPersona.brainstorm,
-                    'Novo Quadro',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 32),
-          Text(
-            'Recent Notes',
-            style: _dashboardSubtitleStyle,
-          ),
-        ],
-      ),
-    );
-  }
-
   SliverGridDelegate _getGridDelegate(String viewMode) {
     switch (viewMode) {
       case 'grid_large':
-        return const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 300,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-        );
+        return _gridDelegateLarge;
       case 'list':
-        return const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 1,
-          childAspectRatio: 5 / 1,
-        );
+        return _gridDelegateList;
       default: // grid_medium
-        return const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-        );
+        return _gridDelegateMedium;
     }
   }
 
@@ -826,6 +837,80 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       isTrashView: _selection.type == SidebarItemType.trash,
       onCreateNote: _createNewNote,
       onOpenQuickEditor: _abrirEditorRapido,
+    );
+  }
+}
+
+// ⚡ Bolt: Refactored dashboard into a stateless widget.
+// By making it a separate widget, we can instantiate it,
+// preventing it from rebuilding unnecessarily when the parent `NotesScreen`
+// state changes (e.g., when sorting or filtering notes). This is a pure UI
+// component that doesn't need to be part of the larger stateful widget tree.
+class _Dashboard extends StatelessWidget {
+  const _Dashboard({
+    required this.dashboardTitleStyle,
+    required this.dashboardSubtitleStyle,
+    required this.onCreateNewNoteWithPersona,
+  });
+
+  final TextStyle? dashboardTitleStyle;
+  final TextStyle? dashboardSubtitleStyle;
+  final void Function(EditorPersona, [String]) onCreateNewNoteWithPersona;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Quick Start',
+            style: dashboardTitleStyle,
+          ),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                DashboardCard(
+                  title: 'Architect',
+                  subtitle: 'Nova Nota',
+                  icon: Icons.edit_note,
+                  color: Colors.blue,
+                  onTap: () =>
+                      onCreateNewNoteWithPersona(EditorPersona.architect),
+                ),
+                DashboardCard(
+                  title: 'Writer',
+                  subtitle: 'Novo Documento',
+                  icon: Icons.description,
+                  color: Colors.orange,
+                  onTap: () => onCreateNewNoteWithPersona(
+                    EditorPersona.writer,
+                    'Novo Documento',
+                  ),
+                ),
+                DashboardCard(
+                  title: 'Brainstorm',
+                  subtitle: 'Novo Quadro',
+                  icon: Icons.dashboard,
+                  color: Colors.purple,
+                  onTap: () => onCreateNewNoteWithPersona(
+                    EditorPersona.brainstorm,
+                    'Novo Quadro',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 32),
+          Text(
+            'Recent Notes',
+            style: dashboardSubtitleStyle,
+          ),
+        ],
+      ),
     );
   }
 }
