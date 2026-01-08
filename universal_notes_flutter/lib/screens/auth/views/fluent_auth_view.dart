@@ -10,8 +10,8 @@ class FluentAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isEmailLoading,
-    required this.isGoogleLoading,
+    required this.isEmailProcessing,
+    required this.isGoogleProcessing,
     required this.onAuth,
     required this.onToggleMode,
     required this.onGoogleAuth,
@@ -33,11 +33,11 @@ class FluentAuthView extends StatelessWidget {
   /// Whether to show the sign up form instead of login.
   final bool showSignUp;
 
-  /// Whether the email authentication process is currently running.
-  final bool isEmailLoading;
+  /// Whether an email authentication process is currently running.
+  final bool isEmailProcessing;
 
-  /// Whether the Google authentication process is currently running.
-  final bool isGoogleLoading;
+  /// Whether a Google authentication process is currently running.
+  final bool isGoogleProcessing;
 
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
@@ -127,8 +127,10 @@ class FluentAuthView extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: fluent.FilledButton(
-                          onPressed: isAnyLoading ? null : onAuth,
-                          child: isEmailLoading
+                          onPressed: isEmailProcessing || isGoogleProcessing
+                              ? null
+                              : onAuth,
+                          child: isEmailProcessing
                               ? const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -163,7 +165,9 @@ class FluentAuthView extends StatelessWidget {
                       const SizedBox(height: 16),
                       Center(
                         child: fluent.HoverButton(
-                          onPressed: isAnyLoading ? null : onGoogleAuth,
+                          onPressed: isEmailProcessing || isGoogleProcessing
+                              ? null
+                              : onGoogleAuth,
                           builder: (context, states) {
                             final theme = fluent.FluentTheme.of(context);
                             return fluent.Card(
@@ -177,7 +181,7 @@ class FluentAuthView extends StatelessWidget {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (isGoogleLoading)
+                                  if (isGoogleProcessing)
                                     const SizedBox(
                                       width: 18,
                                       height: 18,
@@ -199,7 +203,7 @@ class FluentAuthView extends StatelessWidget {
                                   const SizedBox(width: 12),
                                   Text(
                                     isGoogleProcessing
-                                        ? 'Entrando...'
+                                        ? 'Processando...'
                                         : 'Continuar com Google',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w500,

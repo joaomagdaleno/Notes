@@ -9,8 +9,8 @@ class MaterialAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isEmailLoading,
-    required this.isGoogleLoading,
+    required this.isEmailProcessing,
+    required this.isGoogleProcessing,
     required this.onAuth,
     required this.onToggleMode,
     required this.onGoogleAuth,
@@ -32,11 +32,11 @@ class MaterialAuthView extends StatelessWidget {
   /// Whether to show the sign up form instead of login.
   final bool showSignUp;
 
-  /// Whether the email authentication process is currently running.
-  final bool isEmailLoading;
+  /// Whether an email authentication process is currently running.
+  final bool isEmailProcessing;
 
-  /// Whether the Google authentication process is currently running.
-  final bool isGoogleLoading;
+  /// Whether a Google authentication process is currently running.
+  final bool isGoogleProcessing;
 
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
@@ -126,8 +126,9 @@ class MaterialAuthView extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: isAnyLoading ? null : onAuth,
-                      child: isEmailLoading
+                      onPressed:
+                          isEmailProcessing || isGoogleProcessing ? null : onAuth,
+                      child: isEmailProcessing
                           ? const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -162,8 +163,9 @@ class MaterialAuthView extends StatelessWidget {
                   const Text('Ou entre com'),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: isAnyLoading ? null : onGoogleAuth,
-                    icon: isGoogleLoading
+                    onPressed:
+                        isEmailProcessing || isGoogleProcessing ? null : onGoogleAuth,
+                    icon: isGoogleProcessing
                         ? const SizedBox(
                             width: 18,
                             height: 18,
@@ -176,7 +178,11 @@ class MaterialAuthView extends StatelessWidget {
                             errorBuilder: (ctx, err, stack) =>
                                 const Icon(Icons.g_mobiledata, size: 18),
                           ),
-                    label: const Text('Continuar com Google'),
+                    label: Text(
+                      isGoogleProcessing
+                          ? 'Processando...'
+                          : 'Continuar com Google',
+                    ),
                   ),
                 ],
               ),
