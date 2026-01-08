@@ -728,11 +728,12 @@ class NoteRepository {
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
-  /// Searches all notes for the given term.
+  /// Searches all notes for the given term using the FTS5 index.
   Future<List<Note>> searchNotes(String searchTerm) async {
-    // 🛡️ Sentinel: Add input length validation as a defense-in-depth measure
-    // against local DoS attacks. Even with FTS5, an excessively long query
-    // could consume significant resources.
+    final db = await database;
+
+    // 🛡️ Sentinel: Add input length validation to prevent local DoS attacks
+    // from excessively long search terms bogging down the FTS5 engine.
     if (searchTerm.length > 256) {
       return [];
     }
@@ -742,12 +743,9 @@ class NoteRepository {
       return getAllNotes();
     }
 
-    // 🛡️ Sentinel: Use the FTS5 virtual table for secure and efficient search.
-    // The previous implementation used a LIKE query, which is a local
-    // Denial-of-Service (DoS) vector, as it can be slow and resource-intensive
-    // on large text fields. FTS5 is optimized for this purpose.
-    // We pass the search term as a parameterized argument to prevent SQL
-    // injection vulnerabilities, even in a MATCH clause.
+    // 🛡️ Sentinel: Use the FTS5 virtual table for efficient full-text search.
+    // This is significantly faster and more secure than using LIKE clauses.
+    // The query finds the rowids of matching notes.
     final ftsMaps = await db.rawQuery(
       'SELECT rowid FROM $_notesFtsTable WHERE $_notesFtsTable MATCH ?',
       [searchTerm],
@@ -757,7 +755,11 @@ class NoteRepository {
       return [];
     }
 
-    final rowIds = ftsMaps.map((map) => map['rowid']).toList();
+    final rowIds = ftsMaps.map((map) => map['rowid'] as int).toList();
+
+    // Fetch the actual notes from the main table using the retrieved rowids.
+    // This avoids fetching the full content for the list view, which is a
+    // performance best practice.
     final columnsToFetch =
         Note.fromMap(const {}).toMap().keys.where((k) => k != 'content');
 
