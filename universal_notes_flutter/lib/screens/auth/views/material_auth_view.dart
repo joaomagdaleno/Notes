@@ -9,9 +9,8 @@ class MaterialAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isSigningInWithEmail,
-    required this.isSigningUpWithEmail,
-    required this.isSigningInWithGoogle,
+    required this.isProcessing,
+    required this.isGoogleProcessing,
     required this.onAuth,
     required this.onToggleMode,
     required this.onGoogleAuth,
@@ -41,6 +40,9 @@ class MaterialAuthView extends StatelessWidget {
 
   /// Whether the Google sign-in process is running.
   final bool isSigningInWithGoogle;
+
+  /// Whether the Google authentication process is currently running.
+  final bool isGoogleProcessing;
 
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
@@ -172,9 +174,15 @@ class MaterialAuthView extends StatelessWidget {
                   const Text('Ou entre com'),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: isAnyProcessRunning ? null : onGoogleAuth,
-                    icon: isSigningInWithGoogle
-                        ? const SizedBox.shrink()
+                    onPressed: isProcessing || isGoogleProcessing
+                        ? null
+                        : onGoogleAuth,
+                    icon: isGoogleProcessing
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : Image.network(
                             'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
                             width: 18,
@@ -182,22 +190,11 @@ class MaterialAuthView extends StatelessWidget {
                             errorBuilder: (ctx, err, stack) =>
                                 const Icon(Icons.g_mobiledata, size: 18),
                           ),
-                    label: isSigningInWithGoogle
-                        ? const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Text('Entrando...'),
-                            ],
-                          )
-                        : const Text('Continuar com Google'),
+                    label: Text(
+                      isGoogleProcessing
+                          ? 'Conectando...'
+                          : 'Continuar com Google',
+                    ),
                   ),
                 ],
               ),

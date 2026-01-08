@@ -24,9 +24,9 @@ class _AuthScreenState extends State<AuthScreen> {
   final _nameController = TextEditingController();
   final _authService = AuthService();
 
-  bool _isSigningInWithEmail = false;
-  bool _isSigningUpWithEmail = false;
-  bool _isSigningInWithGoogle = false;
+  bool _isSigningIn = false;
+  bool _isSigningUp = false;
+  bool _isGoogleProcessing = false;
   bool _showSignUp = false;
 
   Future<void> _showErrorFluent(Object e) async {
@@ -134,7 +134,9 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _handleGoogleAuth() async {
-    setState(() => _isSigningInWithGoogle = true);
+    setState(() {
+      _isGoogleProcessing = true;
+    });
     try {
       final result = await _authService.signInWithGoogle();
       if (!mounted) return;
@@ -149,7 +151,9 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } finally {
       if (mounted) {
-        setState(() => _isSigningInWithGoogle = false);
+        setState(() {
+          _isGoogleProcessing = false;
+        });
       }
     }
   }
@@ -166,9 +170,8 @@ class _AuthScreenState extends State<AuthScreen> {
         passwordController: _passwordController,
         nameController: _nameController,
         showSignUp: _showSignUp,
-        isSigningInWithEmail: _isSigningInWithEmail,
-        isSigningUpWithEmail: _isSigningUpWithEmail,
-        isSigningInWithGoogle: _isSigningInWithGoogle,
+        isProcessing: _isSigningIn || _isSigningUp,
+        isGoogleProcessing: _isGoogleProcessing,
         onAuth: _handleEmailAuth,
         onToggleMode: () => setState(() => _showSignUp = !_showSignUp),
         onGoogleAuth: _handleGoogleAuth,
@@ -180,9 +183,8 @@ class _AuthScreenState extends State<AuthScreen> {
         passwordController: _passwordController,
         nameController: _nameController,
         showSignUp: _showSignUp,
-        isSigningInWithEmail: _isSigningInWithEmail,
-        isSigningUpWithEmail: _isSigningUpWithEmail,
-        isSigningInWithGoogle: _isSigningInWithGoogle,
+        isProcessing: _isSigningIn || _isSigningUp,
+        isGoogleProcessing: _isGoogleProcessing,
         onAuth: _handleEmailAuth,
         onToggleMode: () => setState(() => _showSignUp = !_showSignUp),
         onGoogleAuth: _handleGoogleAuth,
