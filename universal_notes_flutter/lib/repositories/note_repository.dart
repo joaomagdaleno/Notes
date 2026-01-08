@@ -769,6 +769,7 @@ class NoteRepository {
       whereArgs: rowIds,
       orderBy: 'date DESC',
     );
+
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 

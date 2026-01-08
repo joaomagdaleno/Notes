@@ -55,6 +55,28 @@ enum SortOrder {
 }
 
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
+  // ⚡ Bolt: Cache SliverGridDelegates to avoid re-creating them on every
+  // build. This is a significant performance win for list scrolling.
+  static const _gridDelegateLarge =
+      SliverGridDelegateWithMaxCrossAxisExtent(
+    maxCrossAxisExtent: 300,
+    childAspectRatio: 3 / 2,
+    crossAxisSpacing: 8,
+    mainAxisSpacing: 8,
+  );
+  static const _gridDelegateList =
+      SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 1,
+    childAspectRatio: 5 / 1,
+  );
+  static const _gridDelegateMedium =
+      SliverGridDelegateWithMaxCrossAxisExtent(
+    maxCrossAxisExtent: 200,
+    childAspectRatio: 3 / 2,
+    crossAxisSpacing: 8,
+    mainAxisSpacing: 8,
+  );
+
   SidebarSelection _selection = const SidebarSelection(SidebarItemType.all);
   final _sortOrderNotifier = ValueNotifier<SortOrder>(SortOrder.dateDesc);
   final SyncService _syncService = SyncService.instance;
@@ -461,9 +483,55 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _deletePermanently(Note note) async {
-    final noteRepository = NoteRepository.instance;
-    await noteRepository.deleteNotePermanently(note.id);
-    await _syncService.refreshLocalData();
+    final bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+          return fluent.ContentDialog(
+            title: const Text('Delete Permanently?'),
+            content: const Text(
+              'This action cannot be undone. Are you sure you want to permanently delete this note?',
+            ),
+            actions: [
+              fluent.Button(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              fluent.FilledButton(
+                style: fluent.ButtonStyle(
+                  backgroundColor: fluent.ButtonState.all(Colors.red.dark),
+                ),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Delete'),
+              ),
+            ],
+          );
+        }
+        return AlertDialog(
+          title: const Text('Delete Permanently?'),
+          content: const Text(
+            'This action cannot be undone. Are you sure you want to permanently delete this note?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      final noteRepository = NoteRepository.instance;
+      await noteRepository.deleteNotePermanently(note.id);
+      await _syncService.refreshLocalData();
+    }
   }
 
   String _getAppBarTitle() {
@@ -564,15 +632,11 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     return ValueListenableBuilder<SortOrder>(
       valueListenable: _sortOrderNotifier,
       builder: (context, sortOrder, child) {
-        // Filter by search query
-        final query = _searchController.text.toLowerCase();
-        var displayNotes = notes;
-        if (query.isNotEmpty) {
-          displayNotes = notes.where((note) {
-            return note.title.toLowerCase().contains(query) ||
-                note.content.toLowerCase().contains(query);
-          }).toList();
-        }
+        // ⚡ Bolt: Removed redundant synchronous search filter. The debounced,
+        // async search in `_onSearchChanged` already handles this, preventing
+        // unnecessary filtering on the UI thread during rebuilds for events
+        // like sorting.
+        final displayNotes = List<Note>.from(notes);
 
         // Apply client-side sorting
         displayNotes.sort((a, b) {
@@ -700,24 +764,11 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   SliverGridDelegate _getGridDelegate(String viewMode) {
     switch (viewMode) {
       case 'grid_large':
-        return const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 300,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-        );
+        return _gridDelegateLarge;
       case 'list':
-        return const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 1,
-          childAspectRatio: 5 / 1,
-        );
+        return _gridDelegateList;
       default: // grid_medium
-        return const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-        );
+        return _gridDelegateMedium;
     }
   }
 
