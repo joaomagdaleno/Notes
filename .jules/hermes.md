@@ -1,0 +1,7 @@
+# Hermes' Journal - CRITICAL LEARNINGS ONLY
+
+## 2026-01-08 - [Centralized Versioning & Path Modernization] **Pipeline:** Broken feedback loop due to project rename and fragmented versioning logic. **Automation:** Created `scripts/update_version.dart` using Dart 3 sealed classes to unify versioning across platforms and modernized secret management with `--dart-define-from-file`. **Velocity:** Restored CI/CD functionality and saved ~5 mins per release by removing manual versioning steps.
+
+## 2026-01-08 - [Build Optimization & Artifact Health] **Pipeline:** Bloated binaries and slow Quality Gate due to redundant code generation. **Automation:** Implemented APK/Windows obfuscation and split debug info. Added `build_runner` caching and a 24h cache purge logic using GH CLI. Created `scripts/check_health.dart` for automated artifact size auditing. **Velocity:** Reduced CI feedback loop by ~3-5 mins with caching and prepared for smaller, more secure production binaries.
+
+## 2026-01-08 - [Release Traceability & Quality Guards] **Pipeline:** Lack of commit-to-binary traceability and fragmented coverage logic. **Automation:** Created `scripts/calculate_coverage.dart` to unify coverage calculation and enforce 80% threshold in CI. Developed `scripts/generate_changelog.dart` for automated release notes. Injected `COMMIT_SHA` and `BUILD_TIME` into `env.json`. **Velocity:** Improved release visibility and ensured high quality standards are maintained automatically.

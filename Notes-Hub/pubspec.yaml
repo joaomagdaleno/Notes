@@ -2,7 +2,7 @@ name: notes_hub
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.1.0-dev.42+42
 
 environment:
   sdk: '>=3.5.0 <4.0.0'
@@ -68,5 +68,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/dictionaries/
-
 
