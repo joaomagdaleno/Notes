@@ -26,6 +26,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   bool _isSigningIn = false;
   bool _isSigningUp = false;
+  bool _isSigningInWithGoogle = false;
   bool _showSignUp = false;
 
   Future<void> _showErrorFluent(Object e) async {
@@ -57,13 +58,14 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _handleEmailAuth() async {
+    if (_isSigningInWithEmail ||
+        _isSigningUpWithEmail ||
+        _isSigningInWithGoogle) {
+      return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
-        if (_showSignUp) {
-          _isSigningUp = true;
-        } else {
-          _isSigningIn = true;
-        }
+        _isEmailAuthLoading = true;
       });
 
       try {
@@ -119,8 +121,7 @@ class _AuthScreenState extends State<AuthScreen> {
       } finally {
         if (mounted) {
           setState(() {
-            _isSigningIn = false;
-            _isSigningUp = false;
+            _isEmailAuthLoading = false;
           });
         }
       }
@@ -128,6 +129,9 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _handleGoogleAuth() async {
+    setState(() {
+      _isSigningInWithGoogle = true;
+    });
     try {
       final result = await _authService.signInWithGoogle();
       if (!mounted) return;
@@ -140,11 +144,20 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         await _showErrorMaterial(e);
       }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSigningInWithGoogle = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isProcessing = _isSigningIn || _isSigningUp;
+    final isGoogleProcessing = _isSigningInWithGoogle;
+
     if (defaultTargetPlatform == TargetPlatform.windows) {
       return FluentAuthView(
         formKey: _formKey,
@@ -152,7 +165,8 @@ class _AuthScreenState extends State<AuthScreen> {
         passwordController: _passwordController,
         nameController: _nameController,
         showSignUp: _showSignUp,
-        isProcessing: _isSigningIn || _isSigningUp,
+        isProcessing: isProcessing,
+        isGoogleProcessing: isGoogleProcessing,
         onAuth: _handleEmailAuth,
         onToggleMode: () => setState(() => _showSignUp = !_showSignUp),
         onGoogleAuth: _handleGoogleAuth,
@@ -164,7 +178,8 @@ class _AuthScreenState extends State<AuthScreen> {
         passwordController: _passwordController,
         nameController: _nameController,
         showSignUp: _showSignUp,
-        isProcessing: _isSigningIn || _isSigningUp,
+        isProcessing: isProcessing,
+        isGoogleProcessing: isGoogleProcessing,
         onAuth: _handleEmailAuth,
         onToggleMode: () => setState(() => _showSignUp = !_showSignUp),
         onGoogleAuth: _handleGoogleAuth,
