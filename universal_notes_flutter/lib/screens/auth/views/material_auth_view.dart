@@ -9,8 +9,8 @@ class MaterialAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isProcessing,
-    required this.isGoogleProcessing,
+    required this.isEmailLoading,
+    required this.isGoogleLoading,
     required this.onAuth,
     required this.onToggleMode,
     required this.onGoogleAuth,
@@ -33,16 +33,10 @@ class MaterialAuthView extends StatelessWidget {
   final bool showSignUp;
 
   /// Whether the email authentication process is currently running.
-  final bool isEmailAuthLoading;
+  final bool isEmailLoading;
 
   /// Whether the Google authentication process is currently running.
-  final bool isGoogleAuthLoading;
-
-  /// Whether the Google authentication process is currently running.
-  final bool isGoogleProcessing;
-
-  /// Whether the Google authentication process is currently running.
-  final bool isGoogleProcessing;
+  final bool isGoogleLoading;
 
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
@@ -56,8 +50,7 @@ class MaterialAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
-    final isProcessing =
-        isSigningInWithEmail || isSigningUpWithEmail || isSigningInWithGoogle;
+    final isAnyLoading = isEmailLoading || isGoogleLoading;
 
     return Scaffold(
       appBar: AppBar(
@@ -85,6 +78,12 @@ class MaterialAuthView extends StatelessWidget {
                         prefixIcon: Icon(Icons.person_outline),
                         border: OutlineInputBorder(),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira seu nome';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                   ],
@@ -98,6 +97,12 @@ class MaterialAuthView extends StatelessWidget {
                       prefixIcon: Icon(Icons.email_outlined),
                       border: OutlineInputBorder(),
                     ),
+                    validator: (value) {
+                      if (value == null || !value.contains('@')) {
+                        return 'Por favor, insira um email válido';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -110,15 +115,19 @@ class MaterialAuthView extends StatelessWidget {
                       prefixIcon: Icon(Icons.lock_outline),
                       border: OutlineInputBorder(),
                     ),
+                    validator: (value) {
+                      if (value == null || value.length < 6) {
+                        return 'A senha deve ter pelo menos 6 caracteres';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: isEmailAuthLoading || isGoogleAuthLoading
-                          ? null
-                          : onAuth,
-                      child: isEmailAuthLoading
+                      onPressed: isAnyLoading ? null : onAuth,
+                      child: isEmailLoading
                           ? const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -139,9 +148,7 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: isEmailAuthLoading || isGoogleAuthLoading
-                        ? null
-                        : onToggleMode,
+                    onPressed: isAnyLoading ? null : onToggleMode,
                     child: Text(
                       showSignUp
                           ? 'Já tem uma conta? Entre aqui'
@@ -155,10 +162,8 @@ class MaterialAuthView extends StatelessWidget {
                   const Text('Ou entre com'),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: isProcessing || isGoogleProcessing
-                        ? null
-                        : onGoogleAuth,
-                    icon: isGoogleProcessing
+                    onPressed: isAnyLoading ? null : onGoogleAuth,
+                    icon: isGoogleLoading
                         ? const SizedBox(
                             width: 18,
                             height: 18,
@@ -171,11 +176,7 @@ class MaterialAuthView extends StatelessWidget {
                             errorBuilder: (ctx, err, stack) =>
                                 const Icon(Icons.g_mobiledata, size: 18),
                           ),
-                    label: Text(
-                      isGoogleProcessing
-                          ? 'Entrando...'
-                          : 'Continuar com Google',
-                    ),
+                    label: const Text('Continuar com Google'),
                   ),
                 ],
               ),

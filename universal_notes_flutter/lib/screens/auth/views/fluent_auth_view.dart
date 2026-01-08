@@ -10,8 +10,8 @@ class FluentAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isProcessing,
-    required this.isGoogleProcessing,
+    required this.isEmailLoading,
+    required this.isGoogleLoading,
     required this.onAuth,
     required this.onToggleMode,
     required this.onGoogleAuth,
@@ -34,16 +34,10 @@ class FluentAuthView extends StatelessWidget {
   final bool showSignUp;
 
   /// Whether the email authentication process is currently running.
-  final bool isEmailAuthLoading;
+  final bool isEmailLoading;
 
   /// Whether the Google authentication process is currently running.
-  final bool isGoogleAuthLoading;
-
-  /// Whether the Google authentication process is currently running.
-  final bool isGoogleProcessing;
-
-  /// Whether the Google authentication process is currently running.
-  final bool isGoogleProcessing;
+  final bool isGoogleLoading;
 
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
@@ -57,8 +51,7 @@ class FluentAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
-    final isProcessing =
-        isSigningInWithEmail || isSigningUpWithEmail || isSigningInWithGoogle;
+    final isAnyLoading = isEmailLoading || isGoogleLoading;
 
     return fluent.FluentTheme(
       data: fluent.FluentThemeData.light(),
@@ -90,6 +83,12 @@ class FluentAuthView extends StatelessWidget {
                               padding: EdgeInsets.only(left: 8),
                               child: Icon(fluent.FluentIcons.contact),
                             ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, insira seu nome';
+                              }
+                              return null;
+                            },
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -101,6 +100,12 @@ class FluentAuthView extends StatelessWidget {
                           controller: emailController,
                           placeholder: 'seu@email.com',
                           keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || !value.contains('@')) {
+                              return 'Por favor, insira um email válido';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -110,16 +115,20 @@ class FluentAuthView extends StatelessWidget {
                           enabled: !isProcessing,
                           controller: passwordController,
                           placeholder: 'Sua senha segura',
+                          validator: (value) {
+                            if (value == null || value.length < 6) {
+                              return 'A senha deve ter pelo menos 6 caracteres';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
                         child: fluent.FilledButton(
-                          onPressed: isEmailAuthLoading || isGoogleAuthLoading
-                              ? null
-                              : onAuth,
-                          child: isEmailAuthLoading
+                          onPressed: isAnyLoading ? null : onAuth,
+                          child: isEmailLoading
                               ? const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -139,9 +148,7 @@ class FluentAuthView extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       fluent.HyperlinkButton(
-                        onPressed: isEmailAuthLoading || isGoogleAuthLoading
-                            ? null
-                            : onToggleMode,
+                        onPressed: isAnyLoading ? null : onToggleMode,
                         child: Text(
                           showSignUp
                               ? 'Já tem uma conta? Entre aqui'
@@ -156,9 +163,7 @@ class FluentAuthView extends StatelessWidget {
                       const SizedBox(height: 16),
                       Center(
                         child: fluent.HoverButton(
-                          onPressed: isProcessing || isGoogleProcessing
-                              ? null
-                              : onGoogleAuth,
+                          onPressed: isAnyLoading ? null : onGoogleAuth,
                           builder: (context, states) {
                             final theme = fluent.FluentTheme.of(context);
                             return fluent.Card(
@@ -172,7 +177,7 @@ class FluentAuthView extends StatelessWidget {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (isGoogleProcessing)
+                                  if (isGoogleLoading)
                                     const SizedBox(
                                       width: 18,
                                       height: 18,
