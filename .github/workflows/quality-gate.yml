@@ -2,7 +2,6 @@ name: Quality Gate
 
 on:
   workflow_call:
-    # Se quiser, pode passar inputs para o workflow, como o nível mínimo de cobertura
     inputs:
       min_coverage:
         description: 'Minimum code coverage percentage'
@@ -11,17 +10,14 @@ on:
         type: string
 
 jobs:
-  quality:
-    name: Quality Gate
+  check-changes:
+    name: Check Changes
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
-    timeout-minutes: 20
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Check changes
         id: filter
         uses: dorny/paths-filter@v3
@@ -34,199 +30,102 @@ jobs:
               - '.github/workflows/**'
               - 'scripts/**'
 
-      - name: Free up disk space
-        if: steps.filter.outputs.code == 'true' && runner.os == 'Linux'
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+  static-analysis:
+    name: Static Analysis
+    needs: check-changes
+    if: needs.check-changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
-        with:
-          fetch-depth: 0 # Necessário para o git history em alguns casos
-
+        uses: actions/checkout@v4
       - name: Install Flutter
-        if: steps.filter.outputs.code == 'true'
-        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.38.2' # Verifique se esta versão é a correta (3.19.x é a mais recente estável)
+          flutter-version: '3.38.2'
           cache: true
-
-
       - name: Flutter Pub Get
-        if: steps.filter.outputs.code == 'true'
         working-directory: Notes-Hub
         run: flutter pub get
-
       - name: Check Formatting
-        if: steps.filter.outputs.code == 'true'
         working-directory: Notes-Hub
         run: dart format --output=none --set-exit-if-changed .
-
       - name: Dependency Audit
-        if: steps.filter.outputs.code == 'true'
         run: dart scripts/audit_dependencies.dart
+      - name: License Audit
+        run: dart scripts/audit_licenses.dart > license_audit.txt 2>&1 || (cat license_audit.txt && exit 1)
+      - name: Run Flutter Analyzer
+        working-directory: Notes-Hub
+        run: flutter analyze --no-fatal-infos
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@v3.82.2
+      - name: Upload Analysis Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-results
+          path: license_audit.txt
+          retention-days: 1
 
+  functional-tests:
+    name: Functional Tests
+    needs: check-changes
+    if: needs.check-changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.2'
+          cache: true
+      - name: Flutter Pub Get
+        working-directory: Notes-Hub
+        run: flutter pub get
       - name: Cache build_runner
-        if: steps.filter.outputs.code == 'true'
         uses: actions/cache@v4
         with:
           path: Notes-Hub/.dart_tool/build
           key: ${{ runner.os }}-build-runner-${{ hashFiles('Notes-Hub/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-runner-
-
       - name: Generate Mocks
-        if: steps.filter.outputs.code == 'true'
         working-directory: Notes-Hub
         run: flutter pub run build_runner build --delete-conflicting-outputs
-
-      - name: Run Health Audit
-        if: steps.filter.outputs.code == 'true'
-        run: dart scripts/check_health.dart > health_output.txt 2>&1 || (cat health_output.txt && exit 1)
-
-      - name: Purge Old Caches
-        if: always() && steps.filter.outputs.code == 'true'
-        shell: bash
-        run: |
-          echo "Hunting for caches older than 24 hours..."
-          current_time=$(date +%s)
-          one_day_ago=$((current_time - 86400))
-          
-          # List all caches and delete those older than 24h
-          gh cache list --limit 100 --json id,createdAt,key | jq -r ".[] | select((.createdAt | fromdateiso8601) < $one_day_ago) | .id" | xargs -I {} gh cache delete {} || echo "No old caches to delete."
-
-      - name: Run Flutter Analyzer
-        if: steps.filter.outputs.code == 'true'
-        working-directory: Notes-Hub
-        run: flutter analyze --no-fatal-infos
-
-      - name: Dependency Scanning (SCA)
-        if: steps.filter.outputs.code == 'true'
-        working-directory: Notes-Hub
-        run: |
-          echo "Checking for security vulnerabilities in dependencies..."
-          dart pub outdated --mode=security || echo "No security mode supported or vulnerabilities found. High level check only."
-          # Add more specific SCA tools here if needed, e.g., osv-scanner
-
-      - name: TruffleHog OSS
-        if: steps.filter.outputs.code == 'true'
-        uses: trufflesecurity/trufflehog@v3.82.2 # Pinned version
-
       - name: Run Tests
-        if: steps.filter.outputs.code == 'true'
         working-directory: Notes-Hub
         run: flutter test --coverage
-
-      - name: Generate HTML coverage report
-        if: steps.filter.outputs.code == 'true'
-        working-directory: Notes-Hub
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lcov
-          genhtml coverage/lcov.info -o coverage/html
-
-      - name: Upload HTML coverage report artifact
-        if: steps.filter.outputs.code == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report-html
-          path: Notes-Hub/coverage/html
-          retention-days: 15
-
+      - name: Calculate coverage
+        run: dart scripts/calculate_coverage.dart Notes-Hub/coverage/lcov.info ${{ inputs.min_coverage }}
       - name: Upload lcov artifact
-        if: steps.filter.outputs.code == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-lcov
           path: Notes-Hub/coverage/lcov.info
           retention-days: 1
 
-      - name: Calculate and Check coverage
-        if: steps.filter.outputs.code == 'true'
-        id: coverage
-        run: dart scripts/calculate_coverage.dart Notes-Hub/coverage/lcov.info ${{ inputs.min_coverage }}
-
-      - name: Process coverage for summary
-        if: always()
-        run: |
-          if [ -f Notes-Hub/coverage/lcov.info ]; then
-            npx lcov-parse Notes-Hub/coverage/lcov.info > Notes-Hub/coverage.json
-          fi
-
-      - name: Calculate Size Drift
-        if: always() && github.event_name == 'pull_request'
-        run: |
-          # Checkout baseline from coverage-data branch
-          git fetch origin coverage-data:coverage-data || echo "Baseline branch not found"
-          git checkout coverage-data -- baseline_sizes.json || echo "Baseline not found"
-          
-          # We need artifacts from build job, but for now we look at local build folder if it exists
-          # In a real run, this would probably run after the build job or download artifacts
-          dart scripts/calculate_size_drift.dart baseline_sizes.json Notes-Hub/build
-
-      - name: Generate PR Summary
-        if: always() && github.event_name == 'pull_request'
-        run: |
-          # Ensure changelog exists for summary if available
-          git checkout ${{ github.base_ref }} -- scripts/generate_changelog.dart || echo "Scripts not available in base"
-          dart scripts/generate_changelog.dart || echo "Could not generate changelog"
-          # PR Summary now picks up size_drift.md if it exists
-          dart scripts/generate_pr_summary.dart
-
-      - name: Post PR Summary
-        if: always() && github.event_name == 'pull_request' && hashFiles('pr_summary.md') != ''
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          path: pr_summary.md
-
-  update-coverage-data:
-    name: Update Coverage Data Branch
-    needs: quality
+  report-results:
+    name: Report Results
+    needs: [static-analysis, functional-tests]
+    if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    # This job only runs on pushes to the main branch, not on PRs
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/beta')
-
     steps:
-      - name: Free up disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
-      - name: Checkout coverage-data branch
+      - name: Checkout
         uses: actions/checkout@v4
+      - name: Download Analysis Results
+        uses: actions/download-artifact@v4
         with:
-          ref: coverage-data
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download lcov artifact
+          name: analysis-results
+      - name: Download coverage
         uses: actions/download-artifact@v4
         with:
           name: coverage-lcov
-          path: coverage
-
-      - name: Process coverage data
+          path: Notes-Hub/coverage
+      - name: Generate PR Summary
         run: |
-          npx lcov-parse coverage/lcov.info > coverage.json.new
-          mv coverage.json.new coverage.json
-
-      - name: Commit and Push
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
-          # Move new sizes to baseline
-          if [ -f current_sizes.json ]; then
-            mv current_sizes.json baseline_sizes.json
-          fi
-          
-          git add coverage.json baseline_sizes.json
-          if ! git diff --staged --quiet; then
-            git commit -m "docs: Update metrics baseline [skip ci]"
-            git push
-          fi
+          # Fetch baseline and scripts if needed
+          git fetch origin coverage-data:coverage-data || echo "No baseline branch"
+          git checkout coverage-data -- baseline_sizes.json || echo "No baseline file"
+          dart scripts/generate_pr_summary.dart
+      - name: Post PR Summary
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: pr_summary.md

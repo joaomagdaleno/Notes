@@ -54,7 +54,23 @@ void main(List<String> args) {
     sb.writeln('\n' + driftFile.readAsStringSync());
   }
 
-  // 4. Changelog
+  // 4. License Audit
+  final licenseFile = File('license_audit.txt');
+  if (licenseFile.existsSync()) {
+    final licenseContent = licenseFile.readAsStringSync();
+    final hasErrors = licenseContent.contains('❌');
+    final icon = hasErrors ? '❌' : '📜';
+    sb.writeln('\n### $icon License Audit');
+    if (hasErrors) {
+      sb.writeln(
+        '<details><summary>Click to view license issues</summary>\n\n```\n$licenseContent\n```\n</details>',
+      );
+    } else {
+      sb.writeln('- All dependency licenses are compliant.');
+    }
+  }
+
+  // 5. Changelog
   if (changelogFile.existsSync()) {
     final changelog = changelogFile.readAsStringSync();
     sb.writeln('\n### 📝 Proposed Changelog');

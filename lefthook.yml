@@ -17,6 +17,12 @@ pre-commit:
 
 pre-push:
   commands:
+    analyze:
+      root: Notes-Hub/
+      run: flutter analyze
+    format:
+      root: Notes-Hub/
+      run: dart format --set-exit-if-changed .
     test:
       root: Notes-Hub/
       run: flutter test

@@ -29,6 +29,15 @@ jobs:
         with:
           name: changelog
           path: changelog.md
+      - name: Generate BOM (Windows)
+        run: dart scripts/generate_bom.dart Notes-Hub/build/windows/runner/Release
+
+      - name: Upload BOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-bom
+          path: bom.json
+          retention-days: 15
       - name: Install Flutter
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
