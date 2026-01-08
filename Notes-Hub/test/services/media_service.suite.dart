@@ -9,8 +9,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:notes_hub/services/media_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-// plugin_platform_interface is a transitive dependency
-// ignore: depend_on_referenced_packages
+// plugin_platform_interface is now a direct dependency
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockPathProvider extends Mock

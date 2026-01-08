@@ -1,0 +1,22 @@
+﻿Analyzing Notes-Hub...                                          
+
+   info - Dependencies not sorted alphabetically - pubspec.yaml:67:3 - sort_pub_dependencies
+   info - The diagnostic 'depend_on_referenced_packages' isn't produced at this location so it doesn't need to be ignored - test\services\media_service.suite.dart:13:12 - unnecessary_ignore
+
+flutter : 2 issues 
+found. (ran in 3.0s)
+No linha:1 caractere:1
++ flutter analyze > 
+analyze_last.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (2 issues f   
+ ound. (ran in 3.0    
+s):String) [], Re    
+moteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
