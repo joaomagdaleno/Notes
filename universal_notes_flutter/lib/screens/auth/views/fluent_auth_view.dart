@@ -51,6 +51,7 @@ class FluentAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
+    final isAnyLoading = isEmailLoading || isGoogleLoading;
 
     return fluent.FluentTheme(
       data: fluent.FluentThemeData.light(),
@@ -75,12 +76,19 @@ class FluentAuthView extends StatelessWidget {
                         fluent.InfoLabel(
                           label: 'Nome de Exibição',
                           child: fluent.TextBox(
+                            enabled: !isProcessing,
                             controller: nameController,
                             placeholder: 'Como você quer ser chamado',
                             prefix: const Padding(
                               padding: EdgeInsets.only(left: 8),
                               child: Icon(fluent.FluentIcons.contact),
                             ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, insira seu nome';
+                              }
+                              return null;
+                            },
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -88,17 +96,31 @@ class FluentAuthView extends StatelessWidget {
                       fluent.InfoLabel(
                         label: 'Email',
                         child: fluent.TextBox(
+                          enabled: !isProcessing,
                           controller: emailController,
                           placeholder: 'seu@email.com',
                           keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || !value.contains('@')) {
+                              return 'Por favor, insira um email válido';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const SizedBox(height: 16),
                       fluent.InfoLabel(
                         label: 'Senha',
                         child: fluent.PasswordBox(
+                          enabled: !isProcessing,
                           controller: passwordController,
                           placeholder: 'Sua senha segura',
+                          validator: (value) {
+                            if (value == null || value.length < 6) {
+                              return 'A senha deve ter pelo menos 6 caracteres';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -127,8 +149,8 @@ class FluentAuthView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                       fluent.HyperlinkButton(
-                        onPressed: onToggleMode,
+                      fluent.HyperlinkButton(
+                        onPressed: isAnyLoading ? null : onToggleMode,
                         child: Text(
                           showSignUp
                               ? 'Já tem uma conta? Entre aqui'

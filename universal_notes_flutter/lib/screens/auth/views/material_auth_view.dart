@@ -50,6 +50,7 @@ class MaterialAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
+    final isAnyLoading = isEmailLoading || isGoogleLoading;
 
     return Scaffold(
       appBar: AppBar(
@@ -69,6 +70,7 @@ class MaterialAuthView extends StatelessWidget {
                   const SizedBox(height: 24),
                   if (showSignUp) ...[
                     TextFormField(
+                      enabled: !isProcessing,
                       controller: nameController,
                       decoration: const InputDecoration(
                         labelText: 'Nome de Exibição',
@@ -76,10 +78,17 @@ class MaterialAuthView extends StatelessWidget {
                         prefixIcon: Icon(Icons.person_outline),
                         border: OutlineInputBorder(),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira seu nome';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                   ],
                   TextFormField(
+                    enabled: !isProcessing,
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
@@ -88,9 +97,16 @@ class MaterialAuthView extends StatelessWidget {
                       prefixIcon: Icon(Icons.email_outlined),
                       border: OutlineInputBorder(),
                     ),
+                    validator: (value) {
+                      if (value == null || !value.contains('@')) {
+                        return 'Por favor, insira um email válido';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    enabled: !isProcessing,
                     controller: passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(
@@ -99,6 +115,12 @@ class MaterialAuthView extends StatelessWidget {
                       prefixIcon: Icon(Icons.lock_outline),
                       border: OutlineInputBorder(),
                     ),
+                    validator: (value) {
+                      if (value == null || value.length < 6) {
+                        return 'A senha deve ter pelo menos 6 caracteres';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -127,7 +149,7 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: onToggleMode,
+                    onPressed: isAnyLoading ? null : onToggleMode,
                     child: Text(
                       showSignUp
                           ? 'Já tem uma conta? Entre aqui'
