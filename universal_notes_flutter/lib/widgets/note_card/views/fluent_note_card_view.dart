@@ -53,6 +53,9 @@ class FluentNoteCardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = fluent.FluentTheme.of(context);
+    // ⚡ Bolt: Cache Typography to avoid multiple expensive lookups in the build
+    // method.
+    final typography = theme.typography;
 
     return fluent.FlyoutTarget(
       controller: flyoutController,
@@ -89,7 +92,7 @@ class FluentNoteCardView extends StatelessWidget {
                     children: [
                       Text(
                         note.title,
-                        style: theme.typography.bodyLarge,
+                        style: typography.bodyLarge,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -97,7 +100,7 @@ class FluentNoteCardView extends StatelessWidget {
                       Expanded(
                         child: Text(
                           plainTextContent,
-                          style: theme.typography.body,
+                          style: typography.body,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 5,
                         ),
@@ -105,7 +108,7 @@ class FluentNoteCardView extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         dateFormat.format(note.date),
-                        style: theme.typography.caption,
+                        style: typography.caption,
                       ),
                     ],
                   ),
