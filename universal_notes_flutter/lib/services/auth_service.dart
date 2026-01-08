@@ -24,12 +24,18 @@ class AuthService {
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
   /// Private helper to sync user profile to Firestore.
+  // 🛡️ Sentinel: This method now propagates errors instead of logging with
+  // `print()` to avoid leaking sensitive information in production and to
+  // ensure callers handle critical profile sync failures.
   Future<void> _syncUserProfile(User user) async {
     try {
       await _firestoreRepository.createUser(user);
-    } on Exception catch (e) {
-      // ignore: avoid_print, Print is used here for fallback logging if Firestore fails during profile sync.
-      print('Warning: Failed to sync profile to Firestore: $e');
+    } on Exception {
+      // 🛡️ Sentinel: Re-throwing the exception is critical. Silently
+      // catching it (as was done before) hides a critical failure and leads
+      // to an inconsistent app state, a severe security and reliability risk.
+      // The caller must handle this failure.
+      rethrow;
     }
   }
 
@@ -64,7 +70,7 @@ class AuthService {
 
       // Create user profile in Firestore
       try {
-        await _firestoreRepository.createUser(credential.user!);
+        await _syncUserProfile(credential.user!);
       } on Exception {
         await credential.user?.delete();
         rethrow;
@@ -93,8 +99,18 @@ class AuthService {
     );
 
     final userCredential = await _firebaseAuth.signInWithCredential(credential);
+    // 🛡️ Sentinel: This try-catch block is a critical security measure.
+    // If creating the user profile fails, we MUST roll back the Firebase
+    // authentication by signing the user out. This prevents the app from
+    // getting into an inconsistent state where a user is authenticated but
+    // has no profile data, which is a recipe for crashes and bugs.
     if (userCredential.user != null) {
-      await _syncUserProfile(userCredential.user!);
+      try {
+        await _syncUserProfile(userCredential.user!);
+      } on Exception {
+        await signOut();
+        rethrow;
+      }
     }
     return userCredential;
   }

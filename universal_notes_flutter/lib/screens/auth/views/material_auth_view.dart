@@ -32,8 +32,14 @@ class MaterialAuthView extends StatelessWidget {
   /// Whether to show the sign up form instead of login.
   final bool showSignUp;
 
-  /// Whether an authentication process is currently running.
-  final bool isProcessing;
+  /// Whether the email authentication process is currently running.
+  final bool isEmailAuthLoading;
+
+  /// Whether the Google authentication process is currently running.
+  final bool isGoogleAuthLoading;
+
+  /// Whether the Google authentication process is currently running.
+  final bool isGoogleProcessing;
 
   /// Whether the Google authentication process is currently running.
   final bool isGoogleProcessing;
@@ -50,6 +56,8 @@ class MaterialAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
+    final isProcessing =
+        isSigningInWithEmail || isSigningUpWithEmail || isSigningInWithGoogle;
 
     return Scaffold(
       appBar: AppBar(
@@ -69,6 +77,7 @@ class MaterialAuthView extends StatelessWidget {
                   const SizedBox(height: 24),
                   if (showSignUp) ...[
                     TextFormField(
+                      enabled: !isProcessing,
                       controller: nameController,
                       decoration: const InputDecoration(
                         labelText: 'Nome de Exibição',
@@ -80,6 +89,7 @@ class MaterialAuthView extends StatelessWidget {
                     const SizedBox(height: 16),
                   ],
                   TextFormField(
+                    enabled: !isProcessing,
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
@@ -91,6 +101,7 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    enabled: !isProcessing,
                     controller: passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(
@@ -104,8 +115,10 @@ class MaterialAuthView extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: isProcessing ? null : onAuth,
-                      child: isProcessing
+                      onPressed: isEmailAuthLoading || isGoogleAuthLoading
+                          ? null
+                          : onAuth,
+                      child: isEmailAuthLoading
                           ? const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -126,7 +139,9 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: onToggleMode,
+                    onPressed: isEmailAuthLoading || isGoogleAuthLoading
+                        ? null
+                        : onToggleMode,
                     child: Text(
                       showSignUp
                           ? 'Já tem uma conta? Entre aqui'
