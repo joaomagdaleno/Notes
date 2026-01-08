@@ -133,15 +133,12 @@ class _NoteCardState extends State<NoteCard> {
 
   void _showFluentContextMenu(Offset globalPosition) {
     if (!mounted) return;
-    
+
     unawaited(
       _flyoutController.showFlyout<void>(
         autoModeConfiguration: fluent.FlyoutAutoConfiguration(
           preferredMode: fluent.FlyoutPlacementMode.bottomRight,
         ),
-        barrierDismissible: true,
-        dismissOnPointerMoveAway: false,
-        dismissWithEsc: true,
         builder: (context) {
           return fluent.MenuFlyout(
             items: widget.note.isInTrash

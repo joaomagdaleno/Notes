@@ -168,7 +168,7 @@ class _CommandPaletteState extends State<CommandPalette> {
                                     fluent.FluentPageRoute<void>(
                                       builder: (context) => NoteEditorScreen(
                                         note: result,
-                                        onSave: (updatedNote) async {
+                                        onSave: (Note updatedNote) async {
                                           await NoteRepository.instance
                                               .updateNote(updatedNote);
                                           await SyncService.instance
@@ -297,7 +297,7 @@ class _CommandPaletteState extends State<CommandPalette> {
                                     MaterialPageRoute<void>(
                                       builder: (context) => NoteEditorScreen(
                                         note: result,
-                                        onSave: (updatedNote) async {
+                                        onSave: (Note updatedNote) async {
                                           await NoteRepository.instance
                                               .updateNote(updatedNote);
                                           await SyncService.instance

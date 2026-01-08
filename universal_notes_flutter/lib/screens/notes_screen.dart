@@ -437,7 +437,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         builder: (context) => NoteEditorScreen(
           note: note,
           initialPersona: initialPersona,
-          onSave: (updatedNote) async {
+          onSave: (Note updatedNote) async {
             await NoteRepository.instance.updateNote(updatedNote);
             await _syncService.refreshLocalData();
             return updatedNote;
@@ -512,7 +512,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           return fluent.ContentDialog(
             title: const Text('Delete Permanently?'),
             content: const Text(
-              'This action cannot be undone. Are you sure you want to permanently delete this note?',
+              'This action cannot be undone. Are you sure you want to '
+              'permanently delete this note?',
             ),
             actions: [
               fluent.Button(
@@ -534,7 +535,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         return AlertDialog(
           title: const Text('Delete Permanently?'),
           content: const Text(
-            'This action cannot be undone. Are you sure you want to permanently delete this note?',
+            'This action cannot be undone. Are you sure you want to '
+            'permanently delete this note?',
           ),
           actions: [
             TextButton(
@@ -551,7 +553,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       },
     );
 
-    if (shouldDelete == true) {
+    if (shouldDelete ?? false) {
       final noteRepository = NoteRepository.instance;
       await noteRepository.deleteNotePermanently(note.id);
       await _syncService.refreshLocalData();

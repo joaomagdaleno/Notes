@@ -135,22 +135,22 @@ class GraphPainter extends CustomPainter {
     for (var i = 0; i < count; i++) {
       final angle = (i * 2 * 3.14159) / count;
       final dist = (size.width < size.height ? size.width : size.height) * 0.35;
-      positions.add(Offset(
-        center.dx +
-            dist *
-                (0.8 + 0.2 * (i % 2)) *
-                (i % 3 == 0 ? 0.9 : 1.1) *
-                (i.isEven ? 1 : 1.05) *
-                (i / count > 0.5 ? 0.95 : 1) *
-                math.cos(angle),
-        center.dy +
-            dist *
-                (0.8 + 0.2 * (i % 2)) *
-                (i % 3 == 0 ? 0.9 : 1.1) *
-                (i.isEven ? 1 : 1.05) *
-                (i / count > 0.5 ? 0.95 : 1) *
-                math.sin(angle),
-      ));
+      positions.add(
+        Offset(
+          center.dx +
+              dist *
+                  (0.8 + 0.2 * (i % 2)) *
+                  (i % 3 == 0 ? 0.9 : 1.1) *
+                  (i.isEven ? 1 : 1.05) *
+                  (i / count > 0.5 ? 0.95 : 1) *
+                  math.cos(angle),
+          center.dy +
+              dist *
+                  (0.8 + 0.2 * (i % 2)) *
+                  (i % 3 == 0 ? 0.9 : 1.1) *
+                  math.sin(angle),
+        ),
+      );
     }
 
     // Draw links
@@ -163,14 +163,15 @@ class GraphPainter extends CustomPainter {
     // Draw nodes
     for (var i = 0; i < count; i++) {
       // Glow/Outline
-      canvas.drawCircle(positions[i], 8, nodeOutlinePaint);
-      // Actual node
-      canvas.drawCircle(positions[i], 4, nodePaint);
+      canvas
+        ..drawCircle(positions[i], 8, nodeOutlinePaint)
+        // Actual node
+        ..drawCircle(positions[i], 4, nodePaint);
 
       // Label (Simplified)
       if (count < 20) {
         // Only draw labels if not too many nodes
-        final textPainter = TextPainter(
+        TextPainter(
           text: TextSpan(
             text: notes[i].title.length > 15
                 ? '${notes[i].title.substring(0, 12)}...'
@@ -178,12 +179,12 @@ class GraphPainter extends CustomPainter {
             style: TextStyle(color: textColor, fontSize: 10),
           ),
           textDirection: TextDirection.ltr,
-        )..layout();
-
-        textPainter.paint(
-          canvas,
-          positions[i] + const Offset(10, -5),
-        );
+        )
+          ..layout()
+          ..paint(
+            canvas,
+            positions[i] + const Offset(10, -5),
+          );
       }
     }
   }

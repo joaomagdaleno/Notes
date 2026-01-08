@@ -58,18 +58,20 @@ class MaterialSetupRecoveryView extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.blue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: Colors.blue.withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 children: [
                   const Icon(Icons.info_outline, color: Colors.blue),
                   const SizedBox(width: 12),
                   Expanded(
-                      child: Text(
-                        'Configure a recuperação para não perder acesso às suas '
-                        'notas caso esqueça a senha.',
-                        style: TextStyle(color: Colors.blue[800]),
-                      ),
+                    child: Text(
+                      'Configure a recuperação para não perder acesso às suas '
+                      'notas caso esqueça a senha.',
+                      style: TextStyle(color: Colors.blue[800]),
+                    ),
                   ),
                 ],
               ),
@@ -104,7 +106,9 @@ class MaterialSetupRecoveryView extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -127,7 +131,9 @@ class MaterialSetupRecoveryView extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.green.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [

@@ -182,7 +182,6 @@ class _FluentNotesViewState extends State<FluentNotesView> {
               ),
               pane: NavigationPane(
                 selected: _calculateSelectedIndex(folders, tags),
-                displayMode: PaneDisplayMode.auto,
                 items: [
                   PaneItem(
                     icon: const Icon(FluentIcons.all_apps),
@@ -220,22 +219,24 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                         controller: controller,
                         child: GestureDetector(
                           onSecondaryTapUp: (details) {
-                            unawaited(controller.showFlyout<void>(
-                              autoModeConfiguration: FlyoutAutoConfiguration(
-                                preferredMode: FlyoutPlacementMode.bottomRight,
+                            unawaited(
+                              controller.showFlyout<void>(
+                                autoModeConfiguration: FlyoutAutoConfiguration(
+                                  preferredMode:
+                                      FlyoutPlacementMode.bottomRight,
+                                ),
+                                builder: (context) => MenuFlyout(
+                                  items: [
+                                    MenuFlyoutItem(
+                                      leading: const Icon(FluentIcons.delete),
+                                      text: const Text('Delete'),
+                                      onPressed: () =>
+                                          widget.onDeleteFolder(folder.id),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              barrierDismissible: true,
-                              builder: (context) => MenuFlyout(
-                                items: [
-                                  MenuFlyoutItem(
-                                    leading: const Icon(FluentIcons.delete),
-                                    text: const Text('Delete'),
-                                    onPressed: () =>
-                                        widget.onDeleteFolder(folder.id),
-                                  ),
-                                ],
-                              ),
-                            ));
+                            );
                           },
                           child: Text(folder.name),
                         ),

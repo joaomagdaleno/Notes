@@ -1,0 +1,10 @@
+Analyzing universal_notes_flutter...                            
+
+   info - The value of the argument is redundant because it matches the default value - lib\screens\notes\views\fluent_notes_view.dart:226:51 - avoid_redundant_argument_values
+   info - Missing a required trailing comma - lib\screens\notes\views\fluent_notes_view.dart:237:30 - require_trailing_commas
+   info - Missing a required trailing comma - lib\screens\notes\views\fluent_notes_view.dart:265:26 - require_trailing_commas
+   info - Unnecessary duplication of receiver - lib\screens\notes_screen.dart:667:9 - cascade_invocations
+   info - Don't use adjacent strings in a list literal - lib\services\update_service.dart:43:15 - no_adjacent_strings_in_list
+   info - Missing a required trailing comma - lib\widgets\note_preview_dialog.dart:100:28 - require_trailing_commas
+
+6 issues found. (ran in 2.8s)

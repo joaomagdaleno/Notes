@@ -79,25 +79,27 @@ class NotePreviewDialog extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 4,
                   children: tags
-                      .map((tag) => Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                      .map(
+                        (tag) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.accentColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: theme.accentColor.withValues(alpha: 0.2),
                             ),
-                            decoration: BoxDecoration(
-                              color: theme.accentColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: theme.accentColor.withValues(alpha: 0.2),
-                              ),
+                          ),
+                          child: Text(
+                            tag.name,
+                            style: theme.typography.caption?.copyWith(
+                              color: theme.accentColor,
                             ),
-                            child: Text(
-                              tag.name,
-                              style: theme.typography.caption?.copyWith(
-                                color: theme.accentColor,
-                              ),
-                            ),
-                          ))
+                          ),
+                        ),
+                      )
                       .toList(),
                 ),
               ),
@@ -136,9 +138,8 @@ class NotePreviewDialog extends StatelessWidget {
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 4,
-                  children: tags
-                      .map((tag) => Chip(label: Text(tag.name)))
-                      .toList(),
+                  children:
+                      tags.map((tag) => Chip(label: Text(tag.name))).toList(),
                 ),
               ),
             const SizedBox(height: 16),

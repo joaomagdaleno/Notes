@@ -37,14 +37,15 @@ class UpdateCheckResult {
 class UpdateService {
   /// Creates a new instance of [UpdateService].
   UpdateService({http.Client? client, this.packageInfo})
-      // 🛡️ Sentinel: Use a SecureHttpClient with certificate pinning to prevent
-      // Man-in-the-Middle (MITM) attacks. By default, this client trusts only
-      // the certificate with the specified SHA256 fingerprint for
       // api.github.com. A custom client can still be injected for testing.
       : _client = client ??
             SecureHttpClient.build([
-              'E1:98:8B:15:72:3F:32:52:C2:39:56:E1:1B:04:4E:37:BC:7B:9F:ED:1C:4D:5E:10:FA:7A:E3:8F:5B:E0:6C:4E',
+              _certFingerprint,
             ]);
+
+  static const _certFingerprint =
+      'E1:98:8B:15:72:3F:32:52:C2:39:56:E1:1B:04:4E:37:BC:7B:9F:ED:'
+      '1C:4D:5E:10:FA:7A:E3:8F:5B:E0:6C:4E';
 
   final http.Client _client;
 
