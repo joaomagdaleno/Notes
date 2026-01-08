@@ -44,6 +44,9 @@ class NoteCard extends StatefulWidget {
   /// Callback when swiped left (move to trash).
   final void Function(Note)? onTrash;
 
+  // Optimization: DateFormat is expensive to instantiate.
+  // By creating it once as a static final variable, we avoid re-creating it
+  // on every build, improving performance, especially in lists.
   static final _dateFormat = DateFormat('d MMM. yyyy');
 
   @override
