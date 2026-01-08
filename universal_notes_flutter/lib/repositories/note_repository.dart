@@ -730,27 +730,27 @@ class NoteRepository {
 
   /// Searches all notes for the given term.
   Future<List<Note>> searchNotes(String searchTerm) async {
-    final db = await database;
-
-    // 🛡️ Sentinel: Add input length validation to prevent local DoS attacks
-    // from excessively long search terms bogging down the FTS5 engine.
+    // 🛡️ Sentinel: Add input length validation as a defense-in-depth measure
+    // against local DoS attacks. Even with FTS5, an excessively long query
+    // could consume significant resources.
     if (searchTerm.length > 256) {
       return [];
     }
 
+    final db = await database;
     if (searchTerm.isEmpty) {
       return getAllNotes();
     }
 
     // 🛡️ Sentinel: Use the FTS5 virtual table for secure and efficient search.
-    // This mitigates the risk of Denial-of-Service from expensive LIKE queries
-    // and is significantly faster. The query is parameterized with `whereArgs`
-    // to prevent any risk of SQL injection.
-    final ftsMaps = await db.query(
-      _notesFtsTable,
-      columns: ['rowid'],
-      where: '$_notesFtsTable MATCH ?',
-      whereArgs: [searchTerm],
+    // The previous implementation used a LIKE query, which is a local
+    // Denial-of-Service (DoS) vector, as it can be slow and resource-intensive
+    // on large text fields. FTS5 is optimized for this purpose.
+    // We pass the search term as a parameterized argument to prevent SQL
+    // injection vulnerabilities, even in a MATCH clause.
+    final ftsMaps = await db.rawQuery(
+      'SELECT rowid FROM $_notesFtsTable WHERE $_notesFtsTable MATCH ?',
+      [searchTerm],
     );
 
     if (ftsMaps.isEmpty) {
@@ -758,18 +758,14 @@ class NoteRepository {
     }
 
     final rowIds = ftsMaps.map((map) => map['rowid']).toList();
-
-    final columnsToFetch = Note.fromMap(const {})
-        .toMap()
-        .keys
-        .where((key) => key != 'content')
-        .toList();
+    final columnsToFetch =
+        Note.fromMap(const {}).toMap().keys.where((k) => k != 'content');
 
     final maps = await db.query(
       _notesTable,
-      columns: columnsToFetch,
-      where:
-          'rowid IN (${List.filled(rowIds.length, '?').join(',')}) AND isInTrash = 0',
+      columns: columnsToFetch.toList(),
+      where: 'rowid IN (${List.filled(rowIds.length, '?').join(',')}) '
+          'AND isInTrash = 0',
       whereArgs: rowIds,
       orderBy: 'date DESC',
     );
