@@ -661,21 +661,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         // ⚡ Bolt: No synchronous filtering needed here. The search results
         // are handled by a separate ValueListenableBuilder (_buildContent).
         // This was causing redundant work on the UI thread.
-        final displayNotes = List<Note>.from(notes);
-
-        // Apply client-side sorting
-        displayNotes.sort((a, b) {
-          switch (sortOrder) {
-            case SortOrder.dateAsc:
-              return a.lastModified.compareTo(b.lastModified);
-            case SortOrder.titleAsc:
-              return a.title.toLowerCase().compareTo(b.title.toLowerCase());
-            case SortOrder.titleDesc:
-              return b.title.toLowerCase().compareTo(a.title.toLowerCase());
-            case SortOrder.dateDesc:
-              return b.lastModified.compareTo(a.lastModified);
-          }
-        });
+        final displayNotes = List<Note>.from(notes)
+          ..sort((a, b) {
+            switch (sortOrder) {
+              case SortOrder.dateAsc:
+                return a.lastModified.compareTo(b.lastModified);
+              case SortOrder.titleAsc:
+                return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+              case SortOrder.titleDesc:
+                return b.title.toLowerCase().compareTo(a.title.toLowerCase());
+              case SortOrder.dateDesc:
+                return b.lastModified.compareTo(a.lastModified);
+            }
+          });
 
         if (displayNotes.isEmpty) {
           return const EmptyState(
@@ -706,7 +704,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                       return NoteCard(
                         note: note,
                         onTap: () => unawaited(_openNoteEditor(note)),
-                        onSave: (note) async {
+                        onSave: (Note note) async {
                           final noteRepository = NoteRepository.instance;
                           await noteRepository.updateNote(note);
                           await _syncService.refreshLocalData();

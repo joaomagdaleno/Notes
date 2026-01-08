@@ -257,14 +257,16 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                   ),
                   if (tags.isNotEmpty) ...[
                     PaneItemHeader(header: const Text('Tags')),
-                    ...tags.map((tag) => PaneItem(
-                          icon: const Icon(FluentIcons.tag),
-                          title: Text(tag),
-                          body: const SizedBox.shrink(),
-                          onTap: () => widget.onSelectionChanged(
-                            SidebarSelection(SidebarItemType.tag, tag: tag),
-                          ),
-                        )),
+                    ...tags.map(
+                      (tag) => PaneItem(
+                        icon: const Icon(FluentIcons.tag),
+                        title: Text(tag),
+                        body: const SizedBox.shrink(),
+                        onTap: () => widget.onSelectionChanged(
+                          SidebarSelection(SidebarItemType.tag, tag: tag),
+                        ),
+                      ),
+                    ),
                   ],
                 ],
                 footerItems: [

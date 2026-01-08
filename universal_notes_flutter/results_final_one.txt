@@ -1,0 +1,4 @@
+﻿Analyzing universal_notes_flutter...                            
+
+   info - Missing a required trailing comma - lib\screens\notes\views\fluent_notes_view.dart:267:26 - require_trailing_commas
+
