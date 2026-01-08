@@ -24,6 +24,9 @@ class AuthService {
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
   /// Private helper to sync user profile to Firestore.
+  // 🛡️ Sentinel: This method now propagates errors instead of logging with
+  // `print()` to avoid leaking sensitive information in production and to
+  // ensure callers handle critical profile sync failures.
   Future<void> _syncUserProfile(User user) async {
     try {
       await _firestoreRepository.createUser(user);
@@ -67,7 +70,7 @@ class AuthService {
 
       // Create user profile in Firestore
       try {
-        await _firestoreRepository.createUser(credential.user!);
+        await _syncUserProfile(credential.user!);
       } on Exception {
         await credential.user?.delete();
         rethrow;
