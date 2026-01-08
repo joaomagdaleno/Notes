@@ -9,9 +9,8 @@ class MaterialAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isSigningInWithEmail,
-    required this.isSigningUpWithEmail,
-    required this.isSigningInWithGoogle,
+    required this.isEmailAuthLoading,
+    required this.isGoogleAuthLoading,
     required this.onAuth,
     required this.onToggleMode,
     required this.onGoogleAuth,
@@ -33,14 +32,11 @@ class MaterialAuthView extends StatelessWidget {
   /// Whether to show the sign up form instead of login.
   final bool showSignUp;
 
-  /// Whether an email sign-in process is currently running.
-  final bool isSigningInWithEmail;
+  /// Whether the email authentication process is currently running.
+  final bool isEmailAuthLoading;
 
-  /// Whether an email sign-up process is currently running.
-  final bool isSigningUpWithEmail;
-
-  /// Whether a Google sign-in process is currently running.
-  final bool isSigningInWithGoogle;
+  /// Whether the Google authentication process is currently running.
+  final bool isGoogleAuthLoading;
 
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
@@ -113,8 +109,10 @@ class MaterialAuthView extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: isProcessing ? null : onAuth,
-                      child: isSigningInWithEmail || isSigningUpWithEmail
+                      onPressed: isEmailAuthLoading || isGoogleAuthLoading
+                          ? null
+                          : onAuth,
+                      child: isEmailAuthLoading
                           ? const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -135,7 +133,9 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: isProcessing ? null : onToggleMode,
+                    onPressed: isEmailAuthLoading || isGoogleAuthLoading
+                        ? null
+                        : onToggleMode,
                     child: Text(
                       showSignUp
                           ? 'Já tem uma conta? Entre aqui'
@@ -149,8 +149,10 @@ class MaterialAuthView extends StatelessWidget {
                   const Text('Ou entre com'),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: isProcessing ? null : onGoogleAuth,
-                    icon: isSigningInWithGoogle
+                    onPressed: isEmailAuthLoading || isGoogleAuthLoading
+                        ? null
+                        : onGoogleAuth,
+                    icon: isGoogleAuthLoading
                         ? const SizedBox(
                             width: 18,
                             height: 18,
@@ -163,11 +165,7 @@ class MaterialAuthView extends StatelessWidget {
                             errorBuilder: (ctx, err, stack) =>
                                 const Icon(Icons.g_mobiledata, size: 18),
                           ),
-                    label: Text(
-                      isSigningInWithGoogle
-                          ? 'Conectando...'
-                          : 'Continuar com Google',
-                    ),
+                    label: const Text('Continuar com Google'),
                   ),
                 ],
               ),
