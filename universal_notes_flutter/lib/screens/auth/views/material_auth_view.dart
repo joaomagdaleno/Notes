@@ -9,8 +9,9 @@ class MaterialAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isEmailProcessing,
-    required this.isGoogleProcessing,
+    required this.isSigningInWithEmail,
+    required this.isSigningUpWithEmail,
+    required this.isSigningInWithGoogle,
     required this.onAuth,
     required this.onToggleMode,
     required this.onGoogleAuth,
@@ -32,11 +33,14 @@ class MaterialAuthView extends StatelessWidget {
   /// Whether to show the sign up form instead of login.
   final bool showSignUp;
 
-  /// Whether an email authentication process is currently running.
-  final bool isEmailProcessing;
+  /// Whether the email sign-in process is running.
+  final bool isSigningInWithEmail;
 
-  /// Whether a Google authentication process is currently running.
-  final bool isGoogleProcessing;
+  /// Whether the email sign-up process is running.
+  final bool isSigningUpWithEmail;
+
+  /// Whether the Google sign-in process is running.
+  final bool isSigningInWithGoogle;
 
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
@@ -50,7 +54,8 @@ class MaterialAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
-    final isAnyLoading = isEmailLoading || isGoogleLoading;
+    final isEmailProcessing = isSigningInWithEmail || isSigningUpWithEmail;
+    final isAnyProcessRunning = isEmailProcessing || isSigningInWithGoogle;
 
     return Scaffold(
       appBar: AppBar(
@@ -72,6 +77,7 @@ class MaterialAuthView extends StatelessWidget {
                     TextFormField(
                       enabled: !isProcessing,
                       controller: nameController,
+                      enabled: !isAnyProcessRunning,
                       decoration: const InputDecoration(
                         labelText: 'Nome de Exibição',
                         hintText: 'Como você quer ser chamado',
@@ -90,6 +96,7 @@ class MaterialAuthView extends StatelessWidget {
                   TextFormField(
                     enabled: !isProcessing,
                     controller: emailController,
+                    enabled: !isAnyProcessRunning,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       labelText: 'Email',
@@ -108,6 +115,7 @@ class MaterialAuthView extends StatelessWidget {
                   TextFormField(
                     enabled: !isProcessing,
                     controller: passwordController,
+                    enabled: !isAnyProcessRunning,
                     obscureText: true,
                     decoration: const InputDecoration(
                       labelText: 'Senha',
@@ -126,9 +134,10 @@ class MaterialAuthView extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed:
-                          isEmailProcessing || isGoogleProcessing ? null : onAuth,
-                      child: isEmailProcessing
+                      onPressed: isAnyProcessRunning ? null : onAuth,
+                      child: (showSignUp
+                              ? isSigningUpWithEmail
+                              : isSigningInWithEmail)
                           ? const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -149,7 +158,7 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: isAnyLoading ? null : onToggleMode,
+                    onPressed: isAnyProcessRunning ? null : onToggleMode,
                     child: Text(
                       showSignUp
                           ? 'Já tem uma conta? Entre aqui'
@@ -163,14 +172,9 @@ class MaterialAuthView extends StatelessWidget {
                   const Text('Ou entre com'),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed:
-                        isEmailProcessing || isGoogleProcessing ? null : onGoogleAuth,
-                    icon: isGoogleProcessing
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                    onPressed: isAnyProcessRunning ? null : onGoogleAuth,
+                    icon: isSigningInWithGoogle
+                        ? const SizedBox.shrink()
                         : Image.network(
                             'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
                             width: 18,
@@ -178,11 +182,22 @@ class MaterialAuthView extends StatelessWidget {
                             errorBuilder: (ctx, err, stack) =>
                                 const Icon(Icons.g_mobiledata, size: 18),
                           ),
-                    label: Text(
-                      isGoogleProcessing
-                          ? 'Processando...'
-                          : 'Continuar com Google',
-                    ),
+                    label: isSigningInWithGoogle
+                        ? const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text('Entrando...'),
+                            ],
+                          )
+                        : const Text('Continuar com Google'),
                   ),
                 ],
               ),
