@@ -643,10 +643,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     return ValueListenableBuilder<SortOrder>(
       valueListenable: _sortOrderNotifier,
       builder: (context, sortOrder, child) {
-        // ⚡ Bolt: Removed redundant synchronous search filter. The debounced,
-        // async search in `_onSearchChanged` already handles this, preventing
-        // unnecessary filtering on the UI thread during rebuilds for events
-        // like sorting.
+        // ⚡ Bolt: No synchronous filtering needed here. The search results
+        // are handled by a separate ValueListenableBuilder (_buildContent).
+        // This was causing redundant work on the UI thread.
         final displayNotes = List<Note>.from(notes);
 
         // Apply client-side sorting
