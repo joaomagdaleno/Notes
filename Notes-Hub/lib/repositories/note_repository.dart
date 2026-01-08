@@ -866,6 +866,13 @@ class NoteRepository {
 
   // --- Note Event Methods ---
 
+  /// Escapes a string for use in a LIKE query.
+  String _escapeLike(String query, {String escapeCharacter = r'\'}) {
+    return query.replaceAllMapped(RegExp('([%_])'), (match) {
+      return '$escapeCharacter${match.group(1)}';
+    });
+  }
+
   /// Adds a note event.
   Future<void> addNoteEvent(NoteEvent event) async {
     final db = await database;
@@ -910,10 +917,18 @@ class NoteRepository {
     }
 
     final db = await database;
+    // 🛡️ Sentinel: Sanitize the prefix for the LIKE query to prevent wildcard
+    // injection. Characters like '%' and '_' are special in LIKE clauses and
+    // must be escaped to be treated as literal characters. This prevents a
+    // crafted prefix from bypassing the intended "starts with" logic and
+    // potentially causing a local Denial-of-Service by matching too many rows.
+    const escapeChar = r'\';
+    final sanitizedPrefix = _escapeLike(prefix, escapeCharacter: escapeChar);
+
     final maps = await db.query(
       _userDictionaryTable,
-      where: 'word LIKE ?',
-      whereArgs: ['$prefix%'],
+      where: "word LIKE ? ESCAPE '$escapeChar'",
+      whereArgs: ['$sanitizedPrefix%'],
       orderBy: 'frequency DESC',
       limit: 10,
     );
