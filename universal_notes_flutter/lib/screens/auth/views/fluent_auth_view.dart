@@ -76,6 +76,7 @@ class FluentAuthView extends StatelessWidget {
                         fluent.InfoLabel(
                           label: 'Nome de Exibição',
                           child: fluent.TextBox(
+                            enabled: !isProcessing,
                             controller: nameController,
                             placeholder: 'Como você quer ser chamado',
                             prefix: const Padding(
@@ -95,6 +96,7 @@ class FluentAuthView extends StatelessWidget {
                       fluent.InfoLabel(
                         label: 'Email',
                         child: fluent.TextBox(
+                          enabled: !isProcessing,
                           controller: emailController,
                           placeholder: 'seu@email.com',
                           keyboardType: TextInputType.emailAddress,
@@ -110,6 +112,7 @@ class FluentAuthView extends StatelessWidget {
                       fluent.InfoLabel(
                         label: 'Senha',
                         child: fluent.PasswordBox(
+                          enabled: !isProcessing,
                           controller: passwordController,
                           placeholder: 'Sua senha segura',
                           validator: (value) {
@@ -194,9 +197,11 @@ class FluentAuthView extends StatelessWidget {
                                       ),
                                     ),
                                   const SizedBox(width: 12),
-                                  const Text(
-                                    'Continuar com Google',
-                                    style: TextStyle(
+                                  Text(
+                                    isGoogleProcessing
+                                        ? 'Entrando...'
+                                        : 'Continuar com Google',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),

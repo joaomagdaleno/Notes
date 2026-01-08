@@ -57,6 +57,11 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _handleEmailAuth() async {
+    if (_isSigningInWithEmail ||
+        _isSigningUpWithEmail ||
+        _isSigningInWithGoogle) {
+      return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         _isEmailAuthLoading = true;
@@ -149,6 +154,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isProcessing = _isSigningIn || _isSigningUp;
+    final isGoogleProcessing = _isSigningInWithGoogle;
+
     if (defaultTargetPlatform == TargetPlatform.windows) {
       return FluentAuthView(
         formKey: _formKey,
