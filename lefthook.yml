@@ -5,10 +5,10 @@ pre-commit:
   parallel: true
   commands:
     analyze:
-      root: universal_notes_flutter/
+      root: Notes-Hub/
       run: flutter analyze
     format:
-      root: universal_notes_flutter/
+      root: Notes-Hub/
       run: flutter format --set-exit-if-changed .
 
 commit-msg:
