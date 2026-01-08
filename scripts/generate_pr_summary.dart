@@ -9,12 +9,35 @@ void main(List<String> args) {
   ); // Updated via lcov-parse in CI
   final healthFile = File('health_output.txt');
   final changelogFile = File('changelog.md');
+  final toolchainFile = File('toolchain.lock.json');
+  final scoreFile = File('impact_score.json');
 
   final sb = StringBuffer();
   sb.writeln('## 📦 Hermes Pipeline Summary');
+
+  // New: Impact Score
+  if (scoreFile.existsSync()) {
+    try {
+      final scoreData = json.decode(scoreFile.readAsStringSync());
+      final grade = scoreData['grade'];
+      final reason = scoreData['reason'];
+      sb.writeln('\n### 🏆 PR Impact Grade: `$grade`');
+      sb.writeln('> $reason\n');
+    } catch (_) {}
+  }
   sb.writeln(
     '\n> [!TIP]\n> This is an automated summary of the latest CI run. Keep shipping! 🚀\n',
   );
+
+  // 0. Toolchain
+  if (toolchainFile.existsSync()) {
+    try {
+      final data = json.decode(toolchainFile.readAsStringSync());
+      sb.writeln('### 🔒 Toolchain Environment');
+      sb.writeln('- **Flutter:** `${data['flutter']}`');
+      sb.writeln('- **Dart:** `${data['dart']}`');
+    } catch (_) {}
+  }
 
   // 1. Coverage
   if (coverageFile.existsSync()) {
@@ -70,7 +93,13 @@ void main(List<String> args) {
     }
   }
 
-  // 5. Changelog
+  // 5. Dependency Updates
+  final updatesFile = File('dependency_updates.md');
+  if (updatesFile.existsSync()) {
+    sb.writeln('\n' + updatesFile.readAsStringSync());
+  }
+
+  // 6. Changelog
   if (changelogFile.existsSync()) {
     final changelog = changelogFile.readAsStringSync();
     sb.writeln('\n### 📝 Proposed Changelog');

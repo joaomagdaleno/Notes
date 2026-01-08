@@ -30,15 +30,55 @@ void main(List<String> args) async {
     exit(1);
   }
 
-  final logs = logResult.stdout.toString().trim();
-  final changelogHeader =
-      '## Changelog (${DateTime.now().toIso8601String().split("T")[0]})\n\n';
-  final fullChangelog =
-      changelogHeader + (logs.isEmpty ? '_No changes detected._' : logs);
+  final logs = logResult.stdout
+      .toString()
+      .trim()
+      .split('\n')
+      .where((l) => l.isNotEmpty);
+
+  final categories = {
+    '🚀 Features': <String>[],
+    '🐛 Bug Fixes': <String>[],
+    '📝 Documentation': <String>[],
+    '⚙️ Maintenance / Other': <String>[],
+  };
+
+  for (final log in logs) {
+    if (log.contains('feat:')) {
+      categories['🚀 Features']!.add(log);
+    } else if (log.contains('fix:')) {
+      categories['🐛 Bug Fixes']!.add(log);
+    } else if (log.contains('docs:')) {
+      categories['📝 Documentation']!.add(log);
+    } else {
+      categories['⚙️ Maintenance / Other']!.add(log);
+    }
+  }
+
+  final sb = StringBuffer();
+  sb.writeln(
+    '## Changelog (${DateTime.now().toIso8601String().split("T")[0]})\n',
+  );
+
+  categories.forEach((title, items) {
+    if (items.isNotEmpty) {
+      sb.writeln('### $title');
+      for (final item in items) {
+        sb.writeln(item);
+      }
+      sb.writeln('');
+    }
+  });
+
+  if (logs.isEmpty) {
+    sb.writeln('_No changes detected._');
+  }
+
+  final fullChangelog = sb.toString();
 
   // 3. Save to file
   File('changelog.md').writeAsStringSync(fullChangelog);
-  print('✅ Changelog generated successfully.');
+  print('✅ Categorized changelog generated successfully.');
 
   // Also save to Notes-Hub for inclusion in artifacts if needed
   File('Notes-Hub/changelog.md').writeAsStringSync(fullChangelog);

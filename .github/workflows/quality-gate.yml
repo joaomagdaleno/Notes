@@ -17,7 +17,7 @@ jobs:
       code: ${{ steps.filter.outputs.code }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Check changes
         id: filter
         uses: dorny/paths-filter@v3
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -53,6 +53,18 @@ jobs:
         run: dart scripts/audit_dependencies.dart
       - name: License Audit
         run: dart scripts/audit_licenses.dart > license_audit.txt 2>&1 || (cat license_audit.txt && exit 1)
+      - name: Asset Audit
+        run: dart scripts/audit_assets.dart
+      - name: Check Updates
+        run: dart scripts/check_updates.dart
+      - name: Toolchain Guard
+        run: dart scripts/hermes_doctor.dart
+      - name: Generate CI Map
+        run: dart scripts/generate_ci_map.dart
+      - name: Dependency Usage Audit
+        run: dart scripts/audit_dependency_usage.dart
+      - name: Secret Expiry Watchdog
+        run: dart scripts/secret_expiry_watchdog.dart
       - name: Run Flutter Analyzer
         working-directory: Notes-Hub
         run: flutter analyze --no-fatal-infos
@@ -60,10 +72,13 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.82.2
       - name: Upload Analysis Results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: analysis-results
-          path: license_audit.txt
+          path: |
+            license_audit.txt
+            dependency_updates.md
+            CI_MAP.md
           retention-days: 1
 
   functional-tests:
@@ -73,7 +88,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -83,7 +98,7 @@ jobs:
         working-directory: Notes-Hub
         run: flutter pub get
       - name: Cache build_runner
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: Notes-Hub/.dart_tool/build
           key: ${{ runner.os }}-build-runner-${{ hashFiles('Notes-Hub/pubspec.lock') }}
@@ -96,7 +111,7 @@ jobs:
       - name: Calculate coverage
         run: dart scripts/calculate_coverage.dart Notes-Hub/coverage/lcov.info ${{ inputs.min_coverage }}
       - name: Upload lcov artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-lcov
           path: Notes-Hub/coverage/lcov.info
@@ -109,7 +124,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Download Analysis Results
         uses: actions/download-artifact@v4
         with:
@@ -124,6 +139,7 @@ jobs:
           # Fetch baseline and scripts if needed
           git fetch origin coverage-data:coverage-data || echo "No baseline branch"
           git checkout coverage-data -- baseline_sizes.json || echo "No baseline file"
+          dart scripts/calculate_impact_score.dart
           dart scripts/generate_pr_summary.dart
       - name: Post PR Summary
         uses: marocchino/sticky-pull-request-comment@v2
