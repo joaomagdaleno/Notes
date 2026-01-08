@@ -23,16 +23,16 @@ void main() {
     // Mock asset loading for dictionaries
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMessageHandler('flutter/assets', (ByteData? message) async {
-          final encoded = message!.buffer.asUint8List();
-          final key = utf8.decode(encoded);
-          if (key == 'assets/dictionaries/pt_br_common.txt') {
-            return utf8.encoder
-                .convert('trabalho\ntraducao\ntreinar')
-                .buffer
-                .asByteData();
-          }
-          return null;
-        });
+      final encoded = message!.buffer.asUint8List();
+      final key = utf8.decode(encoded);
+      if (key == 'assets/dictionaries/pt_br_common.txt') {
+        return utf8.encoder
+            .convert('trabalho\ntraducao\ntreinar')
+            .buffer
+            .asByteData();
+      }
+      return null;
+    });
   });
 
   group('AutocompleteService', () {

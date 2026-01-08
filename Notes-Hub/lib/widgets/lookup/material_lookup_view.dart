@@ -165,8 +165,9 @@ class MaterialLookupView extends StatelessWidget {
                 child: Text(
                   def.partOfSpeech,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSecondaryContainer,
-                  ),
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
                 ),
               ),
               const SizedBox(height: 4),
@@ -176,9 +177,9 @@ class MaterialLookupView extends StatelessWidget {
                 Text(
                   '"${def.example}"',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontStyle: FontStyle.italic,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
               ],
             ],

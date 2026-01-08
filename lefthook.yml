@@ -9,7 +9,19 @@ pre-commit:
       run: flutter analyze
     format:
       root: Notes-Hub/
-      run: flutter format --set-exit-if-changed .
+      run: dart format --set-exit-if-changed .
+    health-audit:
+      run: dart scripts/check_health.dart
+    dependency-audit:
+      run: dart scripts/audit_dependencies.dart
+
+pre-push:
+  commands:
+    test:
+      root: Notes-Hub/
+      run: flutter test
+    coverage-guard:
+      run: dart scripts/calculate_coverage.dart Notes-Hub/coverage/lcov.info 80
 
 commit-msg:
   commands:

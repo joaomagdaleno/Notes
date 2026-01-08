@@ -121,9 +121,11 @@ class MaterialReadingSettingsView extends StatelessWidget {
                   'Roboto',
                   'Lora',
                   'Merriweather',
-                ].map(
-                  (f) => DropdownMenuItem(value: f, child: Text(f)),
-                ).toList(),
+                ]
+                    .map(
+                      (f) => DropdownMenuItem(value: f, child: Text(f)),
+                    )
+                    .toList(),
                 onChanged: (value) {
                   if (value != null) {
                     onSettingsChanged(settings.copyWith(fontFamily: value));

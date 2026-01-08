@@ -14,6 +14,7 @@ class TracingService {
   /// Visible for testing to inject a mock instance.
   @visibleForTesting
   static set instance(TracingService instance) => _instance = instance;
+
   /// Returns the singleton instance.
   static TracingService get instance => _instance;
 

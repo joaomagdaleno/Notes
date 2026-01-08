@@ -39,8 +39,7 @@ void main() async {
                       note: Note(
                         id: '1',
                         title: 'Test Note',
-                        content:
-                            '{"blocks": [{"type": "text", '
+                        content: '{"blocks": [{"type": "text", '
                             '"spans": [{"text": "Test content"}]}]}',
                         createdAt: DateTime(2023, 10, 27),
                         lastModified: DateTime(2023, 10, 27),
@@ -68,11 +67,9 @@ void main() async {
                     child: NoteCard(
                       note: Note(
                         id: '2',
-                        title:
-                            'A very long title that should '
+                        title: 'A very long title that should '
                             'definitely truncate',
-                        content:
-                            '{"blocks": [{"type": "text", "spans": '
+                        content: '{"blocks": [{"type": "text", "spans": '
                             '[{"text": "This is very long content..."}]}]}',
                         createdAt: DateTime(2023, 10, 27),
                         lastModified: DateTime(2023, 10, 27),

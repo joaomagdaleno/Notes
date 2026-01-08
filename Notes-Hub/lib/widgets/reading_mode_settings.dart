@@ -8,7 +8,7 @@ import 'package:notes_hub/widgets/reading/material_reading_settings_view.dart';
 ///
 /// Provides sliders for font size, line height, letter spacing,
 /// text alignment, theme selection, and night light toggle.
-/// 
+///
 /// This widget acts as a platform-adaptive wrapper that selects
 /// the appropriate view based on the current platform.
 class ReadingModeSettings extends StatelessWidget {

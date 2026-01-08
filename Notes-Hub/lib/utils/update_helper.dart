@@ -26,8 +26,7 @@ class UpdateHelper {
     void Function()? onNoUpdate,
     void Function(String)? onError,
   }) async {
-    final messenger =
-        scaffoldMessengerKey?.currentState ??
+    final messenger = scaffoldMessengerKey?.currentState ??
         ScaffoldMessenger.maybeOf(context);
 
     if (isManual && onError == null) {
@@ -148,13 +147,13 @@ class UpdateHelper {
       } else {
         (scaffoldMessengerKey?.currentState ?? ScaffoldMessenger.of(context))
             .showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Permissão para instalar pacotes é necessária para a '
-                  'atualização.',
-                ),
-              ),
-            );
+          const SnackBar(
+            content: Text(
+              'Permissão para instalar pacotes é necessária para a '
+              'atualização.',
+            ),
+          ),
+        );
       }
     }
   }

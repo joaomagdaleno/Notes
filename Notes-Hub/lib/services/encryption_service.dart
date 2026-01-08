@@ -134,13 +134,15 @@ class EncryptionService {
   static Future<String> encryptRecoveryKey(
     String recoveryKey,
     String password,
-  ) => encrypt(recoveryKey, password);
+  ) =>
+      encrypt(recoveryKey, password);
 
   /// Decrypts the recovery key using the user's password.
   static Future<String> decryptRecoveryKey(
     String encryptedRecoveryKey,
     String password,
-  ) => decrypt(encryptedRecoveryKey, password);
+  ) =>
+      decrypt(encryptedRecoveryKey, password);
 
   /// Re-encrypts content with a new password.
   ///

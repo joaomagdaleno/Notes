@@ -73,8 +73,7 @@ void main() {
         when(() => mockCredential.user).thenReturn(mockUser);
         when(() => mockUser.updateDisplayName(any()))
             .thenAnswer((_) async => {});
-        when(mockUser.sendEmailVerification)
-            .thenAnswer((_) async => {});
+        when(mockUser.sendEmailVerification).thenAnswer((_) async => {});
         when(
           () => mockFirebaseAuth.createUserWithEmailAndPassword(
             email: email,
@@ -120,8 +119,7 @@ void main() {
         when(() => mockCredential.user).thenReturn(mockUser);
         when(() => mockUser.updateDisplayName(any()))
             .thenAnswer((_) async => {});
-        when(mockUser.sendEmailVerification)
-            .thenAnswer((_) async => {});
+        when(mockUser.sendEmailVerification).thenAnswer((_) async => {});
         when(mockUser.delete).thenAnswer((_) async => {});
         when(
           () => mockFirebaseAuth.createUserWithEmailAndPassword(

@@ -48,17 +48,17 @@ void main() {
             home: const SettingsScreen(),
             routes: {
               '/about': (context) => FutureBuilder<PackageInfo>(
-                future: PackageInfo.fromPlatform(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const CircularProgressIndicator();
-                  }
-                  return AboutScreen(
-                    packageInfo: snapshot.data!,
-                    debugPlatform: TargetPlatform.android,
-                  );
-                },
-              ),
+                    future: PackageInfo.fromPlatform(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const CircularProgressIndicator();
+                      }
+                      return AboutScreen(
+                        packageInfo: snapshot.data!,
+                        debugPlatform: TargetPlatform.android,
+                      );
+                    },
+                  ),
             },
           ),
         );
@@ -107,15 +107,15 @@ void main() {
             home: const SettingsScreen(),
             routes: {
               '/about': (context) => FutureBuilder<PackageInfo>(
-                future: PackageInfo.fromPlatform(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const fluent.ProgressRing();
-                  return AboutScreen(
-                    packageInfo: snapshot.data!,
-                    debugPlatform: TargetPlatform.windows,
-                  );
-                },
-              ),
+                    future: PackageInfo.fromPlatform(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return const fluent.ProgressRing();
+                      return AboutScreen(
+                        packageInfo: snapshot.data!,
+                        debugPlatform: TargetPlatform.windows,
+                      );
+                    },
+                  ),
             },
           ),
         );
@@ -149,17 +149,17 @@ void main() {
             home: const SettingsScreen(),
             routes: {
               '/about': (context) => FutureBuilder<PackageInfo>(
-                future: PackageInfo.fromPlatform(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const CircularProgressIndicator();
-                  }
-                  return AboutScreen(
-                    packageInfo: snapshot.data!,
-                    debugPlatform: TargetPlatform.android,
-                  );
-                },
-              ),
+                    future: PackageInfo.fromPlatform(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const CircularProgressIndicator();
+                      }
+                      return AboutScreen(
+                        packageInfo: snapshot.data!,
+                        debugPlatform: TargetPlatform.android,
+                      );
+                    },
+                  ),
             },
           ),
         );
@@ -194,15 +194,15 @@ void main() {
             home: const SettingsScreen(),
             routes: {
               '/about': (context) => FutureBuilder<PackageInfo>(
-                future: PackageInfo.fromPlatform(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const fluent.ProgressRing();
-                  return AboutScreen(
-                    packageInfo: snapshot.data!,
-                    debugPlatform: TargetPlatform.windows,
-                  );
-                },
-              ),
+                    future: PackageInfo.fromPlatform(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return const fluent.ProgressRing();
+                      return AboutScreen(
+                        packageInfo: snapshot.data!,
+                        debugPlatform: TargetPlatform.windows,
+                      );
+                    },
+                  ),
             },
           ),
         );

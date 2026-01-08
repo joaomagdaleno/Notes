@@ -101,9 +101,8 @@ class _ReadingOutlineNavigatorState extends State<ReadingOutlineNavigator> {
                         hasChildren: hasChildren,
                         isExpanded: isExpanded,
                         onTap: () => widget.onHeadingTap(heading),
-                        onExpandToggle: hasChildren
-                            ? () => _toggleExpanded(index)
-                            : null,
+                        onExpandToggle:
+                            hasChildren ? () => _toggleExpanded(index) : null,
                       );
                     },
                   ),
@@ -174,9 +173,8 @@ class _ReadingOutlineNavigatorState extends State<ReadingOutlineNavigator> {
                         hasChildren: hasChildren,
                         isExpanded: isExpanded,
                         onTap: () => widget.onHeadingTap(heading),
-                        onExpandToggle: hasChildren
-                            ? () => _toggleExpanded(index)
-                            : null,
+                        onExpandToggle:
+                            hasChildren ? () => _toggleExpanded(index) : null,
                       );
                     },
                   ),

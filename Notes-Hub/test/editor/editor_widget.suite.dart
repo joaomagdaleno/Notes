@@ -138,12 +138,13 @@ class FakePathProviderPlatform extends PathProviderPlatform {
       '/tmp/fake_external_storage';
   @override
   Future<List<String>?> getExternalCachePaths() async => [
-    '/tmp/fake_external_cache',
-  ];
+        '/tmp/fake_external_cache',
+      ];
   @override
   Future<List<String>?> getExternalStoragePaths({
     StorageDirectory? type,
-  }) async => ['/tmp/fake_external_storage_path'];
+  }) async =>
+      ['/tmp/fake_external_storage_path'];
   @override
   Future<String?> getDownloadsPath() async => '/tmp/fake_downloads';
 }

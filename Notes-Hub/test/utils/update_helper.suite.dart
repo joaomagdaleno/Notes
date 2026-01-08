@@ -47,57 +47,54 @@ void main() {
     }) {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('flutter.baseflow.com/permissions/methods'),
-            (MethodCall methodCall) async {
-              if (methodCall.method == 'requestPermission') {
-                // 1 = granted, 0 = denied (simplified)
-                return {
-                  Permission.requestInstallPackages.value: permissionGranted
-                      ? 1
-                      : 0,
-                };
-              }
-              return {
-                Permission.requestInstallPackages.value: permissionGranted
-                    ? 1
-                    : 0,
-              };
-            },
-          );
+        const MethodChannel('flutter.baseflow.com/permissions/methods'),
+        (MethodCall methodCall) async {
+          if (methodCall.method == 'requestPermission') {
+            // 1 = granted, 0 = denied (simplified)
+            return {
+              Permission.requestInstallPackages.value:
+                  permissionGranted ? 1 : 0,
+            };
+          }
+          return {
+            Permission.requestInstallPackages.value: permissionGranted ? 1 : 0,
+          };
+        },
+      );
 
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('plugins.flutter.io/path_provider'),
-            (MethodCall methodCall) async {
-              return Directory.systemTemp.path;
-            },
-          );
+        const MethodChannel('plugins.flutter.io/path_provider'),
+        (MethodCall methodCall) async {
+          return Directory.systemTemp.path;
+        },
+      );
 
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('open_file'),
-            (MethodCall methodCall) async {
-              return openFileResult;
-            },
-          );
+        const MethodChannel('open_file'),
+        (MethodCall methodCall) async {
+          return openFileResult;
+        },
+      );
     }
 
     tearDown(() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('flutter.baseflow.com/permissions/methods'),
-            null,
-          );
+        const MethodChannel('flutter.baseflow.com/permissions/methods'),
+        null,
+      );
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('plugins.flutter.io/path_provider'),
-            null,
-          );
+        const MethodChannel('plugins.flutter.io/path_provider'),
+        null,
+      );
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('open_file'),
-            null,
-          );
+        const MethodChannel('open_file'),
+        null,
+      );
     });
 
     Widget createTestWidget({required VoidCallback onPressed}) {

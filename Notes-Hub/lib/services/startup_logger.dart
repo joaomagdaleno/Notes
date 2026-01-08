@@ -41,7 +41,7 @@ class StartupLogger {
   static Future<void> log(String message) async {
     final timestamp = DateTime.now().toIso8601String();
     final logMessage = '[$timestamp] $message';
-    
+
     // Print to console (always safe)
     debugPrint(logMessage);
 

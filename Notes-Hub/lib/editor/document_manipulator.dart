@@ -204,9 +204,8 @@ class DocumentManipulator {
       selection,
       (span) => span.copyWith(
         isBold: attribute == StyleAttribute.bold ? !span.isBold : span.isBold,
-        isItalic: attribute == StyleAttribute.italic
-            ? !span.isItalic
-            : span.isItalic,
+        isItalic:
+            attribute == StyleAttribute.italic ? !span.isItalic : span.isItalic,
         isUnderline: attribute == StyleAttribute.underline
             ? !span.isUnderline
             : span.isUnderline,
@@ -311,9 +310,8 @@ class DocumentManipulator {
         continue;
       }
 
-      final blockLength = block.spans
-          .map((s) => s.text.length)
-          .fold(0, (a, b) => a + b);
+      final blockLength =
+          block.spans.map((s) => s.text.length).fold(0, (a, b) => a + b);
       final blockEnd = currentPos + blockLength;
 
       if (blockEnd <= selection.start || currentPos >= selection.end) {
@@ -407,8 +405,7 @@ class DocumentManipulator {
 
     final spanPos = _findSpanPosition(spans, pos.localOffset);
     final targetSpan = spans[spanPos.spanIndex];
-    final newText =
-        '${targetSpan.text.substring(0, spanPos.localOffset)}'
+    final newText = '${targetSpan.text.substring(0, spanPos.localOffset)}'
         '$text'
         '${targetSpan.text.substring(spanPos.localOffset)}';
     spans[spanPos.spanIndex] = targetSpan.copyWith(text: newText);
@@ -448,9 +445,8 @@ class DocumentManipulator {
     for (final block in document.blocks) {
       int blockLength;
       if (block is TextBlock) {
-        blockLength = block.spans
-            .map((s) => s.text.length)
-            .fold(0, (a, b) => a + b);
+        blockLength =
+            block.spans.map((s) => s.text.length).fold(0, (a, b) => a + b);
       } else {
         blockLength = 1;
       }
@@ -468,9 +464,8 @@ class DocumentManipulator {
             final beforeText = start > spanStart
                 ? span.text.substring(0, start - spanStart)
                 : '';
-            final afterText = end < spanEnd
-                ? span.text.substring(end - spanStart)
-                : '';
+            final afterText =
+                end < spanEnd ? span.text.substring(end - spanStart) : '';
             if (beforeText.isNotEmpty) {
               newSpans.add(span.copyWith(text: beforeText));
             }
@@ -854,9 +849,8 @@ class DocumentManipulator {
       final block = blocks[i];
       var blockLength = 0;
       if (block is TextBlock) {
-        blockLength = block.spans
-            .map((s) => s.text.length)
-            .fold(0, (a, b) => a + b);
+        blockLength =
+            block.spans.map((s) => s.text.length).fold(0, (a, b) => a + b);
         // Treat trailing newline?
         // Our buffer logic handles block separation implicitly or explicitly.
         // DocumentModel usually has tight blocks.
@@ -982,9 +976,8 @@ class DocumentManipulator {
     // Assuming passed 'stroke' is an instance from the list, simple reference
     // removal might fail if reconstructed.
     // But let's try value equality.
-    final newStrokes = block.strokes
-        .where((s) => !_areStrokesEqual(s, stroke))
-        .toList();
+    final newStrokes =
+        block.strokes.where((s) => !_areStrokesEqual(s, stroke)).toList();
 
     final blocks = List<DocumentBlock>.from(document.blocks);
     blocks[blockIndex] = DrawingBlock(

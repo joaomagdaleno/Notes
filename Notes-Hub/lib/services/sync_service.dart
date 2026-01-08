@@ -132,11 +132,10 @@ class SyncService {
       // If local doesn't exist, or remote is newer, update local
       // Using UTC check to be safe, assuming Note model handles Timezone or
       // stores UTC.
-      final remoteNewer =
-          localNote == null ||
+      final remoteNewer = localNote == null ||
           remoteNote.lastModified.toUtc().isAfter(
-            localNote.lastModified.toUtc(),
-          );
+                localNote.lastModified.toUtc(),
+              );
 
       if (remoteNewer) {
         // CONFLICT DETECTION
@@ -235,9 +234,8 @@ class SyncService {
     final localEvents = await noteRepository.getNoteEvents(noteId);
 
     // Filter to only unsynced events
-    final unsyncedEvents = localEvents
-        .where((e) => e.syncStatus == SyncStatus.local)
-        .toList();
+    final unsyncedEvents =
+        localEvents.where((e) => e.syncStatus == SyncStatus.local).toList();
 
     if (unsyncedEvents.isEmpty) return;
 

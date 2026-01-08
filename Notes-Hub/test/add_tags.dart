@@ -6,10 +6,7 @@ import 'dart:io';
 
 void main() async {
   final testDir = Directory('test');
-  final files = testDir
-      .listSync(recursive: true)
-      .whereType<File>()
-      .where(
+  final files = testDir.listSync(recursive: true).whereType<File>().where(
         (f) => f.path.endsWith('_test.dart'),
       );
 

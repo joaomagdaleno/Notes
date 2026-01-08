@@ -42,9 +42,9 @@ class ConfigurableUpdateService extends UpdateService {
   ConfigurableUpdateService({
     required UpdateCheckResult result,
     Duration delay = Duration.zero,
-  }) : _result = result,
-       _delay = delay,
-       super(client: MockHttpClient());
+  })  : _result = result,
+        _delay = delay,
+        super(client: MockHttpClient());
 
   final UpdateCheckResult _result;
   final Duration _delay;

@@ -8,8 +8,10 @@ import 'package:flutter/widgets.dart';
 enum PaperFormat {
   /// A4 format.
   a4,
+
   /// Letter format.
   letter,
+
   /// Legal format.
   legal
 }
@@ -29,6 +31,7 @@ extension PaperFormatExtension on PaperFormat {
         return const Size(8.5 * inch, 14.0 * inch);
     }
   }
+
   /// The label of the paper format.
   String get label => name.toUpperCase();
 }
@@ -37,10 +40,13 @@ extension PaperFormatExtension on PaperFormat {
 enum PaperMargin {
   /// Normal margin.
   normal,
+
   /// Narrow margin.
   narrow,
+
   /// Moderate margin.
   moderate,
+
   /// Wide margin.
   wide
 }
@@ -57,12 +63,17 @@ extension PaperMarginExtension on PaperMargin {
         return const EdgeInsets.all(1.27 * cm);
       case PaperMargin.moderate:
         return const EdgeInsets.symmetric(
-            vertical: 2.54 * cm, horizontal: 1.91 * cm,);
+          vertical: 2.54 * cm,
+          horizontal: 1.91 * cm,
+        );
       case PaperMargin.wide:
         return const EdgeInsets.symmetric(
-            vertical: 2.54 * cm, horizontal: 5.08 * cm,);
+          vertical: 2.54 * cm,
+          horizontal: 5.08 * cm,
+        );
     }
   }
+
   /// The label of the paper margin.
   String get label => name[0].toUpperCase() + name.substring(1);
 }

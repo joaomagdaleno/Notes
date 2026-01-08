@@ -164,7 +164,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
       }
 
       await StartupLogger.log('🚀 App initialization complete, launching UI');
-      
+
       if (mounted) {
         setState(() {
           _isInitialized = true;
@@ -192,10 +192,12 @@ class _AppBootstrapState extends State<AppBootstrap> {
 
   @override
   Widget build(BuildContext context) {
-    unawaited(StartupLogger.log(
+    unawaited(
+      StartupLogger.log(
         '🎨 [BUILD] AppBootstrap.build called - '
         '_isInitialized=$_isInitialized, _errorMessage=$_errorMessage',
-    ),);
+      ),
+    );
     if (_errorMessage != null) {
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
         return fluent.FluentApp(
@@ -434,10 +436,12 @@ class _AuthWrapperState extends State<AuthWrapper> {
       '🎨 [BUILD] AuthWrapper.build called - '
       '_isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated',
     );
-    unawaited(StartupLogger.log(
-      '🎨 [BUILD] AuthWrapper.build called - '
-      '_isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated',
-    ),);
+    unawaited(
+      StartupLogger.log(
+        '🎨 [BUILD] AuthWrapper.build called - '
+        '_isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated',
+      ),
+    );
 
     if (_isCheckingAuth) {
       unawaited(

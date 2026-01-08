@@ -201,8 +201,7 @@ class EditorLine extends StatelessWidget {
             selection.isCollapsed && cursorPosition.line == lineIndex;
 
         // Strict intersection check
-        final hasSelection =
-            selection.isValid &&
+        final hasSelection = selection.isValid &&
             !selection.isCollapsed &&
             selection.start < lineEndOffset &&
             selection.end > lineStartOffset;
@@ -257,14 +256,13 @@ class EditorLine extends StatelessWidget {
         }
 
         // 3. Early return optimization
-        final painter =
-            TextPainter(
-              text: textSpan,
-              textAlign: textAlign,
-              textDirection: TextDirection.ltr,
-            )..layout(
-              maxWidth: softWrap ? maxWidth : double.infinity,
-            );
+        final painter = TextPainter(
+          text: textSpan,
+          textAlign: textAlign,
+          textDirection: TextDirection.ltr,
+        )..layout(
+            maxWidth: softWrap ? maxWidth : double.infinity,
+          );
 
         final selectionBoxes = <Widget>[];
         if (hasSelection) {
@@ -277,9 +275,7 @@ class EditorLine extends StatelessWidget {
           );
 
           selectionBoxes.addAll(
-            painter
-                .getBoxesForSelection(localSelection)
-                .map(
+            painter.getBoxesForSelection(localSelection).map(
                   (box) => Positioned(
                     left: box.left,
                     top: box.top,
@@ -303,8 +299,7 @@ class EditorLine extends StatelessWidget {
             ...selectionBoxes,
             if (isCursorInThisLine && showCursor)
               Positioned.fromRect(
-                rect:
-                    painter.getOffsetForCaret(
+                rect: painter.getOffsetForCaret(
                       TextPosition(offset: cursorPosition.character),
                       Rect.zero,
                     ) &
@@ -528,14 +523,13 @@ class EditorLine extends StatelessWidget {
                         padding: const EdgeInsets.all(8),
                         child: RichText(
                           text: TextSpan(
-                            style:
-                                (Theme.of(context).textTheme.bodyMedium ??
-                                        const TextStyle())
-                                    .copyWith(
-                                      fontWeight: cell.isHeader
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
+                            style: (Theme.of(context).textTheme.bodyMedium ??
+                                    const TextStyle())
+                                .copyWith(
+                              fontWeight: cell.isHeader
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
                             children: cell.content
                                 .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
                                 .toList(),
@@ -739,14 +733,12 @@ class EditorLine extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: RichText(
                   text: TextSpan(
-                    style:
-                        (Theme.of(context).textTheme.bodyMedium ??
-                                const TextStyle())
-                            .copyWith(
-                              fontWeight: cell.isHeader
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
+                    style: (Theme.of(context).textTheme.bodyMedium ??
+                            const TextStyle())
+                        .copyWith(
+                      fontWeight:
+                          cell.isHeader ? FontWeight.bold : FontWeight.normal,
+                    ),
                     children: cell.content
                         .map((s) => s.toTextSpan(onLinkTap: onLinkTap))
                         .toList(),

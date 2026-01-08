@@ -110,7 +110,7 @@ class MaterialSidebarView extends StatelessWidget {
                           leading: const Icon(Icons.folder_outlined),
                           title: Text(folder.name),
                           selected: selection.type == SidebarItemType.folder &&
-                                  selection.folder?.id == folder.id,
+                              selection.folder?.id == folder.id,
                           trailing: PopupMenuButton(
                             itemBuilder: (context) => [
                               const PopupMenuItem(
@@ -158,7 +158,7 @@ class MaterialSidebarView extends StatelessWidget {
                           title: Text(tag),
                           leading: const Icon(Icons.label_outline),
                           selected: selection.type == SidebarItemType.tag &&
-                                  selection.tag == tag,
+                              selection.tag == tag,
                           onTap: () => onSelectionChanged(
                             SidebarSelection(
                               SidebarItemType.tag,

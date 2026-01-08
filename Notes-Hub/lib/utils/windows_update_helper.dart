@@ -6,12 +6,11 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 /// Function signature for running a process.
-typedef ProcessRunner =
-    Future<ProcessResult> Function(
-      String executable,
-      List<String> arguments, {
-      bool runInShell,
-    });
+typedef ProcessRunner = Future<ProcessResult> Function(
+  String executable,
+  List<String> arguments, {
+  bool runInShell,
+});
 
 /// Function signature for exiting the application.
 typedef ExitHandler = void Function(int code);

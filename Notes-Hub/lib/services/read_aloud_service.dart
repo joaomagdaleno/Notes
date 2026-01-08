@@ -48,7 +48,6 @@ class ReadAloudService {
     // Stubbed: speak
     // debugPrint('ReadAloudService (Stub): Speaking "$text"');
 
-    
     // Simulate completion after a short delay or just stop immediately for now
     await Future<void>.delayed(const Duration(seconds: 1));
 

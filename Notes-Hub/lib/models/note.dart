@@ -47,8 +47,7 @@ class Note {
   /// Creates a [Note] from a map (e.g. from local database).
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
-      id:
-          map['id'] as String? ??
+      id: map['id'] as String? ??
           '', // ID might not be in map if not from DB query with ID
       title: map['title'] as String? ?? 'Untitled',
       content: map['content'] as String? ?? '',

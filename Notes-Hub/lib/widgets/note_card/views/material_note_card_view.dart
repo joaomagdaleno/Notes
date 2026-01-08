@@ -121,10 +121,10 @@ class MaterialNoteCardView extends StatelessWidget {
                       Text(
                         note.title,
                         style: textTheme.titleMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -134,9 +134,9 @@ class MaterialNoteCardView extends StatelessWidget {
                           child: Text(
                             plainTextContent,
                             style: textTheme.bodySmall?.copyWith(
-                                  color: Colors.white70,
-                                  fontSize: 11,
-                                ),
+                              color: Colors.white70,
+                              fontSize: 11,
+                            ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -145,9 +145,9 @@ class MaterialNoteCardView extends StatelessWidget {
                       Text(
                         dateFormat.format(note.lastModified),
                         style: textTheme.bodySmall?.copyWith(
-                              color: Colors.white70,
-                              fontSize: 10,
-                            ),
+                          color: Colors.white70,
+                          fontSize: 10,
+                        ),
                       ),
                     ],
                   ),

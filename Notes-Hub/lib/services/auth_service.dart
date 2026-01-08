@@ -13,8 +13,8 @@ class AuthService {
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
         _firestoreRepository =
             firestoreRepository ?? FirestoreRepository.instance,
-        _googleSignIn = googleSignIn ??
-            GoogleSignIn(clientId: AuthConfig.googleClientId);
+        _googleSignIn =
+            googleSignIn ?? GoogleSignIn(clientId: AuthConfig.googleClientId);
 
   final FirebaseAuth _firebaseAuth;
   final FirestoreRepository _firestoreRepository;

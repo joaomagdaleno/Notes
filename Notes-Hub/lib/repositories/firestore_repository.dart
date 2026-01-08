@@ -9,22 +9,22 @@ import 'package:notes_hub/services/tracing_service.dart';
 
 /// A repository for interacting with Firestore.
 class FirestoreRepository {
-
   /// Creates a [FirestoreRepository] instance.
   ///
   /// Uses the default [FirebaseFirestore.instance] unless explicit
   /// dependency injection is used.
   FirestoreRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
-    : firestore = firestore ?? FirebaseFirestore.instance,
-      auth = auth ?? FirebaseAuth.instance {
+      : firestore = firestore ?? FirebaseFirestore.instance,
+        auth = auth ?? FirebaseAuth.instance {
     _initCollections();
   }
 
   FirestoreRepository._internal()
-    : firestore = FirebaseFirestore.instance,
-      auth = FirebaseAuth.instance {
+      : firestore = FirebaseFirestore.instance,
+        auth = FirebaseAuth.instance {
     _initCollections();
   }
+
   /// The Firestore instance.
   FirebaseFirestore firestore;
 
@@ -94,10 +94,8 @@ class FirestoreRepository {
 
   /// Retrieves the user's dictionary from Firestore.
   Future<List<Map<String, dynamic>>> getDictionaryWords(String userId) async {
-    final snapshot = await _usersCollection
-        .doc(userId)
-        .collection('dictionary')
-        .get();
+    final snapshot =
+        await _usersCollection.doc(userId).collection('dictionary').get();
 
     return snapshot.docs.map((doc) => doc.data()).toList();
   }
@@ -158,9 +156,8 @@ class FirestoreRepository {
       }
       final now = DateTime.now();
 
-      final snippet = content.length > 100
-          ? content.substring(0, 100)
-          : content;
+      final snippet =
+          content.length > 100 ? content.substring(0, 100) : content;
 
       final docRef = await _notesCollection.add({
         'title': title,
@@ -188,9 +185,12 @@ class FirestoreRepository {
   }
 
   Future<void> _updateUserTags(String userId, List<String> tags) async {
-    await _userMetadataCollection.doc(userId).set({
-      'tags': FieldValue.arrayUnion(tags),
-    }, SetOptions(merge: true),);
+    await _userMetadataCollection.doc(userId).set(
+      {
+        'tags': FieldValue.arrayUnion(tags),
+      },
+      SetOptions(merge: true),
+    );
   }
 
   /// Updates an existing [note].
@@ -211,9 +211,12 @@ class FirestoreRepository {
       }
     }
 
-    await _notesCollection.doc(note.id).collection('content').doc('main').set({
-      'fullContent': note.content,
-    }, SetOptions(merge: true),);
+    await _notesCollection.doc(note.id).collection('content').doc('main').set(
+      {
+        'fullContent': note.content,
+      },
+      SetOptions(merge: true),
+    );
   }
 
   /// Deletes a note by its [noteId].
@@ -262,10 +265,8 @@ class FirestoreRepository {
       return false;
     }
 
-    final querySnapshot = await _usersCollection
-        .where('email', isEqualTo: email)
-        .limit(1)
-        .get();
+    final querySnapshot =
+        await _usersCollection.where('email', isEqualTo: email).limit(1).get();
     if (querySnapshot.docs.isEmpty) {
       return false;
     }
@@ -291,12 +292,15 @@ class FirestoreRepository {
 
   /// Creates a user document in Firestore.
   Future<void> createUser(User user) async {
-    await _usersCollection.doc(user.uid).set({
-      'email': user.email,
-      'displayName': user.displayName,
-      'photoURL': user.photoURL,
-      'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true),);
+    await _usersCollection.doc(user.uid).set(
+      {
+        'email': user.email,
+        'displayName': user.displayName,
+        'photoURL': user.photoURL,
+        'createdAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
   }
 
   /// Creates a new folder.
@@ -321,12 +325,12 @@ class FirestoreRepository {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = doc.data();
-            data['id'] = doc.id;
-            return data;
-          }).toList();
-        });
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+    });
   }
 
   /// Deletes a folder.
@@ -339,9 +343,8 @@ class FirestoreRepository {
     final user = auth.currentUser;
     if (user == null) return [];
 
-    final snapshot = await _foldersCollection
-        .where('ownerId', isEqualTo: user.uid)
-        .get();
+    final snapshot =
+        await _foldersCollection.where('ownerId', isEqualTo: user.uid).get();
 
     return snapshot.docs.map((doc) {
       final data = doc.data();
@@ -372,9 +375,8 @@ class FirestoreRepository {
   Future<List<Note>> getAllNotes() async {
     final user = auth.currentUser;
     if (user == null) return [];
-    final snapshot = await _notesCollection
-        .where('ownerId', isEqualTo: user.uid)
-        .get();
+    final snapshot =
+        await _notesCollection.where('ownerId', isEqualTo: user.uid).get();
     return snapshot.docs.map(Note.fromFirestore).toList();
   }
 
@@ -403,10 +405,8 @@ class FirestoreRepository {
 
     final batch = firestore.batch();
     for (final event in events) {
-      final docRef = _notesCollection
-          .doc(event.noteId)
-          .collection('events')
-          .doc(event.id);
+      final docRef =
+          _notesCollection.doc(event.noteId).collection('events').doc(event.id);
       batch.set(docRef, event.toFirestore());
     }
     await batch.commit();
@@ -420,10 +420,10 @@ class FirestoreRepository {
         .orderBy('timestamp')
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            return NoteEvent.fromFirestore(doc.data(), doc.id);
-          }).toList();
-        });
+      return snapshot.docs.map((doc) {
+        return NoteEvent.fromFirestore(doc.data(), doc.id);
+      }).toList();
+    });
   }
 
   /// Fetches all remote events for a note after [sinceTimestamp].

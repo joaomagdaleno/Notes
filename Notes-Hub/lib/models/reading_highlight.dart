@@ -142,8 +142,7 @@ enum HighlightColor {
   pink,
 
   /// Orange highlight.
-  orange
-  ;
+  orange;
 
   /// Converts this enum to a Flutter [Color].
   Color toColor() {

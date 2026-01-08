@@ -62,8 +62,8 @@ class FluentContextMenuHelper {
           material.ScaffoldMessenger.of(context).showSnackBar(
             const material.SnackBar(content: Text('Exporting to TXT...')),
           );
-          final noteWithContent = await NoteRepository.instance
-              .getNoteWithContent(note.id);
+          final noteWithContent =
+              await NoteRepository.instance.getNoteWithContent(note.id);
           await exportService.exportToTxt(noteWithContent);
         },
       ),
@@ -74,8 +74,8 @@ class FluentContextMenuHelper {
           material.ScaffoldMessenger.of(context).showSnackBar(
             const material.SnackBar(content: Text('Exporting to PDF...')),
           );
-          final noteWithContent = await NoteRepository.instance
-              .getNoteWithContent(note.id);
+          final noteWithContent =
+              await NoteRepository.instance.getNoteWithContent(note.id);
           await exportService.exportToPdf(noteWithContent);
         },
       ),

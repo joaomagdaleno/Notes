@@ -53,12 +53,10 @@ class ExportService {
           return pw.TextSpan(
             text: span.text,
             style: pw.TextStyle(
-              fontWeight: span.isBold
-                  ? pw.FontWeight.bold
-                  : pw.FontWeight.normal,
-              fontStyle: span.isItalic
-                  ? pw.FontStyle.italic
-                  : pw.FontStyle.normal,
+              fontWeight:
+                  span.isBold ? pw.FontWeight.bold : pw.FontWeight.normal,
+              fontStyle:
+                  span.isItalic ? pw.FontStyle.italic : pw.FontStyle.normal,
               decoration: pw.TextDecoration.combine(decorations),
               fontSize: span.fontSize,
               color: span.color != null

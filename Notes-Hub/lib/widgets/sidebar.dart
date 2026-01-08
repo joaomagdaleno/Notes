@@ -286,7 +286,6 @@ class _SidebarState extends State<Sidebar> {
     }
   }
 
-
   Widget _buildAccountSection({required bool isFluent}) {
     return Builder(
       builder: (context) {
@@ -345,9 +344,8 @@ class _SidebarState extends State<Sidebar> {
                     Expanded(
                       child: Text(
                         user.email ?? 'Authenticated',
-                        style: fluent.FluentTheme.of(context)
-                            .typography
-                            .caption,
+                        style:
+                            fluent.FluentTheme.of(context).typography.caption,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),

@@ -234,8 +234,7 @@ class DocumentModel {
           );
         } else if (type == 'drawing') {
           return DrawingBlock(
-            strokes:
-                (bMap['strokes'] as List<dynamic>?)
+            strokes: (bMap['strokes'] as List<dynamic>?)
                     ?.map((s) => Stroke.fromJson(s as Map<String, dynamic>))
                     .toList() ??
                 [],
@@ -248,8 +247,7 @@ class DocumentModel {
             (e) => e.name == calloutTypeStr,
             orElse: () => CalloutType.note,
           );
-          final spans =
-              (bMap['spans'] as List<dynamic>?)
+          final spans = (bMap['spans'] as List<dynamic>?)
                   ?.map(
                     (s) => TextSpanModel.fromJson(s as Map<String, dynamic>),
                   )
@@ -263,8 +261,7 @@ class DocumentModel {
           );
         } else if (type == 'table') {
           return TableBlock(
-            rows:
-                (bMap['rows'] as List<dynamic>?)
+            rows: (bMap['rows'] as List<dynamic>?)
                     ?.map(
                       (r) => (r as List<dynamic>)
                           .map(
@@ -293,8 +290,7 @@ class DocumentModel {
           );
         } else {
           // Default to text block for unknown or 'text' type
-          final spans =
-              (bMap['spans'] as List<dynamic>?)
+          final spans = (bMap['spans'] as List<dynamic>?)
                   ?.map(
                     (s) => TextSpanModel.fromJson(s as Map<String, dynamic>),
                   )
@@ -462,8 +458,7 @@ class TableCellModel {
   /// Creates from JSON.
   factory TableCellModel.fromJson(Map<String, dynamic> json) {
     return TableCellModel(
-      content:
-          (json['content'] as List?)
+      content: (json['content'] as List?)
               ?.map((e) => TextSpanModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
@@ -483,10 +478,10 @@ class TableCellModel {
 
   /// Converts to JSON.
   Map<String, dynamic> toJson() => {
-    'content': content.map((s) => s.toJson()).toList(),
-    'isHeader': isHeader,
-    'attributes': attributes,
-  };
+        'content': content.map((s) => s.toJson()).toList(),
+        'isHeader': isHeader,
+        'attributes': attributes,
+      };
 }
 
 /// A block representing a table.

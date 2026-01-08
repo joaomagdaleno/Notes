@@ -161,8 +161,7 @@ enum ReadingTheme {
   sepia,
 
   /// Dark theme with dark background.
-  dark
-  ;
+  dark;
 
   /// Gets the background color for this theme.
   Color get backgroundColor {

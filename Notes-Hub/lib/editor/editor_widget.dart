@@ -110,7 +110,7 @@ class EditorWidget extends StatefulWidget {
 
   /// Callback for editor events.
   final void Function(NoteEventType type, Map<String, dynamic> payload)?
-  onEvent;
+      onEvent;
 
   /// Controls the scrolling of the editor.
   final ScrollController? scrollController;
@@ -368,8 +368,7 @@ class EditorWidgetState extends State<EditorWidget> {
   void _handleKeyEvent(KeyEvent event) {
     if (event is! KeyDownEvent) return;
 
-    final isCtrlPressed =
-        HardwareKeyboard.instance.isControlPressed ||
+    final isCtrlPressed = HardwareKeyboard.instance.isControlPressed ||
         HardwareKeyboard.instance.isMetaPressed; // Cmd on macOS
     final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
 
@@ -386,7 +385,7 @@ class EditorWidgetState extends State<EditorWidget> {
         setState(() {
           _selectedSuggestionIndex =
               (_selectedSuggestionIndex - 1 + _suggestions.length) %
-              _suggestions.length;
+                  _suggestions.length;
         });
         _showAutocomplete();
         return;
@@ -609,9 +608,8 @@ class EditorWidgetState extends State<EditorWidget> {
 
   /// Scrolls the editor to center the current line of the selection.
   void centerLine() {
-    final line = _buffer
-        .getLineTextPositionForOffset(_selection.baseOffset)
-        .line;
+    final line =
+        _buffer.getLineTextPositionForOffset(_selection.baseOffset).line;
     final lineKey = _lineKeys[line];
     if (lineKey != null && lineKey.currentContext != null) {
       unawaited(
@@ -936,8 +934,7 @@ class EditorWidgetState extends State<EditorWidget> {
                 var x = 100 + (index % 3) * 350.0;
                 var y = 100 + (index ~/ 3) * 200.0;
 
-                final block =
-                    (widget.document.blocks.isNotEmpty &&
+                final block = (widget.document.blocks.isNotEmpty &&
                         index < widget.document.blocks.length)
                     ? widget.document.blocks[index]
                     : null;
@@ -1014,15 +1011,14 @@ class EditorWidgetState extends State<EditorWidget> {
                                     c['selection'] as Map<String, dynamic>;
                                 final base = sel['base'] as int;
                                 final extent = sel['extent'] as int;
-                                final lineStart = _buffer
-                                    .getOffsetForLineTextPosition(
-                                      LineTextPosition(
-                                        line: index,
-                                        character: 0,
-                                      ),
-                                    );
-                                final lineEnd =
-                                    lineStart +
+                                final lineStart =
+                                    _buffer.getOffsetForLineTextPosition(
+                                  LineTextPosition(
+                                    line: index,
+                                    character: 0,
+                                  ),
+                                );
+                                final lineEnd = lineStart +
                                     (line is TextLine
                                         ? line.toPlainText().length
                                         : 1);
@@ -1384,8 +1380,8 @@ class EditorWidgetState extends State<EditorWidget> {
               TextSpan(
                 text: spanText.substring(0, localStart),
                 style: span.toTextSpan().style?.copyWith(
-                  backgroundColor: annotationColor,
-                ),
+                      backgroundColor: annotationColor,
+                    ),
               ),
             );
           }
@@ -1396,10 +1392,10 @@ class EditorWidgetState extends State<EditorWidget> {
               TextSpan(
                 text: spanText.substring(localStart, localEnd),
                 style: span.toTextSpan().style?.copyWith(
-                  backgroundColor: settings.theme.accentColor.withValues(
-                    alpha: 0.5,
-                  ),
-                ),
+                      backgroundColor: settings.theme.accentColor.withValues(
+                        alpha: 0.5,
+                      ),
+                    ),
               ),
             );
           }
@@ -1410,8 +1406,8 @@ class EditorWidgetState extends State<EditorWidget> {
               TextSpan(
                 text: spanText.substring(localEnd),
                 style: span.toTextSpan().style?.copyWith(
-                  backgroundColor: annotationColor,
-                ),
+                      backgroundColor: annotationColor,
+                    ),
               ),
             );
           }
@@ -1435,8 +1431,7 @@ class EditorWidgetState extends State<EditorWidget> {
           spanText.length,
           matchStart + _readingSearchQuery.length - spanStartGlobal,
         );
-        final isCurrentMatch =
-            matchStart ==
+        final isCurrentMatch = matchStart ==
             (_readingSearchMatchOffsets.isNotEmpty
                 ? _readingSearchMatchOffsets[_currentReadingSearchMatchIndex]
                 : -1);
@@ -1450,8 +1445,8 @@ class EditorWidgetState extends State<EditorWidget> {
             TextSpan(
               text: spanText.substring(0, localStart),
               style: span.toTextSpan().style?.copyWith(
-                backgroundColor: annotationColor,
-              ),
+                    backgroundColor: annotationColor,
+                  ),
             ),
           );
         }
@@ -1460,8 +1455,8 @@ class EditorWidgetState extends State<EditorWidget> {
           TextSpan(
             text: spanText.substring(localStart, localEnd),
             style: span.toTextSpan().style?.copyWith(
-              backgroundColor: highlightColor,
-            ),
+                  backgroundColor: highlightColor,
+                ),
           ),
         );
 
@@ -1470,8 +1465,8 @@ class EditorWidgetState extends State<EditorWidget> {
             TextSpan(
               text: spanText.substring(localEnd),
               style: span.toTextSpan().style?.copyWith(
-                backgroundColor: annotationColor,
-              ),
+                    backgroundColor: annotationColor,
+                  ),
             ),
           );
         }
@@ -1480,8 +1475,8 @@ class EditorWidgetState extends State<EditorWidget> {
           TextSpan(
             text: spanText,
             style: span.toTextSpan().style?.copyWith(
-              backgroundColor: annotationColor,
-            ),
+                  backgroundColor: annotationColor,
+                ),
           ),
         );
       } else {
@@ -1528,8 +1523,7 @@ class EditorWidgetState extends State<EditorWidget> {
   void _onReadingSearchNext() {
     if (_readingSearchMatchOffsets.isEmpty) return;
     setState(() {
-      _currentReadingSearchMatchIndex =
-          (_currentReadingSearchMatchIndex + 1) %
+      _currentReadingSearchMatchIndex = (_currentReadingSearchMatchIndex + 1) %
           _readingSearchMatchOffsets.length;
     });
     _scrollToReadingMatch(
@@ -1540,8 +1534,7 @@ class EditorWidgetState extends State<EditorWidget> {
   void _onReadingSearchPrev() {
     if (_readingSearchMatchOffsets.isEmpty) return;
     setState(() {
-      _currentReadingSearchMatchIndex =
-          (_currentReadingSearchMatchIndex -
+      _currentReadingSearchMatchIndex = (_currentReadingSearchMatchIndex -
               1 +
               _readingSearchMatchOffsets.length) %
           _readingSearchMatchOffsets.length;
@@ -1562,8 +1555,7 @@ class EditorWidgetState extends State<EditorWidget> {
 
   void _scrollToReadingMatch(int offset) {
     final targetLineIndex = _buffer.getLineTextPositionForOffset(offset).line;
-    final scrollOffset =
-        targetLineIndex *
+    final scrollOffset = targetLineIndex *
         (widget.readingSettings?.fontSize ?? 18) *
         (widget.readingSettings?.lineHeight ?? 1.6);
 
@@ -1604,9 +1596,8 @@ class EditorWidgetState extends State<EditorWidget> {
         .map((e) => e.value)
         .toList();
 
-    final cursorLine = _buffer
-        .getLineTextPositionForOffset(_selection.baseOffset)
-        .line;
+    final cursorLine =
+        _buffer.getLineTextPositionForOffset(_selection.baseOffset).line;
     final isCurrentLine = cursorLine == index;
 
     return EditorLine(

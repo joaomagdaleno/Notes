@@ -25,7 +25,7 @@ class MarkdownConversionResult {
 class MarkdownConverter {
   // Patterns for inline styles
   static final Map<RegExp, TextSpanModel Function(TextSpanModel)>
-  _inlineModifiers = {
+      _inlineModifiers = {
     RegExp(r'\*([^\*]+)\*(?=\s|$)'): (s) => s.copyWith(isBold: !s.isBold),
     RegExp(r'_([^_]+)_(?=\s|$)'): (s) => s.copyWith(isItalic: !s.isItalic),
     RegExp(r'~([^~]+)~(?=\s|$)'): (s) =>
@@ -165,10 +165,8 @@ class MarkdownConverter {
     if (lineText.trim().startsWith(r'$$') &&
         lineText.trim().endsWith(r'$$') &&
         lineText.trim().length > 4) {
-      final tex = lineText
-          .trim()
-          .substring(2, lineText.trim().length - 2)
-          .trim();
+      final tex =
+          lineText.trim().substring(2, lineText.trim().length - 2).trim();
       if (tex.isNotEmpty) {
         return _applyMathBlock(document, lineStart, tex);
       }
@@ -178,10 +176,8 @@ class MarkdownConverter {
     if (lineText.trim().startsWith('![[') &&
         lineText.trim().endsWith(']]') &&
         lineText.trim().length > 5) {
-      final title = lineText
-          .trim()
-          .substring(3, lineText.trim().length - 2)
-          .trim();
+      final title =
+          lineText.trim().substring(3, lineText.trim().length - 2).trim();
       if (title.isNotEmpty) {
         return _applyTransclusion(document, lineStart, title);
       }
@@ -382,9 +378,8 @@ class MarkdownConverter {
     final text = document.toPlainText();
     final currentLineEnd = text.indexOf('\n', currentLineStart);
     final effectiveEnd = currentLineEnd == -1 ? text.length : currentLineEnd;
-    final currentLineText = text
-        .substring(currentLineStart, effectiveEnd)
-        .trim();
+    final currentLineText =
+        text.substring(currentLineStart, effectiveEnd).trim();
 
     // Regex for separator line: ^\|?(\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?$
     final separatorRegex = RegExp(r'^\|?(\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?$');
@@ -406,9 +401,8 @@ class MarkdownConverter {
 
       if (prevLineStart >= currentLineStart) return null; // Logic check
 
-      final prevLineText = text
-          .substring(prevLineStart, currentLineStart - 1 /* \n */)
-          .trim();
+      final prevLineText =
+          text.substring(prevLineStart, currentLineStart - 1 /* \n */).trim();
       if (prevLineText.isEmpty) return null;
 
       // Header row must have pipes or at least match column count?
@@ -416,14 +410,10 @@ class MarkdownConverter {
       // or at least be non-empty.
 
       // Parse columns
-      final separatorCols = currentLineText
-          .split('|')
-          .where((s) => s.trim().isNotEmpty)
-          .length;
-      final headerCols = prevLineText
-          .split('|')
-          .where((s) => s.trim().isNotEmpty)
-          .length;
+      final separatorCols =
+          currentLineText.split('|').where((s) => s.trim().isNotEmpty).length;
+      final headerCols =
+          prevLineText.split('|').where((s) => s.trim().isNotEmpty).length;
 
       if (separatorCols > 0 && headerCols > 0) {
         // Rough match

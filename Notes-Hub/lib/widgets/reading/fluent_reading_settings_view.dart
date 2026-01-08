@@ -128,9 +128,11 @@ class FluentReadingSettingsView extends StatelessWidget {
                   'Roboto',
                   'Lora',
                   'Merriweather',
-                ].map(
-                  (f) => fluent.ComboBoxItem(value: f, child: Text(f)),
-                ).toList(),
+                ]
+                    .map(
+                      (f) => fluent.ComboBoxItem(value: f, child: Text(f)),
+                    )
+                    .toList(),
                 onChanged: (value) {
                   if (value != null) {
                     onSettingsChanged(settings.copyWith(fontFamily: value));

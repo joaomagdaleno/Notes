@@ -32,8 +32,8 @@ class RecoveryService {
   RecoveryService({
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
-  }) : _auth = auth ?? FirebaseAuth.instance,
-       _firestore = firestore ?? FirebaseFirestore.instance;
+  })  : _auth = auth ?? FirebaseAuth.instance,
+        _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
@@ -101,9 +101,7 @@ class RecoveryService {
       return RecoveryResult.notLoggedIn;
     }
 
-    final docRef = _firestore
-        .collection(_recoveryCodesCollection)
-        .doc(
+    final docRef = _firestore.collection(_recoveryCodesCollection).doc(
           user.uid,
         );
     final doc = await docRef.get();
@@ -149,11 +147,14 @@ class RecoveryService {
       throw StateError('User is not logged in');
     }
 
-    await _firestore.collection(_usersCollection).doc(user.uid).set({
-      'encryptedRecoveryKey': encryptedKey,
-      'recoverySetupDate': FieldValue.serverTimestamp(),
-      'hasEncryptedNotes': true,
-    }, SetOptions(merge: true),);
+    await _firestore.collection(_usersCollection).doc(user.uid).set(
+      {
+        'encryptedRecoveryKey': encryptedKey,
+        'recoverySetupDate': FieldValue.serverTimestamp(),
+        'hasEncryptedNotes': true,
+      },
+      SetOptions(merge: true),
+    );
   }
 
   /// Retrieves the encrypted recovery key from Firestore.
@@ -163,10 +164,8 @@ class RecoveryService {
       return null;
     }
 
-    final doc = await _firestore
-        .collection(_usersCollection)
-        .doc(user.uid)
-        .get();
+    final doc =
+        await _firestore.collection(_usersCollection).doc(user.uid).get();
     return doc.data()?['encryptedRecoveryKey'] as String?;
   }
 

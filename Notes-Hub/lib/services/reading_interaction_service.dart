@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 class ReadingInteractionService {
   /// Creates a new [ReadingInteractionService].
   ReadingInteractionService({required Database database})
-    : _database = database;
+      : _database = database;
 
   final Database _database;
   static const _tableName = 'reading_annotations';

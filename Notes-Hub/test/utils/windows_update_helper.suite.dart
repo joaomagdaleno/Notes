@@ -51,19 +51,19 @@ void main() {
       // Mock path_provider MethodChannel
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('plugins.flutter.io/path_provider'),
-            (MethodCall methodCall) async {
-              return Directory.systemTemp.path;
-            },
-          );
+        const MethodChannel('plugins.flutter.io/path_provider'),
+        (MethodCall methodCall) async {
+          return Directory.systemTemp.path;
+        },
+      );
     });
 
     tearDown(() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-            const MethodChannel('plugins.flutter.io/path_provider'),
-            null,
-          );
+        const MethodChannel('plugins.flutter.io/path_provider'),
+        null,
+      );
     });
 
     // Mock process runner that succeeds

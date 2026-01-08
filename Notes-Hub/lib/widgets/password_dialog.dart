@@ -195,9 +195,8 @@ class _PasswordDialogState extends State<PasswordDialog> {
                 ),
               ),
               validator: _validatePassword,
-              onFieldSubmitted: widget.isCreatingPassword
-                  ? null
-                  : (_) => _submit(),
+              onFieldSubmitted:
+                  widget.isCreatingPassword ? null : (_) => _submit(),
             ),
             if (widget.isCreatingPassword) ...[
               const SizedBox(height: 16),

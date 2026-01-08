@@ -117,8 +117,7 @@ class HistoryGrouper {
 
     for (var i = 0; i < oldEvents.length; i++) {
       final event = oldEvents[i];
-      final dayKey =
-          '${event.timestamp.year}-${event.timestamp.month}'
+      final dayKey = '${event.timestamp.year}-${event.timestamp.month}'
           '-${event.timestamp.day}';
       eventsByDay.putIfAbsent(dayKey, () => []).add(i);
     }

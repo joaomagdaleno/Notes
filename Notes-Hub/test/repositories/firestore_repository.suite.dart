@@ -26,8 +26,6 @@ class MockCollectionReference extends Mock
 class MockDocumentReference extends Mock
     implements DocumentReference<Map<String, dynamic>> {}
 
-
-
 class MockDocumentSnapshot extends Mock
     implements DocumentSnapshot<Map<String, dynamic>> {}
 

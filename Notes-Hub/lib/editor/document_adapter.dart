@@ -15,7 +15,7 @@ class DocumentAdapter {
     try {
       final dynamic decoded = json.decode(jsonString);
       final List<dynamic> jsonList;
-      
+
       if (decoded is Map<String, dynamic> && decoded.containsKey('blocks')) {
         jsonList = decoded['blocks'] as List<dynamic>;
       } else if (decoded is List) {
@@ -30,8 +30,7 @@ class DocumentAdapter {
         if (type == 'image') {
           return ImageBlock(imagePath: itemMap['imagePath'] as String);
         } else {
-          final spans =
-              (itemMap['spans'] as List<dynamic>?)
+          final spans = (itemMap['spans'] as List<dynamic>?)
                   ?.map(
                     (s) => TextSpanModel.fromJson(s as Map<String, dynamic>),
                   )

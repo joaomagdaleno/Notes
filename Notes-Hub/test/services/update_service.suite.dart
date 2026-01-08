@@ -54,7 +54,8 @@ void main() {
     }
 
     group('Stable Channel', () {
-      test('returns updateAvailable when a newer stable version is '
+      test(
+          'returns updateAvailable when a newer stable version is '
           'available', () async {
         final packageInfo = PackageInfo(
           version: '1.0.0',
