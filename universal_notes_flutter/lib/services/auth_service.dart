@@ -23,6 +23,17 @@ class AuthService {
   /// Returns a stream of the authentication state.
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
+  /// Private helper to sync user profile to Firestore.
+  Future<void> _syncUserProfile(User user) async {
+    try {
+      await _firestoreRepository.createUser(user);
+    } on Exception {
+      // 🛡️ Sentinel: Rethrow the exception to ensure the caller can handle
+      // the failure. Swallowing this exception leads to an inconsistent user
+      // state where an authenticated user has no corresponding profile data.
+      rethrow;
+    }
+  }
 
   /// Signs in with email and password.
   Future<UserCredential> signInWithEmailAndPassword(
@@ -91,11 +102,10 @@ class AuthService {
     // has no profile data, which is a recipe for crashes and bugs.
     if (userCredential.user != null) {
       try {
-        // 🛡️ Security: Ensure user profile is created. If this fails,
-        // we must sign out to prevent an inconsistent state.
-        await _firestoreRepository.createUser(userCredential.user!);
+        await _syncUserProfile(userCredential.user!);
       } on Exception {
-        // Fail securely by signing out the user if profile creation fails.
+        // 🛡️ Sentinel: If profile sync fails, sign out the user to prevent
+        // an inconsistent state. This is a critical rollback mechanism.
         await signOut();
         rethrow;
       }
