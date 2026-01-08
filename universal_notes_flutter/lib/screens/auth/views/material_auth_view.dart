@@ -9,7 +9,9 @@ class MaterialAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isProcessing,
+    required this.isSigningInWithEmail,
+    required this.isSigningUpWithEmail,
+    required this.isSigningInWithGoogle,
     required this.onAuth,
     required this.onToggleMode,
     required this.onGoogleAuth,
@@ -31,8 +33,14 @@ class MaterialAuthView extends StatelessWidget {
   /// Whether to show the sign up form instead of login.
   final bool showSignUp;
 
-  /// Whether an authentication process is currently running.
-  final bool isProcessing;
+  /// Whether the email sign-in process is running.
+  final bool isSigningInWithEmail;
+
+  /// Whether the email sign-up process is running.
+  final bool isSigningUpWithEmail;
+
+  /// Whether the Google sign-in process is running.
+  final bool isSigningInWithGoogle;
 
   /// Callback when the primary auth button is pressed.
   final VoidCallback onAuth;
@@ -46,6 +54,8 @@ class MaterialAuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = showSignUp ? 'Criar Conta' : 'Entrar';
+    final isEmailProcessing = isSigningInWithEmail || isSigningUpWithEmail;
+    final isAnyProcessRunning = isEmailProcessing || isSigningInWithGoogle;
 
     return Scaffold(
       appBar: AppBar(
@@ -65,18 +75,28 @@ class MaterialAuthView extends StatelessWidget {
                   const SizedBox(height: 24),
                   if (showSignUp) ...[
                     TextFormField(
+                      enabled: !isProcessing,
                       controller: nameController,
+                      enabled: !isAnyProcessRunning,
                       decoration: const InputDecoration(
                         labelText: 'Nome de Exibição',
                         hintText: 'Como você quer ser chamado',
                         prefixIcon: Icon(Icons.person_outline),
                         border: OutlineInputBorder(),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira seu nome';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                   ],
                   TextFormField(
+                    enabled: !isProcessing,
                     controller: emailController,
+                    enabled: !isAnyProcessRunning,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       labelText: 'Email',
@@ -84,10 +104,18 @@ class MaterialAuthView extends StatelessWidget {
                       prefixIcon: Icon(Icons.email_outlined),
                       border: OutlineInputBorder(),
                     ),
+                    validator: (value) {
+                      if (value == null || !value.contains('@')) {
+                        return 'Por favor, insira um email válido';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    enabled: !isProcessing,
                     controller: passwordController,
+                    enabled: !isAnyProcessRunning,
                     obscureText: true,
                     decoration: const InputDecoration(
                       labelText: 'Senha',
@@ -95,13 +123,21 @@ class MaterialAuthView extends StatelessWidget {
                       prefixIcon: Icon(Icons.lock_outline),
                       border: OutlineInputBorder(),
                     ),
+                    validator: (value) {
+                      if (value == null || value.length < 6) {
+                        return 'A senha deve ter pelo menos 6 caracteres';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: isProcessing ? null : onAuth,
-                      child: isProcessing
+                      onPressed: isAnyProcessRunning ? null : onAuth,
+                      child: (showSignUp
+                              ? isSigningUpWithEmail
+                              : isSigningInWithEmail)
                           ? const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -122,7 +158,7 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: onToggleMode,
+                    onPressed: isAnyProcessRunning ? null : onToggleMode,
                     child: Text(
                       showSignUp
                           ? 'Já tem uma conta? Entre aqui'
@@ -136,15 +172,32 @@ class MaterialAuthView extends StatelessWidget {
                   const Text('Ou entre com'),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: onGoogleAuth,
-                    icon: Image.network(
-                      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
-                      width: 18,
-                      height: 18,
-                      errorBuilder: (ctx, err, stack) =>
-                          const Icon(Icons.g_mobiledata, size: 18),
-                    ),
-                    label: const Text('Continuar com Google'),
+                    onPressed: isAnyProcessRunning ? null : onGoogleAuth,
+                    icon: isSigningInWithGoogle
+                        ? const SizedBox.shrink()
+                        : Image.network(
+                            'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/48px-Google_%22G%22_logo.svg.png',
+                            width: 18,
+                            height: 18,
+                            errorBuilder: (ctx, err, stack) =>
+                                const Icon(Icons.g_mobiledata, size: 18),
+                          ),
+                    label: isSigningInWithGoogle
+                        ? const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text('Entrando...'),
+                            ],
+                          )
+                        : const Text('Continuar com Google'),
                   ),
                 ],
               ),

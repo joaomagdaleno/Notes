@@ -728,7 +728,7 @@ class NoteRepository {
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
-  /// Searches all notes for the given term.
+  /// Searches all notes for the given term using the FTS5 index.
   Future<List<Note>> searchNotes(String searchTerm) async {
     final db = await database;
 
@@ -739,6 +739,7 @@ class NoteRepository {
       return [];
     }
 
+    final db = await database;
     if (searchTerm.isEmpty) {
       return getAllNotes();
     }
