@@ -738,6 +738,7 @@ class NoteRepository {
       return [];
     }
 
+    final db = await database;
     if (searchTerm.isEmpty) {
       return getAllNotes();
     }
@@ -770,6 +771,7 @@ class NoteRepository {
       whereArgs: rowIds,
       orderBy: 'date DESC',
     );
+
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
