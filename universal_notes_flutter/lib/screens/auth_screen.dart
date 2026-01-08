@@ -24,8 +24,9 @@ class _AuthScreenState extends State<AuthScreen> {
   final _nameController = TextEditingController();
   final _authService = AuthService();
 
-  bool _isEmailAuthLoading = false;
-  bool _isGoogleAuthLoading = false;
+  bool _isSigningIn = false;
+  bool _isSigningUp = false;
+  bool _isSigningInWithGoogle = false;
   bool _showSignUp = false;
 
   Future<void> _showErrorFluent(Object e) async {
@@ -129,7 +130,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> _handleGoogleAuth() async {
     setState(() {
-      _isGoogleAuthLoading = true;
+      _isSigningInWithGoogle = true;
     });
     try {
       final result = await _authService.signInWithGoogle();
@@ -146,7 +147,7 @@ class _AuthScreenState extends State<AuthScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          _isGoogleAuthLoading = false;
+          _isSigningInWithGoogle = false;
         });
       }
     }
@@ -161,8 +162,8 @@ class _AuthScreenState extends State<AuthScreen> {
         passwordController: _passwordController,
         nameController: _nameController,
         showSignUp: _showSignUp,
-        isEmailAuthLoading: _isEmailAuthLoading,
-        isGoogleAuthLoading: _isGoogleAuthLoading,
+        isProcessing: _isSigningIn || _isSigningUp,
+        isGoogleProcessing: _isSigningInWithGoogle,
         onAuth: _handleEmailAuth,
         onToggleMode: () => setState(() => _showSignUp = !_showSignUp),
         onGoogleAuth: _handleGoogleAuth,
@@ -174,8 +175,8 @@ class _AuthScreenState extends State<AuthScreen> {
         passwordController: _passwordController,
         nameController: _nameController,
         showSignUp: _showSignUp,
-        isEmailAuthLoading: _isEmailAuthLoading,
-        isGoogleAuthLoading: _isGoogleAuthLoading,
+        isProcessing: _isSigningIn || _isSigningUp,
+        isGoogleProcessing: _isSigningInWithGoogle,
         onAuth: _handleEmailAuth,
         onToggleMode: () => setState(() => _showSignUp = !_showSignUp),
         onGoogleAuth: _handleGoogleAuth,
