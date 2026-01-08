@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/editor/document.dart';
+import 'package:universal_notes_flutter/services/startup_logger.dart';
 import 'package:universal_notes_flutter/editor/document_adapter.dart';
 import 'package:universal_notes_flutter/editor/document_manipulator.dart';
 import 'package:universal_notes_flutter/editor/editor_widget.dart';
@@ -286,9 +286,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   void _updateCounts(DocumentModel document) {
     final text = document.toPlainText().trim();
     _charCountNotifier.value = text.length;
-    _wordCountNotifier.value = text.isEmpty
-        ? 0
-        : text.split(RegExp(r'\s+')).length;
+    _wordCountNotifier.value =
+        text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
   }
 
   void _onDocumentChanged(DocumentModel newDocument) {
@@ -433,24 +432,23 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     // WARNING: This receives ALL events. We need to filter by those we
     // haven't applied or are remote. A robust system would track
     // 'lastAppliedEventId'.
-    _remoteEventsSubscription = _firestoreRepository
-        .getNoteEventsStream(_note!.id)
-        .listen((events) {
-          // Filter out local events (we generated them) or already applied?
-          // For this MVP, we might re-apply everything or just the new ones.
-          // Optimally: user EventReplayer to build state?
-          // But we have local unsaved changes in _document.
-          // Re-applying all events from scratch would overwite local changes if
-          // they are not pushed yet. This is complex. Let's assume for this
-          // "Activate" task that we simply show cursors for now, and maybe
-          // rely on manual specific event handling if feasible.
-          // The 'cursor' part was explicitly disabled. The sync part was less
-          // clear.
-          // The 'cursor' part was explicitly disabled. The sync part was less
-          // clear.
-          // Let's implement cursor sync fully. For document sync, we can try to
-          // replay new events.
-        });
+    _remoteEventsSubscription =
+        _firestoreRepository.getNoteEventsStream(_note!.id).listen((events) {
+      // Filter out local events (we generated them) or already applied?
+      // For this MVP, we might re-apply everything or just the new ones.
+      // Optimally: user EventReplayer to build state?
+      // But we have local unsaved changes in _document.
+      // Re-applying all events from scratch would overwite local changes if
+      // they are not pushed yet. This is complex. Let's assume for this
+      // "Activate" task that we simply show cursors for now, and maybe
+      // rely on manual specific event handling if feasible.
+      // The 'cursor' part was explicitly disabled. The sync part was less
+      // clear.
+      // The 'cursor' part was explicitly disabled. The sync part was less
+      // clear.
+      // Let's implement cursor sync fully. For document sync, we can try to
+      // replay new events.
+    });
   }
 
   Future<void> _broadcastCursorPosition(TextSelection selection) async {
@@ -848,9 +846,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     await SnippetConverter.precacheSnippets();
   }
 
-
-
-
   final bool _canUndo = false;
   final bool _canRedo = false;
 
@@ -917,7 +912,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
             },
             progressPercent: _scrollController.hasClients
                 ? _scrollController.offset /
-                      _scrollController.position.maxScrollExtent
+                    _scrollController.position.maxScrollExtent
                 : 0.0,
           );
         },
@@ -1127,9 +1122,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       color: Colors.yellow.toARGB32(), // Yellow highlighter
       createdAt: DateTime.now(),
       textExcerpt: _document.toPlainText().substring(
-        _selection.start,
-        math.min(_selection.end, _document.toPlainText().length),
-      ),
+            _selection.start,
+            math.min(_selection.end, _document.toPlainText().length),
+          ),
     );
 
     await _readingInteractionService.addAnnotation(annotation);
@@ -1172,9 +1167,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         comment: result,
         createdAt: DateTime.now(),
         textExcerpt: _document.toPlainText().substring(
-          _selection.start,
-          math.min(_selection.end, _document.toPlainText().length),
-        ),
+              _selection.start,
+              math.min(_selection.end, _document.toPlainText().length),
+            ),
       );
 
       await _readingInteractionService.addAnnotation(annotation);
@@ -1340,8 +1335,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     return _buildUnifiedUI(editor);
   }
 
-
-
   Widget _buildUnifiedUI(Widget editor) {
     final shortcuts = {
       LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ):
@@ -1432,7 +1425,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     );
   }
 
-
   Widget _buildEditorContent(Widget editor) {
     return SafeArea(
       child: Stack(
@@ -1455,12 +1447,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                   onBold: () => _toggleStyle(StyleAttribute.bold),
                   onItalic: () => _toggleStyle(StyleAttribute.italic),
                   onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                  onStrikethrough:
-                      () => _toggleStyle(StyleAttribute.strikethrough),
+                  onStrikethrough: () =>
+                      _toggleStyle(StyleAttribute.strikethrough),
                   onColor: _showColorPicker,
                   onFontSize: _showFontSizePicker,
-                  onAlignment:
-                      (align) => _toggleBlockAttribute('align', align),
+                  onAlignment: (align) => _toggleBlockAttribute('align', align),
                   onIndent: _indentBlock,
                   onList: (type) => _toggleBlockAttribute('list', type),
                   onImage: _attachImage,
@@ -1478,8 +1469,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
           ),
           if (_isToolbarVisible)
             () {
-              final stackBox = _stackKey.currentContext?.findRenderObject()
-                  as RenderBox?;
+              final stackBox =
+                  _stackKey.currentContext?.findRenderObject() as RenderBox?;
               if (stackBox == null || _selectionRect == null) {
                 return const SizedBox.shrink();
               }
@@ -1493,8 +1484,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                   onBold: () => _toggleStyle(StyleAttribute.bold),
                   onItalic: () => _toggleStyle(StyleAttribute.italic),
                   onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                  onStrikethrough:
-                      () => _toggleStyle(StyleAttribute.strikethrough),
+                  onStrikethrough: () =>
+                      _toggleStyle(StyleAttribute.strikethrough),
                   onColor: _showColorPicker,
                   onLink: _showLinkDialog,
                   onHighlight: _addHighlight,
@@ -1906,4 +1897,3 @@ class _ShowFormatMenuAction extends Action<_ShowFormatMenuIntent> {
     unawaited(state._showFontSizePicker());
   }
 }
-

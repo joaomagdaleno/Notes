@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:universal_notes_flutter/models/folder.dart';
@@ -102,17 +103,19 @@ class _FluentNotesViewState extends State<FluentNotesView> {
     if (widget.selection.type == SidebarItemType.all) return 0;
     if (widget.selection.type == SidebarItemType.favorites) return 1;
     if (widget.selection.type == SidebarItemType.trash) return 2;
-    
+
     if (widget.selection.type == SidebarItemType.folder) {
-      final index = folders.indexWhere((f) => f.id == widget.selection.folder?.id);
+      final index = folders.indexWhere(
+        (f) => f.id == widget.selection.folder?.id,
+      );
       if (index != -1) return 3 + index;
     }
-    
+
     if (widget.selection.type == SidebarItemType.tag) {
       final index = tags.indexWhere((t) => t == widget.selection.tag);
       if (index != -1) return 3 + folders.length + index;
     }
-    
+
     return 0;
   }
 
@@ -126,7 +129,7 @@ class _FluentNotesViewState extends State<FluentNotesView> {
           builder: (context, tagSnapshot) {
             final folders = folderSnapshot.data ?? [];
             final tags = tagSnapshot.data ?? [];
-            
+
             return NavigationView(
               appBar: NavigationAppBar(
                 automaticallyImplyLeading: false,
@@ -146,7 +149,8 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                     ValueListenableBuilder<String>(
                       valueListenable: widget.viewModeNotifier,
                       builder: (context, currentMode, child) {
-                        final props = widget.nextViewModePropsGetter(currentMode);
+                        final props =
+                            widget.nextViewModePropsGetter(currentMode);
                         return Tooltip(
                           message: props.tooltip,
                           child: IconButton(
@@ -208,7 +212,7 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                   ...folders.map((folder) {
                     final controller = _folderFlyoutControllers.putIfAbsent(
                       folder.id,
-                      () => FlyoutController(),
+                      FlyoutController.new,
                     );
                     return PaneItem(
                       icon: const Icon(FluentIcons.folder_horizontal),
@@ -216,7 +220,7 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                         controller: controller,
                         child: GestureDetector(
                           onSecondaryTapUp: (details) {
-                            controller.showFlyout<void>(
+                            unawaited(controller.showFlyout<void>(
                               autoModeConfiguration: FlyoutAutoConfiguration(
                                 preferredMode: FlyoutPlacementMode.bottomRight,
                               ),
@@ -226,18 +230,22 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                                   MenuFlyoutItem(
                                     leading: const Icon(FluentIcons.delete),
                                     text: const Text('Delete'),
-                                    onPressed: () => widget.onDeleteFolder(folder.id),
+                                    onPressed: () =>
+                                        widget.onDeleteFolder(folder.id),
                                   ),
                                 ],
                               ),
-                            );
+                            ));
                           },
                           child: Text(folder.name),
                         ),
                       ),
                       body: const SizedBox.shrink(),
                       onTap: () => widget.onSelectionChanged(
-                        SidebarSelection(SidebarItemType.folder, folder: folder),
+                        SidebarSelection(
+                          SidebarItemType.folder,
+                          folder: folder,
+                        ),
                       ),
                     );
                   }),
@@ -249,13 +257,13 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                   if (tags.isNotEmpty) ...[
                     PaneItemHeader(header: const Text('Tags')),
                     ...tags.map((tag) => PaneItem(
-                      icon: const Icon(FluentIcons.tag),
-                      title: Text(tag),
-                      body: const SizedBox.shrink(),
-                      onTap: () => widget.onSelectionChanged(
-                        SidebarSelection(SidebarItemType.tag, tag: tag),
-                      ),
-                    )),
+                          icon: const Icon(FluentIcons.tag),
+                          title: Text(tag),
+                          body: const SizedBox.shrink(),
+                          onTap: () => widget.onSelectionChanged(
+                            SidebarSelection(SidebarItemType.tag, tag: tag),
+                          ),
+                        )),
                   ],
                 ],
                 footerItems: [

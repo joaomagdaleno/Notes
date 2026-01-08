@@ -547,9 +547,8 @@ class NoteRepository {
         void processText(String text) {
           final words = text.split(RegExp(r'\s+'));
           for (final word in words) {
-            final cleanWord = word
-                .replaceAll(RegExp('[^a-zA-Z]'), '')
-                .toLowerCase();
+            final cleanWord =
+                word.replaceAll(RegExp('[^a-zA-Z]'), '').toLowerCase();
             if (cleanWord.isNotEmpty) {
               _wordFrequencyCache![cleanWord] =
                   (_wordFrequencyCache![cleanWord] ?? 0) + 1;
@@ -694,8 +693,7 @@ class NoteRepository {
     final whereArgs = <dynamic>[];
 
     if (tagId != null) {
-      query +=
-          ' INNER JOIN $_noteTagsTable NT ON N.id = NT.note_id '
+      query += ' INNER JOIN $_noteTagsTable NT ON N.id = NT.note_id '
           'AND NT.tag_id = ?';
       whereArgs.add(tagId);
     }
@@ -739,7 +737,6 @@ class NoteRepository {
       return [];
     }
 
-    final db = await database;
     if (searchTerm.isEmpty) {
       return getAllNotes();
     }
@@ -750,7 +747,7 @@ class NoteRepository {
     // The MATCH operator is optimized for text searches.
     // We also use a parameterized query `?` to prevent any chance of
     // SQL injection, even within an FTS context.
-    final query = '''
+    const query = '''
       SELECT N.* FROM $_notesTable N
       INNER JOIN $_notesFtsTable FTS ON N.rowid = FTS.rowid
       WHERE FTS.$_notesFtsTable MATCH ? AND N.isInTrash = 0

@@ -54,7 +54,7 @@ class _GraphViewState extends State<GraphView> {
       header: const fluent.PageHeader(
         title: Text('Local Graph View'),
       ),
-      content: Container(
+      content: ColoredBox(
         color: theme.scaffoldBackgroundColor,
         child: CustomPaint(
           painter: GraphPainter(
@@ -63,7 +63,7 @@ class _GraphViewState extends State<GraphView> {
             textColor: theme.typography.body?.color ?? fluent.Colors.black,
             nodeColor: theme.accentColor.light,
           ),
-          child: Container(),
+          child: const SizedBox.expand(),
         ),
       ),
     );
@@ -83,7 +83,7 @@ class _GraphViewState extends State<GraphView> {
           textColor: Colors.black,
           nodeColor: Colors.blue.withValues(alpha: 0.3),
         ),
-        child: Container(),
+        child: const SizedBox.expand(),
       ),
     );
   }
@@ -131,7 +131,7 @@ class GraphPainter extends CustomPainter {
     final count = notes.length;
 
     // Use a slightly more organic layout distribution
-    final List<Offset> positions = [];
+    final positions = <Offset>[];
     for (var i = 0; i < count; i++) {
       final angle = (i * 2 * 3.14159) / count;
       final dist = (size.width < size.height ? size.width : size.height) * 0.35;
@@ -172,16 +172,16 @@ class GraphPainter extends CustomPainter {
         // Only draw labels if not too many nodes
         final textPainter = TextPainter(
           text: TextSpan(
-            text: notes[i].title.length > 15 
-              ? '${notes[i].title.substring(0, 12)}...' 
-              : notes[i].title,
+            text: notes[i].title.length > 15
+                ? '${notes[i].title.substring(0, 12)}...'
+                : notes[i].title,
             style: TextStyle(color: textColor, fontSize: 10),
           ),
           textDirection: TextDirection.ltr,
         )..layout();
-        
+
         textPainter.paint(
-          canvas, 
+          canvas,
           positions[i] + const Offset(10, -5),
         );
       }
@@ -191,4 +191,3 @@ class GraphPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-

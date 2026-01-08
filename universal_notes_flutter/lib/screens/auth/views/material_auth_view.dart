@@ -9,7 +9,9 @@ class MaterialAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isProcessing,
+    required this.isSigningInWithEmail,
+    required this.isSigningUpWithEmail,
+    required this.isSigningInWithGoogle,
     required this.isGoogleProcessing,
     required this.onAuth,
     required this.onToggleMode,
@@ -77,8 +79,6 @@ class MaterialAuthView extends StatelessWidget {
                   const SizedBox(height: 24),
                   if (showSignUp) ...[
                     TextFormField(
-                      enabled: !isProcessing,
-                      controller: nameController,
                       enabled: !isAnyProcessRunning,
                       decoration: const InputDecoration(
                         labelText: 'Nome de Exibição',
@@ -96,8 +96,6 @@ class MaterialAuthView extends StatelessWidget {
                     const SizedBox(height: 16),
                   ],
                   TextFormField(
-                    enabled: !isProcessing,
-                    controller: emailController,
                     enabled: !isAnyProcessRunning,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
@@ -115,8 +113,6 @@ class MaterialAuthView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
-                    enabled: !isProcessing,
-                    controller: passwordController,
                     enabled: !isAnyProcessRunning,
                     obscureText: true,
                     decoration: const InputDecoration(
@@ -204,4 +200,7 @@ class MaterialAuthView extends StatelessWidget {
       ),
     );
   }
+
+  /// Whether the sign in or sign up process is running.
+  bool get isProcessing => isSigningInWithEmail || isSigningUpWithEmail;
 }

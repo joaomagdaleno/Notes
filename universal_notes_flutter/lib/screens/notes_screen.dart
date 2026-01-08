@@ -57,20 +57,17 @@ enum SortOrder {
 class _NotesScreenState extends State<NotesScreen> with WindowListener {
   // ⚡ Bolt: Cache SliverGridDelegates to avoid re-creating them on every
   // build. This is a significant performance win for list scrolling.
-  static const _gridDelegateLarge =
-      SliverGridDelegateWithMaxCrossAxisExtent(
+  static const _gridDelegateLarge = SliverGridDelegateWithMaxCrossAxisExtent(
     maxCrossAxisExtent: 300,
     childAspectRatio: 3 / 2,
     crossAxisSpacing: 8,
     mainAxisSpacing: 8,
   );
-  static const _gridDelegateList =
-      SliverGridDelegateWithFixedCrossAxisCount(
+  static const _gridDelegateList = SliverGridDelegateWithFixedCrossAxisCount(
     crossAxisCount: 1,
     childAspectRatio: 5 / 1,
   );
-  static const _gridDelegateMedium =
-      SliverGridDelegateWithMaxCrossAxisExtent(
+  static const _gridDelegateMedium = SliverGridDelegateWithMaxCrossAxisExtent(
     maxCrossAxisExtent: 200,
     childAspectRatio: 3 / 2,
     crossAxisSpacing: 8,
@@ -156,36 +153,50 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   @override
   void initState() {
     super.initState();
-    unawaited(StartupLogger.log(
+    unawaited(
+      StartupLogger.log(
         '🎬 NotesScreen.initState starting after super.initState',
-    ),);
+      ),
+    );
     try {
-      unawaited(StartupLogger.log(
+      unawaited(
+        StartupLogger.log(
           '⏳ NotesScreen.initState: assigning _updateService...',
-      ),);
+        ),
+      );
       _updateService = widget.updateService ?? UpdateService();
-      unawaited(StartupLogger.log(
+      unawaited(
+        StartupLogger.log(
           '✅ NotesScreen.initState: _updateService assigned',
-      ),);
+        ),
+      );
 
-      unawaited(StartupLogger.log(
+      unawaited(
+        StartupLogger.log(
           '⏳ NotesScreen.initstate: connecting to notesStream...',
-      ),);
+        ),
+      );
       _notesStream = _syncService.notesStream;
 
-      unawaited(StartupLogger.log(
+      unawaited(
+        StartupLogger.log(
           '⏳ NotesScreen.initState: adding windowManager listener...',
-      ),);
+        ),
+      );
       windowManager.addListener(this);
 
-      unawaited(StartupLogger.log(
+      unawaited(
+        StartupLogger.log(
           '⏳ NotesScreen.initState: calling _updateNotesStream()...',
-      ),);
+        ),
+      );
       _updateNotesStream();
 
-      unawaited(StartupLogger.log(
+      unawaited(
+        StartupLogger.log(
           '⏳ NotesScreen.initState: adding searchController listener...',
-      ),);
+        ),
+      );
       _searchController.addListener(_onSearchChanged);
 
       unawaited(StartupLogger.log('✅ NotesScreen.initState complete'));
@@ -494,7 +505,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _deletePermanently(Note note) async {
-    final bool? shouldDelete = await showDialog<bool>(
+    final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) {
         if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
@@ -510,7 +521,9 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
               ),
               fluent.FilledButton(
                 style: fluent.ButtonStyle(
-                  backgroundColor: fluent.ButtonState.all(Colors.red.dark),
+                  backgroundColor: fluent.WidgetStateProperty.all(
+                    Colors.red[700],
+                  ),
                 ),
                 onPressed: () => Navigator.pop(context, true),
                 child: const Text('Delete'),

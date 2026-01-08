@@ -10,7 +10,9 @@ class FluentAuthView extends StatelessWidget {
     required this.passwordController,
     required this.nameController,
     required this.showSignUp,
-    required this.isProcessing,
+    required this.isSigningInWithEmail,
+    required this.isSigningUpWithEmail,
+    required this.isSigningInWithGoogle,
     required this.isGoogleProcessing,
     required this.onAuth,
     required this.onToggleMode,
@@ -82,8 +84,7 @@ class FluentAuthView extends StatelessWidget {
                       if (showSignUp) ...[
                         fluent.InfoLabel(
                           label: 'Nome de Exibição',
-                          child: fluent.TextBox(
-                            enabled: !isProcessing,
+                          child: fluent.TextFormBox(
                             controller: nameController,
                             enabled: !isAnyProcessRunning,
                             placeholder: 'Como você quer ser chamado',
@@ -103,8 +104,7 @@ class FluentAuthView extends StatelessWidget {
                       ],
                       fluent.InfoLabel(
                         label: 'Email',
-                        child: fluent.TextBox(
-                          enabled: !isProcessing,
+                        child: fluent.TextFormBox(
                           controller: emailController,
                           enabled: !isAnyProcessRunning,
                           placeholder: 'seu@email.com',
@@ -120,11 +120,11 @@ class FluentAuthView extends StatelessWidget {
                       const SizedBox(height: 16),
                       fluent.InfoLabel(
                         label: 'Senha',
-                        child: fluent.PasswordBox(
-                          enabled: !isProcessing,
+                        child: fluent.TextFormBox(
                           controller: passwordController,
                           enabled: !isAnyProcessRunning,
                           placeholder: 'Sua senha segura',
+                          obscureText: true,
                           validator: (value) {
                             if (value == null || value.length < 6) {
                               return 'A senha deve ter pelo menos 6 caracteres';
@@ -218,6 +218,9 @@ class FluentAuthView extends StatelessWidget {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w500,
                                     ),
+                                  ),
+                                ],
+                              ),
                             );
                           },
                         ),
@@ -232,4 +235,7 @@ class FluentAuthView extends StatelessWidget {
       ),
     );
   }
+
+  /// Whether the sign in or sign up process is running.
+  bool get isProcessing => isSigningInWithEmail || isSigningUpWithEmail;
 }
