@@ -89,6 +89,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final _searchResultsNotifier = ValueNotifier<List<Note>?>(null);
   final _isSearchingNotifier = ValueNotifier<bool>(false);
 
+  // --- Bolt's Memoization Cache for Sorted Notes ---
+  // We store the previously sorted list to avoid re-sorting on every build.
+  List<Note>? _cachedSortedNotes;
+  // We store a reference to the raw notes list used for the last sort.
+  List<Note>? _rawNotesForCache;
+  // We store the sort order used for the last sort.
+  SortOrder? _sortOrderForCache;
+  // ---
+
   // ⚡ Bolt: Cache TextStyles to avoid expensive Theme lookups on every build.
   TextStyle? _dashboardTitleStyle;
   TextStyle? _dashboardSubtitleStyle;
@@ -658,22 +667,37 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     return ValueListenableBuilder<SortOrder>(
       valueListenable: _sortOrderNotifier,
       builder: (context, sortOrder, child) {
-        // ⚡ Bolt: No synchronous filtering needed here. The search results
-        // are handled by a separate ValueListenableBuilder (_buildContent).
-        // This was causing redundant work on the UI thread.
-        final displayNotes = List<Note>.from(notes)
-          ..sort((a, b) {
-            switch (sortOrder) {
-              case SortOrder.dateAsc:
-                return a.lastModified.compareTo(b.lastModified);
-              case SortOrder.titleAsc:
-                return a.title.toLowerCase().compareTo(b.title.toLowerCase());
-              case SortOrder.titleDesc:
-                return b.title.toLowerCase().compareTo(a.title.toLowerCase());
-              case SortOrder.dateDesc:
-                return b.lastModified.compareTo(a.lastModified);
-            }
-          });
+        // ⚡ Bolt: Memoization check.
+        // We only re-sort the list if the source notes have changed or the
+        // sort order has changed. Otherwise, we use the cached list.
+        // This prevents expensive sorting on every widget rebuild.
+        final bool isCacheValid =
+            _rawNotesForCache == notes && _sortOrderForCache == sortOrder;
+
+        if (!isCacheValid || _cachedSortedNotes == null) {
+          _cachedSortedNotes = List<Note>.from(notes)
+            ..sort((a, b) {
+              switch (sortOrder) {
+                case SortOrder.dateAsc:
+                  return a.lastModified.compareTo(b.lastModified);
+                case SortOrder.titleAsc:
+                  return a.title
+                      .toLowerCase()
+                      .compareTo(b.title.toLowerCase());
+                case SortOrder.titleDesc:
+                  return b.title
+                      .toLowerCase()
+                      .compareTo(a.title.toLowerCase());
+                case SortOrder.dateDesc:
+                  return b.lastModified.compareTo(a.lastModified);
+              }
+            });
+          // Update the cache state
+          _rawNotesForCache = notes;
+          _sortOrderForCache = sortOrder;
+        }
+
+        final displayNotes = _cachedSortedNotes!;
 
         if (displayNotes.isEmpty) {
           return const EmptyState(
