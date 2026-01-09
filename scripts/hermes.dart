@@ -28,6 +28,29 @@ void main(List<String> args) async {
     case 'docs':
       _runScript('scripts/generate_docs.dart', remainingArgs);
       break;
+    case 'arch':
+      _runScript('scripts/audit_architecture.dart', remainingArgs);
+      _runScript('scripts/calculate_cognitive_depth.dart', remainingArgs);
+      break;
+    case 'viz':
+      _runScript('scripts/generate_dependency_graph.dart', remainingArgs);
+      break;
+    case 'assurance':
+      _runScript('scripts/audit_dead_code.dart', remainingArgs);
+      _runScript('scripts/smoke_test_env.dart', remainingArgs);
+      break;
+    case 'context':
+      _runScript('scripts/generate_ai_context.dart', remainingArgs);
+      break;
+    case 'hygiene':
+      _runScript('scripts/audit_git_hygiene.dart', remainingArgs);
+      break;
+    case 'fidelity':
+      _runScript('scripts/audit_asset_fidelity.dart', remainingArgs);
+      break;
+    case 'ready':
+      _runScript('scripts/generate_readiness_report.dart', remainingArgs);
+      break;
     case 'audit':
       _runAudits();
       break;
@@ -62,6 +85,10 @@ void _runAudits() {
     'scripts/audit_i18n.dart',
     'scripts/audit_performance.dart',
     'scripts/bundle_analyzer.dart',
+    'scripts/audit_architecture.dart',
+    'scripts/calculate_cognitive_depth.dart',
+    'scripts/audit_dead_code.dart',
+    'scripts/smoke_test_env.dart',
     'scripts/audit_vulnerabilities.dart',
     'scripts/audit_env_sync.dart',
     'scripts/calculate_dependency_weight.dart',
@@ -86,6 +113,10 @@ Commands:
   perf     Run performance anti-pattern audit
   repair   Run self-healing project repair
   docs     Generate HERMES_REGISTRY.md documentation
+  arch     Run architectural and cognitive depth audits
+  viz      Generate dependency graph visualization
+  assurance Run dead code and environment smoke tests
+  context   Generate AI_CONTEXT.md manifest
   audit    Run all project audits (I18n, Assets, etc.)
   metrics  Collect and store project metrics
   help     Show this message

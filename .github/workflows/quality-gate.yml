@@ -79,6 +79,12 @@ jobs:
         run: dart scripts/audit_env_sync.dart
       - name: Performance Guard
         run: dart scripts/audit_performance.dart
+      - name: Architecture Guard
+        run: dart scripts/audit_architecture.dart
+      - name: Dead Code Audit
+        run: dart scripts/audit_dead_code.dart
+      - name: Environment Smoke Test
+        run: dart scripts/smoke_test_env.dart
       - name: Run Flutter Analyzer
         working-directory: Notes-Hub
         run: flutter analyze --no-fatal-infos
