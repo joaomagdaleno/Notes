@@ -5,7 +5,7 @@ import 'package:patrol/patrol.dart';
 void main() {
   patrolTest(
     'smoke test: app launches and shows title',
-    (PatrolTester $) async {
+    (PatrolIntegrationTester $) async {
       await $.pumpWidgetAndSettle(const MyApp());
 
       // Basic Smoke Test
