@@ -69,6 +69,15 @@ void main(List<String> args) async {
     case 'gov':
       _runScript('scripts/generate_governance_manifest.dart', remainingArgs);
       break;
+    case 'sync':
+      _runScript('scripts/sync_coverage_data.dart', remainingArgs);
+      break;
+    case 'delta':
+      _runScript('scripts/audit_coverage_delta.dart', remainingArgs);
+      break;
+    case 'badge':
+      _runScript('scripts/generate_coverage_badge.dart', remainingArgs);
+      break;
     case 'stability':
       _runScript('scripts/audit_test_stability.dart', remainingArgs);
       break;
@@ -160,6 +169,9 @@ Commands:
   efficiency Run asset size and optimization audit
   compliance Run dependency license compliance audit
   gov       Generate consolidated governance manifest
+  sync      Sync coverage data with vault (push/pull)
+  delta     Audit coverage delta vs baseline
+  badge     Generate coverage badge and dashboard
   stability Run test stability (flakiness) audit
   economy   Run code economy (duplication) audit
   notes     Generate automated release notes
