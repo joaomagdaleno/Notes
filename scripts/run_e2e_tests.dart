@@ -7,7 +7,16 @@ void main(List<String> args) {
   // Check if any device is connected
   final devicesResult =
       Process.runSync('flutter', ['devices'], runInShell: true);
-  if (!devicesResult.stdout.toString().contains('•')) {
+  final output = devicesResult.stdout.toString();
+
+  String? deviceId;
+  if (output.toLowerCase().contains('windows')) {
+    print('✅ Windows device detected. Using windows.');
+    deviceId = 'windows';
+  } else if (output.contains('•')) {
+    print('✅ Device detected.');
+    // Let flutter test pick one or fail if multiple
+  } else {
     print(
         '❌ No devices connected. Please launch an emulator or connect a phone.');
     print('   Run: flutter emulators --launch <emulator_id>');
@@ -16,12 +25,18 @@ void main(List<String> args) {
 
   print('🚀 Running integration_test/app_test.dart...');
 
-  // Running standard flutter integration test.
-  // If patrol_cli is configured, we could use 'patrol test'.
-  // For now, we use standard flutter test which patrol supports via its bindings.
+  final testArgs = [
+    'test',
+    'integration_test/app_test.dart',
+    '--reporter=expanded'
+  ];
+  if (deviceId != null) {
+    testArgs.addAll(['-d', deviceId]);
+  }
+
   final process = Process.start(
     'flutter',
-    ['test', 'integration_test/app_test.dart', '--reporter=expanded'],
+    testArgs,
     workingDirectory: 'Notes-Hub',
     runInShell: true,
   );

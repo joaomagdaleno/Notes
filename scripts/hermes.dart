@@ -2,7 +2,7 @@ import 'dart:io';
 
 void main(List<String> args) async {
   if (args.isEmpty) {
-    _runInteractiveMode();
+    await _runInteractiveMode();
     return;
   }
 
@@ -11,130 +11,131 @@ void main(List<String> args) async {
 
   switch (command) {
     case 'doctor':
-      _runScript('scripts/hermes_doctor.dart', remainingArgs);
+      await _runScript('scripts/hermes_doctor.dart', remainingArgs);
       break;
     case 'status':
-      _runScript('scripts/hermes_status.dart', remainingArgs);
+      await _runScript('scripts/hermes_status.dart', remainingArgs);
       break;
     case 'bump':
-      _runScript('scripts/bump_version.dart', remainingArgs);
+      await _runScript('scripts/bump_version.dart', remainingArgs);
       break;
     case 'perf':
-      _runScript('scripts/audit_performance.dart', remainingArgs);
+      await _runScript('scripts/audit_performance.dart', remainingArgs);
       break;
     case 'repair':
-      _runScript('scripts/hermes_repair.dart', remainingArgs);
+      await _runScript('scripts/hermes_repair.dart', remainingArgs);
       break;
     case 'docs':
-      _runScript('scripts/generate_docs.dart', remainingArgs);
+      await _runScript('scripts/generate_docs.dart', remainingArgs);
       break;
     case 'arch':
-      _runScript('scripts/audit_architecture.dart', remainingArgs);
-      _runScript('scripts/calculate_cognitive_depth.dart', remainingArgs);
+      await _runScript('scripts/audit_architecture.dart', remainingArgs);
+      await _runScript('scripts/calculate_cognitive_depth.dart', remainingArgs);
       break;
     case 'viz':
-      _runScript('scripts/generate_dependency_graph.dart', remainingArgs);
+      await _runScript('scripts/generate_dependency_graph.dart', remainingArgs);
       break;
     case 'assurance':
-      _runScript('scripts/audit_dead_code.dart', remainingArgs);
-      _runScript('scripts/smoke_test_env.dart', remainingArgs);
+      await _runScript('scripts/audit_dead_code.dart', remainingArgs);
+      await _runScript('scripts/smoke_test_env.dart', remainingArgs);
       break;
     case 'context':
-      _runScript('scripts/generate_ai_context.dart', remainingArgs);
+      await _runScript('scripts/generate_ai_context.dart', remainingArgs);
       break;
     case 'hygiene':
-      _runScript('scripts/audit_git_hygiene.dart', remainingArgs);
+      await _runScript('scripts/audit_git_hygiene.dart', remainingArgs);
       break;
     case 'fidelity':
-      _runScript('scripts/audit_asset_fidelity.dart', remainingArgs);
+      await _runScript('scripts/audit_asset_fidelity.dart', remainingArgs);
       break;
     case 'ready':
-      _runScript('scripts/generate_readiness_report.dart', remainingArgs);
+      await _runScript('scripts/generate_readiness_report.dart', remainingArgs);
       break;
     case 'predict':
-      _runScript('scripts/predict_next_version.dart', remainingArgs);
+      await _runScript('scripts/predict_next_version.dart', remainingArgs);
       break;
     case 'style':
-      _runScript('scripts/audit_design_system.dart', remainingArgs);
+      await _runScript('scripts/audit_design_system.dart', remainingArgs);
       break;
     case 'telemetry':
-      _runScript('scripts/generate_visual_telemetry.dart', remainingArgs);
+      await _runScript('scripts/generate_visual_telemetry.dart', remainingArgs);
       break;
     case 'efficiency':
-      _runScript('scripts/audit_asset_size.dart', remainingArgs);
+      await _runScript('scripts/audit_asset_size.dart', remainingArgs);
       break;
     case 'compliance':
-      _runScript('scripts/audit_licenses.dart', remainingArgs);
+      await _runScript('scripts/audit_licenses.dart', remainingArgs);
       break;
     case 'gov':
-      _runScript('scripts/generate_governance_manifest.dart', remainingArgs);
+      await _runScript(
+          'scripts/generate_governance_manifest.dart', remainingArgs);
       break;
     case 'secret':
-      _runScript('scripts/local_secret_guard.dart', remainingArgs);
+      await _runScript('scripts/local_secret_guard.dart', remainingArgs);
       break;
     case 'firewall':
-      _runScript('scripts/audit_security_rules.dart', remainingArgs);
+      await _runScript('scripts/audit_security_rules.dart', remainingArgs);
       break;
     case 'impact':
-      _runScript('scripts/calculate_impact_score.dart', remainingArgs);
+      await _runScript('scripts/calculate_impact_score.dart', remainingArgs);
       break;
     case 'lock':
-      _runScript('scripts/lock_toolchain.dart', remainingArgs);
+      await _runScript('scripts/lock_toolchain.dart', remainingArgs);
       break;
     case 'pulse':
-      _runScript('scripts/generate_health_dashboard.dart', remainingArgs);
+      await _runScript('scripts/generate_health_dashboard.dart', remainingArgs);
       break;
     case 'i18n':
-      _runScript('scripts/audit_i18n.dart', remainingArgs);
+      await _runScript('scripts/audit_i18n.dart', remainingArgs);
       break;
     case 'parity':
-      _runScript('scripts/audit_platform_parity.dart', remainingArgs);
+      await _runScript('scripts/audit_platform_parity.dart', remainingArgs);
       break;
     case 'env':
-      _runScript('scripts/audit_env_sync.dart', remainingArgs);
+      await _runScript('scripts/audit_env_sync.dart', remainingArgs);
       break;
     case 'bom':
-      _runScript('scripts/generate_bom.dart', remainingArgs);
+      await _runScript('scripts/generate_bom.dart', remainingArgs);
       break;
     case 'log':
-      _runScript('scripts/generate_changelog.dart', remainingArgs);
+      await _runScript('scripts/generate_changelog.dart', remainingArgs);
       break;
     case 'verify':
-      _runScript('scripts/verify_integrity.dart', remainingArgs);
+      await _runScript('scripts/verify_integrity.dart', remainingArgs);
       break;
     case 'sync':
-      _runScript('scripts/sync_coverage_data.dart', remainingArgs);
+      await _runScript('scripts/sync_coverage_data.dart', remainingArgs);
       break;
     case 'delta':
-      _runScript('scripts/audit_coverage_delta.dart', remainingArgs);
+      await _runScript('scripts/audit_coverage_delta.dart', remainingArgs);
       break;
     case 'badge':
-      _runScript('scripts/generate_coverage_badge.dart', remainingArgs);
+      await _runScript('scripts/generate_coverage_badge.dart', remainingArgs);
       break;
     case 'stability':
-      _runScript('scripts/audit_test_stability.dart', remainingArgs);
+      await _runScript('scripts/audit_test_stability.dart', remainingArgs);
       break;
     case 'economy':
-      _runScript('scripts/calculate_code_economy.dart', remainingArgs);
+      await _runScript('scripts/calculate_code_economy.dart', remainingArgs);
       break;
     case 'notes':
-      _runScript('scripts/generate_release_notes.dart', remainingArgs);
+      await _runScript('scripts/generate_release_notes.dart', remainingArgs);
       break;
     case 'audit':
-      _runAudits();
+      await _runAudits();
       break;
     case 'e2e':
-      _runScript('scripts/run_e2e_tests.dart', remainingArgs);
+      await _runScript('scripts/run_e2e_tests.dart', remainingArgs);
       break;
     case 'a11y':
-      _runScript('scripts/audit_accessibility.dart', remainingArgs);
+      await _runScript('scripts/audit_accessibility.dart', remainingArgs);
       break;
     case 'security':
-      _runScript('scripts/audit_vulnerabilities.dart', remainingArgs);
-      _runScript('scripts/audit_env_sync.dart', remainingArgs);
+      await _runScript('scripts/audit_vulnerabilities.dart', remainingArgs);
+      await _runScript('scripts/audit_env_sync.dart', remainingArgs);
       break;
     case 'metrics':
-      _runScript('scripts/collect_metrics.dart', remainingArgs);
+      await _runScript('scripts/collect_metrics.dart', remainingArgs);
       break;
     case 'help':
     default:
@@ -143,7 +144,7 @@ void main(List<String> args) async {
   }
 }
 
-void _runInteractiveMode() {
+Future<void> _runInteractiveMode() async {
   print('''
 ╔══════════════════════════════════════════════╗
 ║             🦅 HERMES CLI v1.0.0             ║
@@ -171,40 +172,40 @@ void _runInteractiveMode() {
 
   switch (input) {
     case '1':
-      _runScript('scripts/hermes_doctor.dart', []);
+      await _runScript('scripts/hermes_doctor.dart', []);
       break;
     case '2':
-      _runScript('scripts/hermes_status.dart', []);
+      await _runScript('scripts/hermes_status.dart', []);
       break;
     case '3':
-      _runScript('scripts/hermes_repair.dart', []);
+      await _runScript('scripts/hermes_repair.dart', []);
       break;
     case '4':
-      _runScript('scripts/generate_readiness_report.dart', []);
+      await _runScript('scripts/generate_readiness_report.dart', []);
       break;
     case '5':
-      _runScript('scripts/local_secret_guard.dart', []);
+      await _runScript('scripts/local_secret_guard.dart', []);
       break;
     case '6':
-      _runScript('scripts/audit_security_rules.dart', []);
+      await _runScript('scripts/audit_security_rules.dart', []);
       break;
     case '7':
-      _runScript('scripts/calculate_impact_score.dart', []);
+      await _runScript('scripts/calculate_impact_score.dart', []);
       break;
     case '8':
-      _runScript('scripts/generate_health_dashboard.dart', []);
+      await _runScript('scripts/generate_health_dashboard.dart', []);
       break;
     case '9':
-      _runScript('scripts/lock_toolchain.dart', []);
+      await _runScript('scripts/lock_toolchain.dart', []);
       break;
     case '10':
-      _runScript('scripts/generate_bom.dart', []);
+      await _runScript('scripts/generate_bom.dart', []);
       break;
     case '11':
-      _runScript('scripts/run_e2e_tests.dart', []);
+      await _runScript('scripts/run_e2e_tests.dart', []);
       break;
     case '12':
-      _runScript('scripts/audit_accessibility.dart', []);
+      await _runScript('scripts/audit_accessibility.dart', []);
       break;
     case '13':
       print('👋 Bye!');
@@ -215,14 +216,17 @@ void _runInteractiveMode() {
   }
 }
 
-void _runScript(String path, List<String> args) {
-  final result = Process.runSync('dart', [path, ...args]);
-  stdout.write(result.stdout);
-  stderr.write(result.stderr);
-  if (result.exitCode != 0) exit(result.exitCode);
+Future<void> _runScript(String path, List<String> args) async {
+  final process = await Process.start(
+    'dart',
+    [path, ...args],
+    mode: ProcessStartMode.inheritStdio,
+  );
+  final exitCode = await process.exitCode;
+  if (exitCode != 0) exit(exitCode);
 }
 
-void _runAudits() {
+Future<void> _runAudits() async {
   print('--- 🦅 Hermes Unified Audit ---');
   final audits = [
     'scripts/audit_assets.dart',
@@ -251,7 +255,7 @@ void _runAudits() {
   ];
 
   for (final script in audits) {
-    _runScript(script, []);
+    await _runScript(script, []);
   }
 }
 
