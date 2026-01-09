@@ -36,6 +36,7 @@ void main() async {
     'Impact Scorer': 'scripts/calculate_impact_score.dart',
     'Toolchain Lock': 'scripts/lock_toolchain.dart',
     'Health Dashboard': 'scripts/generate_health_dashboard.dart',
+    'Accessibility Guard': 'scripts/audit_accessibility.dart',
   };
 
   int successCount = 0;

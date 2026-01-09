@@ -123,6 +123,12 @@ void main(List<String> args) async {
     case 'audit':
       _runAudits();
       break;
+    case 'e2e':
+      _runScript('scripts/run_e2e_tests.dart', remainingArgs);
+      break;
+    case 'a11y':
+      _runScript('scripts/audit_accessibility.dart', remainingArgs);
+      break;
     case 'security':
       _runScript('scripts/audit_vulnerabilities.dart', remainingArgs);
       _runScript('scripts/audit_env_sync.dart', remainingArgs);
@@ -153,12 +159,14 @@ void _runInteractiveMode() {
 ║  8.  pulse       [Qual]  Health Dashboard    ║
 ║  9.  lock        [Env]   Lock Toolchain      ║
 ║  10. bom         [Rel]   Bill of Materials   ║
-║  11. exit                                    ║
+║  11. e2e         [Test]  E2E Patrol Test     ║
+║  12. a11y        [Qual]  Accessibility Guard ║
+║  13. exit                                    ║
 ║                                              ║
 ╚══════════════════════════════════════════════╝
 ''');
 
-  stdout.write('Select an option (1-11): ');
+  stdout.write('Select an option (1-13): ');
   final input = stdin.readLineSync();
 
   switch (input) {
@@ -193,6 +201,12 @@ void _runInteractiveMode() {
       _runScript('scripts/generate_bom.dart', []);
       break;
     case '11':
+      _runScript('scripts/run_e2e_tests.dart', []);
+      break;
+    case '12':
+      _runScript('scripts/audit_accessibility.dart', []);
+      break;
+    case '13':
       print('👋 Bye!');
       exit(0);
     default:
