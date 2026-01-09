@@ -75,7 +75,10 @@ class MaterialAuthView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.lock, size: 48),
+                  CircleAvatar(
+                    radius: 32,
+                    child: const Icon(Icons.lock, size: 32),
+                  ),
                   const SizedBox(height: 24),
                   if (showSignUp) ...[
                     TextFormField(
