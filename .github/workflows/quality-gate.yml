@@ -55,6 +55,8 @@ jobs:
         run: dart scripts/audit_licenses.dart > license_audit.txt 2>&1 || (cat license_audit.txt && exit 1)
       - name: Asset Audit
         run: dart scripts/audit_assets.dart
+      - name: Complexity Audit
+        run: dart scripts/calculate_complexity.dart
       - name: Check Updates
         run: dart scripts/check_updates.dart
       - name: Toolchain Guard
@@ -79,6 +81,7 @@ jobs:
             license_audit.txt
             dependency_updates.md
             CI_MAP.md
+            complexity_report.json
           retention-days: 1
 
   functional-tests:

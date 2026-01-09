@@ -53,6 +53,20 @@ void main() {
         print('❌ Missing File: $asset');
         hasErrors = true;
       } else {
+        final size = file.lengthSync();
+        final sizeKB = size / 1024;
+        if (sizeKB > 500) {
+          print(
+              '⚠️ WARNING: Asset too large ($asset): ${sizeKB.toStringAsFixed(1)}KB (Max 500KB)');
+          // We don't fail the audit, but warn
+        }
+
+        if (asset.toLowerCase().endsWith('.bmp') ||
+            asset.toLowerCase().endsWith('.tiff')) {
+          print(
+              '⚠️ WARNING: Unoptimized format detected: $asset. Consider using WebP or PNG.');
+        }
+
         print('✅ File OK: $asset');
       }
     }
