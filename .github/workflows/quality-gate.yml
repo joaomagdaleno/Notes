@@ -85,6 +85,24 @@ jobs:
         run: dart scripts/audit_dead_code.dart
       - name: Environment Smoke Test
         run: dart scripts/smoke_test_env.dart
+      - name: Git Hygiene Audit
+        run: dart scripts/audit_git_hygiene.dart
+      - name: Asset Fidelity Guard
+        run: dart scripts/audit_asset_fidelity.dart
+      - name: Design System Audit
+        run: dart scripts/audit_design_system.dart
+      - name: Test Stability Audit
+        run: dart scripts/audit_test_stability.dart
+      - name: Code Economy Auditor
+        run: dart scripts/calculate_code_economy.dart
+      - name: Asset Efficiency Audit
+        run: dart scripts/audit_asset_size.dart
+      - name: License Compliance
+        run: dart scripts/audit_licenses.dart
+      - name: Generate Governance Manifest
+        run: dart scripts/generate_governance_manifest.dart
+      - name: Generate Release Notes
+        run: dart scripts/generate_release_notes.dart
       - name: Run Flutter Analyzer
         working-directory: Notes-Hub
         run: flutter analyze --no-fatal-infos
@@ -168,11 +186,18 @@ jobs:
         run: dart scripts/calculate_dependency_weight.dart
       - name: Generate Health Dashboard
         run: dart scripts/generate_health_dashboard.dart
+      - name: Generate Visual Telemetry
+        run: dart scripts/generate_visual_telemetry.dart
       - name: Upload Health Dashboard
         uses: actions/upload-artifact@v6
         with:
           name: hermes-health-pulse
-          path: hermes_health.html
+          path: |
+            hermes_health.html
+            VISUAL_TELEMETRY.md
+            RELEASE_NOTES.md
+            GOVERNANCE_MANIFEST.md
+            LICENSE_COMPLIANCE.md
       - name: Post PR Summary
         uses: marocchino/sticky-pull-request-comment@v2
         with:

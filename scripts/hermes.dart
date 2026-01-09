@@ -51,6 +51,33 @@ void main(List<String> args) async {
     case 'ready':
       _runScript('scripts/generate_readiness_report.dart', remainingArgs);
       break;
+    case 'predict':
+      _runScript('scripts/predict_next_version.dart', remainingArgs);
+      break;
+    case 'style':
+      _runScript('scripts/audit_design_system.dart', remainingArgs);
+      break;
+    case 'telemetry':
+      _runScript('scripts/generate_visual_telemetry.dart', remainingArgs);
+      break;
+    case 'efficiency':
+      _runScript('scripts/audit_asset_size.dart', remainingArgs);
+      break;
+    case 'compliance':
+      _runScript('scripts/audit_licenses.dart', remainingArgs);
+      break;
+    case 'gov':
+      _runScript('scripts/generate_governance_manifest.dart', remainingArgs);
+      break;
+    case 'stability':
+      _runScript('scripts/audit_test_stability.dart', remainingArgs);
+      break;
+    case 'economy':
+      _runScript('scripts/calculate_code_economy.dart', remainingArgs);
+      break;
+    case 'notes':
+      _runScript('scripts/generate_release_notes.dart', remainingArgs);
+      break;
     case 'audit':
       _runAudits();
       break;
@@ -89,6 +116,13 @@ void _runAudits() {
     'scripts/calculate_cognitive_depth.dart',
     'scripts/audit_dead_code.dart',
     'scripts/smoke_test_env.dart',
+    'scripts/audit_git_hygiene.dart',
+    'scripts/audit_asset_fidelity.dart',
+    'scripts/audit_design_system.dart',
+    'scripts/audit_asset_size.dart',
+    'scripts/audit_licenses.dart',
+    'scripts/audit_test_stability.dart',
+    'scripts/calculate_code_economy.dart',
     'scripts/audit_vulnerabilities.dart',
     'scripts/audit_env_sync.dart',
     'scripts/calculate_dependency_weight.dart',
@@ -117,6 +151,18 @@ Commands:
   viz      Generate dependency graph visualization
   assurance Run dead code and environment smoke tests
   context   Generate AI_CONTEXT.md manifest
+  hygiene   Run Git branch and commit hygiene audits
+  fidelity  Run high-resolution asset fidelity audit
+  ready     Generate deployment readiness report
+  predict   Analyze commits to predict next version
+  style     Run design system / hardcoded style audit
+  telemetry Generate visual trend charts (Mermaid)
+  efficiency Run asset size and optimization audit
+  compliance Run dependency license compliance audit
+  gov       Generate consolidated governance manifest
+  stability Run test stability (flakiness) audit
+  economy   Run code economy (duplication) audit
+  notes     Generate automated release notes
   audit    Run all project audits (I18n, Assets, etc.)
   metrics  Collect and store project metrics
   help     Show this message
