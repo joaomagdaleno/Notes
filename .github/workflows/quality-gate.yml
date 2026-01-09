@@ -69,6 +69,16 @@ jobs:
         run: dart scripts/secret_expiry_watchdog.dart
       - name: Governance Audit
         run: dart scripts/audit_workflows.dart
+      - name: Platform Parity Audit
+        run: dart scripts/audit_platform_parity.dart
+      - name: I18n Guard
+        run: dart scripts/audit_i18n.dart
+      - name: Security Vulnerability Audit
+        run: dart scripts/audit_vulnerabilities.dart
+      - name: Environment Sync Check
+        run: dart scripts/audit_env_sync.dart
+      - name: Performance Guard
+        run: dart scripts/audit_performance.dart
       - name: Run Flutter Analyzer
         working-directory: Notes-Hub
         run: flutter analyze --no-fatal-infos
@@ -148,6 +158,15 @@ jobs:
           dart scripts/generate_pr_summary.dart
       - name: Collect Pulse Metrics
         run: dart scripts/collect_metrics.dart
+      - name: Dependency Weight Analysis
+        run: dart scripts/calculate_dependency_weight.dart
+      - name: Generate Health Dashboard
+        run: dart scripts/generate_health_dashboard.dart
+      - name: Upload Health Dashboard
+        uses: actions/upload-artifact@v6
+        with:
+          name: hermes-health-pulse
+          path: hermes_health.html
       - name: Post PR Summary
         uses: marocchino/sticky-pull-request-comment@v2
         with:

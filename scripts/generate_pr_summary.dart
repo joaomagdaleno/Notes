@@ -42,10 +42,13 @@ void main(List<String> args) {
                 (previous['apk_size_bytes'] as int)) /
             1024;
 
+        final covEmoji = covDiff >= 0 ? '🟢 🔼' : '🔴 🔽';
+        final sizeEmoji = sizeDiffKB <= 0 ? '🟢 🔽' : '🟡 🔼';
+
         sb.writeln(
-            '- **Coverage:** `${current['coverage']}%` (${covDiff >= 0 ? '+' : ''}${covDiff.toStringAsFixed(1)}%)');
+            '- **Coverage:** `${current['coverage']}%` ($covEmoji ${covDiff.toStringAsFixed(1)}%)');
         sb.writeln(
-            '- **Binary Size:** `${(current['apk_size_bytes'] / (1024 * 1024)).toStringAsFixed(1)} MB` (${sizeDiffKB >= 0 ? '+' : ''}${sizeDiffKB.toStringAsFixed(1)} KB)');
+            '- **Binary Size:** `${(current['apk_size_bytes'] / (1024 * 1024)).toStringAsFixed(1)} MB` ($sizeEmoji ${sizeDiffKB.toStringAsFixed(1)} KB)');
         sb.writeln('');
       }
     } catch (_) {}

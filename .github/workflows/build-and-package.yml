@@ -80,6 +80,8 @@ jobs:
         run: |
           (Get-Content installer.iss) -replace '#define MyAppVersion ".*"','#define MyAppVersion "${{ steps.generate_version_win.outputs.full_version }}"' | Set-Content installer.iss
           & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
+      - name: Verify Bundle Integrity
+        run: dart scripts/verify_bundle_integrity.dart Output/UniversalNotesSetup-${{ steps.generate_version_win.outputs.full_version }}.exe
       - name: Upload Installer Artifact
         uses: actions/upload-artifact@v6
         with:
@@ -174,6 +176,8 @@ jobs:
             echo "❌ No APK found in build/app/outputs"
             exit 1
           fi
+      - name: Verify Bundle Integrity
+        run: dart scripts/verify_bundle_integrity.dart Notes-Hub/build/app/outputs/universal_notes-v${{ steps.generate_version.outputs.full_version }}.apk
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v6
         with:
