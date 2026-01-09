@@ -5,7 +5,8 @@ void main(List<String> args) {
   print('Launching integration tests on connected device...\n');
 
   // Check if any device is connected
-  final devicesResult = Process.runSync('flutter', ['devices']);
+  final devicesResult =
+      Process.runSync('flutter', ['devices'], runInShell: true);
   if (!devicesResult.stdout.toString().contains('•')) {
     print(
         '❌ No devices connected. Please launch an emulator or connect a phone.');
