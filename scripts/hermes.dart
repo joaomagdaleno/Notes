@@ -2,7 +2,7 @@ import 'dart:io';
 
 void main(List<String> args) async {
   if (args.isEmpty) {
-    _printUsage();
+    _runInteractiveMode();
     return;
   }
 
@@ -69,6 +69,39 @@ void main(List<String> args) async {
     case 'gov':
       _runScript('scripts/generate_governance_manifest.dart', remainingArgs);
       break;
+    case 'secret':
+      _runScript('scripts/local_secret_guard.dart', remainingArgs);
+      break;
+    case 'firewall':
+      _runScript('scripts/audit_security_rules.dart', remainingArgs);
+      break;
+    case 'impact':
+      _runScript('scripts/calculate_impact_score.dart', remainingArgs);
+      break;
+    case 'lock':
+      _runScript('scripts/lock_toolchain.dart', remainingArgs);
+      break;
+    case 'pulse':
+      _runScript('scripts/generate_health_dashboard.dart', remainingArgs);
+      break;
+    case 'i18n':
+      _runScript('scripts/audit_i18n.dart', remainingArgs);
+      break;
+    case 'parity':
+      _runScript('scripts/audit_platform_parity.dart', remainingArgs);
+      break;
+    case 'env':
+      _runScript('scripts/audit_env_sync.dart', remainingArgs);
+      break;
+    case 'bom':
+      _runScript('scripts/generate_bom.dart', remainingArgs);
+      break;
+    case 'log':
+      _runScript('scripts/generate_changelog.dart', remainingArgs);
+      break;
+    case 'verify':
+      _runScript('scripts/verify_integrity.dart', remainingArgs);
+      break;
     case 'sync':
       _runScript('scripts/sync_coverage_data.dart', remainingArgs);
       break;
@@ -101,6 +134,70 @@ void main(List<String> args) async {
     default:
       _printUsage();
       break;
+  }
+}
+
+void _runInteractiveMode() {
+  print('''
+╔══════════════════════════════════════════════╗
+║             🦅 HERMES CLI v1.0.0             ║
+╠══════════════════════════════════════════════╣
+║                                              ║
+║  1.  doctor      [Env]   Check Toolchain     ║
+║  2.  status      [Audit] Project Health      ║
+║  3.  repair      [Fix]   Self-Healing        ║
+║  4.  ready       [Rel]   Readiness Report    ║
+║  5.  secret      [Sec]   Secret Guard        ║
+║  6.  firewall    [Sec]   Security Rules      ║
+║  7.  impact      [Qual]  PR Impact Score     ║
+║  8.  pulse       [Qual]  Health Dashboard    ║
+║  9.  lock        [Env]   Lock Toolchain      ║
+║  10. bom         [Rel]   Bill of Materials   ║
+║  11. exit                                    ║
+║                                              ║
+╚══════════════════════════════════════════════╝
+''');
+
+  stdout.write('Select an option (1-11): ');
+  final input = stdin.readLineSync();
+
+  switch (input) {
+    case '1':
+      _runScript('scripts/hermes_doctor.dart', []);
+      break;
+    case '2':
+      _runScript('scripts/hermes_status.dart', []);
+      break;
+    case '3':
+      _runScript('scripts/hermes_repair.dart', []);
+      break;
+    case '4':
+      _runScript('scripts/generate_readiness_report.dart', []);
+      break;
+    case '5':
+      _runScript('scripts/local_secret_guard.dart', []);
+      break;
+    case '6':
+      _runScript('scripts/audit_security_rules.dart', []);
+      break;
+    case '7':
+      _runScript('scripts/calculate_impact_score.dart', []);
+      break;
+    case '8':
+      _runScript('scripts/generate_health_dashboard.dart', []);
+      break;
+    case '9':
+      _runScript('scripts/lock_toolchain.dart', []);
+      break;
+    case '10':
+      _runScript('scripts/generate_bom.dart', []);
+      break;
+    case '11':
+      print('👋 Bye!');
+      exit(0);
+    default:
+      print(
+          '❌ Invalid option. Try "dart scripts/hermes.dart help" for all commands.');
   }
 }
 
@@ -169,6 +266,17 @@ Commands:
   efficiency Run asset size and optimization audit
   compliance Run dependency license compliance audit
   gov       Generate consolidated governance manifest
+  secret    Run local pre-commit secret scanner
+  firewall  Run security rules (firewall) audit
+  impact    Calculate PR impact score (Grading)
+  lock      Lock toolchain versions (Flutter/Dart)
+  pulse     Generate HTML health dashboard
+  i18n      Run localization hardcoded string audit
+  parity    Run platform version parity audit
+  env       Run environment template sync audit
+  bom       Generate Bill of Materials (SHA-256)
+  log       Generate automated changelog from git
+  verify    Verify artifact integrity against BOM
   sync      Sync coverage data with vault (push/pull)
   delta     Audit coverage delta vs baseline
   badge     Generate coverage badge and dashboard

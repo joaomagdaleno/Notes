@@ -11,11 +11,11 @@ pre-commit:
       root: Notes-Hub/
       run: dart format --set-exit-if-changed .
     health-audit:
-      run: dart scripts/check_health.dart
+      run: dart scripts/hermes.dart status
     dependency-audit:
       run: dart scripts/audit_dependencies.dart
     secret-guard:
-      run: dart scripts/local_secret_guard.dart
+      run: dart scripts/hermes.dart secret
 
 pre-push:
   commands:
