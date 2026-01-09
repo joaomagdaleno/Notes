@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:notes_hub/main.dart'; // Adjust import based on your app structure
 import 'package:patrol/patrol.dart';
+import 'package:patrol_finders/patrol_finders.dart';
 
 void main() {
   patrolWidgetTest(
