@@ -131,7 +131,7 @@ void _ensureFallbacksRegistered() {
 
 Future<void> setupTestEnvironment() async {
   PackageInfo.setMockInitialValues(
-    appName: 'Universal Notes',
+    appName: 'Notes Hub',
     packageName: 'com.example',
     version: '1.0.0',
     buildNumber: '1',

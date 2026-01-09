@@ -14,7 +14,7 @@ void main() {
       // Assuming a standard Material/Fluent App structure
 
       // Verify app is settled
-      expect($('Universal Notes'), findsOneWidget);
+      expect($('Notes Hub'), findsOneWidget);
     },
   );
 }
