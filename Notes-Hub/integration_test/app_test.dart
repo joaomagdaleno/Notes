@@ -3,9 +3,9 @@ import 'package:notes_hub/main.dart'; // Adjust import based on your app structu
 import 'package:patrol/patrol.dart';
 
 void main() {
-  patrolTest(
+  patrolWidgetTest(
     'smoke test: app launches and shows title',
-    (PatrolIntegrationTester $) async {
+    (PatrolTester $) async {
       await $.pumpWidgetAndSettle(const MyApp());
 
       // Basic Smoke Test
