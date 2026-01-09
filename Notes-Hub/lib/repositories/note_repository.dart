@@ -923,7 +923,7 @@ class NoteRepository {
     // crafted prefix from bypassing the intended "starts with" logic and
     // potentially causing a local Denial-of-Service by matching too many rows.
     const escapeChar = r'\';
-    final sanitizedPrefix = _escapeLike(prefix, escapeCharacter: escapeChar);
+    final sanitizedPrefix = _escapeLike(prefix);
 
     final maps = await db.query(
       _userDictionaryTable,

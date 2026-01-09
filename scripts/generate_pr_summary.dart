@@ -11,6 +11,7 @@ void main(List<String> args) {
   final changelogFile = File('changelog.md');
   final toolchainFile = File('toolchain.lock.json');
   final scoreFile = File('impact_score.json');
+  final pulseFile = File('project_pulse.json');
 
   final sb = StringBuffer();
   sb.writeln('## 📦 Hermes Pipeline Summary');
@@ -23,6 +24,30 @@ void main(List<String> args) {
       final reason = scoreData['reason'];
       sb.writeln('\n### 🏆 PR Impact Grade: `$grade`');
       sb.writeln('> $reason\n');
+    } catch (_) {}
+  }
+
+  // New: Pulse Trends
+  if (pulseFile.existsSync()) {
+    try {
+      final history = json.decode(pulseFile.readAsStringSync()) as List;
+      if (history.length >= 2) {
+        final current = history.last['metrics'];
+        final previous = history[history.length - 2]['metrics'];
+
+        sb.writeln('### 📈 Project Pulse (Trend Analysis)');
+        final covDiff =
+            (current['coverage'] as double) - (previous['coverage'] as double);
+        final sizeDiffKB = ((current['apk_size_bytes'] as int) -
+                (previous['apk_size_bytes'] as int)) /
+            1024;
+
+        sb.writeln(
+            '- **Coverage:** `${current['coverage']}%` (${covDiff >= 0 ? '+' : ''}${covDiff.toStringAsFixed(1)}%)');
+        sb.writeln(
+            '- **Binary Size:** `${(current['apk_size_bytes'] / (1024 * 1024)).toStringAsFixed(1)} MB` (${sizeDiffKB >= 0 ? '+' : ''}${sizeDiffKB.toStringAsFixed(1)} KB)');
+        sb.writeln('');
+      }
     } catch (_) {}
   }
   sb.writeln(

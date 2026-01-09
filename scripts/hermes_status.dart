@@ -9,6 +9,8 @@ void main() async {
     'Asset Audit': 'scripts/audit_assets.dart',
     'License Audit': 'scripts/audit_licenses.dart',
     'Complexity Audit': 'scripts/calculate_complexity.dart',
+    'Governance Audit': 'scripts/audit_workflows.dart',
+    'Metric Collection': 'scripts/collect_metrics.dart',
     'Dependency Audit': 'scripts/audit_dependencies.dart',
     'Dependency Usage': 'scripts/audit_dependency_usage.dart',
     'Secret Watchdog': 'scripts/secret_expiry_watchdog.dart',

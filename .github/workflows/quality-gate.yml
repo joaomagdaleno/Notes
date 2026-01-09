@@ -67,6 +67,8 @@ jobs:
         run: dart scripts/audit_dependency_usage.dart
       - name: Secret Expiry Watchdog
         run: dart scripts/secret_expiry_watchdog.dart
+      - name: Governance Audit
+        run: dart scripts/audit_workflows.dart
       - name: Run Flutter Analyzer
         working-directory: Notes-Hub
         run: flutter analyze --no-fatal-infos
@@ -144,6 +146,8 @@ jobs:
           git checkout coverage-data -- baseline_sizes.json || echo "No baseline file"
           dart scripts/calculate_impact_score.dart
           dart scripts/generate_pr_summary.dart
+      - name: Collect Pulse Metrics
+        run: dart scripts/collect_metrics.dart
       - name: Post PR Summary
         uses: marocchino/sticky-pull-request-comment@v2
         with:
