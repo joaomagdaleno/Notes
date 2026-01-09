@@ -79,7 +79,20 @@ class FluentAuthView extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(fluent.FluentIcons.lock),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: fluent.FluentTheme.of(context)
+                              .accentColor
+                              .lightest,
+                        ),
+                        child: Icon(
+                          fluent.FluentIcons.lock,
+                          size: 24,
+                          color: fluent.FluentTheme.of(context).accentColor,
+                        ),
+                      ),
                       const SizedBox(height: 24),
                       if (showSignUp) ...[
                         fluent.InfoLabel(
