@@ -67,7 +67,7 @@ class UpdateService {
       // Denial-of-Service (DoS) attacks. A shorter timeout is a security
       // best practice.
       final response = await _client.get(url).timeout(
-            const Duration(seconds: 30),
+            const Duration(seconds: 15),
           );
 
       if (response.statusCode == 200) {
