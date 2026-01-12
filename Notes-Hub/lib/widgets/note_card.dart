@@ -13,6 +13,22 @@ import 'package:notes_hub/widgets/note_card/views/fluent_note_card_view.dart';
 import 'package:notes_hub/widgets/note_card/views/material_note_card_view.dart';
 import 'package:notes_hub/widgets/note_preview_dialog.dart';
 
+// ⚡ Bolt: This is a top-level function required for the `compute` function.
+// Running this parsing logic in a separate isolate prevents UI jank when
+// scrolling through a list of notes with complex content.
+String _computePlainTextInBackground(String jsonContent) {
+  if (jsonContent.isEmpty) {
+    return '';
+  }
+  try {
+    // This is the expensive operation we want to move off the main thread.
+    return DocumentAdapter.fromJson(jsonContent).toPlainText();
+  } on Exception {
+    // If parsing fails, return an empty string.
+    return '';
+  }
+}
+
 /// A widget that displays a note as a card, adaptive for Windows and Mobile.
 class NoteCard extends StatefulWidget {
   /// Creates a new instance of [NoteCard].
@@ -55,20 +71,24 @@ class NoteCard extends StatefulWidget {
 
 class _NoteCardState extends State<NoteCard> {
   bool _isHovered = false;
-  late String _plainTextContent;
+  // ⚡ Bolt: Initialize with an empty string. The actual content will be
+  // loaded asynchronously in a background isolate to prevent UI jank.
+  String _plainTextContent = '';
   final _flyoutController = fluent.FlyoutController();
 
   @override
   void initState() {
     super.initState();
-    _plainTextContent = _computePlainText(widget.note.content);
+    // ⚡ Bolt: Offload the expensive text computation to a background isolate.
+    _updatePlainText();
   }
 
   @override
   void didUpdateWidget(NoteCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.note.content != oldWidget.note.content) {
-      _plainTextContent = _computePlainText(widget.note.content);
+      // ⚡ Bolt: Re-compute the text content if the note has changed.
+      _updatePlainText();
     }
   }
 
@@ -78,14 +98,18 @@ class _NoteCardState extends State<NoteCard> {
     super.dispose();
   }
 
-  String _computePlainText(String jsonContent) {
-    if (jsonContent.isEmpty) {
-      return '';
-    }
-    try {
-      return DocumentAdapter.fromJson(jsonContent).toPlainText();
-    } on Exception {
-      return '';
+  // ⚡ Bolt: Asynchronously compute the plain text content in an isolate.
+  Future<void> _updatePlainText() async {
+    // The `compute` function runs `_computePlainTextInBackground` in a
+    // separate isolate.
+    final plainText =
+        await compute(_computePlainTextInBackground, widget.note.content);
+
+    // Check if the widget is still in the tree before updating the state.
+    if (mounted) {
+      setState(() {
+        _plainTextContent = plainText;
+      });
     }
   }
 
