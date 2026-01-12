@@ -72,9 +72,9 @@ class MaterialNoteCardView extends StatelessWidget {
     // ⚡ Bolt: Cache TextTheme to avoid multiple expensive lookups in the build
     // method.
     final textTheme = Theme.of(context).textTheme;
-    // ⚡ Bolt: Cache derived TextStyles. Re-creating these with .copyWith() on
-    // every build is inefficient. This ensures they are created only once per
-    // build cycle and reused, reducing object allocation.
+    // ⚡ Bolt: Cache derived TextStyles. By hoisting these .copyWith() calls
+    // out of the Text widgets, we create the style objects once per build,
+    // reducing redundant allocations and improving build performance.
     final titleStyle = textTheme.titleMedium?.copyWith(
       color: Colors.white,
       fontWeight: FontWeight.bold,
@@ -88,6 +88,7 @@ class MaterialNoteCardView extends StatelessWidget {
       color: Colors.white70,
       fontSize: 10,
     );
+
     final hasImage = note.imageUrl?.isNotEmpty ?? false;
 
     final card = Card(
