@@ -21,6 +21,24 @@ import 'package:notes_hub/widgets/note_card.dart';
 import 'package:notes_hub/widgets/quick_note_editor.dart';
 import 'package:notes_hub/widgets/sidebar.dart';
 import 'package:provider/provider.dart';
+<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/notes_screen.dart
+import 'package:notes_hub/models/note.dart';
+import 'package:notes_hub/models/persona_model.dart';
+import 'package:notes_hub/repositories/note_repository.dart';
+import 'package:notes_hub/screens/editor/editor_screen.dart';
+import 'package:notes_hub/screens/notes/views/fluent_notes_view.dart';
+import 'package:notes_hub/screens/notes/views/material_notes_view.dart';
+import 'package:notes_hub/screens/notes/widgets/dashboard_card.dart';
+import 'package:notes_hub/screens/settings/settings_screen.dart';
+import 'package:notes_hub/services/sync_service.dart';
+import 'package:notes_hub/services/theme_service.dart';
+import 'package:notes_hub/services/update_service.dart';
+import 'package:notes_hub/widgets/empty_state.dart';
+import 'package:notes_hub/widgets/note_card.dart';
+import 'package:notes_hub/widgets/quick_note_editor.dart';
+import 'package:notes_hub/widgets/sidebar.dart';
+========
+>>>>>>>> dev:Notes-Hub/lib/screens/notes_screen.dart
 import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -84,11 +102,11 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final _viewModeNotifier = ValueNotifier<String>('grid_medium');
   final ScrollController _scrollController = ScrollController();
 
-  // ⚡ Bolt: Use ValueNotifiers for search state to prevent full-screen
-  // rebuilds. Only widgets wrapped in ValueListenableBuilder will update.
   final _searchResultsNotifier = ValueNotifier<List<Note>?>(null);
   final _isSearchingNotifier = ValueNotifier<bool>(false);
 
+<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/notes_screen.dart
+========
   // --- Bolt's Memoization Cache for Sorted Notes ---
   // We store the previously sorted list to avoid re-sorting on every build.
   List<Note>? _cachedSortedNotes;
@@ -109,6 +127,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   Widget? _dashboard;
 
   // 🎨 Palette: Cycle through view modes to provide a dynamic button.
+>>>>>>>> dev:Notes-Hub/lib/screens/notes_screen.dart
   void _cycleViewMode() {
     const modes = ['grid_medium', 'grid_large', 'list'];
     final currentMode = _viewModeNotifier.value;
@@ -116,7 +135,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     _viewModeNotifier.value = modes[nextIndex];
   }
 
-  // 🎨 Palette: Get the icon and tooltip for the *next* view mode.
   ({IconData icon, String tooltip}) _getNextViewModeProperties(
     String currentMode, {
     bool isFluent = false,
@@ -152,7 +170,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           );
       }
     }
-    // Default fallback
     return (
       icon: isFluent ? fluent.FluentIcons.view_all : Icons.view_module,
       tooltip: 'Grid View (Medium)',
@@ -162,6 +179,13 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   @override
   void initState() {
     super.initState();
+<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/notes_screen.dart
+    _updateService = widget.updateService ?? UpdateService();
+    _notesStream = _syncService.notesStream;
+    windowManager.addListener(this);
+    _updateNotesStream();
+    _searchController.addListener(_onSearchChanged);
+========
     unawaited(
       StartupLogger.log(
         '🎬 NotesScreen.initState starting after super.initState',
@@ -213,6 +237,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       unawaited(StartupLogger.log('🔥 CRASH in NotesScreen.initState: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
+>>>>>>>> dev:Notes-Hub/lib/screens/notes_screen.dart
   }
 
   @override
@@ -248,78 +273,58 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     super.dispose();
   }
 
-  /// Handles search input changes with debounce.
   Timer? _searchDebounce;
   void _onSearchChanged() {
     _searchDebounce?.cancel();
     final query = _searchController.text;
 
     if (query.isEmpty) {
-      // ⚡ Bolt: No setState(), just update the notifier's value.
       _searchResultsNotifier.value = null;
       _isSearchingNotifier.value = false;
       return;
     }
 
-    // ⚡ Bolt: No setState(), just update the notifier's value.
     _isSearchingNotifier.value = true;
 
     _searchDebounce = Timer(const Duration(milliseconds: 300), () async {
       final results = await NoteRepository.instance.searchNotes(query);
-      // ⚡ Bolt: No need for context.mounted or setState. The
-      // ValueListenableBuilder will handle the update automatically.
       _searchResultsNotifier.value = results;
       _isSearchingNotifier.value = false;
     });
   }
 
   void _updateNotesStream() {
-    unawaited(StartupLogger.log('🌊 NotesScreen._updateNotesStream starting'));
-    try {
-      bool? isFavorite;
-      bool? isInTrash;
-      String? folderId;
-      String? tagId;
+    bool? isFavorite;
+    bool? isInTrash;
+    String? folderId;
+    String? tagId;
 
-      switch (_selection.type) {
-        case SidebarItemType.all:
+    switch (_selection.type) {
+      case SidebarItemType.all:
+        isInTrash = false;
+      case SidebarItemType.favorites:
+        isFavorite = true;
+        isInTrash = false;
+      case SidebarItemType.trash:
+        isInTrash = true;
+      case SidebarItemType.folder:
+        if (_selection.folder != null) {
+          folderId = _selection.folder!.id;
           isInTrash = false;
-        case SidebarItemType.favorites:
-          isFavorite = true;
-          isInTrash = false;
-        case SidebarItemType.trash:
-          isInTrash = true;
-        case SidebarItemType.folder:
-          if (_selection.folder != null) {
-            folderId = _selection.folder!.id;
-            isInTrash = false;
-          }
-        case SidebarItemType.tag:
-          tagId = _selection.tag;
-          isInTrash = false;
-      }
-
-      unawaited(
-        StartupLogger.log(
-          '🌊 NotesScreen._updateNotesStream: filter params - '
-          'folderId: $folderId, tagId: $tagId, isFavorite: $isFavorite, '
-          'isInTrash: $isInTrash',
-        ),
-      );
-
-      // Trigger refresh of local data into the stream
-      unawaited(
-        _syncService.refreshLocalData(
-          folderId: folderId,
-          tagId: tagId,
-          isFavorite: isFavorite,
-          isInTrash: isInTrash,
-        ),
-      );
-    } on Exception catch (e, stack) {
-      unawaited(StartupLogger.log('🔥 ERROR in _updateNotesStream: $e'));
-      unawaited(StartupLogger.log(stack.toString()));
+        }
+      case SidebarItemType.tag:
+        tagId = _selection.tag;
+        isInTrash = false;
     }
+
+    unawaited(
+      _syncService.refreshLocalData(
+        folderId: folderId,
+        tagId: tagId,
+        isFavorite: isFavorite,
+        isInTrash: isInTrash,
+      ),
+    );
   }
 
   void _onSelectionChanged(SidebarSelection selection) {
@@ -327,7 +332,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       _selection = selection;
       _updateNotesStream();
     });
-    // Don't pop on Windows as we use NavigationView which is persistent
     if (defaultTargetPlatform != TargetPlatform.windows && context.mounted) {
       Navigator.of(context).pop();
     }
@@ -404,10 +408,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     final note = Note(
       id: const Uuid().v4(),
       title: 'Nova Nota',
-      content: '', // Use empty string for new notes
+      content: '',
       createdAt: DateTime.now(),
       lastModified: DateTime.now(),
-      ownerId: 'user', // Default user
+      ownerId: 'user',
     );
     await NoteRepository.instance.insertNote(note);
     await _syncService.refreshLocalData();
@@ -584,14 +588,10 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     }
   }
 
-  /// Builds the main content area - search results or normal notes list.
   Widget _buildContent() {
-    // ⚡ Bolt: This ValueListenableBuilder ensures that only the content area
-    // rebuilds when search results change, not the entire NotesScreen.
     return ValueListenableBuilder<List<Note>?>(
       valueListenable: _searchResultsNotifier,
       builder: (context, searchResults, child) {
-        // Show search results if we have them
         if (searchResults != null) {
           if (searchResults.isEmpty) {
             return const EmptyState(
@@ -601,12 +601,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           }
           return _buildSearchResults(searchResults);
         }
-
-        // Otherwise, show the normal notes stream
         return child!;
       },
-      // ⚡ Bolt: The StreamBuilder is passed as a child, so it's only built
-      // once and not affected by search result updates.
       child: StreamBuilder<List<Note>>(
         stream: _notesStream,
         initialData: _syncService.currentNotes,
@@ -630,7 +626,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     );
   }
 
-  /// Builds the search results list with highlighted snippets.
   Widget _buildSearchResults(List<Note> results) {
     return ListView.builder(
       itemCount: results.length,
@@ -662,11 +657,32 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   Widget _buildNotesList(List<Note> notes) {
     final isTrashView = _selection.type == SidebarItemType.trash;
 
-    // ⚡ Bolt: Using ValueListenableBuilder to rebuild only the list when
-    // sorting changes, preventing the whole screen from rebuilding.
     return ValueListenableBuilder<SortOrder>(
       valueListenable: _sortOrderNotifier,
       builder: (context, sortOrder, child) {
+<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/notes_screen.dart
+        final query = _searchController.text.toLowerCase();
+        var displayNotes = notes;
+        if (query.isNotEmpty) {
+          displayNotes = notes.where((note) {
+            return note.title.toLowerCase().contains(query) ||
+                note.content.toLowerCase().contains(query);
+          }).toList();
+        }
+
+        displayNotes.sort((a, b) {
+          switch (sortOrder) {
+            case SortOrder.dateAsc:
+              return a.lastModified.compareTo(b.lastModified);
+            case SortOrder.titleAsc:
+              return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+            case SortOrder.titleDesc:
+              return b.title.toLowerCase().compareTo(a.title.toLowerCase());
+            case SortOrder.dateDesc:
+              return b.lastModified.compareTo(a.lastModified);
+          }
+        });
+========
         // ⚡ Bolt: Memoization check.
         // We only re-sort the list if the source notes have changed or the
         // sort order has changed. Otherwise, we use the cached list.
@@ -698,6 +714,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         }
 
         final displayNotes = _cachedSortedNotes!;
+>>>>>>>> dev:Notes-Hub/lib/screens/notes_screen.dart
 
         if (displayNotes.isEmpty) {
           return const EmptyState(
@@ -706,8 +723,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           );
         }
 
-        // ⚡ Bolt: By nesting this ValueListenableBuilder, only the GridView
-        // rebuilds when the view mode changes, not the entire screen.
         return Column(
           children: [
             if (_selection.type == SidebarItemType.all &&
@@ -758,20 +773,28 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       case 'grid_large':
         return _gridDelegateLarge;
       case 'list':
+<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/notes_screen.dart
+        return const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 1,
+          childAspectRatio: 5 / 1,
+        );
+      default:
+        return const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 200,
+          childAspectRatio: 3 / 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        );
+========
         return _gridDelegateList;
       default: // grid_medium
         return _gridDelegateMedium;
+>>>>>>>> dev:Notes-Hub/lib/screens/notes_screen.dart
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    unawaited(
-      StartupLogger.log(
-        '🎨 [BUILD] NotesScreen.build called - '
-        'platform: $defaultTargetPlatform',
-      ),
-    );
     if (!kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.windows ||
             defaultTargetPlatform == TargetPlatform.linux ||
@@ -807,6 +830,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
           );
         },
         searchController: _searchController,
+        isSearchingNotifier: _isSearchingNotifier,
         content: _buildContent(),
         isTrashView: _selection.type == SidebarItemType.trash,
         onCreateNote: _createNewNote,
@@ -815,11 +839,6 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         onDeleteFolder: _deleteFolder,
       );
     }
-    unawaited(
-      StartupLogger.log(
-        '🎨 [BUILD] NotesScreen returning MaterialUI (mobile)',
-      ),
-    );
     return MaterialNotesView(
       sidebar: Sidebar(onSelectionChanged: _onSelectionChanged),
       title: _getAppBarTitle(),

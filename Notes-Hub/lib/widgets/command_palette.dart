@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:notes_hub/models/note.dart';
 import 'package:notes_hub/repositories/note_repository.dart';
-import 'package:notes_hub/screens/graph_view_screen.dart';
+import 'package:notes_hub/screens/graph_view/graph_view_screen.dart';
 import 'package:notes_hub/screens/note_editor_screen.dart';
 import 'package:notes_hub/services/sync_service.dart';
 
