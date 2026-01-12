@@ -4,11 +4,11 @@ import 'dart:math' as math;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-<<<<<<<< HEAD:universal_notes_flutter/lib/screens/graph_view/graph_view_screen.dart
-import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/screens/graph_view/views/fluent_graph_view.dart';
-import 'package:universal_notes_flutter/screens/graph_view/views/material_graph_view.dart';
+<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
+import 'package:notes_hub/models/note.dart';
+import 'package:notes_hub/repositories/note_repository.dart';
+import 'package:notes_hub/screens/graph_view/views/fluent_graph_view.dart';
+import 'package:notes_hub/screens/graph_view/views/material_graph_view.dart';
 ========
 import 'package:notes_hub/models/note.dart';
 import 'package:notes_hub/repositories/note_repository.dart';
@@ -78,7 +78,7 @@ class _GraphViewState extends State<GraphView> {
       );
     }
   }
-<<<<<<<< HEAD:universal_notes_flutter/lib/screens/graph_view/graph_view_screen.dart
+<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
 ========
 
   Widget _buildFluentUI(BuildContext context) {
@@ -166,7 +166,7 @@ class GraphPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final count = notes.length;
 
-<<<<<<<< HEAD:universal_notes_flutter/lib/screens/graph_view/graph_view_screen.dart
+<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
 ========
     // Use a slightly more organic layout distribution
 >>>>>>>> dev:Notes-Hub/lib/screens/graph_view_screen.dart
@@ -174,7 +174,7 @@ class GraphPainter extends CustomPainter {
     for (var i = 0; i < count; i++) {
       final angle = (i * 2 * 3.14159) / count;
       final dist = (size.width < size.height ? size.width : size.height) * 0.35;
-<<<<<<<< HEAD:universal_notes_flutter/lib/screens/graph_view/graph_view_screen.dart
+<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
       positions.add(Offset(
         center.dx +
             dist *
@@ -218,7 +218,7 @@ class GraphPainter extends CustomPainter {
     }
 
     for (var i = 0; i < count; i++) {
-<<<<<<<< HEAD:universal_notes_flutter/lib/screens/graph_view/graph_view_screen.dart
+<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
       canvas
         ..drawCircle(positions[i], 8, nodeOutlinePaint)
 ========
@@ -230,7 +230,7 @@ class GraphPainter extends CustomPainter {
         ..drawCircle(positions[i], 4, nodePaint);
 
       if (count < 20) {
-<<<<<<<< HEAD:universal_notes_flutter/lib/screens/graph_view/graph_view_screen.dart
+<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
 ========
         // Only draw labels if not too many nodes
 >>>>>>>> dev:Notes-Hub/lib/screens/graph_view_screen.dart
