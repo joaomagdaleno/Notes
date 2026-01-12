@@ -26,6 +26,7 @@ class FluentNotesView extends StatefulWidget {
     required this.onOpenQuickEditor,
     required this.onCreateFolder,
     required this.onDeleteFolder,
+    required this.isSearchingNotifier,
     super.key,
   });
 
@@ -83,6 +84,9 @@ class FluentNotesView extends StatefulWidget {
 
   /// Callback to delete a folder.
   final ValueChanged<String> onDeleteFolder;
+
+  /// Notifier for whether a search is in progress.
+  final ValueListenable<bool> isSearchingNotifier;
 
   @override
   State<FluentNotesView> createState() => _FluentNotesViewState();
@@ -278,57 +282,76 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                   ),
                 ],
               ),
-              content: ScaffoldPage(
-                content: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
-                      child: TextBox(
-                        controller: widget.searchController,
-                        placeholder: 'Search notes...',
-                        prefix: const Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Icon(FluentIcons.search, size: 14),
+              paneBodyBuilder: (item, body) {
+                return ScaffoldPage(
+                  content: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                        child: TextBox(
+                          controller: widget.searchController,
+                          placeholder: 'Search notes...',
+                          prefix: const Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Icon(FluentIcons.search, size: 14),
+                          ),
+                          suffix: ValueListenableBuilder<bool>(
+                            valueListenable: widget.isSearchingNotifier,
+                            builder: (context, isSearching, child) {
+                              if (isSearching) {
+                                return const Padding(
+                                  padding: EdgeInsets.all(8),
+                                  child: ProgressRing(strokeWidth: 2),
+                                );
+                              }
+                              return widget.searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(FluentIcons.clear),
+                                      onPressed: widget.searchController.clear,
+                                    )
+                                  : const SizedBox.shrink();
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(child: widget.content),
-                  ],
-                ),
-                bottomBar: widget.isTrashView
-                    ? null
-                    : Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            FilledButton(
-                              onPressed: widget.onCreateNote,
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(FluentIcons.add),
-                                  SizedBox(width: 8),
-                                  Text('New Note'),
-                                ],
+                      Expanded(child: widget.content),
+                    ],
+                  ),
+                  bottomBar: widget.isTrashView
+                      ? null
+                      : Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              FilledButton(
+                                onPressed: widget.onCreateNote,
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(FluentIcons.add),
+                                    SizedBox(width: 8),
+                                    Text('New Note'),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Button(
-                              onPressed: widget.onOpenQuickEditor,
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(FluentIcons.quick_note),
-                                  SizedBox(width: 8),
-                                  Text('Quick Note'),
-                                ],
+                              const SizedBox(width: 16),
+                              Button(
+                                onPressed: widget.onOpenQuickEditor,
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(FluentIcons.quick_note),
+                                    SizedBox(width: 8),
+                                    Text('Quick Note'),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-              ),
+                );
+              },
             );
           },
         );
