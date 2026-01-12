@@ -48,6 +48,13 @@ void main(List<String> args) {
     exit(1);
   } else {
     print('\n✅ PASSED: Coverage is above threshold.');
+
+    // Generate JSON for Vault
+    final coverageData =
+        '{"percentage": ${coverage.toStringAsFixed(2)}, "lines_found": $totalLF, "lines_hit": $totalLH}';
+    File('coverage.json').writeAsStringSync(coverageData);
+    print('📦 Generated vault artifact: coverage.json');
+
     exit(0);
   }
 }

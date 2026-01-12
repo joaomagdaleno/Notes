@@ -338,7 +338,7 @@ class MyApp extends StatelessWidget {
       builder: (context, themeService, child) {
         if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
           return fluent.FluentApp(
-            title: 'Universal Notes',
+            title: 'Notes Hub',
             theme: AppThemes.fluentLightTheme,
             darkTheme: AppThemes.fluentDarkTheme,
             themeMode: themeService.themeMode,

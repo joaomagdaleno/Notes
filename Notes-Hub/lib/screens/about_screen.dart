@@ -97,7 +97,7 @@ class _AboutScreenState extends State<AboutScreen> {
   Widget _buildFluentUI(BuildContext context) {
     final theme = fluent.FluentTheme.of(context);
     return Semantics(
-      label: 'About Universal Notes',
+      label: 'About Notes Hub',
       child: fluent.ScaffoldPage(
         header: fluent.PageHeader(
           title: const Text('Sobre'),
@@ -115,7 +115,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Universal Notes',
+                    'Notes Hub',
                     style: theme.typography.subtitle,
                   ),
                   const SizedBox(height: 8),
@@ -182,7 +182,7 @@ class _AboutScreenState extends State<AboutScreen> {
 
   Widget _buildMaterialUI(BuildContext context) {
     return Semantics(
-      label: 'About Universal Notes',
+      label: 'About Notes Hub',
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Sobre'),

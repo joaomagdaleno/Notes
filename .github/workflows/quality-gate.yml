@@ -155,6 +155,10 @@ jobs:
           name: coverage-lcov
           path: Notes-Hub/coverage/lcov.info
           retention-days: 1
+      - name: Sync Coverage to Vault
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/teste-notes')
+        working-directory: Notes-Hub
+        run: dart ../scripts/hermes.dart sync push
 
   report-results:
     name: Report Results
@@ -173,13 +177,26 @@ jobs:
         with:
           name: coverage-lcov
           path: Notes-Hub/coverage
+      - name: Checkout Vault (for Global Dashboard)
+        if: github.ref == 'refs/heads/dev'
+        uses: actions/checkout@v6
+        with:
+          ref: coverage-data
+          path: hermes_vault
+          clean: false
+
+      - name: Sync Coverage Baseline
+        run: dart scripts/hermes.dart sync pull ${{ github.base_ref || github.ref }}
+
       - name: Generate PR Summary
         run: |
-          # Fetch baseline and scripts if needed
-          git fetch origin coverage-data:coverage-data || echo "No baseline branch"
-          git checkout coverage-data -- baseline_sizes.json || echo "No baseline file"
+          dart scripts/hermes.dart delta
           dart scripts/calculate_impact_score.dart
           dart scripts/generate_pr_summary.dart
+      
+      - name: Generate Badges & Dashboard
+        run: dart scripts/hermes.dart badge
+
       - name: Collect Pulse Metrics
         run: dart scripts/collect_metrics.dart
       - name: Dependency Weight Analysis
@@ -198,6 +215,8 @@ jobs:
             RELEASE_NOTES.md
             GOVERNANCE_MANIFEST.md
             LICENSE_COMPLIANCE.md
+            GLOBAL_METRICS.md
+            coverage_badge.svg
       - name: Post PR Summary
         uses: marocchino/sticky-pull-request-comment@v2
         with:
