@@ -11,7 +11,7 @@ import 'package:notes_hub/screens/snippets/views/material_snippets_view.dart';
 ========
 import 'package:notes_hub/models/snippet.dart';
 import 'package:notes_hub/repositories/note_repository.dart';
->>>>>>>> dev:Notes-Hub/lib/screens/snippets_screen.dart
+>>>>>>>> dev:Notes-Hub/lib/screens/void void snippets_screen.dart
 
 /// Controller for the snippets screen.
 class SnippetsScreen extends StatefulWidget {

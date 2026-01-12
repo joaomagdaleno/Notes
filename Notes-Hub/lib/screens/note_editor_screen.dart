@@ -82,7 +82,9 @@ class NoteEditorScreen extends StatefulWidget {
 }
 
 class _NoteEditorScreenState extends State<NoteEditorScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver {editor_screen.dart
+editor_screen.dart
+
   Note? _note;
   late DocumentModel _document;
 
@@ -789,13 +791,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     await SnippetConverter.precacheSnippets();
   }
 
-<<<<<<<< HEAD:Notes-Hub/lib/screens/editor/editor_screen.dart
-========
+<<<<<<<< HEAD:Notes-Hub/lib/screens/editor/======@override
+  ==
   final bool _canUndo = false;
   final bool _canRedo = false;
 
 >>>>>>>> dev:Notes-Hub/lib/screens/note_editor_screen.dart
-  Future<void> _attachImage() async {
+  Future<void> Future<void> Future<void> _attachImage() async {
     final pickedFile = await _imagePicker.pickImage(
       source: ImageSource.gallery,
     );
@@ -1102,8 +1104,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     );
   }
 
-<<<<<<<< HEAD:Notes-Hub/lib/screens/editor/editor_screen.dart
-========
+<<<<<<<< HEAD:Notes-Hub/lib/screens/editor/======@override
+  ==
   @override
   Widget build(BuildContext context) {
     // Define the editor widget
@@ -1413,7 +1415,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   }
 
 >>>>>>>> dev:Notes-Hub/lib/screens/note_editor_screen.dart
-  int _getBlockIndexForOffset(int offset) {
+  int int int _getBlockIndexForOffset(int offset) {
     var currentOffset = 0;
     for (var i = 0; i < _document.blocks.length; i++) {
       final block = _document.blocks[i];

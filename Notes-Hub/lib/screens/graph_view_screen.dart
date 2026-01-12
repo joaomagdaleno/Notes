@@ -4,15 +4,10 @@ import 'dart:math' as math;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
 import 'package:notes_hub/models/note.dart';
 import 'package:notes_hub/repositories/note_repository.dart';
 import 'package:notes_hub/screens/graph_view/views/fluent_graph_view.dart';
 import 'package:notes_hub/screens/graph_view/views/material_graph_view.dart';
-========
-import 'package:notes_hub/models/note.dart';
-import 'package:notes_hub/repositories/note_repository.dart';
->>>>>>>> dev:Notes-Hub/lib/screens/graph_view_screen.dart
 
 /// GraphView controller - platform-adaptive
 class GraphView extends StatefulWidget {
@@ -78,54 +73,6 @@ class _GraphViewState extends State<GraphView> {
       );
     }
   }
-<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
-========
-
-  Widget _buildFluentUI(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: fluent.ProgressRing());
-    }
-
-    final theme = fluent.FluentTheme.of(context);
-
-    return fluent.ScaffoldPage(
-      header: const fluent.PageHeader(
-        title: Text('Local Graph View'),
-      ),
-      content: ColoredBox(
-        color: theme.scaffoldBackgroundColor,
-        child: CustomPaint(
-          painter: GraphPainter(
-            notes: _notes,
-            accentColor: theme.accentColor,
-            textColor: theme.typography.body?.color ?? fluent.Colors.black,
-            nodeColor: theme.accentColor.light,
-          ),
-          child: const SizedBox.expand(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMaterialUI(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Local Graph View')),
-      body: CustomPaint(
-        painter: GraphPainter(
-          notes: _notes,
-          accentColor: Colors.blue,
-          textColor: Colors.black,
-          nodeColor: Colors.blue.withValues(alpha: 0.3),
-        ),
-        child: const SizedBox.expand(),
-      ),
-    );
-  }
->>>>>>>> dev:Notes-Hub/lib/screens/graph_view_screen.dart
 }
 
 /// Custom painter for the notes graph.
@@ -140,10 +87,13 @@ class GraphPainter extends CustomPainter {
 
   /// The list of notes to display.
   final List<Note> notes;
+
   /// The accent color for lines and nodes.
   final Color accentColor;
+
   /// The color for text labels.
   final Color textColor;
+
   /// The color for node backgrounds.
   final Color nodeColor;
 
@@ -166,15 +116,10 @@ class GraphPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final count = notes.length;
 
-<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
-========
-    // Use a slightly more organic layout distribution
->>>>>>>> dev:Notes-Hub/lib/screens/graph_view_screen.dart
     final positions = <Offset>[];
     for (var i = 0; i < count; i++) {
       final angle = (i * 2 * 3.14159) / count;
       final dist = (size.width < size.height ? size.width : size.height) * 0.35;
-<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
       positions.add(Offset(
         center.dx +
             dist *
@@ -190,25 +135,7 @@ class GraphPainter extends CustomPainter {
                 (i.isEven ? 1 : 1.05) *
                 (i / count > 0.5 ? 0.95 : 1) *
                 math.sin(angle),
-              ),
-========
-      positions.add(
-        Offset(
-          center.dx +
-              dist *
-                  (0.8 + 0.2 * (i % 2)) *
-                  (i % 3 == 0 ? 0.9 : 1.1) *
-                  (i.isEven ? 1 : 1.05) *
-                  (i / count > 0.5 ? 0.95 : 1) *
-                  math.cos(angle),
-          center.dy +
-              dist *
-                  (0.8 + 0.2 * (i % 2)) *
-                  (i % 3 == 0 ? 0.9 : 1.1) *
-                  math.sin(angle),
-        ),
->>>>>>>> dev:Notes-Hub/lib/screens/graph_view_screen.dart
-      );
+      ));
     }
 
     for (var i = 0; i < count; i++) {
@@ -218,22 +145,11 @@ class GraphPainter extends CustomPainter {
     }
 
     for (var i = 0; i < count; i++) {
-<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
       canvas
-        ..drawCircle(positions[i], 8, nodeOutlinePaint)
-========
-      // Glow/Outline
-      canvas
-        ..drawCircle(positions[i], 8, nodeOutlinePaint)
-        // Actual node
->>>>>>>> dev:Notes-Hub/lib/screens/graph_view_screen.dart
-        ..drawCircle(positions[i], 4, nodePaint);
+          .drawCircle(positions[i], 8, nodeOutlinePaint)
+          .drawCircle(positions[i], 4, nodePaint);
 
       if (count < 20) {
-<<<<<<<< HEAD:notes_hub/lib/screens/graph_view/graph_view_screen.dart
-========
-        // Only draw labels if not too many nodes
->>>>>>>> dev:Notes-Hub/lib/screens/graph_view_screen.dart
         TextPainter(
           text: TextSpan(
             text: notes[i].title.length > 15

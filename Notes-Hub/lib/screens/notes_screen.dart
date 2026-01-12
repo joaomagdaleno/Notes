@@ -72,7 +72,9 @@ enum SortOrder {
   titleDesc,
 }
 
-class _NotesScreenState extends State<NotesScreen> with WindowListener {
+class _NotesScreenState extends State<NotesScreen> with WindowListener {notes_screen.dart
+notes_screen.dart
+  
   // ⚡ Bolt: Cache SliverGridDelegates to avoid re-creating them on every
   // build. This is a significant performance win for list scrolling.
   static const _gridDelegateLarge = SliverGridDelegateWithMaxCrossAxisExtent(
@@ -105,8 +107,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   final _searchResultsNotifier = ValueNotifier<List<Note>?>(null);
   final _isSearchingNotifier = ValueNotifier<bool>(false);
 
-<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/notes_screen.dart
-========
+<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/======@override
+  ==
   // --- Bolt's Memoization Cache for Sorted Notes ---
   // We store the previously sorted list to avoid re-sorting on every build.
   List<Note>? _cachedSortedNotes;
@@ -127,8 +129,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   Widget? _dashboard;
 
   // 🎨 Palette: Cycle through view modes to provide a dynamic button.
->>>>>>>> dev:Notes-Hub/lib/screens/notes_screen.dart
-  void _cycleViewMode() {
+>>>>>>>> dev:Notes-Hub/lib/screens/void _cycleViewMode() {
     const modes = ['grid_medium', 'grid_large', 'list'];
     final currentMode = _viewModeNotifier.value;
     final nextIndex = (modes.indexOf(currentMode) + 1) % modes.length;
@@ -687,7 +688,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         // We only re-sort the list if the source notes have changed or the
         // sort order has changed. Otherwise, we use the cached list.
         // This prevents expensive sorting on every widget rebuild.
-        final bool isCacheValid =
+        final isCacheValid =
             _rawNotesForCache == notes && _sortOrderForCache == sortOrder;
 
         if (!isCacheValid || _cachedSortedNotes == null) {
