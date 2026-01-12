@@ -1,0 +1,39 @@
+﻿Analyzing Notes-Hub...                                          
+
+   info - The imported package 'universal_notes_flutter' isn't a dependency of the importing package - integration_test\performance_benchmark_test.dart:4:8 - depend_on_referenced_packages
+  error - Target of URI doesn't exist: 'package:universal_notes_flutter/main.dart' - integration_test\performance_benchmark_test.dart:4:8 - uri_does_not_exist
+   info - Sort directive sections alphabetically - lib\main.dart:13:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\repositories\note_repository.dart:7:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\screens\about_screen.dart:7:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\screens\note_editor_screen.dart:12:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\screens\notes_screen.dart:8:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\screens\settings_screen.dart:6:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\services\backup_service.dart:7:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\services\export_service.dart:6:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\services\reading_bookmarks_service.dart:2:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\services\reading_interaction_service.dart:2:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\services\reading_plan_service.dart:2:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\services\reading_stats_service.dart:4:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\utils\update_helper.dart:11:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\utils\windows_update_helper.dart:5:1 - directives_ordering
+   info - Sort directive sections alphabetically - lib\widgets\sidebar.dart:9:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\chaos_resilience.suite.dart:8:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\editor\editor_widget.suite.dart:9:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\repositories\note_repository.suite.dart:8:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\screens\about_screen.suite.dart:12:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\screens\settings_screen.suite.dart:9:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\services\media_service.suite.dart:14:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\services\reading_bookmarks_service.suite.dart:6:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\services\reading_interaction_service.suite.dart:7:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\services\reading_plan_service.suite.dart:7:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\services\reading_stats_service.suite.dart:7:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\services\security_service.suite.dart:6:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\services\tag_suggestion_service.suite.dart:5:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\services\theme_service.suite.dart:7:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\services\tracing_service.suite.dart:5:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\services\update_service.suite.dart:10:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\test_helper.dart:10:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\utils\link_detector.suite.dart:5:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\utils\text_helpers.suite.dart:6:1 - directives_ordering
+   info - Sort directive sections alphabetically - test\utils\update_helper.suite.dart:15:1 - directives_ordering
+

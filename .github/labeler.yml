@@ -1,0 +1,33 @@
+# Labeler configuration
+# Refer to https://github.com/actions/labeler for more information
+
+android:
+  - 'Notes-Hub/android/**/*'
+
+windows:
+  - 'Notes-Hub/windows/**/*'
+  - 'Notes-Hub/windows_installer/**/*'
+
+ios:
+  - 'Notes-Hub/ios/**/*'
+
+macos:
+  - 'Notes-Hub/macos/**/*'
+
+linux:
+  - 'Notes-Hub/linux/**/*'
+
+web:
+  - 'Notes-Hub/web/**/*'
+
+ci:
+  - '.github/workflows/**/*'
+  - 'lefthook.yml'
+
+scripts:
+  - 'scripts/**/*'
+
+docs:
+  - '*.md'
+  - 'Notes-Hub/*.md'
+  - 'LICENSE'
