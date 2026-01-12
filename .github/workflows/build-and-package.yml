@@ -2,6 +2,12 @@ name: Build and Package
 
 on:
   workflow_call:
+    inputs:
+      channel:
+        description: 'Release channel (nightly or stable)'
+        required: true
+        type: string
+        default: 'nightly'
 
 jobs:
   build_windows:
@@ -17,12 +23,15 @@ jobs:
           FIREBASE_OPTIONS_DART_B64: ${{ secrets.FIREBASE_OPTIONS_DART_B64 }}
           AUTH_CONFIG_DART_B64: ${{ secrets.AUTH_CONFIG_DART_B64 }}
         run: |
+          echo "[INFO] Setting up environment for Windows build..."
           mkdir -p Notes-Hub/config
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           echo "{\"FIREBASE_OPTIONS\": \"$FIREBASE_OPTIONS_DART_B64\", \"AUTH_CONFIG\": \"$AUTH_CONFIG_DART_B64\", \"APP_ENV\": \"${{ github.ref_name }}\", \"COMMIT_SHA\": \"${{ github.sha }}\", \"BUILD_TIME\": \"$DATE\"}" > Notes-Hub/env.json
+          echo "[DEBUG] env.json created at Notes-Hub/env.json"
       - name: Generate Changelog
         shell: bash
         run: |
+          echo "[INFO] Generating changelog..."
           dart scripts/generate_changelog.dart
       - name: Upload Changelog
         uses: actions/upload-artifact@v6
@@ -47,7 +56,8 @@ jobs:
         id: generate_version_win
         shell: bash
         run: |
-          dart scripts/update_version.dart "${{ github.ref_name }}" "${{ github.run_number }}"
+          echo "[INFO] Updating version for channel: ${{ inputs.channel }}..."
+          dart scripts/update_version.dart "${{ inputs.channel }}" "${{ github.run_number }}"
       - name: Flutter Pub Get
         working-directory: Notes-Hub
         run: flutter pub get
@@ -64,6 +74,7 @@ jobs:
       - name: Flutter Build Windows
         working-directory: Notes-Hub
         run: |
+          echo "[INFO] Running Flutter Build Windows (Release)..."
           flutter build windows --dart-define-from-file=env.json --obfuscate --split-debug-info=build/windows/symbols -v
       - name: Upload Windows Debug Symbols
         uses: actions/upload-artifact@v6
@@ -140,7 +151,8 @@ jobs:
       - name: Generate Version and Update Pubspec
         id: generate_version
         run: |
-          dart scripts/update_version.dart "${{ github.ref_name }}" "${{ github.run_number }}"
+          echo "[INFO] Updating version for channel: ${{ inputs.channel }}..."
+          dart scripts/update_version.dart "${{ inputs.channel }}" "${{ github.run_number }}"
       - name: Flutter Pub Get
         working-directory: Notes-Hub
         run: flutter pub get
@@ -158,7 +170,9 @@ jobs:
           echo "storeFile=../app/upload-keystore.jks" >> Notes-Hub/android/key.properties
       - name: Flutter Build APK
         working-directory: Notes-Hub
-        run: flutter build apk --release --dart-define-from-file=env.json --obfuscate --split-debug-info=build/app/outputs/symbols -v
+        run: |
+          echo "[INFO] Running Flutter Build APK (Release)..."
+          flutter build apk --release --dart-define-from-file=env.json --obfuscate --split-debug-info=build/app/outputs/symbols -v
       - name: Upload Android Debug Symbols
         uses: actions/upload-artifact@v6
         with:

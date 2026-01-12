@@ -1,0 +1,45 @@
+name: Stable
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-and-package.yml
+    with:
+      channel: 'stable'
+    secrets: inherit
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare Release Assets
+        run: |
+          mkdir -p release_assets
+          find artifacts -name "*.apk" -exec cp {} release_assets/ \;
+          find artifacts -name "*.exe" -exec cp {} release_assets/ \;
+          echo "[INFO] Assets prepared for Stable release:"
+          ls -R release_assets/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Official Release ${{ github.ref_name }}
+            Built on: ${{ github.event.head_commit.timestamp }}
+          draft: false
+          prerelease: false
+          files: release_assets/*
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true

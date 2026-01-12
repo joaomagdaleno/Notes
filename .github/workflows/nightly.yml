@@ -1,0 +1,46 @@
+name: Nightly
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-and-package.yml
+    with:
+      channel: 'nightly'
+    secrets: inherit
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare Release Assets
+        run: |
+          mkdir -p release_assets
+          # Find any .apk or .exe files in artifacts subdirectories and copy to release_assets
+          find artifacts -name "*.apk" -exec cp {} release_assets/ \;
+          find artifacts -name "*.exe" -exec cp {} release_assets/ \;
+          echo "[INFO] Assets prepared for Nightly release:"
+          ls -R release_assets/
+
+      - name: Update Nightly Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly-latest
+          name: Nightly Build (Latest)
+          body: |
+            This is the latest nightly build from the `main` branch.
+            Built on: ${{ github.event.head_commit.timestamp }}
+            Commit: ${{ github.sha }}
+          prerelease: true
+          files: release_assets/*
+          token: ${{ secrets.GITHUB_TOKEN }}
+          make_latest: false

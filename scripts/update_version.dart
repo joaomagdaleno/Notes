@@ -5,16 +5,12 @@ sealed class BuildEnvironment {
   const BuildEnvironment(this.name);
 }
 
-class Development extends BuildEnvironment {
-  const Development() : super('dev');
+class Nightly extends BuildEnvironment {
+  const Nightly() : super('nightly');
 }
 
-class Beta extends BuildEnvironment {
-  const Beta() : super('beta');
-}
-
-class Production extends BuildEnvironment {
-  const Production() : super('main');
+class Stable extends BuildEnvironment {
+  const Stable() : super('stable');
 }
 
 void main(List<String> args) {
@@ -23,14 +19,16 @@ void main(List<String> args) {
     exit(1);
   }
 
-  final branchName = args[0];
+  final channel = args[0].toLowerCase();
   final runNumber = args.length > 1 ? args[1] : '0';
 
-  final env = switch (branchName) {
-    'main' || 'refs/heads/main' => const Production(),
-    'beta' || 'refs/heads/beta' => const Beta(),
-    _ => const Development(),
+  final env = switch (channel) {
+    'stable' || 'release' || 'production' => const Stable(),
+    _ => const Nightly(),
   };
+
+  print('[BUILD INFO] Channel: ${env.name.toUpperCase()}');
+  print('[BUILD INFO] Run Number: $runNumber');
 
   final pubspecFile = File('Notes-Hub/pubspec.yaml');
   if (!pubspecFile.existsSync()) {
@@ -68,6 +66,9 @@ void main(List<String> args) {
     runNumber,
   );
 
+  print('[BUILD INFO] Current SEMVER: $semver');
+  print('[BUILD INFO] Current Build Number: $buildNumber');
+
   final updatedVersion = '$newVersion+$newBuildNumber';
   content[versionLineIndex] = 'version: $updatedVersion';
 
@@ -101,13 +102,9 @@ void main(List<String> args) {
   final patch = parts.length > 2 ? parts[2].split('-')[0] : '0';
 
   return switch (env) {
-    Production() => (semver, buildNumber), // Release uses fixed version
-    Beta() => (
-      '$major.$minor.${int.parse(patch) + 1}-beta.$runNumber',
-      runNumber,
-    ),
-    Development() => (
-      '$major.${int.parse(minor) + 1}.0-dev.$runNumber',
+    Stable() => (semver, buildNumber), // Stable uses fixed version from pubspec
+    Nightly() => (
+      '$major.$minor.${int.parse(patch)}-nightly.$runNumber',
       runNumber,
     ),
   };
