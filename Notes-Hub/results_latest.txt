@@ -1,0 +1,7 @@
+﻿Analyzing universal_notes_flutter...                            
+
+   info - Missing a required trailing comma - lib\screens\notes\views\fluent_notes_view.dart:236:30 - require_trailing_commas
+   info - Missing a required trailing comma - lib\screens\notes\views\fluent_notes_view.dart:264:26 - require_trailing_commas
+   info - Unnecessary duplication of receiver - lib\screens\notes_screen.dart:667:9 - cascade_invocations
+   info - The line length exceeds the 80-character limit - lib\services\update_service.dart:43:81 - lines_longer_than_80_chars
+

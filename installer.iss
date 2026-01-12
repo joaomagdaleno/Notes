@@ -1,7 +1,7 @@
-#define MyAppName "Universal Notes"
+#define MyAppName "Notes Hub"
 #define MyAppVersion "0.1.7"
 #define MyAppPublisher "João Magdaleno"
-#define MyAppExeName "universal_notes_flutter.exe"
+#define MyAppExeName "notes_hub.exe"
 
 [Setup]
 AppId={{2E5C89B0-4C0B-4C5A-9E9D-2F8D3C7A5B5C}
@@ -17,7 +17,7 @@ SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 
 [Files]
-Source: "universal_notes_flutter\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "Notes-Hub\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

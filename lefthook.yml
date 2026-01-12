@@ -5,11 +5,31 @@ pre-commit:
   parallel: true
   commands:
     analyze:
-      root: universal_notes_flutter/
+      root: Notes-Hub/
       run: flutter analyze
     format:
-      root: universal_notes_flutter/
-      run: flutter format --set-exit-if-changed .
+      root: Notes-Hub/
+      run: dart format --set-exit-if-changed .
+    health-audit:
+      run: dart scripts/check_health.dart
+    dependency-audit:
+      run: dart scripts/audit_dependencies.dart
+    secret-guard:
+      run: dart scripts/local_secret_guard.dart
+
+pre-push:
+  commands:
+    analyze:
+      root: Notes-Hub/
+      run: flutter analyze
+    format:
+      root: Notes-Hub/
+      run: dart format --set-exit-if-changed .
+    test:
+      root: Notes-Hub/
+      run: flutter test
+    coverage-guard:
+      run: dart scripts/calculate_coverage.dart Notes-Hub/coverage/lcov.info 80
 
 commit-msg:
   commands:
