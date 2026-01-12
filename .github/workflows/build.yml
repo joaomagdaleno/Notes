@@ -6,275 +6,50 @@ permissions:
 on:
   push:
     branches:
+      - dev
+      - beta
       - main
     tags:
       - 'v*'
   pull_request:
     branches:
-      - main
+      - dev
+      - beta
 
-env:
-  ACTIONS_STEP_DEBUG: true
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  quality_gate:
+    name: Quality Gate
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: ./.github/workflows/quality-gate.yml
+    secrets: inherit
+
   build:
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
+    name: Build & Package
+    if: github.event_name == 'push'
+    needs: quality_gate
+    uses: ./.github/workflows/build-and-package.yml
+    secrets: inherit
 
-    steps:
-      - name: Checkout (para branches)
-        if: "!startsWith(github.ref, 'refs/tags/')"
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          fetch-tags: true
-
-      - name: Checkout (para tags)
-        if: "startsWith(github.ref, 'refs/tags/')"
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Cache Flutter SDK (Windows)
-        if: runner.os == 'Windows'
-        uses: actions/cache@v4
-        with:
-          path: C:\hostedtoolcache\windows\flutter\stable-3.35.7-x64
-          key: flutter-win-3.35.7
-
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.35.7'
-          cache: true
-          cache-key: flutter-3.35.7
-
-      - name: Cache Pub dependencies (Windows)
-        if: runner.os == 'Windows'
-        uses: actions/cache@v4
-        with:
-          path: C:\Users\runneradmin\AppData\Local\Pub\Cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Cache Pub dependencies (Linux)
-        if: runner.os == 'Linux'
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Set up Java (Android)
-        if: runner.os == 'Linux'
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Restore Gradle cache (Pull Request)
-        if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            ~/.gradle/caches/jars-*
-            ~/.gradle/caches/modules-2
-            ~/.gradle/wrapper
-            ~/.android/build-cache
-          key: gradle-${{ runner.os }}-${{ hashFiles('android/*.gradle*', 'gradle/wrapper/**') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
-      - name: Save/Restore Gradle cache (Push)
-        if: runner.os == 'Linux' && github.event_name != 'pull_request'
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches/jars-*
-            ~/.gradle/caches/modules-2
-            ~/.gradle/wrapper
-            ~/.android/build-cache
-          key: gradle-${{ runner.os }}-${{ hashFiles('android/*.gradle*', 'gradle/wrapper/**') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
-      - name: Get base version from last tag (Windows)
-        if: runner.os == 'Windows'
-        id: version-win
-        shell: powershell
-        run: |
-          git fetch --tags --depth=1
-          $base = (git tag --sort=-version:refname | Select-Object -First 1) -replace '^v',''
-          if (-not $base) { $base = "0.0.0" }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$base"
-
-      - name: Bump pubspec version (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        working-directory: universal_notes_flutter
-        run: |
-          (Get-Content pubspec.yaml) -replace '^version:.*',"version: ${{ steps.version-win.outputs.base }}+${{ github.run_number }}" | Set-Content pubspec.yaml
-
-      - name: Get base version from last tag (Linux)
-        if: runner.os == 'Linux'
-        id: version
-        run: |
-          git fetch --tags --depth=1
-          BASE=$(git tag --sort=-version:refname | head -n1)
-          BASE=${BASE#v}
-          echo "base=${BASE:-0.0.0}" >> $GITHUB_OUTPUT
-
-      - name: Bump pubspec version (Linux)
-        if: runner.os == 'Linux'
-        working-directory: universal_notes_flutter
-        run: |
-          sed -i "s/^version:.*/version: ${{ steps.version.outputs.base }}+${GITHUB_RUN_NUMBER}/" pubspec.yaml
-
-      - name: Flutter Doctor (Windows)
-        if: runner.os == 'Windows'
-        shell: cmd
-        working-directory: universal_notes_flutter
-        run: flutter doctor -v || exit 1
-
-      - name: Flutter Pub Get (Windows)
-        if: runner.os == 'Windows'
-        shell: cmd
-        working-directory: universal_notes_flutter
-        run: flutter pub get || exit 1
-
-      - name: Flutter Pub Get (Linux)
-        if: runner.os == 'Linux'
-        working-directory: universal_notes_flutter
-        run: flutter pub get
-
-      - name: Run Flutter Analyzer
-        if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        working-directory: universal_notes_flutter
-        run: flutter analyze
-
-      - name: Check for Outdated Packages
-        if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        working-directory: universal_notes_flutter
-        run: dart pub outdated
-
-      - name: Run Tests
-        if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        working-directory: universal_notes_flutter
-        run: flutter test --coverage
-
-      - name: Calculate code coverage
-        if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        id: coverage
-        run: |
-          HIT=$(grep "^LH:" universal_notes_flutter/coverage/lcov.info | awk '{s+=$1} END {print s}' FS=":")
-          FOUND=$(grep "^LF:" universal_notes_flutter/coverage/lcov.info | awk '{s+=$1} END {print s}' FS=":")
-          if [ "$FOUND" -eq 0 ]; then
-            COVERAGE="0.0"
-          else
-            COVERAGE=$(echo "scale=2; 100 * $HIT / $FOUND" | bc)
-          fi
-          echo "percentage=${COVERAGE}" >> $GITHUB_OUTPUT
-
-      - name: Post coverage comment
-        if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          message: "📊 **Code Coverage:** `${{ steps.coverage.outputs.percentage }}%`"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Flutter Build Windows
-        if: runner.os == 'Windows'
-        shell: cmd
-        working-directory: universal_notes_flutter
-        run: flutter build windows || exit 1
-
-      - name: Install Inno Setup
-        if: runner.os == 'Windows'
-        run: |
-          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile is.exe
-          Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES" -Wait
-
-      - name: Build Installer
-        if: runner.os == 'Windows'
-        run: |
-          (Get-Content installer.iss) -replace '0\.1\.7', '${{ steps.version-win.outputs.base }}' | Set-Content installer.iss
-          & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
-
-      - name: Upload Installer Artifact
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-installer
-          path: Output/UniversalNotesSetup-*.exe
-
-      - name: Setup Android Signing
-        if: runner.os == 'Linux'
-        env:
-          UPLOAD_SIGNING_KEY: ${{ secrets.UPLOAD_SIGNING_KEY }}
-          UPLOAD_STORE_PASSWORD: ${{ secrets.UPLOAD_STORE_PASSWORD }}
-          UPLOAD_KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
-          UPLOAD_KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
-        run: |
-          echo $UPLOAD_SIGNING_KEY | base64 --decode > universal_notes_flutter/android/app/upload-keystore.jks
-          echo "storePassword=$UPLOAD_STORE_PASSWORD" > universal_notes_flutter/android/key.properties
-          echo "keyPassword=$UPLOAD_KEY_PASSWORD" >> universal_notes_flutter/android/key.properties
-          echo "keyAlias=$UPLOAD_KEY_ALIAS" >> universal_notes_flutter/android/key.properties
-          echo "storeFile=../app/upload-keystore.jks" >> universal_notes_flutter/android/key.properties
-
-      - name: Flutter Build APK
-        if: runner.os == 'Linux'
-        working-directory: universal_notes_flutter
-        run: flutter build apk --release --target-platform=android-arm64
-
-      - name: Rename APK with version
-        if: runner.os == 'Linux'
-        working-directory: universal_notes_flutter
-        run: |
-          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/universal_notes-v${{ steps.version.outputs.base }}.apk
-
-      - name: Upload APK Artifact
-        if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-apk
-          path: universal_notes_flutter/build/app/outputs/flutter-apk/universal_notes-v*.apk
-
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
+  prerelease:
+    name: Pre-release
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/beta')
     needs: build
     permissions:
       contents: write
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+    uses: ./.github/workflows/prerelease.yml
+    secrets: inherit
 
-      - name: Create Release and Upload Assets
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          files: |
-            artifacts/windows-installer/UniversalNotesSetup-*.exe
-            artifacts/android-apk/universal_notes-v*.apk
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-  security:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+  release:
+    name: Release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    permissions:
+      contents: write
+    uses: ./.github/workflows/release.yml
+    secrets: inherit

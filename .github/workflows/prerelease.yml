@@ -1,0 +1,80 @@
+name: Pre-release
+
+on:
+  workflow_call:
+
+jobs:
+  pre-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - name: Download Windows Installer
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: artifacts/windows-installer
+      - name: Download Android APK
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: artifacts/android-apk
+      - name: Download version artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/version-info
+          name: version-info-windows
+      - name: Download version artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/version-info
+          name: version-info-android
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(find artifacts/version-info -type f -name "*.txt" | head -n 1 | xargs cat)
+          echo "full_version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Create Dev Release (Update Existing)
+        if: github.ref == 'refs/heads/dev'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dev-latest
+          name: Development Build (Dev)
+          body: |
+            Este é o **Snapshot mais recente** da branch `dev`.
+            Versão interna: ${{ steps.version.outputs.full_version }}
+            Commit: ${{ github.sha }}
+          prerelease: true
+          generate_release_notes: false
+          files: |
+            artifacts/windows-installer/*.exe
+            artifacts/android-apk/*.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fail_on_unmatched_files: true
+
+      - name: Create Beta Release (Update Existing)
+        if: github.ref == 'refs/heads/beta'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: beta-latest
+          name: Beta Release
+          body: |
+            Esta é a versão **Beta mais recente** para testes públicos.
+            Próxima versão planejada.
+            Versão interna: ${{ steps.version.outputs.full_version }}
+            Commit: ${{ github.sha }}
+          prerelease: true
+          generate_release_notes: false
+          files: |
+            artifacts/windows-installer/*.exe
+            artifacts/android-apk/*.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fail_on_unmatched_files: true
+
+      - name: Deploy to Beta (Canary)
+        if: github.ref == 'refs/heads/beta'
+        run: |
+          echo "Simulating deployment to 'canary-testers' group in Firebase App Distribution"
+          # uses: w9jds/firebase-action@master
+          # with:
+          #   args: appdistribution:distribute build/app/outputs/flutter-apk/app-beta.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups canary-testers

@@ -1,0 +1,123 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: (setUpAll)
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation FAB navigates to note editor
+DEBUG: NotesScreen initState completed
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1100:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1599:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1078:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  FAB navigates to note editor
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:06 +0 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_grid_logic_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium)
+00:06 +0 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation FAB navigates to note editor [E]
+  Test failed. See exception logs above.
+  The test description was: FAB navigates to note editor
+  
+00:09 +0 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation shows correct title for default index
+DEBUG: NotesScreen initState completed
+00:09 +1 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_grid_logic_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium)
+DEBUG: NotesScreen initState completed
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.widget (package:flutter_test/src/controller.dart:808:30)
+#2      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_grid_logic_test.dart:26:27)
+<asynchronous suspension>
+#3      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  calculates crossAxisCount correctly on Windows (gridMedium)
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:09 +1 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation tapping Favorites in drawer changes view
+00:09 +1 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_grid_logic_test.dart: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium) [E]
+  Test failed. See exception logs above.
+  The test description was: calculates crossAxisCount correctly on Windows (gridMedium)
+  
+00:12 +1 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_grid_logic_test.dart: NotesScreen Responsive Layout cycles through view modes
+DEBUG: NotesScreen initState completed
+00:12 +2 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation tapping Favorites in drawer changes view
+00:16 +2 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_platform_logic_test.dart: NotesScreen Platform Logic shows navigation view on Windows host
+DEBUG: NotesScreen initState completed
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1100:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1599:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1078:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  shows navigation view on Windows host
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:16 +2 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation tapping Favorites in drawer changes view
+00:16 +2 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_platform_logic_test.dart: NotesScreen Platform Logic shows navigation view on Windows host [E]
+  Test failed. See exception logs above.
+  The test description was: shows navigation view on Windows host
+  
+00:17 +2 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_platform_logic_test.dart: NotesScreen Platform Logic renders correctly on Android platform
+DEBUG: NotesScreen initState completed
+ÔòÉÔòÉÔòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Ôò×ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1100:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1599:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1078:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  renders correctly on Android platform
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+00:17 +2 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation tapping Favorites in drawer changes view
+00:17 +2 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_platform_logic_test.dart: NotesScreen Platform Logic renders correctly on Android platform [E]
+  Test failed. See exception logs above.
+  The test description was: renders correctly on Android platform
+  
+00:17 +2 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation tapping Favorites in drawer changes view
+10:09 +2 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation tapping Favorites in drawer changes view
+10:10 +2 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations displays notes when available [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+10:10 +2 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations shows only non-trash notes by default
+10:10 +2 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_navigation_test.dart: NotesScreen Navigation tapping Favorites in drawer changes view [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+10:10 +2 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations shows only non-trash notes by default
+20:11 +2 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: NotesScreen Data Operations shows only non-trash notes by default [E]
+  TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+20:11 +2 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_data_ops_test.dart: (tearDownAll)
+20:11 +2 -7: Some tests failed.

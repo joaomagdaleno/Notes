@@ -1,0 +1,9 @@
+﻿00:00 +0: loading C:/Users/joaovitormagdaleno/Documents/GitHub/Notes/universal_notes_flutter/test/auth_service_test.dart
+00:00 +0 -1: loading C:/Users/joaovitormagdaleno/Documents/GitHub/Notes/universal_notes_flutter/test/auth_service_test.dart [E]
+  Failed to load "C:/Users/joaovitormagdaleno/Documents/GitHub/Notes/universal_notes_flutter/test/auth_service_test.dart":
+  Compilation failed for testPath=C:/Users/joaovitormagdaleno/Documents/GitHub/Notes/universal_notes_flutter/test/auth_service_test.dart: test/auth_service_test.dart:81:51: Error: The argument type 'Null' can't be assigned to the parameter type 'User'.
+   - 'User' is from 'package:firebase_auth/firebase_auth.dart' ('../../../../AppData/Local/Pub/Cache/hosted/pub.dev/firebase_auth-6.1.3/lib/firebase_auth.dart').
+          verify(mockFirestoreRepository.createUser(any)).called(1);
+                                                    ^
+  .
+00:00 +0 -1: Some tests failed.

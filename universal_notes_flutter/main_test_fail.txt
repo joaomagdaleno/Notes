@@ -1,0 +1,276 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: NotesScreen displays notes
+00:00 +0 -1: NotesScreen displays notes [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:00 +0 -1: NotesScreen State Rendering shows error message when fetch fails
+00:00 +0 -2: NotesScreen State Rendering shows error message when fetch fails [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:00 +0 -2: NotesScreen State Rendering shows empty state when no notes exist
+00:00 +0 -3: NotesScreen State Rendering shows empty state when no notes exist [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -3: NotesScreen State Rendering displays notes when available
+00:01 +0 -4: NotesScreen State Rendering displays notes when available [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -4: NotesScreen View Modes cycles through view modes when button is tapped
+00:01 +0 -5: NotesScreen View Modes cycles through view modes when button is tapped [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -5: NotesScreen Note Filtering shows only non-trash notes by default
+00:01 +0 -6: NotesScreen Note Filtering shows only non-trash notes by default [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -6: NotesScreen Note Filtering filters favorites correctly
+00:01 +0 -7: NotesScreen Note Filtering filters favorites correctly [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -7: NotesScreen Navigation FAB navigates to note editor
+00:01 +0 -8: NotesScreen Navigation FAB navigates to note editor [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -8: NotesScreen Navigation shows Sidebar on mobile layout (Fluent UI)
+00:01 +0 -9: NotesScreen Navigation shows Sidebar on mobile layout (Fluent UI) [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -9: NotesScreen AppBar shows correct title for default index
+00:01 +0 -10: NotesScreen AppBar shows correct title for default index [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -10: NotesScreen Error State shows error message when future fails
+00:01 +0 -11: NotesScreen Error State shows error message when future fails [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -11: NotesScreen Drawer Navigation tapping Favorites in drawer changes index
+00:01 +0 -12: NotesScreen Drawer Navigation tapping Favorites in drawer changes index [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -12: NotesScreen Drawer Navigation tapping Trash in drawer shows trash notes
+00:01 +0 -13: NotesScreen Drawer Navigation tapping Trash in drawer shows trash notes [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -13: NotesScreen Drawer Navigation tapping Settings in drawer navigates
+00:01 +0 -14: NotesScreen Drawer Navigation tapping Settings in drawer navigates [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -14: NotesScreen Drawer Navigation tapping drawer items changes selection
+00:01 +0 -15: NotesScreen Drawer Navigation tapping drawer items changes selection [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -15: NotesScreen Grid View Modes list mode shows ListView-style rendering
+00:01 +0 -16: NotesScreen Grid View Modes list mode shows ListView-style rendering [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -16: NotesScreen Grid View Modes grid small mode renders correctly
+00:01 +0 -17: NotesScreen Grid View Modes grid small mode renders correctly [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -17: NotesScreen Grid View Modes grid large mode renders correctly
+00:01 +0 -18: NotesScreen Grid View Modes grid large mode renders correctly [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -18: NotesScreen Sidebar interaction toggle Sidebar expansion
+00:01 +0 -19: NotesScreen Sidebar interaction toggle Sidebar expansion [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -19: NotesScreen Responsive Layout calculates crossAxisCount correctly on Android (gridMedium)
+00:01 +0 -20: NotesScreen Responsive Layout calculates crossAxisCount correctly on Android (gridMedium) [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -20: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium)
+00:01 +0 -21: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridMedium) [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -21: NotesScreen Responsive Layout calculates crossAxisCount correctly on Android (gridSmall)
+00:01 +0 -22: NotesScreen Responsive Layout calculates crossAxisCount correctly on Android (gridSmall) [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -22: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridSmall)
+00:01 +0 -23: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridSmall) [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -23: NotesScreen Responsive Layout calculates crossAxisCount correctly on Android (gridLarge)
+00:01 +0 -24: NotesScreen Responsive Layout calculates crossAxisCount correctly on Android (gridLarge) [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -24: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridLarge)
+00:01 +0 -25: NotesScreen Responsive Layout calculates crossAxisCount correctly on Windows (gridLarge) [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -25: NotesScreen Comprehensive AppBar Titles shows correct title for every navigation index
+00:01 +0 -26: NotesScreen Comprehensive AppBar Titles shows correct title for every navigation index [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -26: NotesScreen Navigation Rail Destinations verify all rail destinations exist
+00:01 +0 -27: NotesScreen Navigation Rail Destinations verify all rail destinations exist [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -27: NotesScreen Data Operations creating a new note calls insertNote
+00:01 +0 -28: NotesScreen Data Operations creating a new note calls insertNote [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -28: NotesScreen Data Operations deleting a note calls deleteNote
+00:01 +0 -29: NotesScreen Data Operations deleting a note calls deleteNote [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -29: NotesScreen Unimplemented Actions tapping search and sort on Android does not crash
+00:01 +0 -30: NotesScreen Unimplemented Actions tapping search and sort on Android does not crash [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -30: NotesScreen Unimplemented Actions tapping search and sort on Windows does not crash
+00:01 +0 -31: NotesScreen Unimplemented Actions tapping search and sort on Windows does not crash [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -31: NotesScreen Windows Interaction tapping a note card on Windows navigates
+00:01 +0 -32: NotesScreen Windows Interaction tapping a note card on Windows navigates [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -32: NotesScreen Windows Interaction tapping navigation pane items calls callbacks
+00:01 +0 -33: NotesScreen Windows Interaction tapping navigation pane items calls callbacks [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -33: NotesScreen Platform Logic calls window listener onWindowClose
+00:01 +0 -34: NotesScreen Platform Logic calls window listener onWindowClose [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: }) DatabaseException(SqliteException(1): while executing, no such table: user_dictionary, SQL logic error (code 1)
+    Causing statement: DELETE FROM user_dictionary, parameters: ) sql 'DELETE FROM user_dictionary' {details: {database: {path: :memory:, id: 1, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:01 +0 -34: (tearDownAll)
+00:01 +0 -34: Some tests failed.

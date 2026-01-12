@@ -1,7 +1,19 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_notes_flutter/services/update_service.dart';
+
+/// Function signature for running a process.
+typedef ProcessRunner =
+    Future<ProcessResult> Function(
+      String executable,
+      List<String> arguments, {
+      bool runInShell,
+    });
+
+/// Function signature for exiting the application.
+typedef ExitHandler = void Function(int code);
 
 /// A helper class for handling application updates on Windows.
 class WindowsUpdateHelper {
@@ -11,10 +23,14 @@ class WindowsUpdateHelper {
     required void Function(String) onError,
     required void Function() onNoUpdate,
     required void Function() onCheckFinished,
+    UpdateService? updateService,
+    http.Client? httpClient,
+    ProcessRunner? processRunner,
+    ExitHandler? exitHandler,
   }) async {
     onStatusChange('Verificando atualizações...');
-    final updateService = UpdateService();
-    final result = await updateService.checkForUpdate();
+    final service = updateService ?? UpdateService();
+    final result = await service.checkForUpdate();
 
     switch (result.status) {
       case UpdateCheckStatus.updateAvailable:
@@ -24,6 +40,9 @@ class WindowsUpdateHelper {
           onStatusChange: onStatusChange,
           onError: onError,
           onCheckFinished: onCheckFinished,
+          httpClient: httpClient,
+          processRunner: processRunner,
+          exitHandler: exitHandler,
         );
       case UpdateCheckStatus.noUpdate:
         onNoUpdate();
@@ -39,18 +58,25 @@ class WindowsUpdateHelper {
     required void Function(String) onStatusChange,
     required void Function(String) onError,
     required void Function() onCheckFinished,
+    http.Client? httpClient,
+    ProcessRunner? processRunner,
+    ExitHandler? exitHandler,
   }) async {
+    final client = httpClient ?? http.Client();
+    final runProcess = processRunner ?? Process.run;
+    final exitApp = exitHandler ?? exit;
+
     try {
       final tempDir = await getTemporaryDirectory();
-      final filePath = '${tempDir.path}\\notes_installer.exe';
-      final response = await http.get(Uri.parse(updateInfo.downloadUrl));
+      final filePath = path.join(tempDir.path, 'notes_installer.exe');
+      final response = await client.get(Uri.parse(updateInfo.downloadUrl));
       if (response.statusCode == 200) {
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
         onStatusChange('Download concluído. Instalando...');
         try {
-          await Process.run(filePath, [], runInShell: true);
-          exit(0); // App closes to allow the installer to run.
+          await runProcess(filePath, [], runInShell: true);
+          exitApp(0); // App closes to allow the installer to run.
         } on Exception catch (e) {
           onError('Falha ao iniciar o instalador: $e');
           onCheckFinished();
@@ -63,6 +89,10 @@ class WindowsUpdateHelper {
     } on Exception catch (e) {
       onError('Erro durante o download: $e');
       onCheckFinished();
+    } finally {
+      if (httpClient == null) {
+        client.close();
+      }
     }
   }
 }

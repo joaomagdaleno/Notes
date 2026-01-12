@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -8,10 +9,12 @@ import 'package:pub_semver/pub_semver.dart';
 enum UpdateCheckStatus {
   /// An update is available.
   updateAvailable,
+
   /// No update is available.
   noUpdate,
+
   /// An error occurred during the update check.
-  error
+  error,
 }
 
 /// The result of an update check.
@@ -21,8 +24,10 @@ class UpdateCheckResult {
 
   /// The status of the update check.
   final UpdateCheckStatus status;
+
   /// Information about the update, if available.
   final UpdateInfo? updateInfo;
+
   /// The error message, if an error occurred.
   final String? errorMessage;
 }
@@ -30,70 +35,113 @@ class UpdateCheckResult {
 /// A service for checking for updates.
 class UpdateService {
   /// Creates a new instance of [UpdateService].
-  UpdateService();
+  UpdateService({http.Client? client, this.packageInfo})
+      : _client = client ?? http.Client();
+
+  final http.Client _client;
+
+  /// Information about the package.
+  final PackageInfo? packageInfo;
 
   static const String _repo = 'joaomagdaleno/Notes';
 
-  /// Checks for updates.
+  /// Checks for available updates and returns an UpdateResult
   Future<UpdateCheckResult> checkForUpdate() async {
     try {
-      // Get current app version
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.split('+').first;
+      final info = packageInfo ?? await PackageInfo.fromPlatform();
+      final currentVersionStr = info.version;
 
-      // Fetch latest release from GitHub API
-      final url = Uri.parse('https://api.github.com/repos/$_repo/releases/latest');
-      final response = await http.get(url);
+      final url = _getUpdateUrl(currentVersionStr);
+
+      // 🛡️ Sentinel: Add a timeout to prevent the request from hanging
+      // indefinitely. This is a critical defense against network-related
+      // Denial-of-Service (DoS) attacks. A shorter timeout is a security
+      // best practice.
+      final response = await _client.get(url).timeout(
+            const Duration(seconds: 30),
+          );
 
       if (response.statusCode == 200) {
-        final json = jsonDecode(response.body) as Map<String, dynamic>;
-        final tagName = json['tag_name'] as String;
-        // Remove 'v' prefix if present (e.g., 'v1.0.0' -> '1.0.0')
-        final latestVersion =
-            tagName.startsWith('v') ? tagName.substring(1) : tagName;
-        final assets = json['assets'] as List<dynamic>?;
+        // 🛡️ Sentinel: Safely decode JSON to prevent crashes from invalid
+        // data.
+        final dynamic decodedJson;
+        try {
+          decodedJson = jsonDecode(response.body);
+        } on FormatException {
+          return UpdateCheckResult(
+            UpdateCheckStatus.error,
+            errorMessage: 'Resposta de atualização inválida do servidor.',
+          );
+        }
 
-        if (_isNewerVersion(latestVersion, currentVersion)) {
-          if (assets != null && assets.isNotEmpty) {
-            final String fileExtension;
-            if (Platform.isWindows) {
-              fileExtension = '.exe';
-            } else if (Platform.isAndroid) {
-              fileExtension = '.apk';
-            } else {
-              // Platform not supported for updates, so no update is available.
+        if (decodedJson is! Map<String, dynamic>) {
+          return UpdateCheckResult(
+            UpdateCheckStatus.error,
+            errorMessage: 'Resposta de atualização inválida do servidor.',
+          );
+        }
+        final json = decodedJson;
+
+        String latestVersionStr;
+        if (url.path.endsWith('/latest')) {
+          // 🛡️ Sentinel: Safely access tag_name to prevent crashes.
+          final tagName = json['tag_name'];
+          if (tagName is! String) {
+            return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+          }
+          latestVersionStr =
+              tagName.startsWith('v') ? tagName.substring(1) : tagName;
+        } else {
+          // 🛡️ Sentinel: Safely access body to prevent crashes.
+          final body = json['body'];
+          latestVersionStr = _parseVersionFromBody(body is String ? body : '');
+          if (latestVersionStr.isEmpty) {
+            return UpdateCheckResult(UpdateCheckStatus.noUpdate);
+          }
+        }
+
+        if (isNewerVersion(latestVersionStr, currentVersionStr)) {
+          // 🛡️ Sentinel: Safely access assets list to prevent crashes.
+          final assets = json['assets'];
+          if (assets is List && assets.isNotEmpty) {
+            final fileExtension = getPlatformFileExtension();
+            if (fileExtension == null) {
               return UpdateCheckResult(UpdateCheckStatus.noUpdate);
             }
 
+            // 🛡️ Sentinel: Safely find and access release asset to prevent
+            // crashes.
             final releaseAsset = assets.firstWhere(
-              (dynamic asset) =>
-                  ((asset as Map<String, dynamic>)['name'] as String)
-                      .endsWith(fileExtension),
+              (dynamic asset) {
+                if (asset is! Map<String, dynamic>) return false;
+                final name = asset['name'];
+                return name is String && name.endsWith(fileExtension);
+              },
               orElse: () => null,
-            ) as Map<String, dynamic>?;
+            );
 
-            if (releaseAsset != null) {
-              return UpdateCheckResult(
-                UpdateCheckStatus.updateAvailable,
-                updateInfo: UpdateInfo(
-                  version: latestVersion,
-                  downloadUrl: releaseAsset['browser_download_url'] as String,
-                ),
-              );
+            if (releaseAsset is Map<String, dynamic>) {
+              final downloadUrl = releaseAsset['browser_download_url'];
+              if (downloadUrl is String) {
+                return UpdateCheckResult(
+                  UpdateCheckStatus.updateAvailable,
+                  updateInfo: UpdateInfo(
+                    version: latestVersionStr,
+                    downloadUrl: downloadUrl,
+                  ),
+                );
+              }
             }
           }
         }
-        // If we reach here, no update is available or the asset wasn't found
         return UpdateCheckResult(UpdateCheckStatus.noUpdate);
       } else {
-        // Handle non-200 responses as errors
         return UpdateCheckResult(
           UpdateCheckStatus.error,
           errorMessage: 'Falha ao comunicar com o servidor de atualização.',
         );
       }
     } on Exception {
-      // Handle exceptions, e.g., no internet connection
       return UpdateCheckResult(
         UpdateCheckStatus.error,
         errorMessage: 'Não foi possível verificar as atualizações. '
@@ -102,13 +150,64 @@ class UpdateService {
     }
   }
 
-  bool _isNewerVersion(String latestVersion, String currentVersion) {
+  Uri _getUpdateUrl(String version) {
+    // 🛡️ Sentinel: Enforce HTTPS and use pathSegments for safe URI
+    // construction. This prevents path traversal vulnerabilities by ensuring
+    // each path component is properly encoded, even if _repo were from an
+    // untrusted source.
+    final List<String> pathSegments;
+    if (version.contains('-dev')) {
+      pathSegments = [
+        'repos',
+        ..._repo.split('/'),
+        'releases',
+        'tags',
+        'dev-latest',
+      ];
+    } else if (version.contains('-beta')) {
+      pathSegments = [
+        'repos',
+        ..._repo.split('/'),
+        'releases',
+        'tags',
+        'beta-latest',
+      ];
+    } else {
+      pathSegments = ['repos', ..._repo.split('/'), 'releases', 'latest'];
+    }
+    return Uri(
+      scheme: 'https',
+      host: 'api.github.com',
+      pathSegments: pathSegments,
+    );
+  }
+
+  String _parseVersionFromBody(String body) {
+    final match = RegExp(r'Version: ([\w\.\-\+]+)').firstMatch(body);
+    return match?.group(1) ?? '';
+  }
+
+  /// Compares two version strings to see if the latest version is newer.
+  @visibleForTesting
+  bool isNewerVersion(String latestVersionStr, String currentVersionStr) {
     try {
-      final latest = Version.parse(latestVersion);
-      final current = Version.parse(currentVersion);
+      final latest = Version.parse(latestVersionStr);
+      final current = Version.parse(currentVersionStr);
       return latest > current;
-    } on Exception {
+    } on FormatException {
+      // If the version string is invalid, treat as not newer.
       return false;
+    }
+  }
+
+  /// Returns the file extension for the current platform.
+  String? getPlatformFileExtension() {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return '.exe';
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      return '.apk';
+    } else {
+      return null;
     }
   }
 }
@@ -120,6 +219,7 @@ class UpdateInfo {
 
   /// The version of the update.
   final String version;
+
   /// The URL to download the update from.
   final String downloadUrl;
 }

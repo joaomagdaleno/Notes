@@ -1,0 +1,49 @@
+name: Quality Dashboard
+on:
+  workflow_run:
+    workflows: ["Build & Release"]
+    types: [completed]
+    branches: [main, dev, beta]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: coverage-data
+
+      - name: Update History
+        run: |
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          if [ ! -f coverage_history.json ]; then echo "[]" > coverage_history.json; fi
+          PERCENTAGE=$(jq '.percentage' coverage.json)
+          jq ". += [{\"timestamp\": \"$DATE\", \"percentage\": $PERCENTAGE}]" coverage_history.json > temp.json && mv temp.json coverage_history.json
+
+      - name: Generate Dashboard
+        run: |
+          # Use the script file directly instead of complex inline python
+          git checkout main -- scripts/generate_dashboard.py
+          python3 scripts/generate_dashboard.py coverage_history.json index.html
+
+      - name: Commit and Push History
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add coverage_history.json index.html
+          git diff --staged --quiet || git commit -m "docs: Update coverage history and dashboard [skip ci]"
+          git push
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

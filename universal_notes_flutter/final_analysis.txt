@@ -1,0 +1,6 @@
+Analyzing universal_notes_flutter...
+
+   info - test\auth_service_test.dart:68:9 - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const'. - prefer_const_declarations
+   info - test\auth_service_test.dart:69:9 - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const'. - prefer_const_declarations
+
+2 issues found.

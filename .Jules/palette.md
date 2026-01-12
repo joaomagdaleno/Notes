@@ -1,0 +1,3 @@
+## 2024-07-25 - Platform-Aware Hover Effects for Cards
+**Learning:** For interactive cards in a cross-platform Flutter app, providing visual feedback on hover is a crucial micro-UX for desktop users. The implementation should respect the native design language of the UI toolkit. For Material Design (`Card`), increasing `elevation` creates a natural "lift" effect. For Fluent UI (`fluent.Card`), a subtle `backgroundColor` change using the theme's selection color is more idiomatic.
+**Action:** In future projects, when implementing clickable cards or tiles intended for desktop, I will use `MouseRegion` to apply these distinct, platform-appropriate hover effects to enhance usability and provide a more native feel.

@@ -3,12 +3,15 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  cloud_firestore
   file_selector_windows
-  gal
-  irondash_engine_context
+  firebase_auth
+  firebase_core
+  firebase_storage
+  local_auth_windows
   permission_handler_windows
-  screen_retriever
-  super_native_extensions
+  printing
+  screen_retriever_windows
   url_launcher_windows
   window_manager
 )

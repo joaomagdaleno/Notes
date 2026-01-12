@@ -1,0 +1,11 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/history_grouper_test.dart
+test/services/history_grouper_test.dart:63:61: Error: Not a constant expression.
+          timestamp: twoDaysAgo.add(const Duration(minutes: i)),
+                                                            ^
+00:00 +0 -1: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/history_grouper_test.dart [E]
+  Failed to load "C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/history_grouper_test.dart":
+  Compilation failed for testPath=C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/services/history_grouper_test.dart: test/services/history_grouper_test.dart:63:61: Error: Not a constant expression.
+            timestamp: twoDaysAgo.add(const Duration(minutes: i)),
+                                                              ^
+  .
+00:00 +0 -1: Some tests failed.

@@ -1,0 +1,47 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/folder_test.dart
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/folder_test.dart: Folder should create a Folder instance
+00:00 +1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/folder_test.dart: Folder fromMap should create a Folder from a map
+00:00 +2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/folder_test.dart: Folder toMap should convert a Folder to a map
+00:00 +3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/folder_test.dart: Folder fromMap should handle 1 for isSmart
+00:02 +4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/note_version_test.dart: NoteVersion should create a NoteVersion instance
+00:02 +5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/note_version_test.dart: NoteVersion fromMap should create a NoteVersion from a map
+00:02 +6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/note_version_test.dart: NoteVersion toMap should convert a NoteVersion to a map
+00:04 +7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/snippet_test.dart: Snippet should create a Snippet instance
+00:04 +8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/snippet_test.dart: Snippet fromMap should create a Snippet from a map
+00:04 +9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/snippet_test.dart: Snippet toMap should convert a Snippet to a map
+00:07 +10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/tag_test.dart: Tag should create a Tag instance
+00:07 +11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/tag_test.dart: Tag fromMap should create a Tag from a map
+00:07 +11 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/tag_test.dart: Tag fromMap should create a Tag from a map [E]
+  Expected: MaterialColor:<MaterialColor(primary value: Color(alpha: 1.0000, red: 0.9569, green: 0.2627, blue: 0.2118, colorSpace: ColorSpace.sRGB))>
+    Actual: Color:<Color(alpha: 1.0000, red: 0.9569, green: 0.2627, blue: 0.2118, colorSpace: ColorSpace.sRGB)>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\models\tag_test.dart 30:7                      main.<fn>.<fn>
+  
+00:07 +11 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/tag_test.dart: Tag fromMap should handle null color
+00:07 +12 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/tag_test.dart: Tag toMap should convert a Tag to a map
+00:09 +13 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/stroke_test.dart: Point should create a Point instance
+00:09 +14 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/stroke_test.dart: Point fromJson should create a Point from json
+00:09 +15 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/stroke_test.dart: Point fromJson should use default pressure if missing
+00:09 +16 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/stroke_test.dart: Point toJson should convert a Point to json
+00:09 +17 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/stroke_test.dart: Point toJson should skip pressure if it is 1.0
+00:09 +18 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/stroke_test.dart: Stroke should create a Stroke instance
+00:09 +19 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/stroke_test.dart: Stroke fromJson should create a Stroke from json
+00:09 +19 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/stroke_test.dart: Stroke fromJson should create a Stroke from json [E]
+  Expected: MaterialColor:<MaterialColor(primary value: Color(alpha: 1.0000, red: 0.9569, green: 0.2627, blue: 0.2118, colorSpace: ColorSpace.sRGB))>
+    Actual: Color:<Color(alpha: 1.0000, red: 0.9569, green: 0.2627, blue: 0.2118, colorSpace: ColorSpace.sRGB)>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\models\stroke_test.dart 71:7                   main.<fn>.<fn>
+  
+00:09 +19 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/stroke_test.dart: Stroke toJson should convert a Stroke to json
+00:15 +20 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/paper_config_test.dart: PaperFormat size should return correct dimensions for A4
+00:16 +21 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/paper_config_test.dart: PaperFormat size should return correct dimensions for A4
+00:16 +22 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/paper_config_test.dart: PaperFormat size should return correct dimensions for Letter
+00:16 +23 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/paper_config_test.dart: PaperFormat label should be uppercase of name
+00:16 +24 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/paper_config_test.dart: PaperMargin value should return correct EdgeInsets for Normal
+00:16 +25 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/paper_config_test.dart: PaperMargin value should return correct EdgeInsets for Narrow
+00:16 +26 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/models/paper_config_test.dart: PaperMargin label should be capitalized
+00:16 +27 -2: Some tests failed.

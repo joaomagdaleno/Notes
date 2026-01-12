@@ -1,0 +1,184 @@
+  Widget _buildFluentUI() {
+    unawaited(StartupLogger.log('🎨 [BUILD] _buildFluentUI starting'));
+    try {
+      final isTrashView = _selection.type == SidebarItemType.trash;
+      // Wrap with FluentTheme since we're inside MaterialApp
+      return fluent.FluentTheme(
+        data: fluent.FluentThemeData.light(),
+        child: fluent.NavigationView(
+          appBar: fluent.NavigationAppBar(
+            title: Text(_getAppBarTitle()),
+            actions: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: fluent.Row(
+                mainAxisSize: fluent.MainAxisSize.min,
+                mainAxisAlignment: fluent.MainAxisAlignment.end,
+                children: [
+                  fluent.Tooltip(
+                    message: 'Sort Order',
+                    child: fluent.DropDownButton(
+                      title: const Icon(fluent.FluentIcons.sort),
+                      items: [
+                        fluent.MenuFlyoutItem(
+                          text: const Text('Data (Mais Recentes)'),
+                          onPressed: () =>
+                              _sortOrderNotifier.value = SortOrder.dateDesc,
+                        ),
+                        fluent.MenuFlyoutItem(
+                          text: const Text('Data (Mais Antigas)'),
+                          onPressed: () =>
+                              _sortOrderNotifier.value = SortOrder.dateAsc,
+                        ),
+                        fluent.MenuFlyoutItem(
+                          text: const Text('Título (A-Z)'),
+                          onPressed: () =>
+                              _sortOrderNotifier.value = SortOrder.titleAsc,
+                        ),
+                        fluent.MenuFlyoutItem(
+                          text: const Text('Título (Z-A)'),
+                          onPressed: () =>
+                              _sortOrderNotifier.value = SortOrder.titleDesc,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: ValueListenableBuilder<String>(
+                      valueListenable: _viewModeNotifier,
+                      builder: (context, currentMode, child) {
+                        final nextMode = _getNextViewModeProperties(
+                          currentMode,
+                          isFluent: true,
+                        );
+                        return fluent.CommandBar(
+                          primaryItems: [
+                            fluent.CommandBarButton(
+                              icon: Icon(nextMode.icon),
+                              tooltip: nextMode.tooltip,
+                              onPressed: _cycleViewMode,
+                            ),
+                            fluent.CommandBarButton(
+                              icon: const Icon(fluent.FluentIcons.update_restore),
+                              tooltip: 'Check for Updates',
+                              onPressed: () =>
+                                  unawaited(_updateService.checkForUpdate()),
+                            ),
+                            fluent.CommandBarButton(
+                              icon: const Icon(fluent.FluentIcons.brightness),
+                              tooltip: 'Toggle Theme',
+                              onPressed: () {
+                                if (context.mounted) {
+                                  unawaited(
+                                    Provider.of<ThemeService>(
+                                      context,
+                                      listen: false,
+                                    ).toggleTheme(),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          content: Row(
+            children: [
+              Sidebar(onSelectionChanged: _onSelectionChanged),
+              Expanded(
+                child: fluent.ScaffoldPage(
+                  header: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: fluent.TextBox(
+                      controller: _searchController,
+                      placeholder: 'Search is temporarily disabled...',
+                      prefix: const Padding(
+                        padding: EdgeInsets.only(left: 8),
+                        child: Icon(fluent.FluentIcons.search),
+                      ),
+                      enabled: false,
+                    ),
+                  ),
+                  content: StreamBuilder<List<Note>>(
+                    stream: _notesStream,
+                    initialData: _syncService.currentNotes,
+                    builder: (context, snapshot) {
+                      unawaited(StartupLogger.log(
+                          '🎨 [BUILD] NotesStream StreamBuilder called - '
+                          'hasData: ${snapshot.hasData}, '
+                          'connectionState: ${snapshot.connectionState}'));
+                      if (snapshot.connectionState == ConnectionState.waiting &&
+                          !snapshot.hasData) {
+                        unawaited(StartupLogger.log(
+                            '🎨 [BUILD] NotesStream showing spinner'));
+                        return const Center(child: SizedBox(width: 20, height: 20));
+                      }
+                      if (snapshot.hasError) {
+                        unawaited(StartupLogger.log(
+                            '❌ [BUILD] NotesStream error: ${snapshot.error}'));
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        unawaited(StartupLogger.log(
+                            '🎨 [BUILD] NotesStream showing EmptyState'));
+                        return const EmptyState(
+                          icon: fluent.FluentIcons.note_forward,
+                          message: 'No notes yet. Create one!',
+                        );
+                      }
+                      unawaited(StartupLogger.log(
+                          '🎨 [BUILD] NotesStream showing notes list '
+                          '(${snapshot.data!.length} notes)'));
+                      return _buildNotesList(snapshot.data!);
+                    },
+                  ),
+                  bottomBar: isTrashView
+                      ? null
+                      : Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: fluent.Row(
+                            mainAxisAlignment: fluent.MainAxisAlignment.end,
+                            children: [
+                              fluent.FilledButton(
+                                onPressed: _createNewNote,
+                                child: const fluent.Row(
+                                  mainAxisSize: fluent.MainAxisSize.min,
+                                  children: [
+                                    Icon(fluent.FluentIcons.add),
+                                    SizedBox(width: 8),
+                                    Text('New Note'),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              fluent.Button(
+                                onPressed: _abrirEditorRapido,
+                                child: const fluent.Row(
+                                  mainAxisSize: fluent.MainAxisSize.min,
+                                  children: [
+                                    Icon(fluent.FluentIcons.quick_note),
+                                    SizedBox(width: 8),
+                                    Text('Quick Note'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } on Exception catch (e, stack) {
+      unawaited(StartupLogger.log('🔥 CRASH in _buildFluentUI: $e'));
+      unawaited(StartupLogger.log(stack.toString()));
+      return Scaffold(body: Center(child: Text('UI Crash: $e')));
+    }
+  }

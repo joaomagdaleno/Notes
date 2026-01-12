@@ -1,654 +1,497 @@
-import 'dart:io' show Platform;
+import 'dart:async';
+import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:universal_notes_flutter/models/note.dart';
-import 'package:universal_notes_flutter/repositories/note_repository.dart';
-import 'package:universal_notes_flutter/screens/note_editor_screen.dart';
-import 'package:universal_notes_flutter/screens/settings_screen.dart';
-import 'package:universal_notes_flutter/utils/update_helper.dart';
-import 'package:universal_notes_flutter/widgets/fluent_note_card.dart';
-import 'package:universal_notes_flutter/widgets/note_card.dart';
-import 'package:universal_notes_flutter/widgets/note_simple_list_tile.dart';
+import 'package:universal_notes_flutter/firebase_options.dart';
+import 'package:universal_notes_flutter/screens/notes/notes_screen.dart';
+import 'package:universal_notes_flutter/services/auth_service.dart';
+import 'package:universal_notes_flutter/services/security_service.dart';
+import 'package:universal_notes_flutter/services/startup_logger.dart';
+import 'package:universal_notes_flutter/services/sync_service.dart';
+import 'package:universal_notes_flutter/services/theme_service.dart';
+import 'package:universal_notes_flutter/services/tracing_service.dart';
+import 'package:universal_notes_flutter/styles/app_themes.dart';
+import 'package:universal_notes_flutter/widgets/command_palette.dart';
+import 'package:universal_notes_flutter/widgets/sync_conflict_listener.dart';
 import 'package:window_manager/window_manager.dart';
 
-/// The different view modes for the notes screen.
-enum ViewMode {
-  /// A small grid view.
-  gridSmall,
-  /// A medium grid view.
-  gridMedium,
-  /// A large grid view.
-  gridLarge,
-  /// A list view.
-  list,
-  /// A simple list view.
-  listSimple
+void main() {
+  runZonedGuarded(
+    () {
+      WidgetsFlutterBinding.ensureInitialized();
+      runApp(const AppBootstrap());
+    },
+    (error, stack) {
+      debugPrint('🔥 [FATAL] Global runZonedGuarded error: $error');
+      debugPrint(stack.toString());
+      unawaited(StartupLogger.log('🔥 [FATAL] Global error: $error'));
+      unawaited(StartupLogger.log(stack.toString()));
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        unawaited(
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true),
+        );
+      }
+    },
+  );
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    await windowManager.ensureInitialized();
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  }
-
-  runApp(const _MyAppWithWindowListener());
-}
-
-class _MyAppWithWindowListener extends StatefulWidget {
-  const _MyAppWithWindowListener();
+/// Bootstrap widget that handles async initialization and shows a splash
+/// screen.
+class AppBootstrap extends StatefulWidget {
+  /// Creates a new instance of [AppBootstrap].
+  const AppBootstrap({super.key});
 
   @override
-  State<_MyAppWithWindowListener> createState() =>
-      _MyAppWithWindowListenerState();
+  State<AppBootstrap> createState() => _AppBootstrapState();
 }
 
-class _MyAppWithWindowListenerState extends State<_MyAppWithWindowListener>
-    with WindowListener {
+class _AppBootstrapState extends State<AppBootstrap> {
+  bool _isInitialized = false;
+  String? _errorMessage;
+  String _currentStep = 'Starting...';
+
   @override
   void initState() {
     super.initState();
-    windowManager.addListener(this);
+    unawaited(_initializeApp());
   }
 
-  @override
-  void dispose() {
-    windowManager.removeListener(this);
-    super.dispose();
+  Future<void> _initializeApp() async {
+    try {
+      // Initialize StartupLogger first
+      await StartupLogger.init();
+      await StartupLogger.log('🚀 App initialization started');
+
+      // Update UI
+      _updateStep('Initializing Tracing...');
+      TracingService().init();
+      await StartupLogger.log('✅ TracingService initialized');
+
+      // Initialize Firebase
+      _updateStep('Initializing Firebase...');
+      await StartupLogger.log('⏳ Initializing Firebase...');
+      try {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        await StartupLogger.log('✅ Firebase initialized');
+
+        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+          FlutterError.onError = (errorDetails) {
+            unawaited(
+              FirebaseCrashlytics.instance
+                  .recordFlutterFatalError(errorDetails),
+            );
+          };
+          PlatformDispatcher.instance.onError = (error, stack) {
+            unawaited(
+              FirebaseCrashlytics.instance
+                  .recordError(error, stack, fatal: true),
+            );
+            return true;
+          };
+          await StartupLogger.log('✅ Crashlytics configured');
+        }
+      } on Exception catch (e) {
+        await StartupLogger.log('❌ Firebase initialization failed: $e');
+        // Continue without Firebase on desktop
+      }
+
+      // Windows/Desktop window setup
+      if (!kIsWeb &&
+          (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+        _updateStep('Initializing Window...');
+        await StartupLogger.log('⏳ Initializing WindowManager...');
+        try {
+          await windowManager.ensureInitialized();
+          const windowOptions = WindowOptions(
+            size: Size(1280, 800),
+            center: true,
+            backgroundColor: Colors.transparent,
+            skipTaskbar: false,
+            titleBarStyle: TitleBarStyle.normal,
+          );
+          await windowManager.waitUntilReadyToShow(windowOptions, () async {
+            await windowManager.show();
+            await windowManager.focus();
+          });
+          await StartupLogger.log('✅ WindowManager initialized');
+        } on Exception catch (e) {
+          await StartupLogger.log('❌ WindowManager initialization failed: $e');
+          // Continue anyway
+        }
+      }
+
+      // Initialize sqflite FFI for desktop platforms
+      if (!kIsWeb &&
+          (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+        _updateStep('Initializing Database...');
+        await StartupLogger.log('⏳ Initializing sqflite FFI...');
+        try {
+          sqfliteFfiInit();
+          databaseFactory = databaseFactoryFfi;
+          await StartupLogger.log('✅ sqflite FFI initialized');
+        } on Exception catch (e) {
+          await StartupLogger.log('❌ sqflite FFI initialization failed: $e');
+          // This is critical for desktop, but let's continue to show error
+        }
+      }
+
+      // Initialize Sync Service
+      _updateStep('Initializing Sync Service...');
+      await StartupLogger.log('⏳ Initializing SyncService...');
+      try {
+        await SyncService.instance.init();
+        await StartupLogger.log('✅ SyncService initialized');
+      } on Exception catch (e, stack) {
+        await StartupLogger.log('❌ SyncService initialization failed: $e');
+        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+          await FirebaseCrashlytics.instance.recordError(
+            e,
+            stack,
+            reason: 'SyncService init failure',
+          );
+        }
+        // Continue anyway
+      }
+
+      await StartupLogger.log('🚀 App initialization complete, launching UI');
+      
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+      }
+    } on Exception catch (e, stack) {
+      await StartupLogger.log('🔥 FATAL: App initialization failed: $e');
+      await StartupLogger.log(stack.toString());
+      if (mounted) {
+        setState(() {
+          _errorMessage =
+              'Initialization failed: $e\n\nCheck startup_log.txt for details.';
+        });
+      }
+    }
+  }
+
+  void _updateStep(String step) {
+    if (mounted) {
+      setState(() {
+        _currentStep = step;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Platform.isWindows ? const MyFluentApp() : const MyApp();
-  }
+    unawaited(StartupLogger.log(
+        '🎨 [BUILD] AppBootstrap.build called - '
+        '_isInitialized=$_isInitialized, _errorMessage=$_errorMessage',
+    ),);
+    if (_errorMessage != null) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        return fluent.FluentApp(
+          debugShowCheckedModeBanner: false,
+          home: fluent.ScaffoldPage(
+            content: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      fluent.FluentIcons.error,
+                      size: 64,
+                      color: fluent.Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 24),
+                    fluent.FilledButton(
+                      onPressed: () {
+                        setState(() {
+                          _errorMessage = null;
+                          _isInitialized = false;
+                          _currentStep = 'Retrying...';
+                        });
+                        unawaited(_initializeApp());
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    _errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _errorMessage = null;
+                        _isInitialized = false;
+                        _currentStep = 'Retrying...';
+                      });
+                      unawaited(_initializeApp());
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
-  @override
-  Future<void> onWindowClose() async {
-    await noteRepository.close();
-    await windowManager.destroy();
-  }
-}
-
-/// The main application widget for the Fluent UI design.
-class MyFluentApp extends StatelessWidget {
-  /// Creates a new instance of [MyFluentApp].
-  const MyFluentApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return fluent.FluentApp(
-      title: 'Universal Notes',
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
+    if (!_isInitialized) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        return fluent.FluentApp(
+          debugShowCheckedModeBanner: false,
+          home: fluent.ScaffoldPage(
+            content: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const fluent.ProgressRing(),
+                  const SizedBox(height: 24),
+                  Text(_currentStep, style: const TextStyle(fontSize: 16)),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 24),
+                Text(_currentStep, style: const TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    unawaited(
+      StartupLogger.log('🎨 [BUILD] Returning MultiProvider with MyApp'),
+    );
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+        StreamProvider<User?>.value(
+          value: AuthService().authStateChanges,
+          initialData: null,
+        ),
       ],
-      theme: fluent.FluentThemeData(
-        accentColor: fluent.Colors.blue,
-      ),
-      darkTheme: fluent.FluentThemeData(
-        accentColor: fluent.Colors.blue,
-        brightness: fluent.Brightness.dark,
-      ),
-      themeMode: ThemeMode.system,
-      home: const NotesScreen(),
+      child: const MyApp(),
     );
   }
 }
 
-/// The main application widget for the Material Design.
+/// The root widget of the application.
 class MyApp extends StatelessWidget {
   /// Creates a new instance of [MyApp].
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Universal Notes',
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+    debugPrint('🎨 [BUILD] MyApp.build called');
+    unawaited(StartupLogger.log('🎨 [BUILD] MyApp.build called'));
+    return Consumer<ThemeService>(
+      builder: (context, themeService, child) {
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+          return fluent.FluentApp(
+            title: 'Universal Notes',
+            theme: AppThemes.fluentLightTheme,
+            darkTheme: AppThemes.fluentDarkTheme,
+            themeMode: themeService.themeMode,
+            home: child,
+            debugShowCheckedModeBanner: false,
+          );
+        }
+        return MaterialApp(
+          title: 'Universal Notes',
+          theme: AppThemes.lightTheme,
+          darkTheme: AppThemes.darkTheme,
+          themeMode: themeService.themeMode,
+          home: child,
+          debugShowCheckedModeBanner: false,
+        );
+      },
+      child: Builder(
+        builder: (materialAppContext) => CallbackShortcuts(
+          bindings: {
+            const SingleActivator(
+              LogicalKeyboardKey.keyK,
+              control: true,
+            ): () => showCommandPalette(materialAppContext),
+          },
+          child: const SyncConflictListener(child: AuthWrapper()),
         ),
-        useMaterial3: true,
-        fontFamily: 'Roboto',
       ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-        fontFamily: 'Roboto',
-      ),
-      home: const NotesScreen(),
     );
   }
 }
 
-/// The main screen that displays the list of notes.
-class NotesScreen extends StatefulWidget {
-  /// Creates a new instance of [NotesScreen].
-  const NotesScreen({super.key});
+/// A wrapper that handles authentication state and navigation.
+class AuthWrapper extends StatefulWidget {
+  /// Creates a new [AuthWrapper].
+  const AuthWrapper({super.key});
 
   @override
-  State<NotesScreen> createState() => _NotesScreenState();
+  State<AuthWrapper> createState() => _AuthWrapperState();
 }
 
-class _NotesScreenState extends State<NotesScreen> {
-  late Future<List<Note>> _notesFuture;
-  bool _isNavigationRailExpanded = false;
-  int _selectedIndex = 0;
-  ViewMode _viewMode = ViewMode.gridMedium;
+class _AuthWrapperState extends State<AuthWrapper> {
+  bool _isAuthenticated = false;
+  bool _isCheckingAuth = true;
 
   @override
   void initState() {
     super.initState();
-    _loadNotes();
-    // Use a post-frame callback to ensure the Scaffold is available.
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Check for updates on all platforms
-      await UpdateHelper.checkForUpdate(context);
-    });
+    unawaited(_checkBiometrics());
   }
 
-  void _loadNotes() {
-    setState(() {
-      _notesFuture = noteRepository.getAllNotes();
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<Note> _updateNote(Note note) async {
-    // Check if the note already exists
-    final notes = await _notesFuture;
-    final index = notes.indexWhere((n) => n.id == note.id);
-    Note savedNote;
-    if (index != -1) {
-      await noteRepository.updateNote(note);
-      savedNote = note;
-    } else {
-      final newId = await noteRepository.insertNote(note);
-      savedNote = note.copyWith(id: newId);
+  Future<void> _checkBiometrics() async {
+    try {
+      debugPrint('⏳ [AUTH] Checking biometrics/lock...');
+      final security = SecurityService.instance;
+      final enabled = await security.isLockEnabled();
+      if (enabled) {
+        final success = await security.authenticate();
+        debugPrint('✅ [AUTH] Biometric result: $success');
+        if (mounted) {
+          setState(() {
+            _isAuthenticated = success;
+            _isCheckingAuth = false;
+          });
+        }
+      } else {
+        debugPrint('ℹ️ [AUTH] Lock not enabled');
+        if (mounted) {
+          setState(() {
+            _isAuthenticated = true;
+            _isCheckingAuth = false;
+          });
+        }
+      }
+    } on Exception catch (e, stack) {
+      debugPrint('❌ [AUTH] Error during biometric check: $e');
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        await FirebaseCrashlytics.instance.recordError(
+          e,
+          stack,
+          reason: 'Biometric check failure',
+        );
+      }
+      if (mounted) {
+        setState(() {
+          _isAuthenticated = true;
+          _isCheckingAuth = false;
+        });
+      }
     }
-    _loadNotes();
-    return savedNote;
-  }
-
-  Future<void> _deleteNote(Note note) async {
-    await noteRepository.deleteNote(note.id);
-    _loadNotes();
-  }
-
-  void _cycleViewMode() {
-    setState(() {
-      final nextIndex = (_viewMode.index + 1) % ViewMode.values.length;
-      _viewMode = ViewMode.values[nextIndex];
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isWindows) {
-      final notesBody = fluent.ScaffoldPage(
-        header: fluent.CommandBar(
-          mainAxisAlignment: fluent.MainAxisAlignment.end,
-          primaryItems: [
-            fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.add),
-              label: const Text('Nova nota'),
-              onPressed: () async {
-                await Navigator.of(context).push(
-                  fluent.FluentPageRoute<void>(
-                    builder: (context) => NoteEditorScreen(onSave: _updateNote),
-                  ),
-                );
-              },
-            ),
-            fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.view),
-              label: const Text('Mudar Visualização'),
-              onPressed: _cycleViewMode,
-            ),
-            fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.search),
-              label: const Text('Pesquisar'),
-              onPressed: () {},
-            ),
-            fluent.CommandBarButton(
-              icon: const fluent.Icon(fluent.FluentIcons.sort),
-              label: const Text('Ordenar'),
-              onPressed: () {},
-            ),
-          ],
-        ),
-        content: _buildBody(),
-      );
+    debugPrint(
+      '🎨 [BUILD] AuthWrapper.build called - '
+      '_isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated',
+    );
+    unawaited(StartupLogger.log(
+      '🎨 [BUILD] AuthWrapper.build called - '
+      '_isCheckingAuth=$_isCheckingAuth, _isAuthenticated=$_isAuthenticated',
+    ),);
 
-      return fluent.NavigationView(
-        appBar: const fluent.NavigationAppBar(),
-        pane: fluent.NavigationPane(
-          selected: _selectedIndex,
-          onChanged: (index) => setState(() => _selectedIndex = index),
-          items: [
-            fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.document),
-              title: const Text('Todas as notas'),
-              body: notesBody,
-              onTap: () {},
-            ),
-            fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.favorite_star),
-              title: const Text('Favoritos'),
-              body: notesBody,
-              onTap: () {},
-            ),
-            fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.lock),
-              title: const Text('Notas bloqueadas'),
-              body: notesBody,
-              onTap: () {},
-            ),
-            fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.share),
-              title: const Text('Notas compartilhadas'),
-              body: notesBody,
-              onTap: () {},
-            ),
-            fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.delete),
-              title: const Text('Lixeira'),
-              body: notesBody,
-              onTap: () {},
-            ),
-            fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.folder_open),
-              title: const Text('Pastas'),
-              body: notesBody,
-              onTap: () {},
-            ),
-          ],
-          footerItems: [
-            fluent.PaneItem(
-              icon: const fluent.Icon(fluent.FluentIcons.settings),
-              title: const Text('Configurações'),
-              body: const SettingsScreen(),
-              onTap: () {},
-            ),
-          ],
-        ),
+    if (_isCheckingAuth) {
+      unawaited(
+        StartupLogger.log('🎨 [BUILD] AuthWrapper showing loading spinner'),
       );
-    } else {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          final isMobile = constraints.maxWidth < 600;
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        return const fluent.ScaffoldPage(
+          content: Center(child: fluent.ProgressRing()),
+        );
+      }
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
-          return Scaffold(
-            appBar: AppBar(
-              leading: isMobile
-                  ? Builder(
-                      builder: (context) => IconButton(
-                        icon: const Icon(Icons.menu),
-                        onPressed: () {
-                          Scaffold.of(context).openDrawer();
-                        },
-                      ),
-                    )
-                  : null,
-              title: Center(
-                child: Text(_getAppBarTitle()),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.view_agenda_outlined),
-                  onPressed: _cycleViewMode,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {},
-                ),
-                PopupMenuButton<String>(
-                  onSelected: (value) {},
-                  itemBuilder: (BuildContext context) {
-                    return {'Ordenar por', 'Outra Ação'}.map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Text(choice),
-                      );
-                    }).toList();
-                  },
+    if (!_isAuthenticated) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        return fluent.ScaffoldPage(
+          content: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(fluent.FluentIcons.lock, size: 48),
+                const SizedBox(height: 16),
+                const Text('App Locked'),
+                const SizedBox(height: 16),
+                fluent.FilledButton(
+                  onPressed: _checkBiometrics,
+                  child: const Text('Unlock'),
                 ),
               ],
             ),
-            drawer: isMobile
-                ? Drawer(
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      children: [
-                        const DrawerHeader(
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                          ),
-                          child: Text('Universal Notes'),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.notes_outlined),
-                          title: const Text('Todas as notas'),
-                          selected: _selectedIndex == 0,
-                          onTap: () {
-                            setState(() => _selectedIndex = 0);
-                            Navigator.pop(context);
-                          },
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.star_outline),
-                          title: const Text('Favoritos'),
-                          selected: _selectedIndex == 1,
-                          onTap: () {
-                            setState(() => _selectedIndex = 1);
-                            Navigator.pop(context);
-                          },
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.lock_outline),
-                          title: const Text('Notas bloqueadas'),
-                          selected: _selectedIndex == 2,
-                          onTap: () {
-                            setState(() => _selectedIndex = 2);
-                            Navigator.pop(context);
-                          },
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.share_outlined),
-                          title: const Text('Notas compartilhadas'),
-                          selected: _selectedIndex == 3,
-                          onTap: () {
-                            setState(() => _selectedIndex = 3);
-                            Navigator.pop(context);
-                          },
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.delete_outline),
-                          title: const Text('Lixeira'),
-                          selected: _selectedIndex == 4,
-                          onTap: () {
-                            setState(() => _selectedIndex = 4);
-                            Navigator.pop(context);
-                          },
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.folder_outlined),
-                          title: const Text('Pastas'),
-                          selected: _selectedIndex == 5,
-                          onTap: () {
-                            setState(() => _selectedIndex = 5);
-                            Navigator.pop(context);
-                          },
-                        ),
-                        const Divider(),
-                        ListTile(
-                          leading: const Icon(Icons.settings_outlined),
-                          title: const Text('Configurações'),
-                          onTap: () async {
-                            Navigator.pop(context); // Close the drawer
-                            await Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (context) => const SettingsScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  )
-                : null,
-            body: isMobile
-                ? _buildBody()
-                : Row(
-                    children: [
-                      NavigationRail(
-                        leading: IconButton(
-                          icon: Icon(
-                            _isNavigationRailExpanded
-                                ? Icons.menu_open
-                                : Icons.menu,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isNavigationRailExpanded =
-                                  !_isNavigationRailExpanded;
-                            });
-                          },
-                        ),
-                        extended: _isNavigationRailExpanded,
-                        selectedIndex: _selectedIndex,
-                        onDestinationSelected: (int index) async {
-                          setState(() {
-                            _selectedIndex = index;
-                          });
-                          if (index == 6) {
-                            // Index of settings
-                            await Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (context) => const SettingsScreen(),
-                              ),
-                            );
-                          }
-                        },
-                        destinations: const <NavigationRailDestination>[
-                          NavigationRailDestination(
-                            icon: Icon(Icons.notes_outlined),
-                            selectedIcon: Icon(Icons.notes),
-                            label: Text('Todas as notas'),
-                          ),
-                          NavigationRailDestination(
-                            icon: Icon(Icons.star_outline),
-                            selectedIcon: Icon(Icons.star),
-                            label: Text('Favoritos'),
-                          ),
-                          NavigationRailDestination(
-                            icon: Icon(Icons.lock_outline),
-                            selectedIcon: Icon(Icons.lock),
-                            label: Text('Notas bloqueadas'),
-                          ),
-                          NavigationRailDestination(
-                            icon: Icon(Icons.share_outlined),
-                            selectedIcon: Icon(Icons.share),
-                            label: Text('Notas compartilhadas'),
-                          ),
-                          NavigationRailDestination(
-                            icon: Icon(Icons.delete_outline),
-                            selectedIcon: Icon(Icons.delete),
-                            label: Text('Lixeira'),
-                          ),
-                          NavigationRailDestination(
-                            icon: Icon(Icons.folder_outlined),
-                            selectedIcon: Icon(Icons.folder),
-                            label: Text('Pastas'),
-                          ),
-                          NavigationRailDestination(
-                            icon: Icon(Icons.settings_outlined),
-                            selectedIcon: Icon(Icons.settings),
-                            label: Text('Configurações'),
-                          ),
-                        ],
-                      ),
-                      const VerticalDivider(thickness: 1, width: 1),
-                      Expanded(
-                        child: _buildBody(),
-                      ),
-                    ],
-                  ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (context) => NoteEditorScreen(onSave: _updateNote),
-                  ),
-                );
-              },
-              child: const Icon(Icons.add),
-            ),
-          );
-        },
+          ),
+        );
+      }
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.lock, size: 48),
+              const SizedBox(height: 16),
+              const Text('App Locked'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _checkBiometrics,
+                child: const Text('Unlock'),
+              ),
+            ],
+          ),
+        ),
       );
     }
-  }
 
-  Widget _buildBody() {
-    return FutureBuilder<List<Note>>(
-      future: _notesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('Nenhuma nota encontrada.'));
-        }
-
-        final allNotes = snapshot.data!;
-        List<Note> visibleNotes;
-
-        switch (_selectedIndex) {
-          case 1: // Favorites
-            visibleNotes =
-                allNotes.where((n) => n.isFavorite && !n.isInTrash).toList();
-          case 4: // Trash
-            visibleNotes = allNotes.where((n) => n.isInTrash).toList();
-          default: // All notes
-            visibleNotes = allNotes.where((n) => !n.isInTrash).toList();
-        }
-
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            if (_viewMode == ViewMode.list) {
-              return _buildGridView(
-                2,
-                0.75,
-                visibleNotes,
-              ); // 2 columns, elongated aspect ratio
-            } else if (_viewMode == ViewMode.listSimple) {
-              return ListView.builder(
-                itemCount: visibleNotes.length,
-                itemBuilder: (context, index) {
-                  return NoteSimpleListTile(
-                    note: visibleNotes[index],
-                    onSave: _updateNote,
-                    onDelete: _deleteNote,
-                  );
-                },
-              );
-            } else {
-              int crossAxisCount;
-              double childAspectRatio;
-
-              if (Platform.isWindows) {
-                // Windows-specific responsive logic
-                if (_viewMode == ViewMode.gridSmall) {
-                  crossAxisCount =
-                      (constraints.maxWidth / 320).floor().clamp(1, 5);
-                  childAspectRatio = 0.7;
-                } else if (_viewMode == ViewMode.gridMedium) {
-                  crossAxisCount =
-                      (constraints.maxWidth / 240).floor().clamp(2, 7);
-                  childAspectRatio = 0.7;
-                } else {
-                  // gridLarge
-                  crossAxisCount =
-                      (constraints.maxWidth / 180).floor().clamp(3, 10);
-                  childAspectRatio = 0.7;
-                }
-              } else {
-                // Existing logic for Android/other platforms
-                if (_viewMode == ViewMode.gridSmall) {
-                  crossAxisCount =
-                      (constraints.maxWidth / 300).floor().clamp(2, 7);
-                  childAspectRatio = 0.75;
-                } else if (_viewMode == ViewMode.gridMedium) {
-                  crossAxisCount =
-                      (constraints.maxWidth / 200).floor().clamp(2, 7);
-                  childAspectRatio = 1 / 1.414;
-                } else {
-                  // gridLarge
-                  crossAxisCount =
-                      (constraints.maxWidth / 150).floor().clamp(1, 5);
-                  childAspectRatio = 1 / 1.414;
-                }
-              }
-
-              return _buildGridView(
-                crossAxisCount,
-                childAspectRatio,
-                visibleNotes,
-              );
-            }
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildGridView(
-    int crossAxisCount,
-    double childAspectRatio,
-    List<Note> notes,
-  ) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(8),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: childAspectRatio,
-      ),
-      itemCount: notes.length,
-      itemBuilder: (context, index) {
-        if (Platform.isWindows) {
-          return FluentNoteCard(
-            note: notes[index],
-            onSave: _updateNote,
-            onDelete: _deleteNote,
-          );
-        } else {
-          return NoteCard(
-            note: notes[index],
-            onSave: _updateNote,
-            onDelete: _deleteNote,
-          );
-        }
-      },
-    );
-  }
-
-  String _getAppBarTitle() {
-    switch (_selectedIndex) {
-      case 0:
-        return 'Todas as notas';
-      case 1:
-        return 'Favoritos';
-      case 2:
-        return 'Notas bloqueadas';
-      case 3:
-        return 'Notas compartilhadas';
-      case 4:
-        return 'Lixeira';
-      case 5:
-        return 'Pastas';
-      default:
-        return 'Universal Notes';
-    }
+    debugPrint('✅ [NAVIGATION] Showing NotesScreen (Auth Optional)');
+    unawaited(StartupLogger.log('✅ [NAVIGATION] Returning NotesScreen widget'));
+    return const NotesScreen();
   }
 }

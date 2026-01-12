@@ -1,0 +1,9 @@
+Analyzing sidebar_test.dart...                                  
+
+  error - 'instance' can't be used as a setter because it's final - test\widgets\sidebar_test.dart:27:17 - assignment_to_final
+  error - 'instance' can't be used as a setter because it's final - test\widgets\sidebar_test.dart:28:19 - assignment_to_final
+   info - 'Future'-returning calls in a non-'async' function - test\widgets\sidebar_test.dart:41:23 - discarded_futures
+   info - 'Future'-returning calls in a non-'async' function - test\widgets\sidebar_test.dart:42:20 - discarded_futures
+   info - Unnecessary duplication of receiver - test\widgets\sidebar_test.dart:60:7 - cascade_invocations
+
+5 issues found. (ran in 6.1s)

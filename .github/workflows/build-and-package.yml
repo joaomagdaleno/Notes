@@ -1,0 +1,219 @@
+name: Build and Package
+
+on:
+  workflow_call:
+
+jobs:
+  build_windows:
+    name: Build Windows
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - name: Setup Firebase
+        shell: bash
+        env:
+          FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+          AUTH_CONFIG_DART: ${{ secrets.AUTH_CONFIG_DART }}
+        run: |
+          mkdir -p universal_notes_flutter/lib/config
+          echo "$FIREBASE_OPTIONS_DART" > universal_notes_flutter/lib/firebase_options.dart
+          echo "$AUTH_CONFIG_DART" > universal_notes_flutter/lib/config/auth_config.dart
+      - name: Install Flutter
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
+        with:
+          flutter-version: '3.38.2'
+          cache: true
+      - name: Get base version from last tag
+        id: version-win
+        shell: powershell
+        run: |
+          git fetch --tags
+          $base = (git tag --sort=-version:refname | Where-Object { $_ -match '^v\\d+\\.\\d+\\.\\d+$' } | Select-Object -First 1) -replace '^v',''
+          if (-not $base) { $base = "0.0.0" }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "base=$base"
+      - name: Generate Version and Update Pubspec
+        id: generate_version_win
+        shell: pwsh
+        working-directory: universal_notes_flutter
+        run: |
+          # Read current version from pubspec
+          $pubspecContent = Get-Content pubspec.yaml
+          $currentVersion = ($pubspecContent | Select-String 'version:').Line.Split(' ')[1]
+          $parts = $currentVersion.Split('.')
+          $major = $parts[0]
+          $minor = $parts[1]
+          $patch = $parts[2]
+
+          if ("${{ github.ref_name }}" -eq "main") {
+            $fullVersion = $currentVersion
+          } elseif ("${{ github.ref_name }}" -eq "beta") {
+            # Beta: next patch
+            $nextPatch = [int]$patch + 1
+            $fullVersion = "$major.$minor.$nextPatch-beta.${{ github.run_number }}"
+          } elseif ("${{ github.ref_name }}" -eq "dev") {
+            # Dev: next minor
+            $nextMinor = [int]$minor + 1
+            $fullVersion = "$major.$nextMinor.0-dev.${{ github.run_number }}"
+          } else {
+            $fullVersion = "$currentVersion-local.${{ github.run_number }}"
+          }
+
+          (Get-Content pubspec.yaml) -replace '^version:.*',"version: $fullVersion" | Set-Content pubspec.yaml
+          Set-Content -Path "version.txt" -Value $fullVersion
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "full_version=$fullVersion"
+      - name: Flutter Pub Get
+        working-directory: universal_notes_flutter
+        run: flutter pub get
+      - name: Cache Windows Build Artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            universal_notes_flutter/.dart_tool
+          key: ${{ runner.os }}-build-v3
+          restore-keys: |
+            ${{ runner.os }}-build-v3
+            ${{ runner.os }}-build-v2
+            ${{ runner.os }}-build-
+      - name: Flutter Build Windows
+        working-directory: universal_notes_flutter
+        run: |
+          flutter build windows -v
+      - name: Install Inno Setup
+        run: |
+          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile is.exe
+          Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES" -Wait
+      - name: Build Installer
+        shell: pwsh
+        run: |
+          (Get-Content installer.iss) -replace '#define MyAppVersion ".*"','#define MyAppVersion "${{ steps.generate_version_win.outputs.full_version }}"' | Set-Content installer.iss
+          & "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" installer.iss
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-installer
+          path: Output/UniversalNotesSetup-${{ steps.generate_version_win.outputs.full_version }}.exe
+      - name: Upload Version Artifact (Windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-info-windows
+          path: universal_notes_flutter/version.txt
+
+  build_android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - name: Checkout
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - name: Setup Firebase
+        env:
+          FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+          AUTH_CONFIG_DART: ${{ secrets.AUTH_CONFIG_DART }}
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+          GOOGLE_SERVICE_INFO: ${{ secrets.GOOGLE_SERVICE_INFO }}
+        run: |
+          mkdir -p universal_notes_flutter/lib/config
+          echo "$FIREBASE_OPTIONS_DART" > universal_notes_flutter/lib/firebase_options.dart
+          echo "$AUTH_CONFIG_DART" > universal_notes_flutter/lib/config/auth_config.dart
+          mkdir -p universal_notes_flutter/android/app
+          echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > universal_notes_flutter/android/app/google-services.json
+          mkdir -p universal_notes_flutter/ios/Runner
+          echo "$GOOGLE_SERVICE_INFO" > universal_notes_flutter/ios/Runner/GoogleService-Info.plist
+      - name: Install Flutter
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
+        with:
+          flutter-version: '3.38.2'
+      - name: Setup Java
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Restore Gradle cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Get base version from last tag
+        id: version
+        run: |
+          git fetch --tags
+          BASE=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+          BASE=${BASE#v}
+          echo "base=${BASE:-0.0.0}" >> $GITHUB_OUTPUT
+      - name: Generate Version and Update Pubspec
+        id: generate_version
+        working-directory: universal_notes_flutter
+        run: |
+          # Read current version from pubspec
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          # Split version into components
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            FULL_VERSION="$VERSION"
+          elif [ "${{ github.ref_name }}" = "beta" ]; then
+            # Beta: next patch
+             PATCH_NUM=$(echo $PATCH | grep -oE '^[0-9]+')
+            NEXT_PATCH=$((PATCH_NUM + 1))
+            FULL_VERSION="$MAJOR.$MINOR.$NEXT_PATCH-beta.${GITHUB_RUN_NUMBER}"
+          elif [ "${{ github.ref_name }}" = "dev" ]; then
+            # Dev: next minor
+            NEXT_MINOR=$((MINOR + 1))
+            FULL_VERSION="$MAJOR.$NEXT_MINOR.0-dev.${GITHUB_RUN_NUMBER}"
+          else
+            FULL_VERSION="$VERSION-local.${GITHUB_RUN_NUMBER}"
+          fi
+
+          sed -i "s/^version:.*/version: $FULL_VERSION/" pubspec.yaml
+          echo "$FULL_VERSION" > version.txt
+          echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
+      - name: Flutter Pub Get
+        working-directory: universal_notes_flutter
+        run: flutter pub get
+      - name: Setup Android Signing
+        env:
+          UPLOAD_SIGNING_KEY: ${{ secrets.UPLOAD_SIGNING_KEY }}
+          UPLOAD_STORE_PASSWORD: ${{ secrets.UPLOAD_STORE_PASSWORD }}
+          UPLOAD_KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
+          UPLOAD_KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
+        run: |
+          echo $UPLOAD_SIGNING_KEY | base64 --decode > universal_notes_flutter/android/app/upload-keystore.jks
+          echo "storePassword=$UPLOAD_STORE_PASSWORD" > universal_notes_flutter/android/key.properties
+          echo "keyPassword=$UPLOAD_KEY_PASSWORD" >> universal_notes_flutter/android/key.properties
+          echo "keyAlias=$UPLOAD_KEY_ALIAS" >> universal_notes_flutter/android/key.properties
+          echo "storeFile=../app/upload-keystore.jks" >> universal_notes_flutter/android/key.properties
+      - name: Flutter Build APK
+        working-directory: universal_notes_flutter
+        run: flutter build apk --release -v
+      - name: Rename APK with version
+        working-directory: universal_notes_flutter
+        run: |
+          APK_PATH=$(find build/app/outputs -name "*.apk" | head -n 1)
+          if [ -n "$APK_PATH" ]; then
+            echo "Found APK at $APK_PATH"
+            mv "$APK_PATH" "build/app/outputs/universal_notes-v${{ steps.generate_version.outputs.full_version }}.apk"
+          else
+            echo "❌ No APK found in build/app/outputs"
+            exit 1
+          fi
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: android-apk
+          path: universal_notes_flutter/build/app/outputs/universal_notes-v${{ steps.generate_version.outputs.full_version }}.apk
+      - name: Upload Version Artifact (Android)
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-info-android
+          path: universal_notes_flutter/version.txt

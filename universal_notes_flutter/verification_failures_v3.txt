@@ -1,0 +1,954 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: (setUpAll)
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter fromJson should return empty document for empty string
+00:00 +1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter fromJson should handle simple text json
+00:00 +2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter fromJson should handle image blocks
+00:00 +3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter fromJson should fallback to plain text for invalid JSON
+00:00 +4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter toJson should convert document to JSON string
+00:00 +5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter roundtrip fromJson(toJson(doc)) should preserve content
+00:00 +6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator insertText should add text to an empty document
+00:00 +7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator insertText should add text in the middle of existing text
+00:00 +8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator deleteText should remove text correctly
+00:00 +9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator toggleStyle should apply bold to selected text
+00:00 +10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator changeBlockIndent should update block attributes
+00:00 +11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator insertImage should add an image block
+00:00 +12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator convertBlockToCallout should transform block type
+00:00 +13: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator toggleList should apply list attribute
+00:00 +14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +20: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +27: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +28: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +29: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +30: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +31: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +32: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +33: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +34: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +35: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +36: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +37: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +38: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +39: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +40: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +41: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +42: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +43: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +44: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +45: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +46: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +47: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +48: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +49: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:03 +50: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:03 +51: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:03 +52: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:03 +53: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:03 +54: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:03 +55: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:03 +56: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:03 +57: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:03 +58: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +59: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +60: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +61: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +62: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +64: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +65: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +66: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +67: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +68: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +71: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +72: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +73: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +74: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +75: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +76: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +77: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +78: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +79: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +80: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +81: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +82: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +83: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +84: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +85: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +86: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +87: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:04 +88: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:05 +89: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with icon "IconData(U+0E047)": []" (used in a call to "tap()") could not
+find any matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2013:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1865:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1045:7)
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_reading.suite.dart:38:20)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  Reading search highlights results
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +89 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings defaults constant has correct values
+00:05 +89 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results [E]
+  Test failed. See exception logs above.
+  The test description was: Reading search highlights results
+  
+00:05 +90 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Advanced formatting is applied
+00:05 +91 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings JSON serialization toJson converts to map
+00:05 +92 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget types text
+00:05 +93 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget types text
+00:05 +94 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget types text
+00:05 +95 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget types text
+00:05 +96 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget types text
+00:05 +97 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget types text
+00:05 +98 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget types text
+00:05 +99 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle returns correct text style
+00:05 +100 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle returns correct text style
+00:06 +101 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle returns correct text style
+00:06 +102 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle returns correct text style
+00:06 +103 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle returns correct text style
+00:06 +104 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle returns correct text style
+00:06 +105 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle returns correct text style
+00:06 +106 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle returns correct text style
+00:06 +107 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle returns correct text style
+00:06 +108 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should apply heading block on # 
+00:07 +109 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle uses null fontFamily for Default
+00:07 +110 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle uses null fontFamily for Default
+00:07 +111 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository addNote successfully adds a note
+00:07 +111 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should handle links [text](url)
+00:07 +111 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository addNote successfully adds a note [E]
+  LateInitializationError: Field '_tracer@58131249' has not been initialized.
+  package:universal_notes_flutter/services/tracing_service.dart                  TracingService._tracer
+  package:universal_notes_flutter/services/tracing_service.dart 50:12            TracingService.startSpan
+  package:universal_notes_flutter/repositories/firestore_repository.dart 135:35  FirestoreRepository.addNote
+  test\repositories\firestore_repository.suite.dart 82:37                        main.<fn>.<fn>
+  
+00:07 +112 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository updateNote calls Firestore update methods
+00:08 +113 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository updateNote calls Firestore update methods
+00:08 +114 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository updateNote calls Firestore update methods
+00:08 +115 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository updateNote calls Firestore update methods
+00:08 +116 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository updateNote calls Firestore update methods
+00:08 +117 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository updateNote calls Firestore update methods
+00:08 +118 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository updateNote calls Firestore update methods
+00:08 +119 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository updateNote calls Firestore update methods
+00:08 +120 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository updateNote calls Firestore update methods
+00:08 +121 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should handle math block $$tex$$
+00:08 +122 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingTheme sepia theme colors
+00:08 +123 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should handle transclusion ![[note]]
+00:08 +124 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should handle transclusion ![[note]]
+00:08 +125 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository deleteNote deletes note and content
+00:08 +126 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository deleteNote deletes note and content
+00:08 +127 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository deleteNote deletes note and content
+00:08 +128 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: Snippet fromMap should create a Snippet from a map
+00:08 +129 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: SnippetConverter checkAndApply should expand snippet when trigger + space is typed
+00:08 +130 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository currentUser returns auth.currentUser
+00:08 +131 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: Snippet toMap should convert a Snippet to a map
+00:08 +132 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: SnippetConverter checkAndApply should not expand if no space at the end
+00:08 +133 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:08 +134 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:08 +135 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +136 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +137 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +138 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +139 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +140 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +141 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +142 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +143 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +144 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +145 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +146 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +147 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +148 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +149 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +150 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +151 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +152 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +153 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +154 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +154 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +154 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases Frequency cache and words [E]
+  Expected: contains 'hello'
+    Actual: []
+     Which: does not contain 'hello'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\repositories\note_repository.suite.dart 267:9  main.<fn>.<fn>.<fn>
+  
+00:09 +155 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +156 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +157 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +158 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +159 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +160 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +161 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +162 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +163 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +164 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +165 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +166 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +167 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +168 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +169 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +170 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:10 +171 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:10 +172 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) shows loading indicator during update check
+00:10 +173 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) shows SnackBar when no update is available
+00:11 +174 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) shows SnackBar on error
+00:11 +175 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) shows AlertDialog when update is available
+00:11 +176 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) renders correctly
+00:11 +177 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) back button navigates back
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: no matching candidates
+  Actual: _TextWidgetFinder:<Found 1 widget with text "Sobre": [
+            Text("Sobre", dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+          ]>
+   Which: means one was found but none were expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen.suite.dart:245:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen.suite.dart line 245
+The test description was:
+  back button navigates back
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:12 +177 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) back button navigates back [E]
+  Test failed. See exception logs above.
+  The test description was: back button navigates back
+  
+00:12 +177 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) shows loading indicator during update check
+00:12 +178 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) updates status text when no update available
+00:12 +179 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) updates status text on error
+00:12 +180 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) updates status text when update available
+00:13 +181 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: NoteEditorScreen placeholder test
+00:13 +182 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen (setUpAll)
+00:13 +182 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Material UI on Android
+00:13 +183 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: (setUpAll)
+*** sqflite warning ***
+
+You are changing sqflite default factory.
+Be aware of the potential side effects. Any library using sqflite
+will have this factory as the default for all operations.
+
+*** sqflite warning ***
+
+00:13 +183 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Android
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AboutScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart:58:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart line 58
+The test description was:
+  navigates to AboutScreen on Android
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:13 +183 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: AuthService signInWithEmailAndPassword calls firebaseAuth
+00:13 +183 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Android [E]
+  Test failed. See exception logs above.
+  The test description was: navigates to AboutScreen on Android
+  
+00:13 +184 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Fluent UI on Windows
+00:14 +185 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Fluent UI on Windows
+00:14 +186 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +187 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +188 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +189 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +190 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +191 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +192 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +193 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +194 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +195 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +196 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +197 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+00:14 +198 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AboutScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart:96:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart line 96
+The test description was:
+  navigates to AboutScreen on Windows
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:15 +198 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: (setUpAll)
+00:15 +198 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows [E]
+  Test failed. See exception logs above.
+  The test description was: navigates to AboutScreen on Windows
+  
+00:15 +198 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Android
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AboutScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart:115:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart line 115
+The test description was:
+  returns to SettingsScreen after navigating back on Android
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:15 +198 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: (setUpAll)
+00:15 +199 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: (setUpAll)
+00:15 +199 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService verifyPassword should return false for wrong password
+00:15 +200 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:15 +200 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Android [E]
+  Test failed. See exception logs above.
+  The test description was: returns to SettingsScreen after navigating back on Android
+  
+00:16 +201 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +202 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +203 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +204 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +205 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +206 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +207 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +208 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +209 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +210 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +211 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +212 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +213 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +214 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +214 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Windows
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AboutScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart:142:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart line 142
+The test description was:
+  returns to SettingsScreen after navigating back on Windows
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:16 +214 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +214 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Windows [E]
+  Test failed. See exception logs above.
+  The test description was: returns to SettingsScreen after navigating back on Windows
+  
+00:16 +214 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +215 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +216 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:16 +217 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:17 +218 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:17 +219 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: HistoryGrouper groupEvents should group recent events by session (10m gap)
+00:18 +220 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildTrashContextMenu
+00:18 +221 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildTrashContextMenu
+00:18 +222 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: HistoryGrouper groupEvents should handle mixed recent and old events
+00:18 +223 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: EmptyState should display the provided message
+00:18 +224 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: EmptyState should display the provided message
+00:18 +225 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadAloudPosition creates with values
+00:18 +226 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadAloudPosition creates with values
+00:19 +227 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadAloudPosition creates with values
+00:19 +228 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: FluentNoteCard displays title and content preview for valid content
+00:19 +229 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: FluentNoteCard displays title and content preview for valid content
+00:19 +230 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: FluentNoteCard displays title and content preview for valid content
+00:20 +231 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +232 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +233 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +234 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +235 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +236 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +237 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +238 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +239 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +240 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +241 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +242 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:21 +243 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:21 +244 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:21 +245 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:21 +246 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:21 +246 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: FluentNoteCard tapping FluentNoteCard triggers default navigation
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Edit Note": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card.suite.dart:133:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/fluent_note_card.suite.dart line 133
+The test description was:
+  tapping FluentNoteCard triggers default navigation
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:21 +246 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:21 +246 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: FluentNoteCard tapping FluentNoteCard triggers default navigation [E]
+  Test failed. See exception logs above.
+  The test description was: tapping FluentNoteCard triggers default navigation
+  
+00:21 +247 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:21 +248 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:22 +249 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:22 +249 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping NoteCard navigates to NoteEditorScreen when onTap null
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "NoteEditorScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card.suite.dart:138:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_card.suite.dart line 138
+The test description was:
+  tapping NoteCard navigates to NoteEditorScreen when onTap null
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:22 +249 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:22 +249 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping NoteCard navigates to NoteEditorScreen when onTap null [E]
+  Test failed. See exception logs above.
+  The test description was: tapping NoteCard navigates to NoteEditorScreen when onTap null
+  
+00:22 +250 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:22 +251 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:22 +252 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:22 +253 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:23 +254 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService deleteBookmarksForNote deletes all bookmarks for note
+00:23 +255 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping delete on context menu calls onDelete
+
+Warning: A call to tap() with finder "Found 1 widget with text "Excluir permanentemente": [
+  Text("Excluir permanentemente", dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+]" derived an Offset (Offset(164.0, 88.0)) that would not hit test on the specified widget.
+Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
+The finder corresponds to this RenderBox: RenderParagraph#260ab relayoutBoundary=up32 NEEDS-PAINT
+The hit test result at that offset is: HitTestResult(RenderMouseRegion#ecbc9@Offset(164.0, 88.0), RenderSemanticsAnnotations#070aa@Offset(164.0, 88.0), RenderPointerListener#03249@Offset(164.0, 88.0), RenderSemanticsGestureHandler#c96f9@Offset(164.0, 88.0), RenderExcludeSemantics#c579f@Offset(164.0, 88.0), RenderBlockSemantics#81268@Offset(164.0, 88.0), RenderIgnorePointer#fc370@Offset(164.0, 88.0), RenderSemanticsAnnotations#e7177@Offset(164.0, 88.0), _RenderTheater#0f9ea@Offset(164.0, 88.0), RenderAbsorbPointer#44a4a@Offset(164.0, 88.0), RenderPointerListener#a02fd@Offset(164.0, 88.0), RenderSemanticsAnnotations#dc242@Offset(164.0, 88.0), RenderCustomPaint#2f1b7@Offset(164.0, 88.0), RenderSemanticsAnnotations#ac704@Offset(164.0, 88.0), RenderSemanticsAnnotations#8820a@Offset(164.0, 88.0), RenderTapRegionSurface#67d45@Offset(164.0, 88.0), RenderSemanticsAnnotations#59723@Offset(164.0, 88.0), RenderSemanticsAnnotations#5755d@Offset(164.0, 88.0), RenderSemanticsAnnotations#b3dac@Offset(164.0, 88.0), HitTestEntry<HitTestTarget>#04085(_ReusableRenderView#6c564), HitTestEntry<HitTestTarget>#fef99(<AutomatedTestWidgetsFlutterBinding>))
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2081:25)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1865:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1045:7)
+#3      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile.suite.dart:114:18)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+#6      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+To silence this warning, pass "warnIfMissed: false" to "tap()".
+To make this warning fatal, set WidgetController.hitTestWarningShouldBeFatal to true.
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: true
+  Actual: <false>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile.suite.dart:117:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile.suite.dart line 117
+The test description was:
+  tapping delete on context menu calls onDelete
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:23 +255 -11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService countBookmarksForNote returns 0 for note without bookmarks
+00:23 +255 -11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping delete on context menu calls onDelete [E]
+  Test failed. See exception logs above.
+  The test description was: tapping delete on context menu calls onDelete
+  
+00:23 +256 -11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping NoteSimpleListTile navigates to editor when onTap is null
+00:23 +257 -11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping NoteSimpleListTile navigates to editor when onTap is null
+00:23 +258 -11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping NoteSimpleListTile navigates to editor when onTap is null
+══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
+The following _TypeError was thrown building Builder:
+type 'Null' is not a subtype of type 'ReadingBookmarksService'
+
+The relevant error-causing widget was:
+  MaterialApp
+  MaterialApp:file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile.suite.dart:124:9
+
+When the exception was thrown, this was the stack:
+#0      MockNoteRepository.bookmarksService (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/sidebar.suite.dart:18:7)
+#1      new _NoteEditorScreenState (package:universal_notes_flutter/screens/note_editor_screen.dart:127:31)
+#2      NoteEditorScreen.createState (package:universal_notes_flutter/screens/note_editor_screen.dart:77:44)
+#3      new StatefulElement (package:flutter/src/widgets/framework.dart:5905:60)
+#4      StatefulWidget.createElement (package:flutter/src/widgets/framework.dart:779:38)
+...     Normal element mounting (260 frames)
+#264    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#265    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
+#266    Element.updateChild (package:flutter/src/widgets/framework.dart:4059:18)
+#267    Element.updateChildren (package:flutter/src/widgets/framework.dart:4258:32)
+#268    MultiChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7302:17)
+#269    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#270    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#271    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#272    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#273    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#274    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#275    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#276    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#277    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#278    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#279    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#280    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#281    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#282    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#283    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#284    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#285    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#286    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#287    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#288    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#289    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#290    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#291    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#292    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#293    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#294    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#295    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#296    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#297    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#298    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#299    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#300    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#301    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#302    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#303    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#304    SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7125:14)
+#305    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#306    SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7125:14)
+#307    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#308    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#309    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#310    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#311    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#312    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#313    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#314    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#315    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#316    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#317    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#318    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#319    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#320    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#321    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#322    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
+#323    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#324    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#325    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#326    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#329    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#330    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#331    WidgetTester.pump.<anonymous closure> (package:flutter_test/src/widget_tester.dart:652:53)
+#334    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#335    WidgetTester.pump (package:flutter_test/src/widget_tester.dart:652:27)
+#336    main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile.suite.dart:138:20)
+<asynchronous suspension>
+#337    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#338    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "NoteEditorScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile.suite.dart:140:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/note_simple_list_tile.suite.dart line 140
+The test description was:
+  tapping NoteSimpleListTile navigates to editor when onTap is null
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:23 +258 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingInteractionService addHighlight inserts and returns annotation
+00:23 +258 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping NoteSimpleListTile navigates to editor when onTap is null [E]
+  Test failed. See exception logs above.
+  The test description was: tapping NoteSimpleListTile navigates to editor when onTap is null
+  
+00:23 +259 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:23 +260 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:23 +261 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:23 +261 -13: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:23 +261 -13: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService createTable should create the table [E]
+  Expected: non-empty
+    Actual: []
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\services\reading_plan_service.suite.dart 38:7  main.<fn>.<fn>
+  
+00:23 +261 -14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:23 +261 -14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService createPlan should insert a plan [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)}) DatabaseException(SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)) sql 'INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)' args [a0b830c7-d4a0-4d0f-a85a-3fa3115f48fc, Test Plan, note1,note2, 0, 2025-12-25T20:49:28.952947] {details: {database: {path: :memory:, id: 63, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 125:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:24 +261 -15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +261 -15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService getAllPlans should return all plans [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)}) DatabaseException(SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)) sql 'INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)' args [84a85566-dfff-4d69-803a-65924efa6e55, Plan 1, n1, 0, 2025-12-25T20:49:29.079900] {details: {database: {path: :memory:, id: 64, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 125:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:24 +261 -16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +261 -16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService getPlan should return a plan by id [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)}) DatabaseException(SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)) sql 'INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)' args [3bfd7781-5d41-445d-85ad-e37e883097ce, Plan X, nx, 0, 2025-12-25T20:49:29.154374] {details: {database: {path: :memory:, id: 65, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 125:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:24 +261 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +261 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService updatePlan should modify an existing plan [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)}) DatabaseException(SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)) sql 'INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)' args [a2b1f879-f3f8-48b9-90dc-09eda5a1a0b9, Old Title, n1, 0, 2025-12-25T20:49:29.198777] {details: {database: {path: :memory:, id: 66, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 125:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:24 +261 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +261 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService deletePlan should remove a plan [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)}) DatabaseException(SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)) sql 'INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)' args [68deffd1-5db8-4250-9488-5f00d997ceb7, To Delete, n1, 0, 2025-12-25T20:49:29.236949] {details: {database: {path: :memory:, id: 67, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 125:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:24 +262 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +263 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +264 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +265 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +266 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +267 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +268 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +269 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +270 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+00:24 +271 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: no matching candidates
+  Actual: _TypeWidgetFinder:<Found 1 widget with type "QuickNoteEditor": [
+            QuickNoteEditor(dependencies: [InheritedCupertinoTheme, MediaQuery, _InheritedTheme,
+_LocalizationsScope-[GlobalKey#fdbba]], state: _QuickNoteEditorState#449b7),
+          ]>
+   Which: means one was found but none were expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/quick_note_editor.suite.dart:31:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/quick_note_editor.suite.dart line 31
+The test description was:
+  calls onSave and pops when Salvar is clicked
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:24 +271 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: SyncService Conflict detection emits to conflictsStream
+00:24 +271 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked [E]
+  Test failed. See exception logs above.
+  The test description was: calls onSave and pops when Salvar is clicked
+  
+00:24 +272 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +273 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +274 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +275 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +276 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +277 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +278 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +279 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +280 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +281 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +282 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +282 -20: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +282 -20: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: TracingService should provide a tracer after initialization [E]
+  type 'Null' is not a subtype of type 'Tracer'
+  test\test_helper.dart 260:7                     MockTracingService.tracer
+  test\services\tracing_service.suite.dart 16:22  main.<fn>.<fn>
+  
+00:24 +283 -20: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: no matching candidates
+  Actual: _TypeWidgetFinder:<Found 1 widget with type "QuickNoteEditor": [
+            QuickNoteEditor(dependencies: [InheritedCupertinoTheme, MediaQuery, _InheritedTheme,
+_LocalizationsScope-[GlobalKey#5ed93]], state: _QuickNoteEditorState#4e3b8),
+          ]>
+   Which: means one was found but none were expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/quick_note_editor.suite.dart:47:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/quick_note_editor.suite.dart line 47
+The test description was:
+  does not call onSave and pops when Cancelar is clicked
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:24 +284 -20: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked
+00:24 +284 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Stable Channel returns updateAvailable when a newer stable version is available
+00:24 +284 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked [E]
+  Test failed. See exception logs above.
+  The test description was: does not call onSave and pops when Cancelar is clicked
+  
+00:24 +285 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Stable Channel returns noUpdate when a newer version has no matching asset
+00:24 +286 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Stable Channel returns noUpdate when the current stable version is the latest
+00:25 +287 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Stable Channel returns noUpdate for unsupported platform
+00:25 +288 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor autosaves every 10 seconds if text is not empty
+00:25 +289 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor autosaves every 10 seconds if text is not empty
+00:25 +290 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor autosaves every 10 seconds if text is not empty
+00:25 +291 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor autosaves every 10 seconds if text is not empty
+00:25 +292 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor autosaves every 10 seconds if text is not empty
+00:25 +293 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor autosaves every 10 seconds if text is not empty
+00:25 +294 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor autosaves every 10 seconds if text is not empty
+00:25 +295 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor autosaves every 10 seconds if text is not empty
+00:25 +296 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService isNewerVersion returns false for invalid version strings
+00:25 +297 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not autosave if text is empty
+00:25 +298 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not autosave if text is empty
+00:25 +299 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not autosave if text is empty
+00:25 +300 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not autosave if text is empty
+00:25 +300 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not autosave if text is empty
+00:25 +300 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupDefinition returns definition for valid word [E]
+  Invalid argument (string): Contains invalid characters.: "[{\"word\":\"hello\",\"phonetics\":[{\"text\":\"/həˈloʊ/\",\"audio\":\"https://audio.example/hello.mp3\"}],\"meanings\":[{\"partOfSpeech\":\"interjection\",\"definitions\":[{\"definition\":\"An expression of greeting.\",\"example\":\"Hello, how are you?\"}]},{\"partOfSpeech\":\"noun\",\"definitions\":[{\"definition\":\"A greeting.\"}]}]}]"
+  dart:convert                                        Latin1Codec.encode
+  package:http/src/response.dart 39:49                new Response
+  test\services\word_lookup_service.suite.dart 17:25  main.<fn>.<fn>.<fn>.<fn>
+  package:http/src/mock_client.dart 54:36             new MockClient.<fn>
+  
+00:25 +301 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupDefinition returns null for non-existent word
+00:25 +302 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +303 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +304 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +305 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +306 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +307 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +308 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +309 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +310 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +311 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +312 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +313 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +314 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode
+00:25 +315 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: MediaService generateThumbnail returns bytes for valid image
+00:25 +315 -23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in compact mode
+00:25 +315 -23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: MediaService generateThumbnail returns bytes for valid image [E]
+  Expected: not null
+    Actual: <null>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\services\media_service.suite.dart 126:7        main.<fn>.<fn>
+  
+00:25 +316 -23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: MediaService compressImage resizes large image
+00:25 +316 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls toggles play/pause when button pressed
+00:25 +316 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: MediaService compressImage resizes large image [E]
+  ImageException: Invalid IDAT checksum
+  package:image/src/formats/png_decoder.dart 308:11                  PngDecoder.decodeFrame
+  package:image/src/formats/png_decoder.dart 492:14                  PngDecoder.decode
+  package:image/src/formats/formats.dart 233:19                      decodeImage
+  package:universal_notes_flutter/services/media_service.dart 20:21  MediaService.compressImage
+  
+00:25 +317 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls toggles play/pause when button pressed
+00:25 +318 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls toggles play/pause when button pressed
+00:25 +319 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls calls stop when stop button pressed
+00:26 +320 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls calls setSpeechRate when slider moved
+00:26 +321 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls calls onClose when close button pressed
+00:26 +322 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings renders all controls
+00:26 +323 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings shows reset button when callback provided
+00:26 +324 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings hides reset button when callback null
+00:26 +325 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings calls onReset when reset pressed
+00:27 +326 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings displays current font size value
+00:27 +327 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings calls onSettingsChanged when font size changed
+00:27 +328 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings shows night light intensity when enabled
+00:27 +329 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings hides night light intensity when disabled
+00:27 +330 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings toggles night light calls onSettingsChanged
+00:27 +331 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings renders all theme options
+00:27 +332 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings selecting theme calls onSettingsChanged
+00:27 +333 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings renders alignment buttons
+00:28 +334 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator renders Contents header
+00:28 +335 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator renders all headings
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Section 1": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/reading_outline_navigator.suite.dart:46:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/reading_outline_navigator.suite.dart line 46
+The test description was:
+  renders all headings
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:28 +335 -25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator renders all headings [E]
+  Test failed. See exception logs above.
+  The test description was: renders all headings
+  
+00:28 +335 -25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator shows empty message when no headings
+00:28 +336 -25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator shows progress percentage
+00:28 +337 -25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator shows progress bar when progress provided
+00:28 +338 -25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator calls onHeadingTap when heading tapped
+00:28 +339 -25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator highlights active heading
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Subsection 1.1": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/reading_outline_navigator.suite.dart:133:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/widgets/reading_outline_navigator.suite.dart line 133
+The test description was:
+  highlights active heading
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:28 +339 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator highlights active heading [E]
+  Test failed. See exception logs above.
+  The test description was: highlights active heading
+  
+00:28 +339 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator shows expand icons for headings with children
+00:28 +340 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: OutlineHeading creates with values
+00:28 +341 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: OutlineHeading equality works correctly
+00:28 +342 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: Sidebar renders basic items
+00:28 +343 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: Sidebar calls onSelectionChanged when favorites is tapped
+00:28 +344 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: Sidebar displays folders from stream
+00:29 +345 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: Sidebar displays tags from stream
+00:29 +346 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: (tearDownAll)
+00:29 +346 -26: Some tests failed.

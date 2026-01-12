@@ -1,0 +1,3284 @@
+00:00 +0: loading C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: (setUpAll)
+00:00 +0: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter fromJson should return empty document for empty string
+00:00 +1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter fromJson should handle simple text json
+00:00 +2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter fromJson should handle image blocks
+00:00 +3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter fromJson should fallback to plain text for invalid JSON
+00:00 +4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter toJson should convert document to JSON string
+00:00 +5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentAdapter roundtrip fromJson(toJson(doc)) should preserve content
+00:00 +6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator insertText should add text to an empty document
+00:00 +7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator insertText should add text in the middle of existing text
+00:00 +8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator deleteText should remove text correctly
+00:00 +9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator toggleStyle should apply bold to selected text
+00:00 +10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator changeBlockIndent should update block attributes
+00:00 +11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator insertImage should add an image block
+00:00 +12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator convertBlockToCallout should transform block type
+00:00 +13: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: DocumentManipulator toggleList should apply list attribute
+00:00 +14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +20: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +27: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +28: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +29: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +30: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +31: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +32: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +33: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +34: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +35: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +36: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +37: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +38: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +39: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +40: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +41: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +42: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:01 +43: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +44: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +45: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +46: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +47: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +48: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +49: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +50: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +51: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +52: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +53: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +54: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +55: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +56: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +57: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +58: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+00:02 +59: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with icon "IconData(U+0E047)": []" (used in a call to "tap()") could not
+find any matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2013:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1865:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1045:7)
+#3      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/editor/editor_widget_reading.suite.dart:38:20)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  Reading search highlights results
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +59 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: PaperMargin label should be capitalized
+00:02 +59 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Reading search highlights results [E]
+  Test failed. See exception logs above.
+  The test description was: Reading search highlights results
+  
+00:02 +60 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Advanced formatting is applied
+00:02 +61 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget Reading Mode Advanced formatting is applied
+00:02 +62 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingBookmark creates with optional parameters
+00:02 +63 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget types text
+00:03 +64 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget types text
+00:03 +65 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingBookmark JSON serialization fromJson creates from map
+00:03 +66 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget handles backspace
+00:03 +67 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget handles backspace
+00:03 +68 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingBookmark JSON serialization roundtrip serialization
+00:03 +69 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget triggers bold shortcut
+00:03 +70 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: EditorWidget triggers bold shortcut
+00:03 +71 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingBookmark copyWith copies with all new values
+00:03 +72 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: HistoryManager initial state is correct
+00:03 +73 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingBookmark equality equals with same values
+00:03 +74 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: HistoryManager record adds a new state and clears redo stack
+00:03 +75 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: HistoryManager record adds a new state and clears redo stack
+00:03 +76 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: HistoryManager record adds a new state and clears redo stack
+00:03 +77 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: HistoryManager record adds a new state and clears redo stack
+00:03 +78 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: HistoryManager record adds a new state and clears redo stack
+00:03 +79 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: HistoryManager record adds a new state and clears redo stack
+00:03 +80 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingHighlight JSON serialization toJson converts to map
+00:03 +81 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: HistoryManager undo restores the previous state
+00:03 +82 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingHighlight JSON serialization fromJson creates from map
+00:03 +83 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingHighlight JSON serialization fromJson creates from map
+00:03 +84 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should apply bold style on *text* 
+00:03 +85 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingHighlight JSON serialization fromJson handles unknown color
+00:03 +86 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should apply italic style on _text_ 
+00:04 +87 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingHighlight JSON serialization roundtrip serialization
+00:04 +88 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should apply heading block on # 
+00:04 +89 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should apply heading block on # 
+00:04 +90 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should apply heading block on # 
+00:04 +91 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingHighlight equality not equals with different values
+00:04 +92 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingHighlight flutterColor returns correct color
+00:04 +93 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should apply checklist on - [ ] 
+00:04 +94 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: HighlightColor all colors have valid flutter colors
+00:04 +95 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should handle links [text](url)
+00:04 +96 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: HighlightColor toColor returns expected colors
+00:04 +97 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should convert table separator |---|
+00:04 +98 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should convert table separator |---|
+00:04 +99 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingPlan copyWith should work correctly
+00:04 +100 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should handle math block $$tex$$
+00:04 +101 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingPlan noteIds string conversion should handle comma separation
+00:04 +102 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: MarkdownConverter should handle transclusion ![[note]]
+00:04 +103 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings creates with default values
+00:04 +104 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: SnippetConverter checkAndApply should return null if no snippets cached
+00:04 +105 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: SnippetConverter checkAndApply should return null if no snippets cached
+00:04 +106 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: SnippetConverter checkAndApply should return null if no snippets cached
+00:04 +107 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings JSON serialization toJson converts to map
+00:04 +108 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings JSON serialization toJson converts to map
+00:04 +109 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: SnippetConverter checkAndApply should not expand if no space at the end
+00:04 +110 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings JSON serialization fromJson creates from map
+00:04 +111 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings JSON serialization fromJson creates from map
+00:04 +112 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: VirtualTextBuffer should handle callout blocks with multiple lines
+00:04 +113 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: VirtualTextBuffer should handle callout blocks with multiple lines
+00:04 +114 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings JSON serialization fromJson handles unknown enum values
+00:04 +115 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: VirtualTextBuffer getLineTextPositionForOffset should return correct position
+00:04 +116 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings JSON serialization roundtrip serialization
+00:04 +117 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: VirtualTextBuffer getOffsetForLineTextPosition should return correct offset
+00:04 +118 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings copyWith copies with new values
+00:04 +119 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: VirtualTextBuffer should handle non-text blocks as length 1
+00:04 +120 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings copyWith copies with all new values
+00:04 +121 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_editor_test.dart: (tearDownAll)
+00:04 +121 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle returns correct text style
+00:05 +122 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository addNote successfully adds a note
+00:05 +123 -1: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository addNote successfully adds a note
+00:05 +123 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings getTextStyle uses custom fontFamily
+00:05 +123 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository addNote successfully adds a note [E]
+  LateInitializationError: Field '_tracer@58131249' has not been initialized.
+  package:universal_notes_flutter/services/tracing_service.dart                  TracingService._tracer
+  package:universal_notes_flutter/services/tracing_service.dart 50:12            TracingService.startSpan
+  package:universal_notes_flutter/repositories/firestore_repository.dart 135:35  FirestoreRepository.addNote
+  test\repositories\firestore_repository.suite.dart 82:37                        main.<fn>.<fn>
+  
+00:05 +124 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings equality equals with same values
+00:05 +125 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingSettings equality equals with same values
+00:05 +126 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository deleteNote deletes note and content
+00:05 +127 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository deleteNote deletes note and content
+00:05 +128 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingTheme all themes have background color
+00:05 +129 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingTheme all themes have text color
+00:05 +130 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository currentUser returns auth.currentUser
+00:05 +131 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: FirestoreRepository currentUser returns auth.currentUser
+00:05 +132 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: ReadingTheme light theme colors
+00:05 +133 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +134 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +135 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +136 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +137 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +138 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +139 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +140 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +141 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +142 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +143 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +144 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +145 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +146 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +147 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository insertNote and getAllNotes
+00:05 +148 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: Tag should create a Tag instance
+00:05 +149 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository updateNote
+00:05 +150 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository updateNote
+00:05 +151 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_models_test.dart: Tag fromMap should handle null color
+00:05 +152 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository deleteNote
+00:06 +153 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository deleteNote
+00:06 +154 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Tag operations
+00:06 +155 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Folder operations
+00:06 +156 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Snippet operations
+00:06 +157 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Note event operations
+00:06 +158 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository searchAllNotes returns empty list when search term is too long
+00:06 +159 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository uses default branch when dbPath is null
+00:06 +160 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases getAllNotes returns empty list on empty database
+00:06 +161 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases getNoteWithContent throws for non-existent note
+00:06 +162 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases updateNote on non-existent note does not throw
+00:06 +163 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases searchAllNotes returns matching notes
+00:06 +164 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases searchAllNotes is case insensitive
+00:06 +165 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases getNoteByTitle returns note
+00:06 +166 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases updateNoteContent sets syncStatus to modified
+00:06 +167 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases getUnsyncedNotes returns notes with modified/local status
+00:06 +168 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases getUnsyncedWords and markWordsSynced
+00:06 +169 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases Snippet operations extended
+00:06 +170 -2: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases Frequency cache and words
+00:06 +170 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases Frequency cache and words [E]
+  Expected: contains 'hello'
+    Actual: []
+     Which: does not contain 'hello'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\repositories\note_repository.suite.dart 267:9  main.<fn>.<fn>.<fn>
+  
+00:06 +170 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: NoteRepository Edge Cases Note versioning operations
+00:06 +171 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_repositories_test.dart: (tearDownAll)
+00:07 +171 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) renders correctly
+00:09 +172 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) shows loading indicator during update check
+00:09 +173 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) shows SnackBar when no update is available
+00:09 +174 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) shows SnackBar on error
+00:09 +175 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Material UI (Non-Windows) shows AlertDialog when update is available
+00:10 +176 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) renders correctly
+00:10 +177 -3: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) back button navigates back
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: no matching candidates
+  Actual: _TextWidgetFinder:<Found 1 widget with text "Sobre": [
+            Text("Sobre", dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+          ]>
+   Which: means one was found but none were expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen.suite.dart:245:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/about_screen.suite.dart line 245
+The test description was:
+  back button navigates back
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:11 +177 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: (setUpAll)
+00:11 +177 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) back button navigates back [E]
+  Test failed. See exception logs above.
+  The test description was: back button navigates back
+  
+00:11 +177 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: (setUpAll)
+*** sqflite warning ***
+
+You are changing sqflite default factory.
+Be aware of the potential side effects. Any library using sqflite
+will have this factory as the default for all operations.
+
+*** sqflite warning ***
+
+00:11 +177 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) shows loading indicator during update check
+00:12 +178 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: AuthService signInWithEmailAndPassword calls firebaseAuth
+00:12 +179 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: AboutScreen - Fluent UI (Windows) updates status text when no update available
+00:12 +180 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: AuthService createUserWithEmailAndPassword calls firestoreRepository on success
+00:12 +181 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: AuthService signOut calls firebaseAuth.signOut
+00:12 +182 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: AuthService signOut calls firebaseAuth.signOut
+00:13 +183 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: AuthService signOut calls firebaseAuth.signOut
+00:13 +184 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: NoteEditorScreen placeholder test
+00:13 +185 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: AutocompleteService isWordBoundary should correctly identify boundaries
+00:13 +186 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:13 +187 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:13 +188 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:13 +189 -4: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu
+00:13 +189 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen (setUpAll)
+00:13 +189 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+00:13 +189 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: RestoreResult summary should format correctly with mixed items
+00:13 +189 -5: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildDefaultContextMenu [E]
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:13 +189 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: RestoreResult summary should format correctly with mixed items
+00:13 +190 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Material UI on Android
+00:13 +190 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildTrashContextMenu [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+00:13 +191 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Material UI on Android
+00:13 +192 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Material UI on Android
+00:13 +192 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ContextMenuHelper buildTrashContextMenu [E]
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:13 +193 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Material UI on Android
+00:14 +194 -6: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Material UI on Android
+00:14 +194 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Material UI on Android
+00:14 +194 -7: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: EmptyState should display the provided message [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +194 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Material UI on Android
+00:14 +194 -8: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: EmptyState should display the provided icon [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +194 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen builds Material UI on Android
+00:14 +194 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: EmptyState should default to inbox icon if none provided [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -9: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -10: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: FluentNoteCard displays title and content preview for valid content [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -11: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: FluentNoteCard displays fallback text for invalid content [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -12: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: FluentNoteCard tapping FluentNoteCard calls onTap [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -13: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -13: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: FluentNoteCard tapping FluentNoteCard triggers default navigation [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -14: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: NoteCard displays note [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -15: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping NoteCard calls onTap callback [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -16: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping NoteCard navigates to NoteEditorScreen when onTap null [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -17: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: long press on NoteCard shows context menu [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -18: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: NoteSimpleListTile displays title [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -19: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping NoteSimpleListTile calls onTap [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -20: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -20: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: long-pressing NoteSimpleListTile shows context menu [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -21: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping delete on context menu calls onDelete [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:14 +195 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:14 +195 -22: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: tapping NoteSimpleListTile navigates to editor when onTap is null [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:15 +195 -23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:15 +195 -23: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor calls onSave and pops when Salvar is clicked [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:15 +195 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:15 +195 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not call onSave and pops when Cancelar is clicked [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:15 +195 -24: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Android
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AboutScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart:58:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart line 58
+The test description was:
+  navigates to AboutScreen on Android
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:15 +195 -25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:15 +195 -25: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Android [E]
+  Test failed. See exception logs above.
+  The test description was: navigates to AboutScreen on Android
+  
+00:15 +195 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:15 +195 -26: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor autosaves every 10 seconds if text is not empty [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:15 +195 -27: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:15 +195 -27: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: QuickNoteEditor does not autosave if text is empty [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:15 +196 -27: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:16 +196 -27: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AboutScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart:96:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart line 96
+The test description was:
+  navigates to AboutScreen on Windows
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:16 +196 -28: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:16 +196 -28: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen navigates to AboutScreen on Windows [E]
+  Test failed. See exception logs above.
+  The test description was: navigates to AboutScreen on Windows
+  
+00:16 +196 -29: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:16 +196 -29: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+00:16 +196 -29: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Android
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AboutScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart:115:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart line 115
+The test description was:
+  returns to SettingsScreen after navigating back on Android
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:16 +196 -30: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:16 +196 -30: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Android [E]
+  Test failed. See exception logs above.
+  The test description was: returns to SettingsScreen after navigating back on Android
+  
+00:16 +196 -30: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in full mode [E]
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:16 +196 -30: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:17 +196 -30: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Windows
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AboutScreen": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart:142:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/screens/settings_screen.suite.dart line 142
+The test description was:
+  returns to SettingsScreen after navigating back on Windows
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:17 +196 -31: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:17 +196 -32: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:17 +196 -32: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in compact mode [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+00:17 +196 -32: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_screens_test.dart: SettingsScreen returns to SettingsScreen after navigating back on Windows [E]
+  Test failed. See exception logs above.
+  The test description was: returns to SettingsScreen after navigating back on Windows
+  
+00:17 +196 -32: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls renders correctly in compact mode [E]
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:17 +196 -32: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:18 +196 -33: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:18 +196 -33: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls toggles play/pause when button pressed [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:18 +196 -34: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work
+00:18 +196 -34: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls calls stop when stop button pressed [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:19 +196 -35: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:19 +196 -35: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encrypt and decrypt roundtrip should work [E]
+  TimeoutException after 0:00:05.000000: Test timed out after 5 seconds.
+  dart:isolate  _RawReceivePort._handleMessage
+  
+00:19 +196 -36: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:19 +196 -36: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls calls setSpeechRate when slider moved [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:19 +196 -37: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:19 +196 -37: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadAloudControls calls onClose when close button pressed [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:19 +197 -37: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:19 +197 -38: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:19 +197 -38: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings renders all controls [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -39: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -39: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings shows reset button when callback provided [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -40: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -40: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings hides reset button when callback null [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -41: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -41: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings calls onReset when reset pressed [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -42: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -42: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings displays current font size value [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -43: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -43: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings calls onSettingsChanged when font size changed [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -44: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -44: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings shows night light intensity when enabled [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -45: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -45: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings hides night light intensity when disabled [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -46: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -46: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings toggles night light calls onSettingsChanged [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -47: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -47: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings renders all theme options [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -48: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -48: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings selecting theme calls onSettingsChanged [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -49: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -49: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingModeSettings renders alignment buttons [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -50: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -50: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator renders Contents header [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -51: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -51: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator renders all headings [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -52: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -52: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator shows empty message when no headings [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -53: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -53: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator shows progress percentage [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +197 -54: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/main_test.dart: NotesScreen sanity check
+00:20 +197 -54: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator shows progress bar when progress provided [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +198 -54: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -55: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -55: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator calls onHeadingTap when heading tapped [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +198 -55: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -56: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -56: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator highlights active heading [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +198 -57: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -57: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: ReadingOutlineNavigator shows expand icons for headings with children [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +198 -58: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -58: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: OutlineHeading creates with values [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +198 -59: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -59: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: OutlineHeading equality works correctly [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +198 -60: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -60: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: Sidebar renders basic items [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +198 -61: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -61: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: Sidebar calls onSelectionChanged when favorites is tapped [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +198 -62: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -62: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: Sidebar displays folders from stream [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +198 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:20 +198 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_widgets_test.dart: Sidebar displays tags from stream [E]
+  Bad state: A test tried to use `any` or `captureAny` on a parameter of type `Note`, but
+  registerFallbackValue was not previously called to register a fallback value for `Note`.
+  
+  To fix, do:
+  
+  ```
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(/* create a dummy instance of `Note` */);
+    });
+  }
+  ```
+  
+  This instance of `Note` will only be passed around, but never be interacted with.
+  Therefore, if `Note` is a function, it does not have to return a valid object and
+  could throw unconditionally.
+  If you cannot easily create an instance of `Note`, consider defining a `Fake`:
+  
+  ```
+  class MyTypeFake extends Fake implements MyType {}
+  
+  void main() {
+    setUpAll(() {
+      registerFallbackValue(MyTypeFake());
+    });
+  }
+  ```
+  
+  Fallbacks are required because mocktail has to know of a valid `Note` to prevent
+  TypeErrors from being thrown in Dart's sound null safe mode, while still
+  providing a convenient syntax.
+  
+  package:mocktail/src/_register_matcher.dart 49:5     _getFallbackValue
+  package:mocktail/src/_register_matcher.dart 160:25   _registerMatcher
+  package:mocktail/src/_register_matcher.dart 104:10   any
+  test\test_helper.dart 167:38                         setupTest.<fn>
+  package:mocktail/src/mocktail.dart 211:9             when.<fn>
+  test\test_helper.dart 167:7                          setupTest
+  test\widgets\note_simple_list_tile.suite.dart 15:11  main.<fn>
+  
+  LateInitializationError: Local 'foldersController' has not been initialized.
+  dart:_internal                   LateError._throwLocalNotInitialized
+  test\widgets\sidebar.suite.dart  main.<fn>
+  
+  LateInitializationError: Local 'stateController' has not been initialized.
+  dart:_internal                               LateError._throwLocalNotInitialized
+  test\widgets\read_aloud_controls.suite.dart  main.<fn>
+  
+00:20 +198 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt with wrong password should throw FormatException
+00:22 +199 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService verifyPassword should return true for correct password
+00:24 +200 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService verifyPassword should return false for wrong password
+00:25 +201 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService generateRecoveryKey should produce unique keys
+00:26 +202 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService reEncrypt should work with new password
+00:30 +203 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService encryptRecoveryKey and decryptRecoveryKey roundtrip
+00:32 +204 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EncryptionService decrypt should throw FormatException for invalid ciphertext
+00:32 +205 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EventReplayer reconstructs empty document from no events
+00:32 +206 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EventReplayer reconstructs document from insert events
+00:32 +207 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EventReplayer reconstructs document with delete events
+00:32 +208 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EventReplayer handles events out of order by sorting
+00:32 +209 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: EventReplayer applies baseline document if provided
+00:32 +210 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ExportService _sanitizeFilename removes invalid characters
+00:32 +211 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ExportService Logical PDF generation check (building widgets)
+00:32 +212 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: FirebaseService getDocument returns initial empty document
+00:32 +213 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: FirebaseService updateDocument emits updated content on stream
+00:32 +214 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: FirebaseService updateUserPresence adds user to presence map
+00:32 +215 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: FirebaseService removeUserPresence removes user from presence map
+00:32 +216 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: FirebaseService documentStream is broadcast stream
+00:32 +217 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: FirebaseService presenceStream is broadcast stream
+00:32 +218 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: HistoryGrouper groupEvents should return empty list for empty input
+00:32 +219 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: HistoryGrouper groupEvents should group recent events by session (10m gap)
+00:32 +220 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: HistoryGrouper groupEvents should handle old events with daily compression
+00:32 +221 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: HistoryGrouper groupEvents should handle mixed recent and old events
+00:32 +222 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: HistoryGrouper groupEvents should group events by day for old events
+00:32 +223 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadAloudPosition creates with values
+00:32 +224 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadAloudPosition creates with zero values
+00:32 +225 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadAloudState has all expected values
+00:32 +226 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadAloudState has exactly 3 states
+00:32 +227 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadAloudState stopped is the first state
+00:32 +228 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService createTable creates bookmarks table
+00:32 +229 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService createTable creates noteId index
+00:32 +230 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService addBookmark adds bookmark with required fields
+00:32 +231 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService addBookmark adds bookmark with optional fields
+00:32 +232 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService getBookmarksForNote returns empty list for note without bookmarks
+00:32 +233 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService getBookmarksForNote returns all bookmarks for note
+00:32 +234 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService getBookmarksForNote returns bookmarks ordered by position
+00:33 +235 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService getBookmark returns bookmark by id
+00:33 +236 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService getBookmark returns null for non-existent id
+00:33 +237 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService updateBookmark updates bookmark fields
+00:33 +238 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService deleteBookmark deletes bookmark by id
+00:33 +239 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService deleteBookmarksForNote deletes all bookmarks for note
+00:33 +240 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService countBookmarksForNote returns 0 for note without bookmarks
+00:33 +241 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingBookmarksService countBookmarksForNote returns correct count
+00:33 +242 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingInteractionService getAnnotationsForNote returns list of annotations
+00:33 +243 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingInteractionService addHighlight inserts and returns annotation
+00:33 +244 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingInteractionService addNote inserts and returns annotation
+00:33 +245 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingInteractionService deleteAnnotation calls database delete
+00:33 +246 -63: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService createTable should create the table
+00:33 +246 -64: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService createTable should create the table [E]
+  Expected: non-empty
+    Actual: []
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\services\reading_plan_service.suite.dart 38:7  main.<fn>.<fn>
+  
+00:33 +246 -64: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService createPlan should insert a plan
+00:33 +246 -65: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService createPlan should insert a plan [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)}) DatabaseException(SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)) sql 'INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)' args [6481501f-13ec-4602-8f8b-f53e0d2cf9cd, Test Plan, note1,note2, 0, 2025-12-25T18:25:54.320098] {details: {database: {path: :memory:, id: 63, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:33 +246 -65: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService getAllPlans should return all plans
+00:33 +246 -66: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService getAllPlans should return all plans [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)}) DatabaseException(SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)) sql 'INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)' args [bdf5f477-13f1-4939-8472-a5bd31ade377, Plan 1, n1, 0, 2025-12-25T18:25:54.355652] {details: {database: {path: :memory:, id: 64, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:33 +246 -66: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService getPlan should return a plan by id
+00:33 +246 -67: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService getPlan should return a plan by id [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)}) DatabaseException(SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)) sql 'INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)' args [757a3045-5d5c-40c0-8cf5-fbe5629ffa92, Plan X, nx, 0, 2025-12-25T18:25:54.375737] {details: {database: {path: :memory:, id: 65, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:33 +246 -67: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService updatePlan should modify an existing plan
+00:33 +246 -68: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService updatePlan should modify an existing plan [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)}) DatabaseException(SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)) sql 'INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)' args [0f0be125-b2cd-47d4-a612-48c0f05debc3, Old Title, n1, 0, 2025-12-25T18:25:54.394272] {details: {database: {path: :memory:, id: 66, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:33 +246 -68: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService deletePlan should remove a plan
+00:33 +246 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingPlanService deletePlan should remove a plan [E]
+  SqfliteFfiException(sqlite_error: 1, , SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)}) DatabaseException(SqliteException(1): while preparing statement, no such table: reading_plans, SQL logic error (code 1)
+    Causing statement: INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)) sql 'INSERT INTO reading_plans (id, title, noteIds, currentIndex, createdAt) VALUES (?, ?, ?, ?, ?)' args [f4ff1ebb-3519-40ba-8dd5-c99fa53bb033, To Delete, n1, 0, 2025-12-25T18:25:54.420412] {details: {database: {path: :memory:, id: 67, readOnly: false, singleInstance: false}}}
+  package:sqflite_common_ffi/src/method_call.dart 123:9  responseToResultOrThrow
+  package:sqflite_common_ffi/src/isolate.dart 33:12      SqfliteIsolate.handle
+  
+00:33 +246 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingStatsService getStatsForNote returns stats
+00:33 +247 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingStatsService getStatsForNote returns default for new note
+00:33 +248 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingStatsService updatePosition saves position
+00:33 +249 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ReadingStatsService setReadingGoal saves goal
+00:33 +250 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: SecurityService isLockEnabled should return false by default
+00:33 +251 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: SecurityService setLockEnabled should update the lock state
+00:33 +252 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: SecurityService singleton instance should be shared
+00:33 +253 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: SyncService refreshLocalData emits notes, folders, and tags
+00:33 +254 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: SyncService syncUp pushes unsynced notes to Firestore
+00:33 +255 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: SyncService _syncDown inserts new remote note locally
+00:33 +256 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: SyncService Conflict detection emits to conflictsStream
+00:33 +257 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: TagSuggestionService should suggest tags found in document text
+00:33 +258 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: TagSuggestionService should not suggest tags already in currentTags
+00:33 +259 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: TagSuggestionService should sort suggestions by frequency
+00:33 +260 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: TagSuggestionService should only match whole words
+00:33 +261 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: TemplateService getTemplates returns predefined templates
+00:33 +262 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: TemplateService NoteTemplate properties are correct
+00:33 +263 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ThemeService initial theme mode should be system
+00:33 +264 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ThemeService setThemeMode changes theme and saves to preferences
+00:33 +265 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ThemeService toggleTheme switches between light and dark
+00:33 +266 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ThemeService loads saved theme from preferences
+00:33 +267 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: TracingService should provide a tracer after initialization
+00:33 +268 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: TracingService should start a span with the given name
+00:33 +269 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: TracingService singleton instance should be shared
+00:33 +270 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Stable Channel returns updateAvailable when a newer stable version is available
+00:33 +271 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Stable Channel returns noUpdate when a newer version has no matching asset
+00:33 +272 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Stable Channel returns noUpdate when the current stable version is the latest
+00:33 +273 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Stable Channel returns noUpdate for unsupported platform
+00:33 +274 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Dev Channel returns updateAvailable when a newer dev build is available
+00:34 +275 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Dev Channel returns noUpdate when the current dev build is the latest
+00:34 +276 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Dev Channel returns noUpdate when the release body has no version
+00:34 +277 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Beta Channel returns updateAvailable when a newer beta build is available
+00:34 +278 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Beta Channel returns noUpdate when the current beta build is the latest
+00:34 +279 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService returns error on server error
+00:34 +280 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService returns error on network error
+00:34 +281 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService isNewerVersion returns false for invalid version strings
+00:34 +282 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Platform Extensions returns .exe for Windows
+00:34 +283 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Platform Extensions returns .apk for Android
+00:34 +284 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: UpdateService Platform Extensions returns null for unsupported platform (e.g. Linux)
+00:34 +285 -69: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupDefinition returns definition for valid word
+00:34 +285 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupDefinition returns definition for valid word [E]
+  Invalid argument (string): Contains invalid characters.: "[{\"word\":\"hello\",\"phonetics\":[{\"text\":\"/həˈloʊ/\",\"audio\":\"https://audio.example/hello.mp3\"}],\"meanings\":[{\"partOfSpeech\":\"interjection\",\"definitions\":[{\"definition\":\"An expression of greeting.\",\"example\":\"Hello, how are you?\"}]},{\"partOfSpeech\":\"noun\",\"definitions\":[{\"definition\":\"A greeting.\"}]}]}]"
+  dart:convert                                        Latin1Codec.encode
+  package:http/src/response.dart 39:49                new Response
+  test\services\word_lookup_service.suite.dart 17:25  main.<fn>.<fn>.<fn>.<fn>
+  package:http/src/mock_client.dart 54:36             new MockClient.<fn>
+  
+00:34 +285 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupDefinition returns null for non-existent word
+00:34 +286 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupDefinition handles different language
+00:34 +287 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupDefinition handles network error gracefully
+00:34 +288 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupDefinition handles empty response
+00:34 +289 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupWikipedia returns summary for valid term
+00:34 +290 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupWikipedia returns null for non-existent term
+00:34 +291 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupWikipedia handles network error gracefully
+00:34 +292 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordLookupService lookupWikipedia handles missing optional fields
+00:34 +293 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WordDefinition creates with all fields
+00:34 +294 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: DefinitionEntry creates with required fields
+00:34 +295 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: DefinitionEntry creates with example
+00:34 +296 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: WikipediaSummary creates with all fields
+00:34 +297 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: MediaService generateThumbnail returns null for invalid image
+00:34 +298 -70: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: MediaService generateThumbnail returns bytes for valid image
+00:34 +298 -71: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: MediaService generateThumbnail returns bytes for valid image [E]
+  Expected: not null
+    Actual: <null>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\services\media_service.suite.dart 126:7        main.<fn>.<fn>
+  
+00:34 +298 -71: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: MediaService compressImage resizes large image
+00:34 +298 -72: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: MediaService compressImage resizes large image [E]
+  ImageException: Invalid IDAT checksum
+  package:image/src/formats/png_decoder.dart 308:11                  PngDecoder.decodeFrame
+  package:image/src/formats/png_decoder.dart 492:14                  PngDecoder.decode
+  package:image/src/formats/formats.dart 233:19                      decodeImage
+  package:universal_notes_flutter/services/media_service.dart 20:21  MediaService.compressImage
+  
+00:34 +298 -72: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ExportService _sanitizeFilename removes invalid characters
+00:34 +299 -72: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: ExportService Logical PDF generation check (building widgets)
+00:34 +300 -72: C:/Users/joaom/Documents/GitHub/Notes/universal_notes_flutter/test/all_services_test.dart: (tearDownAll)
+00:34 +300 -72: Some tests failed.

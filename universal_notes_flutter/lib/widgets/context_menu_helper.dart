@@ -1,10 +1,65 @@
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_notes_flutter/models/note.dart';
+import 'package:universal_notes_flutter/repositories/note_repository.dart';
+import 'package:universal_notes_flutter/services/export_service.dart';
+import 'package:universal_notes_flutter/widgets/fluent_context_menu_helper.dart'
+    as fluent_context;
 
 /// A helper class for showing a context menu for a note.
 class ContextMenuHelper {
   /// Shows the context menu.
   static Future<void> showContextMenu({
+    required BuildContext context,
+    required Offset position,
+    required Note note,
+    required void Function(Note) onSave,
+    required void Function(Note) onDelete,
+    dynamic controller,
+  }) async {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      await _showFluentContextMenu(
+        context: context,
+        position: position,
+        note: note,
+        onSave: onSave,
+        onDelete: onDelete,
+        controller: controller,
+      );
+    } else {
+      await _showMaterialContextMenu(
+        context: context,
+        position: position,
+        note: note,
+        onSave: onSave,
+        onDelete: onDelete,
+      );
+    }
+  }
+
+  /// Shows Fluent-style context menu (Windows)
+  static Future<void> _showFluentContextMenu({
+    required BuildContext context,
+    required Offset position,
+    required Note note,
+    required void Function(Note) onSave,
+    required void Function(Note) onDelete,
+    dynamic controller,
+  }) async {
+    if (controller != null) {
+      await fluent_context.FluentContextMenuHelper.showContextMenu(
+        context: context,
+        controller: controller as fluent.FlyoutController,
+        note: note,
+        onSave: onSave,
+        onDelete: onDelete,
+      );
+    }
+  }
+
+  /// Shows Material-style context menu (Android/iOS)
+  static Future<void> _showMaterialContextMenu({
     required BuildContext context,
     required Offset position,
     required Note note,
@@ -24,21 +79,24 @@ class ContextMenuHelper {
         Offset.zero & overlay.size,
       ),
       items: note.isInTrash
-          ? _buildTrashContextMenu(context, note, onSave, onDelete)
-          : _buildDefaultContextMenu(context, note, onSave),
+          ? buildTrashContextMenu(context, note, onSave, onDelete)
+          : buildDefaultContextMenu(context, note, onSave),
     );
   }
 
-  static List<PopupMenuEntry<void>> _buildDefaultContextMenu(
+  /// Builds the context menu for a note that is not in the trash.
+  @visibleForTesting
+  static List<PopupMenuEntry<void>> buildDefaultContextMenu(
     BuildContext context,
     Note note,
     void Function(Note) onSave,
   ) {
+    final exportService = ExportService();
     return [
       PopupMenuItem(
         onTap: () {
-          note.isFavorite = !note.isFavorite;
-          onSave(note);
+          final updatedNote = note.copyWith(isFavorite: !note.isFavorite);
+          onSave(updatedNote);
         },
         child: Row(
           children: [
@@ -47,14 +105,16 @@ class ContextMenuHelper {
               color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 8),
-            Text(note.isFavorite ? 'Desfavoritar' : 'Favoritar'),
+            Expanded(
+              child: Text(note.isFavorite ? 'Desfavoritar' : 'Favoritar'),
+            ),
           ],
         ),
       ),
       PopupMenuItem(
         onTap: () {
-          note.isInTrash = true;
-          onSave(note);
+          final updatedNote = note.copyWith(isInTrash: true);
+          onSave(updatedNote);
         },
         child: Row(
           children: [
@@ -63,14 +123,41 @@ class ContextMenuHelper {
               color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(width: 8),
-            const Text('Mover para a lixeira'),
+            const Expanded(
+              child: Text('Mover para a lixeira'),
+            ),
           ],
         ),
+      ),
+      const PopupMenuDivider(),
+      PopupMenuItem(
+        onTap: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Exportando para TXT...')),
+          );
+          final noteWithContent =
+              await NoteRepository.instance.getNoteWithContent(note.id);
+          await exportService.exportToTxt(noteWithContent);
+        },
+        child: const Text('Exportar para TXT'),
+      ),
+      PopupMenuItem(
+        onTap: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Exportando para PDF...')),
+          );
+          final noteWithContent =
+              await NoteRepository.instance.getNoteWithContent(note.id);
+          await exportService.exportToPdf(noteWithContent);
+        },
+        child: const Text('Exportar para PDF'),
       ),
     ];
   }
 
-  static List<PopupMenuEntry<void>> _buildTrashContextMenu(
+  /// Builds the context menu for a note that is in the trash.
+  @visibleForTesting
+  static List<PopupMenuEntry<void>> buildTrashContextMenu(
     BuildContext context,
     Note note,
     void Function(Note) onSave,
@@ -79,8 +166,8 @@ class ContextMenuHelper {
     return [
       PopupMenuItem(
         onTap: () {
-          note.isInTrash = false;
-          onSave(note);
+          final updatedNote = note.copyWith(isInTrash: false);
+          onSave(updatedNote);
         },
         child: Row(
           children: [
@@ -89,7 +176,7 @@ class ContextMenuHelper {
               color: Theme.of(context).colorScheme.onSurface,
             ),
             const SizedBox(width: 8),
-            const Text('Restaurar'),
+            const Expanded(child: Text('Restaurar')),
           ],
         ),
       ),
@@ -104,7 +191,9 @@ class ContextMenuHelper {
               color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(width: 8),
-            const Text('Excluir permanentemente'),
+            const Expanded(
+              child: Text('Excluir permanentemente'),
+            ),
           ],
         ),
       ),
