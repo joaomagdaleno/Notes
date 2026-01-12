@@ -72,6 +72,22 @@ class MaterialNoteCardView extends StatelessWidget {
     // ⚡ Bolt: Cache TextTheme to avoid multiple expensive lookups in the build
     // method.
     final textTheme = Theme.of(context).textTheme;
+    // ⚡ Bolt: Cache derived TextStyles. Re-creating these with .copyWith() on
+    // every build is inefficient. This ensures they are created only once per
+    // build cycle and reused, reducing object allocation.
+    final titleStyle = textTheme.titleMedium?.copyWith(
+      color: Colors.white,
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+    );
+    final contentStyle = textTheme.bodySmall?.copyWith(
+      color: Colors.white70,
+      fontSize: 11,
+    );
+    final dateStyle = textTheme.bodySmall?.copyWith(
+      color: Colors.white70,
+      fontSize: 10,
+    );
     final hasImage = note.imageUrl?.isNotEmpty ?? false;
 
     final card = Card(
@@ -120,11 +136,7 @@ class MaterialNoteCardView extends StatelessWidget {
                         ),
                       Text(
                         note.title,
-                        style: textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
+                        style: titleStyle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -133,10 +145,7 @@ class MaterialNoteCardView extends StatelessWidget {
                         Flexible(
                           child: Text(
                             plainTextContent,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: Colors.white70,
-                              fontSize: 11,
-                            ),
+                            style: contentStyle,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -144,10 +153,7 @@ class MaterialNoteCardView extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         dateFormat.format(note.lastModified),
-                        style: textTheme.bodySmall?.copyWith(
-                          color: Colors.white70,
-                          fontSize: 10,
-                        ),
+                        style: dateStyle,
                       ),
                     ],
                   ),
