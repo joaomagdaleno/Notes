@@ -4,3 +4,25 @@ universal_notes_flutter/ios/
 universal_notes_flutter/linux/
 universal_notes_flutter/macos/
 universal_notes_flutter/web/
+
+# Dart/Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+*.expect
+*.dill
+*.dill.deps
+*.dill.digest
+*.sum
+*.sum.deps
+*.filecache
+*.stamp
+*.log
+
+# Windows
+*.[Ee][Xx][Ee]
+*.[Dd][Ll][Ll]
+*.[Pp][Dd][Bb]
+build/windows/
