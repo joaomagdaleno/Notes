@@ -75,9 +75,9 @@ class MaterialAuthView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Semantics(
-                    label: 'Ícone de cadeado de segurança',
-                    child: const CircleAvatar(
+                  const Semantics(
+                    label: 'Tela de autenticação',
+                    child: CircleAvatar(
                       radius: 32,
                       child: Icon(Icons.lock, size: 32),
                     ),
