@@ -27,7 +27,7 @@ class AuthService {
   Future<void> _syncUserProfile(User user) async {
     try {
       await _firestoreRepository.createUser(user);
-    } on Exception {
+    } catch (e) {
       // 🛡️ Sentinel: Rethrow the exception to ensure the caller can handle
       // the failure. Swallowing this exception leads to an inconsistent user
       // state where an authenticated user has no corresponding profile data.
