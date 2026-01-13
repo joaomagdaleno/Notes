@@ -75,34 +75,42 @@ class _AppBootstrapState extends State<AppBootstrap> {
       TracingService().init();
       await StartupLogger.log('✅ TracingService initialized');
 
-      // Initialize Firebase
-      _updateStep('Initializing Firebase...');
-      await StartupLogger.log('⏳ Initializing Firebase...');
+      // Initialize Firebase (optional - only if properly configured)
+      _updateStep('Checking cloud services...');
+      await StartupLogger.log('⏳ Checking Firebase configuration...');
       try {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-        await StartupLogger.log('✅ Firebase initialized');
+        final options = DefaultFirebaseOptions.currentPlatform;
+        // Skip Firebase if using stub/placeholder config
+        if (options.apiKey != 'stub-api-key') {
+          await Firebase.initializeApp(options: options);
+          await StartupLogger.log(
+            '✅ Firebase initialized (cloud sync available)',
+          );
 
-        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-          FlutterError.onError = (errorDetails) {
-            unawaited(
-              FirebaseCrashlytics.instance
-                  .recordFlutterFatalError(errorDetails),
-            );
-          };
-          PlatformDispatcher.instance.onError = (error, stack) {
-            unawaited(
-              FirebaseCrashlytics.instance
-                  .recordError(error, stack, fatal: true),
-            );
-            return true;
-          };
-          await StartupLogger.log('✅ Crashlytics configured');
+          if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+            FlutterError.onError = (errorDetails) {
+              unawaited(
+                FirebaseCrashlytics.instance
+                    .recordFlutterFatalError(errorDetails),
+              );
+            };
+            PlatformDispatcher.instance.onError = (error, stack) {
+              unawaited(
+                FirebaseCrashlytics.instance
+                    .recordError(error, stack, fatal: true),
+              );
+              return true;
+            };
+            await StartupLogger.log('✅ Crashlytics configured');
+          }
+        } else {
+          await StartupLogger.log(
+            'ℹ️ Firebase not configured - running in local-only mode',
+          );
         }
       } on Exception catch (e) {
-        await StartupLogger.log('❌ Firebase initialization failed: $e');
-        // Continue without Firebase on desktop
+        await StartupLogger.log('⚠️ Firebase initialization skipped: $e');
+        // Continue in local-only mode
       }
 
       // Windows/Desktop window setup
@@ -312,13 +320,20 @@ class _AppBootstrapState extends State<AppBootstrap> {
     unawaited(
       StartupLogger.log('🎨 [BUILD] Returning MultiProvider with MyApp'),
     );
+
+    // Check if Firebase is initialized
+    final firebaseInitialized = Firebase.apps.isNotEmpty;
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeService()),
-        StreamProvider<User?>.value(
-          value: AuthService().authStateChanges,
-          initialData: null,
-        ),
+        if (firebaseInitialized)
+          StreamProvider<User?>.value(
+            value: AuthService().authStateChanges,
+            initialData: null,
+          )
+        else
+          Provider<User?>.value(value: null),
       ],
       child: const MyApp(),
     );
