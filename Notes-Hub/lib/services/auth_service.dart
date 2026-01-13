@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:notes_hub/config/auth_config.dart';
 import 'package:notes_hub/repositories/firestore_repository.dart';
@@ -10,23 +11,36 @@ class AuthService {
     FirebaseAuth? firebaseAuth,
     FirestoreRepository? firestoreRepository,
     GoogleSignIn? googleSignIn,
-  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _firestoreRepository =
-            firestoreRepository ?? FirestoreRepository.instance,
-        _googleSignIn =
-            googleSignIn ?? GoogleSignIn(clientId: AuthConfig.googleClientId);
+  })  : _firebaseAuth = firebaseAuth,
+        _firestoreRepository = firestoreRepository,
+        _googleSignIn = googleSignIn;
 
-  final FirebaseAuth _firebaseAuth;
-  final FirestoreRepository _firestoreRepository;
-  final GoogleSignIn _googleSignIn;
+  final FirebaseAuth? _firebaseAuth;
+  final FirestoreRepository? _firestoreRepository;
+  final GoogleSignIn? _googleSignIn;
+
+  FirebaseAuth get _auth {
+    if (_firebaseAuth != null) return _firebaseAuth;
+    if (Firebase.apps.isEmpty) {
+      throw StateError('Firebase not initialized');
+    }
+    return FirebaseAuth.instance;
+  }
+
+  FirestoreRepository get _repo =>
+      _firestoreRepository ?? FirestoreRepository.instance;
+
+  GoogleSignIn get _google {
+    return _googleSignIn ?? GoogleSignIn(clientId: AuthConfig.googleClientId);
+  }
 
   /// Returns a stream of the authentication state.
-  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   /// Private helper to sync user profile to Firestore.
   Future<void> _syncUserProfile(User user) async {
     try {
-      await _firestoreRepository.createUser(user);
+      await _repo.createUser(user);
     } catch (e) {
       // 🛡️ Sentinel: Rethrow the exception to ensure the caller can handle
       // the failure. Swallowing this exception leads to an inconsistent user
@@ -40,7 +54,7 @@ class AuthService {
     String email,
     String password,
   ) async {
-    return _firebaseAuth.signInWithEmailAndPassword(
+    return _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
@@ -52,7 +66,7 @@ class AuthService {
     String password,
     String displayName,
   ) async {
-    final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+    final credential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
@@ -77,7 +91,7 @@ class AuthService {
 
   /// Sends a verification email to the current user.
   Future<void> sendEmailVerification() async {
-    final user = _firebaseAuth.currentUser;
+    final user = _auth.currentUser;
     if (user != null && !user.emailVerified) {
       await user.sendEmailVerification();
     }
@@ -85,7 +99,7 @@ class AuthService {
 
   /// Signs in with Google.
   Future<UserCredential?> signInWithGoogle() async {
-    final googleUser = await _googleSignIn.signIn();
+    final googleUser = await _google.signIn();
     if (googleUser == null) return null;
 
     final googleAuth = await googleUser.authentication;
@@ -94,7 +108,7 @@ class AuthService {
       idToken: googleAuth.idToken,
     );
 
-    final userCredential = await _firebaseAuth.signInWithCredential(credential);
+    final userCredential = await _auth.signInWithCredential(credential);
     // 🛡️ Sentinel: This try-catch block is a critical security measure.
     // If creating the user profile fails, we MUST roll back the Firebase
     // authentication by signing the user out. This prevents the app from
@@ -116,8 +130,8 @@ class AuthService {
   /// Signs out the current user.
   Future<void> signOut() async {
     await Future.wait([
-      _firebaseAuth.signOut(),
-      _googleSignIn.signOut(),
+      _auth.signOut(),
+      _google.signOut(),
     ]);
   }
 }

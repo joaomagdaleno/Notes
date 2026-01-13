@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:opentelemetry/api.dart';
@@ -45,7 +47,8 @@ class TracingService {
     _initialized = true;
 
     // Log initialization to Crashlytics
-    if (!kIsWeb &&
+    if (Firebase.apps.isNotEmpty &&
+        !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS)) {
       unawaited(FirebaseCrashlytics.instance.log('TracingService initialized'));
@@ -58,7 +61,8 @@ class TracingService {
   /// Starts a new span.
   Span startSpan(String name, {SpanContext? parentContext}) {
     // Log span start to Crashlytics as a breadcrumb
-    if (!kIsWeb &&
+    if (Firebase.apps.isNotEmpty &&
+        !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS)) {
       unawaited(FirebaseCrashlytics.instance.log('Start Span: $name'));
@@ -73,7 +77,8 @@ class TracingService {
     dynamic reason,
     bool fatal = false,
   }) async {
-    if (!kIsWeb &&
+    if (Firebase.apps.isNotEmpty &&
+        !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS)) {
       await FirebaseCrashlytics.instance.recordError(

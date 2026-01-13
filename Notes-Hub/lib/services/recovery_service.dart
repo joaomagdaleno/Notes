@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 /// The result of a password recovery attempt.
 enum RecoveryResult {
@@ -32,11 +33,27 @@ class RecoveryService {
   RecoveryService({
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
-  })  : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  })  : _authInstance = auth,
+        _firestoreInstance = firestore;
 
-  final FirebaseAuth _auth;
-  final FirebaseFirestore _firestore;
+  final FirebaseAuth? _authInstance;
+  final FirebaseFirestore? _firestoreInstance;
+
+  FirebaseAuth get _auth {
+    if (_authInstance != null) return _authInstance;
+    if (Firebase.apps.isEmpty) {
+      throw StateError('Firebase not initialized');
+    }
+    return FirebaseAuth.instance;
+  }
+
+  FirebaseFirestore get _firestore {
+    if (_firestoreInstance != null) return _firestoreInstance;
+    if (Firebase.apps.isEmpty) {
+      throw StateError('Firebase not initialized');
+    }
+    return FirebaseFirestore.instance;
+  }
 
   static const _recoveryCodesCollection = 'recovery_codes';
   static const _usersCollection = 'users';

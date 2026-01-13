@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:notes_hub/editor/interactive_drawing_block.dart';
@@ -402,13 +404,23 @@ class EditorLine extends StatelessWidget {
                   onTap: () => onCheckboxTap?.call(lineStartOffset),
                   child: Padding(
                     padding: const EdgeInsets.only(right: 8, top: 2),
-                    child: Icon(
-                      isChecked
-                          ? Icons.check_box
-                          : Icons.check_box_outline_blank,
-                      size: 20,
-                      color: isChecked ? Colors.grey : Colors.black87,
-                    ),
+                    child: defaultTargetPlatform == TargetPlatform.windows
+                        ? fluent.Icon(
+                            isChecked
+                                ? fluent.FluentIcons.checkbox_composite
+                                : fluent.FluentIcons.checkbox,
+                            size: 20,
+                            color: isChecked
+                                ? fluent.Colors.grey
+                                : fluent.Colors.black,
+                          )
+                        : Icon(
+                            isChecked
+                                ? Icons.check_box
+                                : Icons.check_box_outline_blank,
+                            size: 20,
+                            color: isChecked ? Colors.grey : Colors.black87,
+                          ),
                   ),
                 ),
                 Expanded(
@@ -424,25 +436,29 @@ class EditorLine extends StatelessWidget {
             final type = calloutLine.type;
             Color color;
             IconData icon;
+            final isWindows = defaultTargetPlatform == TargetPlatform.windows;
             switch (type) {
               case CalloutType.note:
-                color = Colors.blue;
-                icon = Icons.info;
+                color = isWindows ? fluent.Colors.blue : Colors.blue;
+                icon = isWindows ? fluent.FluentIcons.info : Icons.info;
               case CalloutType.tip:
-                color = Colors.green;
-                icon = Icons.lightbulb;
+                color = isWindows ? fluent.Colors.green : Colors.green;
+                icon =
+                    isWindows ? fluent.FluentIcons.lightbulb : Icons.lightbulb;
               case CalloutType.warning:
-                color = Colors.orange;
-                icon = Icons.warning;
+                color = isWindows ? fluent.Colors.orange : Colors.orange;
+                icon = isWindows ? fluent.FluentIcons.warning : Icons.warning;
               case CalloutType.danger:
-                color = Colors.red;
-                icon = Icons.error;
+                color = isWindows ? fluent.Colors.red : Colors.red;
+                icon = isWindows ? fluent.FluentIcons.error : Icons.error;
               case CalloutType.info:
-                color = Colors.lightBlue;
-                icon = Icons.info_outline;
+                color = isWindows ? fluent.Colors.teal : Colors.lightBlue;
+                icon = isWindows ? fluent.FluentIcons.info : Icons.info_outline;
               case CalloutType.success:
-                color = Colors.greenAccent;
-                icon = Icons.check_circle;
+                color = isWindows ? fluent.Colors.green : Colors.greenAccent;
+                icon = isWindows
+                    ? fluent.FluentIcons.completed
+                    : Icons.check_circle;
             }
 
             const iconSize = 20.0;
@@ -453,7 +469,9 @@ class EditorLine extends StatelessWidget {
               inner = Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(icon, color: color, size: iconSize),
+                  defaultTargetPlatform == TargetPlatform.windows
+                      ? fluent.Icon(icon, color: color, size: iconSize)
+                      : Icon(icon, color: color, size: iconSize),
                   const SizedBox(width: spacing),
                   Expanded(child: textStack),
                 ],

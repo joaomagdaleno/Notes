@@ -1,3 +1,5 @@
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// A widget that allows editing a title in-place.
@@ -48,6 +50,20 @@ class _EditableTitleState extends State<EditableTitle> {
   @override
   Widget build(BuildContext context) {
     if (_isEditing) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        return fluent.TextBox(
+          controller: _controller,
+          focusNode: _focusNode,
+          autofocus: true,
+          placeholder: 'Edit Note',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          onSubmitted: (value) {
+            setState(() => _isEditing = false);
+            widget.onChanged(value);
+          },
+        );
+      }
+
       return TextField(
         controller: _controller,
         focusNode: _focusNode,
@@ -78,7 +94,11 @@ class _EditableTitleState extends State<EditableTitle> {
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: _controller.text.isEmpty ? Colors.grey : null,
+          color: _controller.text.isEmpty
+              ? (defaultTargetPlatform == TargetPlatform.windows
+                  ? fluent.Colors.grey
+                  : Colors.grey)
+              : null,
         ),
       ),
     );

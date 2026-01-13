@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:notes_hub/models/folder.dart';
@@ -61,10 +62,14 @@ class SyncService {
     _isDisposed = false;
     await _remoteSubscription?.cancel();
     await refreshLocalData();
-    // Start background sync
-    _startBackgroundSync();
-    // Try to push local changes
-    _syncUpFuture = syncUp();
+
+    // Check if Firebase is initialized before starting background tasks
+    if (Firebase.apps.isNotEmpty) {
+      // Start background sync
+      _startBackgroundSync();
+      // Try to push local changes
+      _syncUpFuture = syncUp();
+    }
   }
 
   /// Cancels subscriptions for testing.

@@ -1,7 +1,6 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:notes_hub/models/note.dart';
 import 'package:notes_hub/models/note_event.dart';
@@ -14,36 +13,43 @@ class FirestoreRepository {
   /// Uses the default [FirebaseFirestore.instance] unless explicit
   /// dependency injection is used.
   FirestoreRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
-      : firestore = firestore ?? FirebaseFirestore.instance,
-        auth = auth ?? FirebaseAuth.instance {
-    _initCollections();
-  }
-
-  FirestoreRepository._internal()
-      : firestore = FirebaseFirestore.instance,
-        auth = FirebaseAuth.instance {
+      : _firestore = firestore,
+        _auth = auth {
     _initCollections();
   }
 
   /// The Firestore instance.
-  FirebaseFirestore firestore;
+  FirebaseFirestore get firestore {
+    if (_firestore != null) return _firestore;
+    if (Firebase.apps.isEmpty) {
+      throw StateError(
+        'Firebase not initialized. Call Firebase.initializeApp() first.',
+      );
+    }
+    return FirebaseFirestore.instance;
+  }
 
   /// The FirebaseAuth instance.
-  FirebaseAuth auth;
+  FirebaseAuth get auth {
+    if (_auth != null) return _auth;
+    if (Firebase.apps.isEmpty) {
+      throw StateError(
+        'Firebase not initialized. Call Firebase.initializeApp() first.',
+      );
+    }
+    return FirebaseAuth.instance;
+  }
+
+  /// The Firestore instance.
+  final FirebaseFirestore? _firestore;
+
+  /// The FirebaseAuth instance.
+  final FirebaseAuth? _auth;
 
   /// The singleton instance of [FirestoreRepository].
   // ignore: prefer_constructors_over_static_methods
-  static FirestoreRepository get instance {
-    if (_instance == null) {
-      if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
-        _instance = FirestoreRepository();
-      } else {
-        // Fallback for Windows/Linux or if specifically mocked
-        _instance = FirestoreRepository._internal();
-      }
-    }
-    return _instance!;
-  }
+  static FirestoreRepository get instance =>
+      _instance ??= FirestoreRepository();
 
   /// Sets the singleton instance for testing.
   @visibleForTesting
@@ -52,6 +58,7 @@ class FirestoreRepository {
   static FirestoreRepository? _instance;
 
   void _initCollections() {
+    if (Firebase.apps.isEmpty && _firestore == null) return;
     _notesCollection = firestore.collection('notes');
     _usersCollection = firestore.collection('users');
     _foldersCollection = firestore.collection('folders');
