@@ -145,9 +145,8 @@ class GraphPainter extends CustomPainter {
     }
 
     for (var i = 0; i < count; i++) {
-      canvas
-          .drawCircle(positions[i], 8, nodeOutlinePaint)
-          .drawCircle(positions[i], 4, nodePaint);
+      canvas.drawCircle(positions[i], 8, nodeOutlinePaint);
+      canvas.drawCircle(positions[i], 4, nodePaint);
 
       if (count < 20) {
         TextPainter(

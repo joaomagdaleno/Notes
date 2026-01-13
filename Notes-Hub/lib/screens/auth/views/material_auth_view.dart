@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// A Material Design view for authentication (login and signup).
 class MaterialAuthView extends StatelessWidget {
   /// Creates a [MaterialAuthView].
-  const MaterialAuthView({
+  MaterialAuthView({
     required this.formKey,
     required this.emailController,
     required this.passwordController,
@@ -75,7 +75,7 @@ class MaterialAuthView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Semantics(
+                  Semantics(
                     label: 'Tela de autenticação',
                     child: CircleAvatar(
                       radius: 32,

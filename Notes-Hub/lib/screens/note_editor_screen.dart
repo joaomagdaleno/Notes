@@ -791,13 +791,10 @@ editor_screen.dart
     await SnippetConverter.precacheSnippets();
   }
 
-<<<<<<<< HEAD:Notes-Hub/lib/screens/editor/======@override
-  ==
   final bool _canUndo = false;
   final bool _canRedo = false;
 
->>>>>>>> dev:Notes-Hub/lib/screens/note_editor_screen.dart
-  Future<void> Future<void> Future<void> _attachImage() async {
+  Future<void> _attachImage() async {
     final pickedFile = await _imagePicker.pickImage(
       source: ImageSource.gallery,
     );
@@ -1104,8 +1101,7 @@ editor_screen.dart
     );
   }
 
-<<<<<<<< HEAD:Notes-Hub/lib/screens/editor/======@override
-  ==
+
   @override
   Widget build(BuildContext context) {
     // Define the editor widget
@@ -1414,8 +1410,7 @@ editor_screen.dart
     );
   }
 
->>>>>>>> dev:Notes-Hub/lib/screens/note_editor_screen.dart
-  int int int _getBlockIndexForOffset(int offset) {
+  int _getBlockIndexForOffset(int offset) {
     var currentOffset = 0;
     for (var i = 0; i < _document.blocks.length; i++) {
       final block = _document.blocks[i];
