@@ -7,7 +7,6 @@ import 'package:notes_hub/repositories/firestore_repository.dart';
 
 // Use distinct prefixes to avoid any potential shadowing
 import 'auth_service.suite.dart' as auth;
-import 'services/autocomplete_service.suite.dart' as autocomplete;
 import 'services/backup_service.suite.dart' as backup;
 import 'services/encryption_service.suite.dart' as encryption;
 import 'services/event_replayer.suite.dart' as event_replayer;
@@ -45,7 +44,6 @@ void main() {
   });
 
   auth.main();
-  autocomplete.main();
   backup.main();
   encryption.main();
   event_replayer.main();

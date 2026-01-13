@@ -243,7 +243,7 @@ class DocumentManipulator {
         'pos': selection.start,
         'len': selection.end - selection.start,
         // ignore: documented for clarity: using hex value for storage
-        'color': color.value,
+        'color': color.toARGB32(),
       },
     );
   }

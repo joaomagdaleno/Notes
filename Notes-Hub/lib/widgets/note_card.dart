@@ -80,7 +80,7 @@ class _NoteCardState extends State<NoteCard> {
   void initState() {
     super.initState();
     // ⚡ Bolt: Offload the expensive text computation to a background isolate.
-    _updatePlainText();
+    unawaited(_updatePlainText());
   }
 
   @override
@@ -88,7 +88,7 @@ class _NoteCardState extends State<NoteCard> {
     super.didUpdateWidget(oldWidget);
     if (widget.note.content != oldWidget.note.content) {
       // ⚡ Bolt: Re-compute the text content if the note has changed.
-      _updatePlainText();
+      unawaited(_updatePlainText());
     }
   }
 

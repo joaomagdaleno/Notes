@@ -21,7 +21,7 @@ import 'package:notes_hub/models/note_event.dart';
 import 'package:notes_hub/models/note_version.dart';
 import 'package:notes_hub/models/persona_model.dart';
 import 'package:notes_hub/models/reading_annotation.dart';
-import 'package:notes_hub/models/reading_bookmark.dart';
+
 import 'package:notes_hub/models/reading_plan_model.dart';
 import 'package:notes_hub/models/reading_settings.dart';
 import 'package:notes_hub/models/reading_stats.dart';
@@ -101,8 +101,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   bool get _isToolbarVisible =>
       _selectionRectNotifier.value != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
-  bool _isDrawingMode = false;
-  bool _softWrap = true;
+  final bool _isDrawingMode = false;
+  final bool _softWrap = true;
   Rect? get _selectionRect => _selectionRectNotifier.value;
   final _wordCountNotifier = ValueNotifier<int>(0);
   final _charCountNotifier = ValueNotifier<int>(0);
@@ -790,9 +790,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     );
     await SnippetConverter.precacheSnippets();
   }
-
-  final bool _canUndo = false;
-  final bool _canRedo = false;
 
   Future<void> _attachImage() async {
     final pickedFile = await _imagePicker.pickImage(
@@ -1574,231 +1571,98 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final editor = EditorWidget(
-      key: _editorKey,
-      document: _document,
-      onDocumentChanged: _onDocumentChanged,
-      selection: _selection,
-      onSelectionChanged: _onSelectionChanged,
-      onSelectionRectChanged: _onSelectionRectChanged,
-      scrollController: _scrollController,
-      remoteCursors: _remoteCursors,
-      onStyleToggle: _toggleStyle,
-      onUndo: _undo,
-      onRedo: _redo,
-      onSave: _saveNote,
-      onFind: () => setState(() => _isFindBarVisible = true),
-      onEscape: () {
-        if (_isFocusMode) {
-          _toggleFocusMode();
-        } else if (_isFindBarVisible) {
-          setState(() => _isFindBarVisible = false);
-        }
-      },
-      onLinkTap: (url) => unawaited(launchUrl(Uri.parse(url))),
-      initialPersona: _persona,
-      readingSettings: _readingSettings,
-      onOpenReadingSettings: _showReadingSettings,
-      onOpenOutline: _showOutline,
-      onOpenBookmarks: _showBookmarks,
-      onAddBookmark: _addBookmark,
-      onScrollToTop: _scrollToTop,
-      readAloudHighlightRange: _readAloudHighlightRange,
-      annotations: _annotations,
-      readingStats: _readingStats,
-      onSetReadingGoal: (m) => _statsService.setReadingGoal(_note!.id, m),
-      onNextSmart: () => _navigateSmart(true),
-      onPrevSmart: () => _navigateSmart(false),
-      onNextPlanNote: _onNextPlanNote,
-      onPrevPlanNote: _onPrevPlanNote,
-    );
-
-    return _buildUnifiedUI(editor);
-  }
-
-  Widget _buildUnifiedUI(Widget editor) {
-    final shortcuts = {
-      LogicalKeySet(
-        LogicalKeyboardKey.control,
-        LogicalKeyboardKey.shift,
-        LogicalKeyboardKey.keyZ,
-      ): const _RedoIntent(),
-    };
-
-    final actions = <Type, Action<Intent>>{
-      _UndoIntent: _UndoAction(this),
-      _RedoIntent: _RedoAction(this),
-      _CenterLineIntent: _CenterLineAction(this),
-      _ShowFormatMenuIntent: _ShowFormatMenuAction(this),
-    };
-
-    return CallbackShortcuts(
-      bindings: {
-        const SingleActivator(
-          LogicalKeyboardKey.keyK,
-          control: true,
-        ): _showContextCommandPalette,
-      },
-      child: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) async {
-          if (didPop) return;
-          await _saveNote();
-          if (mounted) Navigator.of(context).pop();
-        },
-        child: Actions(
-          actions: actions,
-          child: Shortcuts(
-            shortcuts: shortcuts,
-            child: defaultTargetPlatform == TargetPlatform.windows
-                ? FluentEditorView(
-                    editor: _buildEditorContent(editor),
-                    isFocusMode: _isFocusMode,
-                    noteTitle: _note?.title ?? '',
-                    onTitleChanged: (newTitle) => setState(() {
-                      _note = _note?.copyWith(title: newTitle);
-                    }),
-                    isCollaborative: _isCollaborative,
-                    remoteCursors: _remoteCursors,
-                    onToggleFindBar: () => setState(() {
-                      _isFindBarVisible = !_isFindBarVisible;
-                    }),
-                    onShowHistory: _showHistoryDialog,
-                    onToggleFocusMode: _toggleFocusMode,
-                  )
-                : MaterialEditorView(
-                    editor: _buildEditorContent(editor),
-                    isFocusMode: _isFocusMode,
-                    noteTitle: _note?.title ?? '',
-                    onTitleChanged: (newTitle) => setState(() {
-                      _note = _note?.copyWith(title: newTitle);
-                    }),
-                    isCollaborative: _isCollaborative,
-                    remoteCursors: _remoteCursors,
-                    onToggleFindBar: () => setState(() {
-                      _isFindBarVisible = !_isFindBarVisible;
-                    }),
-                    onShowHistory: _showHistoryDialog,
-                    onToggleFocusMode: _toggleFocusMode,
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEditorContent(Widget editor) {
-    return SafeArea(
-      child: Stack(
-        key: _stackKey,
-        children: [
-          Column(
-            children: [
-              if (_isFindBarVisible)
-                FindReplaceBar(
-                  onFindChanged: _onFindChanged,
-                  onFindNext: _findNext,
-                  onFindPrevious: _findPrevious,
-                  onReplace: _replace,
-                  onReplaceAll: _replaceAll,
-                  onClose: () => setState(() => _isFindBarVisible = false),
-                ),
-              Expanded(child: editor),
-              if (!_isFocusMode && _persona == EditorPersona.writer)
-                WriterToolbar(
-                  onBold: () => _toggleStyle(StyleAttribute.bold),
-                  onItalic: () => _toggleStyle(StyleAttribute.italic),
-                  onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                  onStrikethrough: () =>
-                      _toggleStyle(StyleAttribute.strikethrough),
-                  onColor: _showColorPicker,
-                  onFontSize: _showFontSizePicker,
-                  onAlignment: (align) => _toggleBlockAttribute('align', align),
-                  onIndent: _indentBlock,
-                  onList: (type) => _toggleBlockAttribute('list', type),
-                  onImage: _attachImage,
-                  onLink: _showLinkDialog,
-                  onUndo: _undo,
-                  onRedo: _redo,
-                  onStyleToggle: (s) => _toggleBlockAttribute(
-                    'header',
-                    s == 'normal' ? null : int.tryParse(s.replaceAll('h', '')),
-                  ),
-                  canUndo: _canUndo,
-                  canRedo: _canRedo,
-                ),
-            ],
-          ),
-          if (_isToolbarVisible)
-            () {
-              final stackBox =
-                  _stackKey.currentContext?.findRenderObject() as RenderBox?;
-              if (stackBox == null || _selectionRect == null) {
-                return const SizedBox.shrink();
-              }
-              final localPos = stackBox.globalToLocal(_selectionRect!.topLeft);
-              return Positioned(
-                top: localPos.dy - 60,
-                left: localPos.dx,
-                child: FloatingToolbar(
-                  onBold: () => _toggleStyle(StyleAttribute.bold),
-                  onItalic: () => _toggleStyle(StyleAttribute.italic),
-                  onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                  onStrikethrough: () =>
-                      _toggleStyle(StyleAttribute.strikethrough),
-                  onColor: _showColorPicker,
-                  onLink: _showLinkDialog,
-                  onHighlight: _addHighlight,
-                  onAddNote: _addAnnotationNote,
-                ),
-              );
-            }(),
-        ],
-      ),
-    );
-  }
-
-  void _showContextCommandPalette() {
-    unawaited(
-      showCommandPalette(
-        context,
-        actions: [
-          CommandAction(
-            title: 'New Note',
-            icon: Icons.note_add,
-            onSelect: () => unawaited(
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (context) => NoteEditorScreen(onSave: widget.onSave),
-                ),
-              ),
-            ),
-          ),
-          CommandAction(
-            title: 'Toggle Focus Mode',
-            icon: _isFocusMode ? Icons.fullscreen_exit : Icons.fullscreen,
-            onSelect: _toggleFocusMode,
-          ),
-          CommandAction(
-            title: 'Show Snippets',
-            icon: Icons.smart_button,
-            onSelect: _showSnippetsScreen,
-          ),
-        ],
-      ),
-    );
-  }
-
   void _insertCallout(CalloutType type) {
-    // TODO: Implement callout insertion
-    debugPrint('Insert callout: ${type.name}');
+    final result = DocumentManipulator.convertBlockToCallout(
+      _document,
+      _selection.baseOffset,
+      type,
+    );
+    _applyManipulation(result);
   }
 
   void _showTemplatePicker() {
-    // TODO: Implement template picker
-    debugPrint('Show template picker');
+    final templates = TemplateService.getTemplates();
+
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      unawaited(
+        fluent.showDialog<void>(
+          context: context,
+          builder: (context) => fluent.ContentDialog(
+            title: const Text('Choose a Template'),
+            content: SizedBox(
+              width: 400,
+              height: 300,
+              child: ListView.builder(
+                itemCount: templates.length,
+                itemBuilder: (context, index) {
+                  final template = templates[index];
+                  return fluent.ListTile.selectable(
+                    title: Text(template.name),
+                    subtitle: Text(template.description),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _applyTemplate(template);
+                    },
+                  );
+                },
+              ),
+            ),
+            actions: [
+              fluent.Button(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      unawaited(
+        showModalBottomSheet<void>(
+          context: context,
+          builder: (context) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    'Choose a Template',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ...templates.map(
+                  (template) => ListTile(
+                    title: Text(template.name),
+                    subtitle: Text(template.description),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _applyTemplate(template);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  void _applyTemplate(NoteTemplate template) {
+    // Create a document with the template content as plain text
+    final newDocument = DocumentModel(
+      blocks: [
+        TextBlock(spans: [TextSpanModel(text: template.contentMarkdown)]),
+      ],
+    );
+    setState(() {
+      _document = newDocument;
+      _selection = const TextSelection.collapsed(offset: 0);
+    });
+    _historyManager.record(
+      HistoryState(document: _document, selection: _selection),
+    );
   }
 }
 
