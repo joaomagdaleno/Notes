@@ -21,24 +21,6 @@ import 'package:notes_hub/widgets/note_card.dart';
 import 'package:notes_hub/widgets/quick_note_editor.dart';
 import 'package:notes_hub/widgets/sidebar.dart';
 import 'package:provider/provider.dart';
-<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/notes_screen.dart
-import 'package:notes_hub/models/note.dart';
-import 'package:notes_hub/models/persona_model.dart';
-import 'package:notes_hub/repositories/note_repository.dart';
-import 'package:notes_hub/screens/editor/editor_screen.dart';
-import 'package:notes_hub/screens/notes/views/fluent_notes_view.dart';
-import 'package:notes_hub/screens/notes/views/material_notes_view.dart';
-import 'package:notes_hub/screens/notes/widgets/dashboard_card.dart';
-import 'package:notes_hub/screens/settings/settings_screen.dart';
-import 'package:notes_hub/services/sync_service.dart';
-import 'package:notes_hub/services/theme_service.dart';
-import 'package:notes_hub/services/update_service.dart';
-import 'package:notes_hub/widgets/empty_state.dart';
-import 'package:notes_hub/widgets/note_card.dart';
-import 'package:notes_hub/widgets/quick_note_editor.dart';
-import 'package:notes_hub/widgets/sidebar.dart';
-========
->>>>>>>> dev:Notes-Hub/lib/screens/notes_screen.dart
 import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -72,9 +54,7 @@ enum SortOrder {
   titleDesc,
 }
 
-class _NotesScreenState extends State<NotesScreen> with WindowListener {notes_screen.dart
-notes_screen.dart
-  
+class _NotesScreenState extends State<NotesScreen> with WindowListener {
   // ⚡ Bolt: Cache SliverGridDelegates to avoid re-creating them on every
   // build. This is a significant performance win for list scrolling.
   static const _gridDelegateLarge = SliverGridDelegateWithMaxCrossAxisExtent(
@@ -107,8 +87,6 @@ notes_screen.dart
   final _searchResultsNotifier = ValueNotifier<List<Note>?>(null);
   final _isSearchingNotifier = ValueNotifier<bool>(false);
 
-<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/======@override
-  ==
   // --- Bolt's Memoization Cache for Sorted Notes ---
   // We store the previously sorted list to avoid re-sorting on every build.
   List<Note>? _cachedSortedNotes;
@@ -129,7 +107,7 @@ notes_screen.dart
   Widget? _dashboard;
 
   // 🎨 Palette: Cycle through view modes to provide a dynamic button.
->>>>>>>> dev:Notes-Hub/lib/screens/void _cycleViewMode() {
+  void _cycleViewMode() {
     const modes = ['grid_medium', 'grid_large', 'list'];
     final currentMode = _viewModeNotifier.value;
     final nextIndex = (modes.indexOf(currentMode) + 1) % modes.length;
@@ -180,13 +158,6 @@ notes_screen.dart
   @override
   void initState() {
     super.initState();
-<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/notes_screen.dart
-    _updateService = widget.updateService ?? UpdateService();
-    _notesStream = _syncService.notesStream;
-    windowManager.addListener(this);
-    _updateNotesStream();
-    _searchController.addListener(_onSearchChanged);
-========
     unawaited(
       StartupLogger.log(
         '🎬 NotesScreen.initState starting after super.initState',
@@ -238,7 +209,6 @@ notes_screen.dart
       unawaited(StartupLogger.log('🔥 CRASH in NotesScreen.initState: $e'));
       unawaited(StartupLogger.log(stack.toString()));
     }
->>>>>>>> dev:Notes-Hub/lib/screens/notes_screen.dart
   }
 
   @override
@@ -661,61 +631,42 @@ notes_screen.dart
     return ValueListenableBuilder<SortOrder>(
       valueListenable: _sortOrderNotifier,
       builder: (context, sortOrder, child) {
-<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/notes_screen.dart
         final query = _searchController.text.toLowerCase();
-        var displayNotes = notes;
+        var processedNotes = notes;
         if (query.isNotEmpty) {
-          displayNotes = notes.where((note) {
+          processedNotes = notes.where((note) {
             return note.title.toLowerCase().contains(query) ||
                 note.content.toLowerCase().contains(query);
           }).toList();
         }
 
-        displayNotes.sort((a, b) {
-          switch (sortOrder) {
-            case SortOrder.dateAsc:
-              return a.lastModified.compareTo(b.lastModified);
-            case SortOrder.titleAsc:
-              return a.title.toLowerCase().compareTo(b.title.toLowerCase());
-            case SortOrder.titleDesc:
-              return b.title.toLowerCase().compareTo(a.title.toLowerCase());
-            case SortOrder.dateDesc:
-              return b.lastModified.compareTo(a.lastModified);
-          }
-        });
-========
         // ⚡ Bolt: Memoization check.
         // We only re-sort the list if the source notes have changed or the
         // sort order has changed. Otherwise, we use the cached list.
         // This prevents expensive sorting on every widget rebuild.
-        final isCacheValid =
-            _rawNotesForCache == notes && _sortOrderForCache == sortOrder;
+        final isCacheValid = _rawNotesForCache == processedNotes &&
+            _sortOrderForCache == sortOrder;
 
         if (!isCacheValid || _cachedSortedNotes == null) {
-          _cachedSortedNotes = List<Note>.from(notes)
+          _cachedSortedNotes = List<Note>.from(processedNotes)
             ..sort((a, b) {
               switch (sortOrder) {
                 case SortOrder.dateAsc:
                   return a.lastModified.compareTo(b.lastModified);
                 case SortOrder.titleAsc:
-                  return a.title
-                      .toLowerCase()
-                      .compareTo(b.title.toLowerCase());
+                  return a.title.toLowerCase().compareTo(b.title.toLowerCase());
                 case SortOrder.titleDesc:
-                  return b.title
-                      .toLowerCase()
-                      .compareTo(a.title.toLowerCase());
+                  return b.title.toLowerCase().compareTo(a.title.toLowerCase());
                 case SortOrder.dateDesc:
                   return b.lastModified.compareTo(a.lastModified);
               }
             });
           // Update the cache state
-          _rawNotesForCache = notes;
+          _rawNotesForCache = processedNotes;
           _sortOrderForCache = sortOrder;
         }
 
         final displayNotes = _cachedSortedNotes!;
->>>>>>>> dev:Notes-Hub/lib/screens/notes_screen.dart
 
         if (displayNotes.isEmpty) {
           return const EmptyState(
@@ -774,23 +725,9 @@ notes_screen.dart
       case 'grid_large':
         return _gridDelegateLarge;
       case 'list':
-<<<<<<<< HEAD:Notes-Hub/lib/screens/notes/notes_screen.dart
-        return const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 1,
-          childAspectRatio: 5 / 1,
-        );
-      default:
-        return const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-        );
-========
         return _gridDelegateList;
       default: // grid_medium
         return _gridDelegateMedium;
->>>>>>>> dev:Notes-Hub/lib/screens/notes_screen.dart
     }
   }
 

@@ -3,15 +3,10 @@ import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-<<<<<<<< HEAD:notes_hub/lib/screens/snippets/snippets_screen.dart
 import 'package:notes_hub/models/snippet.dart';
 import 'package:notes_hub/repositories/note_repository.dart';
 import 'package:notes_hub/screens/snippets/views/fluent_snippets_view.dart';
 import 'package:notes_hub/screens/snippets/views/material_snippets_view.dart';
-========
-import 'package:notes_hub/models/snippet.dart';
-import 'package:notes_hub/repositories/note_repository.dart';
->>>>>>>> dev:Notes-Hub/lib/screens/void void snippets_screen.dart
 
 /// Controller for the snippets screen.
 class SnippetsScreen extends StatefulWidget {

@@ -135,7 +135,7 @@ class GraphPainter extends CustomPainter {
                 (i.isEven ? 1 : 1.05) *
                 (i / count > 0.5 ? 0.95 : 1) *
                 math.sin(angle),
-      ));
+      ),);
     }
 
     for (var i = 0; i < count; i++) {

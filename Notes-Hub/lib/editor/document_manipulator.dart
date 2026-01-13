@@ -242,7 +242,7 @@ class DocumentManipulator {
       eventPayload: {
         'pos': selection.start,
         'len': selection.end - selection.start,
-        // ignore: deprecated_member_use, documented for clarity: using hex value for storage
+        // ignore: documented for clarity: using hex value for storage
         'color': color.value,
       },
     );

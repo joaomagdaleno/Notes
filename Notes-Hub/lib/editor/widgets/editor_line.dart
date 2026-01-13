@@ -555,12 +555,15 @@ class EditorLine extends StatelessWidget {
         }
 
         // Wrap with highlight if this is the current line
-        final highlightedContent = Container(
-          color: isCurrentLine
-              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
-              : null,
-          child: content,
-        );
+        final highlightedContent = isCurrentLine
+            ? ColoredBox(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.08),
+                child: content,
+              )
+            : content;
 
         return GestureDetector(
           onTapDown: (d) {

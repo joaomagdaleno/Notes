@@ -82,9 +82,7 @@ class NoteEditorScreen extends StatefulWidget {
 }
 
 class _NoteEditorScreenState extends State<NoteEditorScreen>
-    with WidgetsBindingObserver {editor_screen.dart
-editor_screen.dart
-
+    with WidgetsBindingObserver {
   Note? _note;
   late DocumentModel _document;
 
@@ -103,6 +101,8 @@ editor_screen.dart
   bool get _isToolbarVisible =>
       _selectionRectNotifier.value != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
+  bool _isDrawingMode = false;
+  bool _softWrap = true;
   Rect? get _selectionRect => _selectionRectNotifier.value;
   final _wordCountNotifier = ValueNotifier<int>(0);
   final _charCountNotifier = ValueNotifier<int>(0);
@@ -1101,7 +1101,6 @@ editor_screen.dart
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     // Define the editor widget
@@ -1455,14 +1454,26 @@ editor_screen.dart
     }
   }
 
-
-
   Future<void> _showColorPicker() async {
     final colors = [
-      Colors.black, Colors.grey, Colors.red, Colors.pink, Colors.purple,
-      Colors.deepPurple, Colors.indigo, Colors.blue, Colors.lightBlue,
-      Colors.cyan, Colors.teal, Colors.green, Colors.lightGreen, Colors.lime,
-      Colors.yellow, Colors.amber, Colors.orange, Colors.deepOrange,
+      Colors.black,
+      Colors.grey,
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lightGreen,
+      Colors.lime,
+      Colors.yellow,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
       Colors.brown,
     ];
 
@@ -1562,10 +1573,6 @@ editor_screen.dart
       _applyManipulation(result);
     }
   }
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -1783,23 +1790,46 @@ editor_screen.dart
       ),
     );
   }
+
+  void _insertCallout(CalloutType type) {
+    // TODO: Implement callout insertion
+    debugPrint('Insert callout: ${type.name}');
+  }
+
+  void _showTemplatePicker() {
+    // TODO: Implement template picker
+    debugPrint('Show template picker');
+  }
 }
 
-class _UndoIntent extends Intent { const _UndoIntent(); }
-class _RedoIntent extends Intent { const _RedoIntent(); }
-class _CenterLineIntent extends Intent { const _CenterLineIntent(); }
-class _ShowFormatMenuIntent extends Intent { const _ShowFormatMenuIntent(); }
+class _UndoIntent extends Intent {
+  const _UndoIntent();
+}
+
+class _RedoIntent extends Intent {
+  const _RedoIntent();
+}
+
+class _CenterLineIntent extends Intent {
+  const _CenterLineIntent();
+}
+
+class _ShowFormatMenuIntent extends Intent {
+  const _ShowFormatMenuIntent();
+}
 
 class _UndoAction extends Action<_UndoIntent> {
   _UndoAction(this.state);
   final _NoteEditorScreenState state;
-  @override void invoke(_UndoIntent intent) => state._undo();
+  @override
+  void invoke(_UndoIntent intent) => state._undo();
 }
 
 class _RedoAction extends Action<_RedoIntent> {
   _RedoAction(this.state);
   final _NoteEditorScreenState state;
-  @override void invoke(_RedoIntent intent) => state._redo();
+  @override
+  void invoke(_RedoIntent intent) => state._redo();
 }
 
 class _CenterLineAction extends Action<_CenterLineIntent> {
