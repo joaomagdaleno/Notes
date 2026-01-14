@@ -469,23 +469,41 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _toggleFavorite(Note note) async {
-    final noteRepository = NoteRepository.instance;
-    await noteRepository.updateNote(
-      note.copyWith(isFavorite: !note.isFavorite),
-    );
-    await _syncService.refreshLocalData();
+    try {
+      final noteRepository = NoteRepository.instance;
+      await noteRepository.updateNote(
+        note.copyWith(isFavorite: !note.isFavorite),
+      );
+      await _syncService.refreshLocalData();
+    } on Exception catch (e) {
+      if (mounted) {
+        _showErrorNotification('Erro ao favoritar nota: $e');
+      }
+    }
   }
 
   Future<void> _moveToTrash(Note note) async {
-    final noteRepository = NoteRepository.instance;
-    await noteRepository.updateNote(note.copyWith(isInTrash: true));
-    await _syncService.refreshLocalData();
+    try {
+      final noteRepository = NoteRepository.instance;
+      await noteRepository.updateNote(note.copyWith(isInTrash: true));
+      await _syncService.refreshLocalData();
+    } on Exception catch (e) {
+      if (mounted) {
+        _showErrorNotification('Erro ao mover para a lixeira: $e');
+      }
+    }
   }
 
   Future<void> _restoreNote(Note note) async {
-    final noteRepository = NoteRepository.instance;
-    await noteRepository.updateNote(note.copyWith(isInTrash: false));
-    await _syncService.refreshLocalData();
+    try {
+      final noteRepository = NoteRepository.instance;
+      await noteRepository.updateNote(note.copyWith(isInTrash: false));
+      await _syncService.refreshLocalData();
+    } on Exception catch (e) {
+      if (mounted) {
+        _showErrorNotification('Erro ao restaurar nota: $e');
+      }
+    }
   }
 
   Future<void> _deletePermanently(Note note) async {
@@ -538,9 +556,15 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     );
 
     if (shouldDelete ?? false) {
-      final noteRepository = NoteRepository.instance;
-      await noteRepository.deleteNotePermanently(note.id);
-      await _syncService.refreshLocalData();
+      try {
+        final noteRepository = NoteRepository.instance;
+        await noteRepository.deleteNotePermanently(note.id);
+        await _syncService.refreshLocalData();
+      } on Exception catch (e) {
+        if (mounted) {
+          _showErrorNotification('Erro ao excluir nota permanentemente: $e');
+        }
+      }
     }
   }
 
@@ -696,10 +720,17 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                         note: note,
                         onTap: () => unawaited(_openNoteEditor(note)),
                         onSave: (Note note) async {
-                          final noteRepository = NoteRepository.instance;
-                          await noteRepository.updateNote(note);
-                          await _syncService.refreshLocalData();
-                          return note;
+                          try {
+                            final noteRepository = NoteRepository.instance;
+                            await noteRepository.updateNote(note);
+                            await _syncService.refreshLocalData();
+                            return note;
+                          } on Exception catch (e) {
+                            if (mounted) {
+                              _showErrorNotification('Erro ao salvar nota: $e');
+                            }
+                            rethrow;
+                          }
                         },
                         onDelete: _deletePermanently,
                         onFavorite: isTrashView
@@ -832,6 +863,29 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
       onCreateNote: _createNewNote,
       onOpenQuickEditor: _abrirEditorRapido,
     );
+  }
+
+  void _showErrorNotification(String message) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      fluent.displayInfoBar(
+        context,
+        builder: (context, close) {
+          return fluent.InfoBar(
+            title: const Text('Erro'),
+            content: Text(message),
+            severity: fluent.InfoBarSeverity.error,
+            onClose: close,
+          );
+        },
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
 

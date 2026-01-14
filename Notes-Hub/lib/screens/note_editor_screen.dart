@@ -1474,96 +1474,221 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       Colors.brown,
     ];
 
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Color'),
-        content: SingleChildScrollView(
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: colors.map((color) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                  final result = DocumentManipulator.applyColor(
-                    _document,
-                    _selection,
-                    color,
-                  );
-                  _applyManipulation(result);
-                },
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey.shade300),
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      await fluent.showDialog<void>(
+        context: context,
+        builder: (context) => fluent.ContentDialog(
+          title: const Text('Select Color'),
+          content: SingleChildScrollView(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: colors.map((color) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    final result = DocumentManipulator.applyColor(
+                      _document,
+                      _selection,
+                      color,
+                    );
+                    _applyManipulation(result);
+                  },
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: fluent.FluentTheme.of(context)
+                            .resources
+                            .dividerStrokeColorDefault,
+                        width: 1,
+                      ),
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
+          actions: [
+            fluent.Button(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+          ],
         ),
-      ),
-    );
+      );
+    } else {
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Select Color'),
+          content: SingleChildScrollView(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: colors.map((color) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    final result = DocumentManipulator.applyColor(
+                      _document,
+                      _selection,
+                      color,
+                    );
+                    _applyManipulation(result);
+                  },
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Future<void> _showFontSizePicker() async {
     final sizes = [12.0, 14.0, 16.0, 18.0, 20.0, 24.0, 28.0, 32.0, 36.0, 48.0];
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Font Size'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: sizes.length,
-            itemBuilder: (context, index) {
-              final size = sizes[index];
-              return ListTile(
-                title: Text(
-                  'Size ${size.toInt()}',
-                  style: TextStyle(fontSize: size),
-                ),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  final result = DocumentManipulator.applyFontSize(
-                    _document,
-                    _selection,
-                    size,
-                  );
-                  _applyManipulation(result);
-                },
-              );
-            },
+
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      await fluent.showDialog<void>(
+        context: context,
+        builder: (context) => fluent.ContentDialog(
+          title: const Text('Select Font Size'),
+          content: SizedBox(
+            width: 300,
+            height: 400,
+            child: fluent.ListView.builder(
+              itemCount: sizes.length,
+              itemBuilder: (context, index) {
+                final size = sizes[index];
+                return fluent.ListTile.selectable(
+                  title: Text(
+                    'Size ${size.toInt()}',
+                    style: TextStyle(fontSize: size),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    final result = DocumentManipulator.applyFontSize(
+                      _document,
+                      _selection,
+                      size,
+                    );
+                    _applyManipulation(result);
+                  },
+                );
+              },
+            ),
           ),
+          actions: [
+            fluent.Button(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+          ],
         ),
-      ),
-    );
+      );
+    } else {
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Select Font Size'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: sizes.length,
+              itemBuilder: (context, index) {
+                final size = sizes[index];
+                return ListTile(
+                  title: Text(
+                    'Size ${size.toInt()}',
+                    style: TextStyle(fontSize: size),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    final result = DocumentManipulator.applyFontSize(
+                      _document,
+                      _selection,
+                      size,
+                    );
+                    _applyManipulation(result);
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Future<void> _showLinkDialog() async {
     final controller = TextEditingController();
-    final url = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Insert Link'),
-        content: TextField(controller: controller, autofocus: true),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+    final String? url;
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      url = await fluent.showDialog<String>(
+        context: context,
+        builder: (context) => fluent.ContentDialog(
+          title: const Text('Insert Link'),
+          content: fluent.TextBox(
+            controller: controller,
+            autofocus: true,
+            placeholder: 'https://example.com',
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(controller.text),
-            child: const Text('Insert'),
-          ),
-        ],
-      ),
-    );
+          actions: [
+            fluent.Button(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            fluent.FilledButton(
+              onPressed: () => Navigator.of(context).pop(controller.text),
+              child: const Text('Insert'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      url = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Insert Link'),
+          content: TextField(controller: controller, autofocus: true),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(controller.text),
+              child: const Text('Insert'),
+            ),
+          ],
+        ),
+      );
+    }
 
     if (url != null && url.isNotEmpty) {
       final result = DocumentManipulator.applyLink(_document, _selection, url);

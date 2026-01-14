@@ -189,9 +189,6 @@ class _NoteCardState extends State<NoteCard> {
           final updatedNote =
               widget.note.copyWith(isFavorite: !widget.note.isFavorite);
           await widget.onSave(updatedNote);
-          if (context.mounted) {
-            fluent.Navigator.of(context).pop();
-          }
         },
       ),
       fluent.MenuFlyoutItem(
@@ -200,9 +197,6 @@ class _NoteCardState extends State<NoteCard> {
         onPressed: () async {
           final updatedNote = widget.note.copyWith(isInTrash: true);
           await widget.onSave(updatedNote);
-          if (context.mounted) {
-            fluent.Navigator.of(context).pop();
-          }
         },
       ),
     ];
@@ -218,9 +212,6 @@ class _NoteCardState extends State<NoteCard> {
         onPressed: () async {
           final updatedNote = widget.note.copyWith(isInTrash: false);
           await widget.onSave(updatedNote);
-          if (context.mounted) {
-            fluent.Navigator.of(context).pop();
-          }
         },
       ),
       fluent.MenuFlyoutItem(
@@ -228,9 +219,6 @@ class _NoteCardState extends State<NoteCard> {
         leading: const fluent.Icon(fluent.FluentIcons.delete),
         onPressed: () {
           widget.onDelete(widget.note);
-          if (context.mounted) {
-            fluent.Navigator.of(context).pop();
-          }
         },
       ),
     ];

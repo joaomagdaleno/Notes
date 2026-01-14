@@ -666,17 +666,22 @@ class NoteRepository {
   // --- Note Methods ---
   /// Inserts a new note into the database.
   Future<String> insertNote(Note note) async {
-    final db = await database;
-    await db.transaction((txn) async {
-      await txn.insert(
-        _notesTable,
-        note.copyWith(syncStatus: SyncStatus.local).toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      await _updateTagsForNote(txn, note);
-    });
-    _wordFrequencyCache = null;
-    return note.id;
+    try {
+      final db = await database;
+      await db.transaction((txn) async {
+        await txn.insert(
+          _notesTable,
+          note.copyWith(syncStatus: SyncStatus.local).toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+        await _updateTagsForNote(txn, note);
+      });
+      _wordFrequencyCache = null;
+      return note.id;
+    } on Exception catch (e) {
+      debugPrint('❌ [DB] Error inserting note: $e');
+      rethrow;
+    }
   }
 
   /// Retrieves notes, optionally filtering by folder, favorite, or trash
@@ -802,27 +807,37 @@ class NoteRepository {
 
   /// Updates a note's metadata.
   Future<void> updateNote(Note note) async {
-    final db = await database;
-    await db.transaction((txn) async {
-      await txn.update(
-        _notesTable,
-        note.copyWith(syncStatus: SyncStatus.modified).toMap(),
-        where: 'id = ?',
-        whereArgs: [note.id],
-      );
-      await _updateTagsForNote(txn, note);
-    });
+    try {
+      final db = await database;
+      await db.transaction((txn) async {
+        await txn.update(
+          _notesTable,
+          note.copyWith(syncStatus: SyncStatus.modified).toMap(),
+          where: 'id = ?',
+          whereArgs: [note.id],
+        );
+        await _updateTagsForNote(txn, note);
+      });
+    } on Exception catch (e) {
+      debugPrint('❌ [DB] Error updating note: $e');
+      rethrow;
+    }
   }
 
   /// Moves a note to the trash.
   Future<void> deleteNote(String id) async {
-    final db = await database;
-    await db.update(
-      _notesTable,
-      {'isInTrash': 1},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    try {
+      final db = await database;
+      await db.update(
+        _notesTable,
+        {'isInTrash': 1},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } on Exception catch (e) {
+      debugPrint('❌ [DB] Error trashing note: $e');
+      rethrow;
+    }
   }
 
   /// Helper to update relational tag tables.
@@ -855,13 +870,18 @@ class NoteRepository {
 
   /// Deletes a note permanently.
   Future<void> deleteNotePermanently(String noteId) async {
-    final db = await database;
-    await db.delete(
-      _notesTable,
-      where: 'id = ?',
-      whereArgs: [noteId],
-    );
-    _wordFrequencyCache = null;
+    try {
+      final db = await database;
+      await db.delete(
+        _notesTable,
+        where: 'id = ?',
+        whereArgs: [noteId],
+      );
+      _wordFrequencyCache = null;
+    } on Exception catch (e) {
+      debugPrint('❌ [DB] Error deleting note permanently: $e');
+      rethrow;
+    }
   }
 
   // --- Note Event Methods ---
