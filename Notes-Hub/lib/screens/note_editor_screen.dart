@@ -138,8 +138,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   List<ReadingAnnotation> _annotations = [];
   (int, int)? _readAloudHighlightRange;
   bool _isReadAloudControlsVisible = false;
-  late SharedPreferences _prefs;
-  final FocusNode _focusNode = FocusNode();
+  bool _isFocusMode = false;
+  bool _isDrawingMode = false;
+  final bool _softWrap = true;
 
   final bool _canUndo = false; // Simplified for MVP
   final bool _canRedo = false; // Simplified for MVP
@@ -170,7 +171,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     unawaited(SnippetConverter.precacheSnippets());
     unawaited(_loadReadingSettings());
     unawaited(_loadReadingData());
-    _focusNode.requestFocus();
+    // Drawing mode logic
+    _isDrawingMode = _persona == EditorPersona.brainstorm;
 
     _readAloudService.positionStream.listen((pos) {
       if (mounted) {
@@ -273,7 +275,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     if (_isCollaborative && _note != null) {
       unawaited(_firestoreRepository.removeCursor(_note!.id));
     }
-    _focusNode.dispose();
     super.dispose();
   }
 
@@ -1134,7 +1135,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       },
       isDrawingMode: _isDrawingMode,
       softWrap: _softWrap,
-      initialPersona: widget.initialPersona ?? EditorPersona.architect,
+      initialPersona: _persona,
       readingSettings: _readingSettings,
       onOpenReadingSettings: _showReadingSettings,
       onOpenOutline: _showOutline,
