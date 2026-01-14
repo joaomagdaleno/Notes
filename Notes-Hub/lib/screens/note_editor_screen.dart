@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:notes_hub/editor/document.dart';
 import 'package:notes_hub/editor/document_adapter.dart';
 import 'package:notes_hub/editor/document_manipulator.dart';
+import 'package:notes_hub/editor/editor_toolbar.dart';
 import 'package:notes_hub/editor/editor_widget.dart';
 import 'package:notes_hub/editor/floating_toolbar.dart';
 import 'package:notes_hub/editor/history_manager.dart';
@@ -101,7 +102,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   bool get _isToolbarVisible =>
       _selectionRectNotifier.value != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
-  final bool _isDrawingMode = false;
+  bool _isDrawingMode = false;
   final bool _softWrap = true;
   Rect? get _selectionRect => _selectionRectNotifier.value;
   final _wordCountNotifier = ValueNotifier<int>(0);
@@ -1149,6 +1150,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       onPrevSmart: () => _navigateSmart(false),
       onNextPlanNote: _onNextPlanNote,
       onPrevPlanNote: _onPrevPlanNote,
+      onPersonaChanged: (persona) {
+        setState(() {
+          _persona = persona;
+          // Auto-enable drawing mode for Brainstorm, disable for others
+          _isDrawingMode = persona == EditorPersona.brainstorm;
+        });
+      },
     );
 
     // Final build result
@@ -1245,7 +1253,70 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     );
   }
 
+  Widget _buildToolbar() {
+    if (_isFocusMode || _persona == EditorPersona.reading) {
+      return const SizedBox.shrink();
+    }
+
+    if (_persona == EditorPersona.writer) {
+      return WriterToolbar(
+        onBold: () => _toggleStyle(StyleAttribute.bold),
+        onItalic: () => _toggleStyle(StyleAttribute.italic),
+        onUnderline: () => _toggleStyle(StyleAttribute.underline),
+        onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
+        onColor: _showColorPicker,
+        onFontSize: _showFontSizePicker,
+        onAlignment: (align) => _toggleBlockAttribute('align', align),
+        onIndent: _indentBlock,
+        onList: (type) => _toggleBlockAttribute('list', type),
+        onImage: _attachImage,
+        onLink: _showLinkDialog,
+        onUndo: _undo,
+        onRedo: _redo,
+        onStyleToggle: (s) => _toggleBlockAttribute(
+          'header',
+          s == 'normal' ? null : int.tryParse(s.replaceAll('h', '')),
+        ),
+        canUndo: _canUndo,
+        canRedo: _canRedo,
+      );
+    }
+
+    // Architect and Brainstorm use the EditorToolbar
+    return Material(
+      type: MaterialType.transparency,
+      child: EditorToolbar(
+        onBold: () => _toggleStyle(StyleAttribute.bold),
+        onItalic: () => _toggleStyle(StyleAttribute.italic),
+        onUnderline: () => _toggleStyle(StyleAttribute.underline),
+        onStrikethrough: () => _toggleStyle(StyleAttribute.strikethrough),
+        onColor: _showColorPicker,
+        onFontSize: _showFontSizePicker,
+        onSnippets: _showSnippetsScreen,
+        onImage: _attachImage,
+        onUndo: _undo,
+        onRedo: _redo,
+        canUndo: _canUndo,
+        canRedo: _canRedo,
+        wordCountNotifier: _wordCountNotifier,
+        charCountNotifier: _charCountNotifier,
+        onAlignment: (align) => _toggleBlockAttribute('align', align),
+        onIndent: _indentBlock,
+        onList: (type) => _toggleBlockAttribute('list', type),
+        isDrawingMode: _isDrawingMode,
+        onToggleDrawingMode: () {
+          setState(() {
+            _isDrawingMode = !_isDrawingMode;
+          });
+        },
+      ),
+    );
+  }
+
   Widget _buildEditorContent(Widget editor) {
+    final isLargeScreen = defaultTargetPlatform == TargetPlatform.windows ||
+        MediaQuery.of(context).size.width > 600;
+
     return SafeArea(
       child: Stack(
         key: _stackKey,
@@ -1261,30 +1332,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                   onReplaceAll: _replaceAll,
                   onClose: () => setState(() => _isFindBarVisible = false),
                 ),
+              if (isLargeScreen) _buildToolbar(),
               Expanded(child: editor),
-              if (!_isFocusMode && _persona == EditorPersona.writer)
-                WriterToolbar(
-                  onBold: () => _toggleStyle(StyleAttribute.bold),
-                  onItalic: () => _toggleStyle(StyleAttribute.italic),
-                  onUnderline: () => _toggleStyle(StyleAttribute.underline),
-                  onStrikethrough: () =>
-                      _toggleStyle(StyleAttribute.strikethrough),
-                  onColor: _showColorPicker,
-                  onFontSize: _showFontSizePicker,
-                  onAlignment: (align) => _toggleBlockAttribute('align', align),
-                  onIndent: _indentBlock,
-                  onList: (type) => _toggleBlockAttribute('list', type),
-                  onImage: _attachImage,
-                  onLink: _showLinkDialog,
-                  onUndo: _undo,
-                  onRedo: _redo,
-                  onStyleToggle: (s) => _toggleBlockAttribute(
-                    'header',
-                    s == 'normal' ? null : int.tryParse(s.replaceAll('h', '')),
-                  ),
-                  canUndo: _canUndo,
-                  canRedo: _canRedo,
-                ),
+              if (!isLargeScreen) _buildToolbar(),
             ],
           ),
           if (_isToolbarVisible)

@@ -70,6 +70,7 @@ class EditorWidget extends StatefulWidget {
     this.onPrevSmart,
     this.onNextPlanNote,
     this.onPrevPlanNote,
+    this.onPersonaChanged,
     super.key,
   });
 
@@ -140,6 +141,9 @@ class EditorWidget extends StatefulWidget {
 
   /// Callback when a list toggle shortcut is pressed (Ctrl+L, Ctrl+Shift+L).
   final void Function(String listType)? onToggleList;
+
+  /// Callback when the active persona changes.
+  final ValueChanged<EditorPersona>? onPersonaChanged;
 
   /// Callback when insert link shortcut is pressed (Ctrl+K).
   final VoidCallback? onInsertLink;
@@ -302,6 +306,7 @@ class EditorWidgetState extends State<EditorWidget> {
         setState(() {
           _activePersona = persona;
         });
+        widget.onPersonaChanged?.call(persona);
       },
     );
   }
