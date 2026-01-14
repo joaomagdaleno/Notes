@@ -469,7 +469,10 @@ class EditorLine extends StatelessWidget {
               inner = Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (defaultTargetPlatform == TargetPlatform.windows) fluent.Icon(icon, color: color, size: iconSize) else Icon(icon, color: color, size: iconSize),
+                  if (defaultTargetPlatform == TargetPlatform.windows)
+                    fluent.Icon(icon, color: color, size: iconSize)
+                  else
+                    Icon(icon, color: color, size: iconSize),
                   const SizedBox(width: spacing),
                   Expanded(child: textStack),
                 ],

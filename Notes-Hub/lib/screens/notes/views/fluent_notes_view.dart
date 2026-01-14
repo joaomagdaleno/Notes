@@ -27,6 +27,8 @@ class FluentNotesView extends StatefulWidget {
     required this.onCreateFolder,
     required this.onDeleteFolder,
     required this.isSearchingNotifier,
+    this.onEmptyTrash,
+    this.onRestoreAllTrash,
     super.key,
   });
 
@@ -87,6 +89,12 @@ class FluentNotesView extends StatefulWidget {
 
   /// Notifier for whether a search is in progress.
   final ValueListenable<bool> isSearchingNotifier;
+
+  /// Callback to empty the trash.
+  final VoidCallback? onEmptyTrash;
+
+  /// Callback to restore all notes from the trash.
+  final VoidCallback? onRestoreAllTrash;
 
   @override
   State<FluentNotesView> createState() => _FluentNotesViewState();
@@ -284,6 +292,26 @@ class _FluentNotesViewState extends State<FluentNotesView> {
               ),
               paneBodyBuilder: (item, body) {
                 return ScaffoldPage(
+                  header: widget.isTrashView
+                      ? PageHeader(
+                          title: Text(widget.title),
+                          leading: Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: IconButton(
+                              icon: const Icon(FluentIcons.back),
+                              onPressed: () {
+                                if (Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                } else {
+                                  widget.onSelectionChanged(
+                                    const SidebarSelection(SidebarItemType.all),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        )
+                      : null,
                   content: Column(
                     children: [
                       Padding(
@@ -318,7 +346,42 @@ class _FluentNotesViewState extends State<FluentNotesView> {
                     ],
                   ),
                   bottomBar: widget.isTrashView
-                      ? null
+                      ? Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Button(
+                                onPressed: widget.onRestoreAllTrash,
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(FluentIcons.reset),
+                                    SizedBox(width: 8),
+                                    Text('Restaurar tudo'),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              FilledButton(
+                                style: ButtonStyle(
+                                  backgroundColor: WidgetStateProperty.all(
+                                    Colors.red,
+                                  ),
+                                ),
+                                onPressed: widget.onEmptyTrash,
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(FluentIcons.delete),
+                                    SizedBox(width: 8),
+                                    Text('Esvaziar lixeira'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
                       : Padding(
                           padding: const EdgeInsets.all(24),
                           child: Row(

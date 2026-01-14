@@ -185,6 +185,10 @@ class _AboutScreenState extends State<AboutScreen> {
       label: 'About Notes Hub',
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
           title: const Text('Sobre'),
         ),
         body: Center(

@@ -1504,7 +1504,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                         color: fluent.FluentTheme.of(context)
                             .resources
                             .dividerStrokeColorDefault,
-                        width: 1,
                       ),
                     ),
                   ),

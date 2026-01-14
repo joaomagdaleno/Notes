@@ -152,9 +152,29 @@ class MaterialNoteCardView extends StatelessWidget {
                           ),
                         ),
                       const SizedBox(height: 2),
-                      Text(
-                        dateFormat.format(note.lastModified),
-                        style: dateStyle,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            dateFormat.format(note.lastModified),
+                            style: dateStyle,
+                          ),
+                          if (note.isInTrash && note.trashedAt != null) ...[
+                            () {
+                              final daysLeft = 30 -
+                                  DateTime.now()
+                                      .difference(note.trashedAt!)
+                                      .inDays;
+                              return Text(
+                                '$daysLeft days left',
+                                style: dateStyle?.copyWith(
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            }(),
+                          ],
+                        ],
                       ),
                     ],
                   ),

@@ -649,6 +649,78 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     );
   }
 
+  Future<void> _emptyTrash() async {
+    final shouldEmpty = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+          return fluent.ContentDialog(
+            title: const Text('Esvaziar lixeira?'),
+            content: const Text(
+              'Esta ação não pode ser desfeita. Todas as notas na lixeira '
+              'serão excluídas permanentemente.',
+            ),
+            actions: [
+              fluent.Button(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
+              ),
+              fluent.FilledButton(
+                style: fluent.ButtonStyle(
+                  backgroundColor: fluent.WidgetStateProperty.all(
+                    Colors.red[700],
+                  ),
+                ),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Esvaziar'),
+              ),
+            ],
+          );
+        }
+        return AlertDialog(
+          title: const Text('Esvaziar lixeira?'),
+          content: const Text(
+            'Esta ação não pode ser desfeita. Todas as notas na lixeira '
+            'serão excluídas permanentemente.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Esvaziar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldEmpty ?? false) {
+      try {
+        await NoteRepository.instance.deleteAllFromTrash();
+        await _syncService.refreshLocalData();
+      } on Exception catch (e) {
+        if (mounted) {
+          _showErrorNotification('Erro ao esvaziar lixeira: $e');
+        }
+      }
+    }
+  }
+
+  Future<void> _restoreAllTrash() async {
+    try {
+      await NoteRepository.instance.restoreAllFromTrash();
+      await _syncService.refreshLocalData();
+    } on Exception catch (e) {
+      if (mounted) {
+        _showErrorNotification('Erro ao restaurar lixeira: $e');
+      }
+    }
+  }
+
   Widget _buildNotesList(List<Note> notes) {
     final isTrashView = _selection.type == SidebarItemType.trash;
 
@@ -678,9 +750,13 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
                 case SortOrder.dateAsc:
                   return a.lastModified.compareTo(b.lastModified);
                 case SortOrder.titleAsc:
-                  return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+                  return a.title.toLowerCase().compareTo(
+                        b.title.toLowerCase(),
+                      );
                 case SortOrder.titleDesc:
-                  return b.title.toLowerCase().compareTo(a.title.toLowerCase());
+                  return b.title.toLowerCase().compareTo(
+                        a.title.toLowerCase(),
+                      );
                 case SortOrder.dateDesc:
                   return b.lastModified.compareTo(a.lastModified);
               }
@@ -693,9 +769,17 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         final displayNotes = _cachedSortedNotes!;
 
         if (displayNotes.isEmpty) {
-          return const EmptyState(
-            icon: Icons.note_add,
-            message: 'No notes yet. Create one!',
+          return EmptyState(
+            icon: isTrashView ? Icons.delete_outline : Icons.note_add,
+            fluentIcon: isTrashView
+                ? fluent.FluentIcons.delete
+                : fluent.FluentIcons.add,
+            message: isTrashView
+                ? 'A lixeira está vazia.'
+                : 'No notes yet. Create one!',
+            subtitle: isTrashView
+                ? 'As notas aqui serão eliminadas permanentemente em 30 dias.'
+                : null,
           );
         }
 
@@ -806,6 +890,8 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
         onOpenQuickEditor: _abrirEditorRapido,
         onCreateFolder: _createNewFolder,
         onDeleteFolder: _deleteFolder,
+        onEmptyTrash: _emptyTrash,
+        onRestoreAllTrash: _restoreAllTrash,
       );
     }
     return MaterialNotesView(
@@ -867,16 +953,18 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
 
   void _showErrorNotification(String message) {
     if (defaultTargetPlatform == TargetPlatform.windows) {
-      fluent.displayInfoBar(
-        context,
-        builder: (context, close) {
-          return fluent.InfoBar(
-            title: const Text('Erro'),
-            content: Text(message),
-            severity: fluent.InfoBarSeverity.error,
-            onClose: close,
-          );
-        },
+      unawaited(
+        fluent.displayInfoBar(
+          context,
+          builder: (context, close) {
+            return fluent.InfoBar(
+              title: const Text('Erro'),
+              content: Text(message),
+              severity: fluent.InfoBarSeverity.error,
+              onClose: close,
+            );
+          },
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

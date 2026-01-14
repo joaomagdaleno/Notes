@@ -22,6 +22,8 @@ class MaterialNotesView extends StatelessWidget {
     required this.onCreateNote,
     required this.onOpenQuickEditor,
     required this.sortOrderItems,
+    this.onEmptyTrash,
+    this.onRestoreAllTrash,
     super.key,
   });
 
@@ -77,12 +79,38 @@ class MaterialNotesView extends StatelessWidget {
   /// Callback to open quick editor.
   final VoidCallback onOpenQuickEditor;
 
+  /// Callback to empty the trash.
+  final VoidCallback? onEmptyTrash;
+
+  /// Callback to restore all notes from the trash.
+  final VoidCallback? onRestoreAllTrash;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         title: Text(title),
         actions: [
+          if (isTrashView) ...[
+            TextButton.icon(
+              onPressed: onRestoreAllTrash,
+              icon: const Icon(Icons.restore),
+              label: const Text('Restaurar'),
+              style: TextButton.styleFrom(foregroundColor: Colors.white),
+            ),
+            TextButton.icon(
+              onPressed: onEmptyTrash,
+              icon: const Icon(Icons.delete_forever),
+              label: const Text('Esvaziar'),
+              style: TextButton.styleFrom(foregroundColor: Colors.white),
+            ),
+          ],
           ValueListenableBuilder<String>(
             valueListenable: viewModeNotifier,
             builder: (context, currentMode, child) {

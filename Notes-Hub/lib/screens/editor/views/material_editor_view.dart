@@ -51,6 +51,10 @@ class MaterialEditorView extends StatelessWidget {
       appBar: isFocusMode
           ? null
           : AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+              ),
               title: EditableTitle(
                 initialTitle: noteTitle,
                 onChanged: onTitleChanged,

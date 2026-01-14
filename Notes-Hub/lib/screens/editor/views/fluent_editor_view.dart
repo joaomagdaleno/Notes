@@ -56,6 +56,13 @@ class FluentEditorView extends StatelessWidget {
                 initialTitle: noteTitle,
                 onChanged: onTitleChanged,
               ),
+              leading: Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: fluent.IconButton(
+                  icon: const Icon(fluent.FluentIcons.back),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
               commandBar: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

@@ -106,9 +106,29 @@ class FluentNoteCardView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        dateFormat.format(note.date),
-                        style: typography.caption,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            dateFormat.format(note.date),
+                            style: typography.caption,
+                          ),
+                          if (note.isInTrash && note.trashedAt != null) ...[
+                            () {
+                              final daysLeft = 30 -
+                                  DateTime.now()
+                                      .difference(note.trashedAt!)
+                                      .inDays;
+                              return Text(
+                                '$daysLeft days left',
+                                style: typography.caption?.copyWith(
+                                  color: fluent.Colors.red,
+                                  fontWeight: fluent.FontWeight.bold,
+                                ),
+                              );
+                            }(),
+                          ],
+                        ],
                       ),
                     ],
                   ),

@@ -46,8 +46,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildFluentUI(BuildContext context) {
     return fluent.ScaffoldPage(
-      header: const fluent.PageHeader(
-        title: Text('Configurações'),
+      header: fluent.PageHeader(
+        title: const Text('Configurações'),
+        leading: Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: fluent.IconButton(
+            icon: const fluent.Icon(fluent.FluentIcons.back),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
       ),
       content: ListView(
         padding: const EdgeInsets.all(24),
@@ -88,6 +95,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildMaterialUI(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text('Configurações'),
       ),
       body: ListView(

@@ -18,6 +18,7 @@ class Note {
     this.memberIds = const [],
     this.isFavorite = false,
     this.isInTrash = false,
+    this.trashedAt,
     this.imageUrl,
     this.folderId,
     this.syncStatus = SyncStatus.synced,
@@ -40,6 +41,9 @@ class Note {
       memberIds: List<String>.from((data['memberIds'] as List<dynamic>?) ?? []),
       isFavorite: data['isFavorite'] as bool? ?? false,
       isInTrash: data['isInTrash'] as bool? ?? false,
+      trashedAt: data['trashedAt'] != null
+          ? (data['trashedAt'] as Timestamp).toDate()
+          : null,
       imageUrl: data['imageUrl'] as String?,
     );
   }
@@ -60,6 +64,9 @@ class Note {
       ownerId: map['ownerId'] as String? ?? 'local',
       isFavorite: (map['isFavorite'] as int?) == 1,
       isInTrash: (map['isInTrash'] as int?) == 1,
+      trashedAt: map['trashedAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['trashedAt'] as int)
+          : null,
       folderId: map['folderId'] as String?,
       syncStatus: map['syncStatus'] != null
           ? SyncStatus.values[map['syncStatus'] as int]
@@ -100,6 +107,9 @@ class Note {
   /// Whether the note is in the trash.
   final bool isInTrash;
 
+  /// When the note was moved to trash.
+  final DateTime? trashedAt;
+
   /// The URL of an attached image.
   final String? imageUrl;
 
@@ -125,6 +135,7 @@ class Note {
     List<String>? memberIds,
     bool? isFavorite,
     bool? isInTrash,
+    DateTime? trashedAt,
     String? imageUrl,
     String? folderId,
     SyncStatus? syncStatus,
@@ -141,6 +152,7 @@ class Note {
       memberIds: memberIds ?? this.memberIds,
       isFavorite: isFavorite ?? this.isFavorite,
       isInTrash: isInTrash ?? this.isInTrash,
+      trashedAt: trashedAt ?? this.trashedAt,
       imageUrl: imageUrl ?? this.imageUrl,
       folderId: folderId ?? this.folderId,
       syncStatus: syncStatus ?? this.syncStatus,
@@ -160,6 +172,7 @@ class Note {
       'memberIds': memberIds,
       'isFavorite': isFavorite,
       'isInTrash': isInTrash,
+      'trashedAt': trashedAt != null ? Timestamp.fromDate(trashedAt!) : null,
       'imageUrl': imageUrl,
     };
   }
@@ -173,6 +186,7 @@ class Note {
       'date': lastModified.millisecondsSinceEpoch,
       'isFavorite': isFavorite ? 1 : 0,
       'isInTrash': isInTrash ? 1 : 0,
+      'trashedAt': trashedAt?.millisecondsSinceEpoch,
       'folderId': folderId,
       'syncStatus': syncStatus.index,
     };

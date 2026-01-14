@@ -10,10 +10,14 @@ class EmptyState extends StatelessWidget {
     super.key,
     this.icon = Icons.inbox,
     this.fluentIcon = fluent.FluentIcons.inbox,
+    this.subtitle,
   });
 
   /// The message to display.
   final String message;
+
+  /// An optional subtitle to display below the message.
+  final String? subtitle;
 
   /// The Material icon to display above the message.
   final IconData icon;
@@ -48,6 +52,14 @@ class EmptyState extends StatelessWidget {
             style: theme.typography.subtitle,
             textAlign: TextAlign.center,
           ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              subtitle!,
+              style: theme.typography.caption,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
     );
@@ -71,6 +83,14 @@ class EmptyState extends StatelessWidget {
             style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              subtitle!,
+              style: Theme.of(context).textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
     );

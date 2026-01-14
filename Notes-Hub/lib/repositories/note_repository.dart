@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -146,11 +147,12 @@ class NoteRepository {
     }
     _database = await openDatabase(
       path,
-      version: 15,
+      version: 16,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
     _initServices(_database!);
+    unawaited(deleteExpiredNotes());
     return _database!;
   }
 
@@ -172,7 +174,7 @@ class NoteRepository {
         id TEXT PRIMARY KEY, title TEXT, content TEXT, date INTEGER,
         isFavorite INTEGER, isLocked INTEGER, isInTrash INTEGER, isDeleted INTEGER, isDraft INTEGER,
         drawingJson TEXT, prefsJson TEXT, folderId TEXT, syncStatus INTEGER DEFAULT 2,
-        thumbnail BLOB,
+        thumbnail BLOB, trashedAt INTEGER,
         FOREIGN KEY (folderId) REFERENCES $_foldersTable(id) ON DELETE SET NULL
       )
     ''');
@@ -338,6 +340,9 @@ class NoteRepository {
     }
     if (oldVersion < 15) {
       await ReadingPlanService.createTable(db);
+    }
+    if (oldVersion < 16) {
+      await db.execute('ALTER TABLE $_notesTable ADD COLUMN trashedAt INTEGER');
     }
   }
 
@@ -830,7 +835,10 @@ class NoteRepository {
       final db = await database;
       await db.update(
         _notesTable,
-        {'isInTrash': 1},
+        {
+          'isInTrash': 1,
+          'trashedAt': DateTime.now().millisecondsSinceEpoch,
+        },
         where: 'id = ?',
         whereArgs: [id],
       );
@@ -881,6 +889,64 @@ class NoteRepository {
     } on Exception catch (e) {
       debugPrint('❌ [DB] Error deleting note permanently: $e');
       rethrow;
+    }
+  }
+
+  /// Deletes all notes currently in the trash.
+  Future<void> deleteAllFromTrash() async {
+    try {
+      final db = await database;
+      await db.delete(
+        _notesTable,
+        where: 'isInTrash = 1',
+      );
+      _wordFrequencyCache = null;
+    } on Exception catch (e) {
+      debugPrint('❌ [DB] Error emptying trash: $e');
+      rethrow;
+    }
+  }
+
+  /// Restores all notes currently in the trash.
+  Future<void> restoreAllFromTrash() async {
+    try {
+      final db = await database;
+      await db.update(
+        _notesTable,
+        {
+          'isInTrash': 0,
+          'trashedAt': null,
+        },
+        where: 'isInTrash = 1',
+      );
+    } on Exception catch (e) {
+      debugPrint('❌ [DB] Error restoring trash: $e');
+      rethrow;
+    }
+  }
+
+  /// Deletes notes that have been in the trash for more than 30 days.
+  Future<int> deleteExpiredNotes() async {
+    try {
+      final db = await database;
+      final thirtyDaysAgo = DateTime.now()
+          .subtract(const Duration(days: 30))
+          .millisecondsSinceEpoch;
+
+      final count = await db.delete(
+        _notesTable,
+        where: 'isInTrash = 1 AND trashedAt < ?',
+        whereArgs: [thirtyDaysAgo],
+      );
+
+      if (count > 0) {
+        debugPrint('🧹 [DB] Deleted $count expired notes from trash');
+        _wordFrequencyCache = null;
+      }
+      return count;
+    } on Exception catch (e) {
+      debugPrint('❌ [DB] Error deleting expired notes: $e');
+      return 0;
     }
   }
 
