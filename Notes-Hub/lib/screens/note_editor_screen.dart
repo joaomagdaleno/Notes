@@ -138,9 +138,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
   List<ReadingAnnotation> _annotations = [];
   (int, int)? _readAloudHighlightRange;
   bool _isReadAloudControlsVisible = false;
-  bool _isFocusMode = false;
-  bool _isDrawingMode = false;
-  final bool _softWrap = true;
+  late SharedPreferences _prefs;
 
   final bool _canUndo = false; // Simplified for MVP
   final bool _canRedo = false; // Simplified for MVP

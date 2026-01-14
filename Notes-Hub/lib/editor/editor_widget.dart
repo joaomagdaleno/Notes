@@ -203,7 +203,8 @@ class EditorWidget extends StatefulWidget {
 }
 
 /// State for [EditorWidget].
-class EditorWidgetState extends State<EditorWidget> {
+class EditorWidgetState extends State<EditorWidget>
+    implements TextInputClient, DeltaTextInputClient {
   late EditorPersona _activePersona;
   final FocusNode _focusNode = FocusNode();
 
@@ -212,6 +213,10 @@ class EditorWidgetState extends State<EditorWidget> {
   late TextSelection _selection;
   late VirtualTextBuffer _buffer;
   final Map<int, GlobalKey> _lineKeys = {};
+
+  // Text Input System
+  TextInputConnection? _textInputConnection;
+  TextEditingValue _currentTextEditingValue = TextEditingValue.empty;
 
   // Autocomplete state
   OverlayEntry? _autocompleteOverlay;
@@ -240,6 +245,45 @@ class EditorWidgetState extends State<EditorWidget> {
     _buffer = VirtualTextBuffer(widget.document);
     _generateKeys();
     _startCursorTimer();
+    _focusNode.addListener(_onFocusChanged);
+  }
+
+  void _onFocusChanged() {
+    if (_focusNode.hasFocus) {
+      _openTextInputConnection();
+    } else {
+      _closeTextInputConnection();
+    }
+  }
+
+  void _openTextInputConnection() {
+    if (_textInputConnection != null && _textInputConnection!.attached) {
+      return;
+    }
+    _updateCurrentTextEditingValue();
+    _textInputConnection = TextInput.attach(
+      this,
+      const TextInputConfiguration(
+        inputType: TextInputType.multiline,
+        inputAction: TextInputAction.newline,
+        enableDeltaModel: true,
+      ),
+    );
+    _textInputConnection!.setEditingState(_currentTextEditingValue);
+    _textInputConnection!.show();
+  }
+
+  void _closeTextInputConnection() {
+    _textInputConnection?.close();
+    _textInputConnection = null;
+  }
+
+  void _updateCurrentTextEditingValue() {
+    final text = widget.document.toPlainText();
+    _currentTextEditingValue = TextEditingValue(
+      text: text,
+      selection: _selection,
+    );
   }
 
   void _startCursorTimer() {
@@ -265,6 +309,9 @@ class EditorWidgetState extends State<EditorWidget> {
         _buffer = VirtualTextBuffer(widget.document);
         _generateKeys();
       });
+      // Sync text input connection with new document
+      _updateCurrentTextEditingValue();
+      _textInputConnection?.setEditingState(_currentTextEditingValue);
     }
     if (widget.initialPersona != oldWidget.initialPersona) {
       setState(() {
@@ -280,6 +327,9 @@ class EditorWidgetState extends State<EditorWidget> {
       setState(() {
         _selection = widget.selection!;
       });
+      // Sync text input connection with new selection
+      _updateCurrentTextEditingValue();
+      _textInputConnection?.setEditingState(_currentTextEditingValue);
     }
   }
 
@@ -292,11 +342,270 @@ class EditorWidgetState extends State<EditorWidget> {
 
   @override
   void dispose() {
+    _focusNode.removeListener(_onFocusChanged);
+    _closeTextInputConnection();
     _focusNode.dispose();
     _autocompleteDebounce?.cancel();
     _cursorTimer?.cancel();
     _hideAutocomplete();
     super.dispose();
+  }
+
+  // --- TextInputClient Implementation ---
+
+  @override
+  AutofillScope? get currentAutofillScope => null;
+
+  @override
+  TextEditingValue? get currentTextEditingValue => _currentTextEditingValue;
+
+  @override
+  void updateEditingValue(TextEditingValue value) {
+    // Handle text changes from the input method
+    final oldText = _currentTextEditingValue.text;
+    final newText = value.text;
+
+    if (oldText == newText) {
+      // Selection change only
+      if (value.selection != _selection) {
+        setState(() {
+          _selection = value.selection;
+        });
+        _onSelectionChanged(value.selection);
+      }
+      _currentTextEditingValue = value;
+      return;
+    }
+
+    // Text has changed - determine what was inserted or deleted
+    final oldLength = oldText.length;
+    final newLength = newText.length;
+
+    if (newLength > oldLength) {
+      // Text was inserted
+      final insertionStart =
+          value.selection.baseOffset - (newLength - oldLength);
+      final insertedText = newText.substring(
+        insertionStart,
+        insertionStart + (newLength - oldLength),
+      );
+
+      // Learn words passively when typing word boundaries
+      if (AutocompleteService.isWordBoundary(insertedText) &&
+          insertionStart > 0) {
+        var start = insertionStart;
+        while (start > 0 &&
+            !AutocompleteService.isWordBoundary(oldText[start - 1])) {
+          start--;
+        }
+        if (insertionStart > start) {
+          final word = oldText.substring(start, insertionStart);
+          if (word.trim().isNotEmpty) {
+            unawaited(NoteRepository.instance.learnWord(word));
+          }
+        }
+      }
+
+      // Apply the insertion to the document
+      final result = DocumentManipulator.insertText(
+        widget.document,
+        insertionStart,
+        insertedText,
+      );
+      widget.onEvent?.call(result.eventType, result.eventPayload);
+
+      _currentTextEditingValue = value;
+      _selection = value.selection;
+
+      // Run post-edit actions (snippets, markdown, autocomplete)
+      _runPostEditActions(result.document, value.selection);
+    } else if (newLength < oldLength) {
+      // Text was deleted
+      final deletionLength = oldLength - newLength;
+      final deletionStart = value.selection.baseOffset;
+
+      final result = DocumentManipulator.deleteText(
+        widget.document,
+        deletionStart,
+        deletionLength,
+      );
+      widget.onEvent?.call(result.eventType, result.eventPayload);
+
+      _currentTextEditingValue = value;
+      _selection = value.selection;
+
+      widget.onDocumentChanged(result.document);
+      _onSelectionChanged(value.selection);
+    }
+  }
+
+  @override
+  void updateEditingValueWithDeltas(List<TextEditingDelta> textEditingDeltas) {
+    // Handle delta-based text input (preferred for IME)
+    for (final delta in textEditingDeltas) {
+      if (delta is TextEditingDeltaInsertion) {
+        // Learn words passively
+        final insertedText = delta.textInserted;
+        final insertionOffset = delta.insertionOffset;
+        final currentText = widget.document.toPlainText();
+
+        if (AutocompleteService.isWordBoundary(insertedText) &&
+            insertionOffset > 0) {
+          var start = insertionOffset;
+          while (start > 0 &&
+              !AutocompleteService.isWordBoundary(currentText[start - 1])) {
+            start--;
+          }
+          if (insertionOffset > start) {
+            final word = currentText.substring(start, insertionOffset);
+            if (word.trim().isNotEmpty) {
+              unawaited(NoteRepository.instance.learnWord(word));
+            }
+          }
+        }
+
+        final result = DocumentManipulator.insertText(
+          widget.document,
+          insertionOffset,
+          insertedText,
+        );
+        widget.onEvent?.call(result.eventType, result.eventPayload);
+
+        final newSelection = TextSelection.collapsed(
+          offset: insertionOffset + insertedText.length,
+        );
+        _selection = newSelection;
+        _updateCurrentTextEditingValue();
+        _textInputConnection?.setEditingState(_currentTextEditingValue);
+
+        _runPostEditActions(result.document, newSelection);
+      } else if (delta is TextEditingDeltaDeletion) {
+        final deleteStart = delta.deletedRange.start;
+        final deleteLength = delta.deletedRange.end - delta.deletedRange.start;
+
+        final result = DocumentManipulator.deleteText(
+          widget.document,
+          deleteStart,
+          deleteLength,
+        );
+        widget.onEvent?.call(result.eventType, result.eventPayload);
+
+        final newSelection = TextSelection.collapsed(offset: deleteStart);
+        _selection = newSelection;
+
+        widget.onDocumentChanged(result.document);
+        _onSelectionChanged(newSelection);
+        _updateCurrentTextEditingValue();
+        _textInputConnection?.setEditingState(_currentTextEditingValue);
+      } else if (delta is TextEditingDeltaReplacement) {
+        // Handle replacement (selection + insert)
+        final deleteStart = delta.replacedRange.start;
+        final deleteLength =
+            delta.replacedRange.end - delta.replacedRange.start;
+
+        final deleteResult = DocumentManipulator.deleteText(
+          widget.document,
+          deleteStart,
+          deleteLength,
+        );
+        widget.onEvent?.call(deleteResult.eventType, deleteResult.eventPayload);
+
+        final insertResult = DocumentManipulator.insertText(
+          deleteResult.document,
+          deleteStart,
+          delta.replacementText,
+        );
+        widget.onEvent?.call(insertResult.eventType, insertResult.eventPayload);
+
+        final newSelection = TextSelection.collapsed(
+          offset: deleteStart + delta.replacementText.length,
+        );
+        _selection = newSelection;
+
+        _runPostEditActions(insertResult.document, newSelection);
+        _updateCurrentTextEditingValue();
+        _textInputConnection?.setEditingState(_currentTextEditingValue);
+      } else if (delta is TextEditingDeltaNonTextUpdate) {
+        // Selection/composing region change only
+        _selection = delta.selection;
+        _onSelectionChanged(delta.selection);
+      }
+    }
+  }
+
+  @override
+  void performAction(TextInputAction action) {
+    if (action == TextInputAction.newline) {
+      // Insert a newline
+      final result = DocumentManipulator.insertText(
+        widget.document,
+        _selection.start,
+        '\n',
+      );
+      widget.onEvent?.call(result.eventType, result.eventPayload);
+
+      final newSelection = TextSelection.collapsed(
+        offset: _selection.start + 1,
+      );
+      _selection = newSelection;
+      _runPostEditActions(result.document, newSelection);
+      _updateCurrentTextEditingValue();
+      _textInputConnection?.setEditingState(_currentTextEditingValue);
+    }
+  }
+
+  @override
+  void performPrivateCommand(String action, Map<String, dynamic> data) {
+    // Not used
+  }
+
+  @override
+  void showAutocorrectionPromptRect(int start, int end) {
+    // Not used
+  }
+
+  @override
+  void connectionClosed() {
+    // Connection closed by system
+  }
+
+  @override
+  void updateFloatingCursor(RawFloatingCursorPoint point) {
+    // Not used on desktop
+  }
+
+  @override
+  void insertTextPlaceholder(Size size) {
+    // Not used
+  }
+
+  @override
+  void removeTextPlaceholder() {
+    // Not used
+  }
+
+  @override
+  void showToolbar() {
+    // Not used
+  }
+
+  @override
+  void insertContent(KeyboardInsertedContent content) {
+    // Handle content insertion (e.g., images from keyboard)
+    // Not implemented for this editor
+  }
+
+  @override
+  void didChangeInputControl(
+    TextInputControl? oldControl,
+    TextInputControl? newControl,
+  ) {
+    // Input control changed
+  }
+
+  @override
+  void performSelector(String selectorName) {
+    // Platform-specific selector (macOS)
   }
 
   Widget _buildPersonaSwitcher() {
@@ -312,8 +621,14 @@ class EditorWidgetState extends State<EditorWidget> {
   }
 
   void _onSelectionChanged(TextSelection newSelection) {
+    setState(() {
+      _selection = newSelection;
+    });
     widget.onSelectionChanged(newSelection);
     _notifySelectionRectChanged(newSelection);
+    // Sync with text input connection
+    _updateCurrentTextEditingValue();
+    _textInputConnection?.setEditingState(_currentTextEditingValue);
   }
 
   void _notifySelectionRectChanged(TextSelection selection) {

@@ -1,0 +1,40 @@
+﻿Building Windows application...                                 
+flutter : CMake Deprecation 
+Warning at C:/Users/joaovito
+rmagdaleno/Documents/GitHub/
+Notes/Notes-Hub/build/window
+s/x64/extracted/firebase_cpp
+_sdk_windows/CMakeLists.txt:
+17 (cmake_minimum_required):
+No linha:1 caractere:1
++ flutter build windows 
+--debug 2>&1 | Out-File 
+-FilePath build_output. ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (CMake  
+   Deprecati...imum_requi   
+ red)::String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+  Compatibility with CMake 
+< 3.10 will be removed from 
+a future version of
+  CMake.
+
+  Update the VERSION 
+argument <min> value.  Or, 
+use the <min>...<max> syntax
+  to tell CMake that the 
+project requires at least 
+<min> but has been updated
+  to work with policies 
+introduced by <max> or 
+earlier.
+
+
+Building Windows application...                                    32,5s
+ÔêÜ Built build\windows\x64\runner\Debug\notes_hub.exe
