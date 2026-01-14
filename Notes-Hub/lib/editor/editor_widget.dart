@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -608,18 +606,6 @@ class EditorWidgetState extends State<EditorWidget>
     // Platform-specific selector (macOS)
   }
 
-  Widget _buildPersonaSwitcher() {
-    return _AnimatedPersonaSwitcher(
-      activePersona: _activePersona,
-      onChanged: (persona) {
-        setState(() {
-          _activePersona = persona;
-        });
-        widget.onPersonaChanged?.call(persona);
-      },
-    );
-  }
-
   void _onSelectionChanged(TextSelection newSelection) {
     setState(() {
       _selection = newSelection;
@@ -803,94 +789,47 @@ class EditorWidgetState extends State<EditorWidget>
       return;
     }
 
-    DocumentModel docAfterEdit;
-    TextSelection selectionAfterEdit;
-
-    // --- Basic Text Editing ---
-    if (event.logicalKey == LogicalKeyboardKey.backspace) {
-      if (_selection.isCollapsed) {
-        if (_selection.start == 0) return;
-        final result = DocumentManipulator.deleteText(
-          widget.document,
-          _selection.start - 1,
-          1,
-        );
-        docAfterEdit = result.document;
-        widget.onEvent?.call(result.eventType, result.eventPayload);
-        selectionAfterEdit = TextSelection.collapsed(
-          offset: _selection.start - 1,
-        );
-      } else {
-        final result = DocumentManipulator.deleteText(
-          widget.document,
-          _selection.start,
-          _selection.end - _selection.start,
-        );
-        docAfterEdit = result.document;
-        widget.onEvent?.call(result.eventType, result.eventPayload);
-        selectionAfterEdit = TextSelection.collapsed(offset: _selection.start);
+    // --- Navigation Keys ---
+    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+      if (_selection.baseOffset > 0) {
+        final newOffset = isShiftPressed
+            ? _selection.extentOffset - 1
+            : math.max(
+                0,
+                _selection.start - (isCtrlPressed ? 5 : 1),
+              ); // Simple ctrl+jump
+        final newSelection = isShiftPressed
+            ? _selection.copyWith(extentOffset: newOffset)
+            : TextSelection.collapsed(offset: newOffset);
+        _onSelectionChanged(newSelection);
+        return;
       }
-    } else if (event.character != null && event.character!.isNotEmpty) {
-      final character = event.character!;
-
-      // Passive Dictionary Learning
-      if (AutocompleteService.isWordBoundary(character) &&
-          _selection.isCollapsed) {
-        final plainText = widget.document.toPlainText();
-        final end = _selection.start;
-        var start = end;
-        // Backtrack to find word start
-        while (start > 0 &&
-            !AutocompleteService.isWordBoundary(plainText[start - 1])) {
-          start--;
-        }
-        if (end > start) {
-          final word = plainText.substring(start, end);
-          if (word.trim().isNotEmpty) {
-            unawaited(NoteRepository.instance.learnWord(word));
-          }
-        }
+    } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      final textLength = widget.document.toPlainText().length;
+      if (_selection.extentOffset < textLength) {
+        final newOffset = isShiftPressed
+            ? _selection.extentOffset + 1
+            : math.min(textLength, _selection.end + (isCtrlPressed ? 5 : 1));
+        final newSelection = isShiftPressed
+            ? _selection.copyWith(extentOffset: newOffset)
+            : TextSelection.collapsed(offset: newOffset);
+        _onSelectionChanged(newSelection);
+        return;
       }
-
-      if (_selection.isCollapsed) {
-        final result = DocumentManipulator.insertText(
-          widget.document,
-          _selection.start,
-          character,
-        );
-        docAfterEdit = result.document;
-        widget.onEvent?.call(result.eventType, result.eventPayload);
-        selectionAfterEdit = TextSelection.collapsed(
-          offset: _selection.start + character.length,
-        );
-      } else {
-        final deleteResult = DocumentManipulator.deleteText(
-          widget.document,
-          _selection.start,
-          _selection.end - _selection.start,
-        );
-        final docAfterDelete = deleteResult.document;
-        widget.onEvent?.call(deleteResult.eventType, deleteResult.eventPayload);
-
-        final insertResult = DocumentManipulator.insertText(
-          docAfterDelete,
-          _selection.start,
-          character,
-        );
-        docAfterEdit = insertResult.document;
-        widget.onEvent?.call(insertResult.eventType, insertResult.eventPayload);
-
-        selectionAfterEdit = TextSelection.collapsed(
-          offset: _selection.start + character.length,
-        );
-      }
-    } else {
-      _hideAutocomplete();
+    } else if (event.logicalKey == LogicalKeyboardKey.arrowUp ||
+        event.logicalKey == LogicalKeyboardKey.arrowDown) {
+      // Vertical navigation is complex with custom line height,
+      // handled by Selection logic usually.
+      // For now, let the key event propagate to potential parent
+      // or just returned to avoid "a" typing.
       return;
     }
 
-    // --- Post-edit Actions (Converters & Autocomplete) ---
-    _runPostEditActions(docAfterEdit, selectionAfterEdit);
+    // Note: Text input (characters, backspace, etc.) is now handled
+    // by the TextInputClient implementation via updateEditingValueWithDeltas.
+    // KeyboardListener is kept for shortcuts and navigation.
+    _hideAutocomplete();
+    return;
   }
 
   void _runPostEditActions(DocumentModel doc, TextSelection selection) {
@@ -1101,18 +1040,13 @@ class EditorWidgetState extends State<EditorWidget>
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: _focusNode,
+      autofocus: true,
       onKeyEvent: _handleKeyEvent,
       child: Stack(
         children: [
           // Dispatch view based on active persona
           _buildEditorContent(),
           ..._buildRemoteCursors(),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Center(child: _buildPersonaSwitcher()),
-          ),
         ],
       ),
     );
@@ -1132,14 +1066,27 @@ class EditorWidgetState extends State<EditorWidget>
     }
   }
 
-  /// Architect mode: Default linear block editor.
   Widget _buildArchitectView() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 56),
-      child: ListView.builder(
-        controller: widget.scrollController,
-        itemCount: _buffer.lines.length,
-        itemBuilder: (context, index) => _buildEditorLine(index),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        _focusNode.requestFocus();
+        // Move cursor to the end of the document if tapped in empty area
+        final textLength = widget.document.toPlainText().length;
+        _onSelectionChanged(TextSelection.collapsed(offset: textLength));
+      },
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 850),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 64, 24, 0),
+            child: ListView.builder(
+              controller: widget.scrollController,
+              itemCount: _buffer.lines.length,
+              itemBuilder: (context, index) => _buildEditorLine(index),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -1151,10 +1098,11 @@ class EditorWidgetState extends State<EditorWidget>
     const contentHeightPerPage = pageHeight - (60.0 * 2); // margins
 
     final pages = _splitLinesIntoPages(contentHeightPerPage);
+    final theme = Theme.of(context);
 
     return Container(
-      color: Colors.grey.shade300,
-      padding: const EdgeInsets.only(top: 60),
+      color: theme.scaffoldBackgroundColor,
+      padding: const EdgeInsets.only(top: 64),
       child: Center(
         child: SingleChildScrollView(
           controller: widget.scrollController,
@@ -1163,16 +1111,17 @@ class EditorWidgetState extends State<EditorWidget>
               return Container(
                 width: pageWidth,
                 constraints: const BoxConstraints(minHeight: pageHeight),
-                margin: const EdgeInsets.symmetric(vertical: 16),
+                margin: const EdgeInsets.symmetric(vertical: 24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: theme.canvasColor,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 15,
                       offset: const Offset(0, 4),
                     ),
                   ],
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 padding: const EdgeInsets.all(60),
                 child: Column(
@@ -2040,148 +1989,5 @@ class EditorWidgetState extends State<EditorWidget>
       }
     }
     return cursorWidgets;
-  }
-}
-
-class _AnimatedPersonaSwitcher extends StatelessWidget {
-  const _AnimatedPersonaSwitcher({
-    required this.activePersona,
-    required this.onChanged,
-  });
-
-  final EditorPersona activePersona;
-  final ValueChanged<EditorPersona> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    if (Platform.isWindows) {
-      return _buildFluentSwitcher(context);
-    } else {
-      return _buildMaterialSwitcher(context);
-    }
-  }
-
-  Widget _buildFluentSwitcher(BuildContext context) {
-    final personas = [
-      (EditorPersona.architect, fluent.FluentIcons.design, 'Architect'),
-      (EditorPersona.writer, fluent.FluentIcons.edit_note, 'Writer'),
-      (EditorPersona.brainstorm, fluent.FluentIcons.lightbulb, 'Brainstorm'),
-      (EditorPersona.reading, fluent.FluentIcons.reading_mode, 'Reading'),
-    ];
-
-    final theme = fluent.FluentTheme.of(context);
-    final activeIndex = personas.indexWhere((p) => p.$1 == activePersona);
-
-    return Container(
-      height: 40,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      constraints: const BoxConstraints(maxWidth: 600),
-      decoration: BoxDecoration(
-        color: theme.resources.cardBackgroundFillColorDefault,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: theme.resources.surfaceStrokeColorDefault),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth / personas.length;
-          return Stack(
-            children: [
-              // Sliding Pill
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutExpo,
-                left: activeIndex * width,
-                top: 2,
-                bottom: 2,
-                width: width,
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  decoration: BoxDecoration(
-                    color: theme.accentColor,
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Buttons
-              Row(
-                children: personas.map((p) {
-                  final isActive = p.$1 == activePersona;
-                  return Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () => onChanged(p.$1),
-                      child: Center(
-                        child: AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 200),
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight:
-                                isActive ? FontWeight.w600 : FontWeight.normal,
-                            color: isActive
-                                ? Colors.white
-                                : theme.resources.textFillColorPrimary,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                p.$2,
-                                size: 16,
-                                color: isActive
-                                    ? Colors.white
-                                    : theme.resources.textFillColorPrimary,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(p.$3),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildMaterialSwitcher(BuildContext context) {
-    final personas = [
-      (EditorPersona.architect, Icons.architecture, 'Architect'),
-      (EditorPersona.writer, Icons.edit_note, 'Writer'),
-      (EditorPersona.brainstorm, Icons.lightbulb_outline, 'Brainstorm'),
-      (EditorPersona.reading, Icons.menu_book, 'Reading'),
-    ];
-
-    return Container(
-      height: 48,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: SegmentedButton<EditorPersona>(
-        segments: personas.map((p) {
-          return ButtonSegment<EditorPersona>(
-            value: p.$1,
-            label: Text(p.$3),
-            icon: Icon(p.$2),
-          );
-        }).toList(),
-        selected: {activePersona},
-        onSelectionChanged: (selection) {
-          if (selection.isNotEmpty) {
-            onChanged(selection.first);
-          }
-        },
-        showSelectedIcon: false,
-      ),
-    );
   }
 }

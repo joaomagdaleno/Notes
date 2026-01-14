@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:notes_hub/editor/document.dart';
 import 'package:notes_hub/models/document_model.dart';
@@ -851,37 +852,29 @@ class DocumentManipulator {
       if (block is TextBlock) {
         blockLength =
             block.spans.map((s) => s.text.length).fold(0, (a, b) => a + b);
-        // Treat trailing newline?
-        // Our buffer logic handles block separation implicitly or explicitly.
-        // DocumentModel usually has tight blocks.
+      } else if (block is CalloutBlock) {
+        blockLength = block.toPlainText().length;
       } else {
-        blockLength = 1; // Placeholder for image
+        blockLength = 1; // Placeholder for image, math, etc.
       }
 
-      // We use < because we want to match the block containing the cursor.
-      // If cursor is AT the end of block, it usually belongs to that block for
-      // formatting purposes UNLESS it's at the very start of next block.
-      // Logic: if position == accumulatedLength, it's at start of this block.
-      // exception: position 0.
+      final isLastBlock = i == blocks.length - 1;
+      final effectiveBlockLength = isLastBlock ? blockLength : blockLength + 1;
 
       if (globalPosition >= accumulatedLength &&
-          globalPosition < accumulatedLength + blockLength) {
-        return _BlockPosition(i, globalPosition - accumulatedLength);
+          globalPosition < accumulatedLength + effectiveBlockLength) {
+        return _BlockPosition(
+          i,
+          math.min(blockLength, globalPosition - accumulatedLength),
+        );
       }
 
-      // Edge case: Cursor at exact end of document or block?
-      // If we are appending, we might be at the end.
-      if (blockLength > 0 &&
-          globalPosition == accumulatedLength + blockLength) {
+      if (globalPosition == accumulatedLength + effectiveBlockLength) {
+        // At the very end of the line (potentially on the newline)
         return _BlockPosition(i, blockLength);
       }
 
-      // Match empty blocks if we are at their position
-      if (blockLength == 0 && globalPosition == accumulatedLength) {
-        return _BlockPosition(i, 0);
-      }
-
-      accumulatedLength += blockLength;
+      accumulatedLength += effectiveBlockLength;
     }
     // If empty document
     if (blocks.isEmpty && globalPosition == 0) {

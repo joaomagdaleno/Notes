@@ -85,6 +85,7 @@ class NoteEditorScreen extends StatefulWidget {
 class _NoteEditorScreenState extends State<NoteEditorScreen>
     with WidgetsBindingObserver {
   Note? _note;
+  late String _noteTitle;
   late DocumentModel _document;
 
   late EditorPersona _persona;
@@ -103,6 +104,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
       _selectionRectNotifier.value != null && !_selection.isCollapsed;
   bool _isFocusMode = false;
   bool _isDrawingMode = false;
+  bool _isBold = false;
+  bool _isItalic = false;
+  bool _isUnderline = false;
+  bool _isStrikethrough = false;
+  String _currentAlignment = 'left';
+  String? _currentListType;
   final bool _softWrap = true;
   Rect? get _selectionRect => _selectionRectNotifier.value;
   final _wordCountNotifier = ValueNotifier<int>(0);
@@ -150,6 +157,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         widget.firestoreRepository ?? FirestoreRepository.instance;
     _persona = widget.initialPersona ?? EditorPersona.architect;
     _note = widget.note;
+    _noteTitle = _note?.title ?? '';
     _currentTags = _note?.tags.toList() ?? [];
     WidgetsBinding.instance.addObserver(this);
 
@@ -283,6 +291,32 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
   }
 
+  String _getCursorPositionInfo() {
+    if (_selection.baseOffset < 0) return 'Ln 1, Col 1';
+
+    final text = _document.toPlainText();
+    final offset = math.min(_selection.baseOffset, text.length);
+
+    var line = 1;
+    var column = 1;
+
+    for (var i = 0; i < offset; i++) {
+      if (text[i] == '\n') {
+        line++;
+        column = 1;
+      } else {
+        column++;
+      }
+    }
+
+    var baseStr = 'Ln $line, Col $column';
+    if (!_selection.isCollapsed) {
+      final selectedCount = _selection.end - _selection.start;
+      baseStr += ' ($selectedCount selected)';
+    }
+    return baseStr;
+  }
+
   void _onDocumentChanged(DocumentModel newDocument) {
     setState(() {
       _document = newDocument;
@@ -313,13 +347,62 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     });
   }
 
-  void _onSelectionChanged(TextSelection newSelection) {
+  void _onSelectionChanged(TextSelection selection) {
     setState(() {
-      _selection = newSelection;
+      _selection = selection;
+      _updateActiveStyles();
     });
-    if (_isCollaborative) {
-      unawaited(_broadcastCursorPosition(newSelection));
+    unawaited(_broadcastCursorPosition(selection));
+  }
+
+  void _updateActiveStyles() {
+    if (_document.blocks.isEmpty) return;
+
+    final pos = _selection.isCollapsed
+        ? math.max(0, _selection.baseOffset - 1)
+        : _selection.start;
+
+    var currentOffset = 0;
+    TextSpanModel? activeSpan;
+    DocumentBlock? activeBlock;
+
+    for (final block in _document.blocks) {
+      final blockLen = _getBlockLength(block);
+      if (pos >= currentOffset && pos <= currentOffset + blockLen) {
+        activeBlock = block;
+        if (block is TextBlock) {
+          var spanOffset = currentOffset;
+          for (final span in block.spans) {
+            if (pos >= spanOffset && pos <= spanOffset + span.text.length) {
+              activeSpan = span;
+              if (pos < spanOffset + span.text.length) break;
+            }
+            spanOffset += span.text.length;
+          }
+        }
+        break;
+      }
+      currentOffset += blockLen + 1; // +1 for the implicit newline
     }
+
+    setState(() {
+      _isBold = activeSpan?.isBold ?? false;
+      _isItalic = activeSpan?.isItalic ?? false;
+      _isUnderline = activeSpan?.isUnderline ?? false;
+      _isStrikethrough = activeSpan?.isStrikethrough ?? false;
+      _currentAlignment = activeBlock?.attributes['align'] as String? ?? 'left';
+      _currentListType = activeBlock?.attributes['list'] as String?;
+    });
+  }
+
+  int _getBlockLength(DocumentBlock block) {
+    if (block is TextBlock) {
+      return block.spans.fold(0, (sum, span) => sum + span.text.length);
+    }
+    if (block is CalloutBlock) {
+      return block.spans.fold(0, (sum, span) => sum + span.text.length);
+    }
+    return 1;
   }
 
   void _onSelectionRectChanged(Rect? rect) {
@@ -497,8 +580,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
 
     final jsonContent = DocumentAdapter.toJson(_document);
 
+    final autoTitle = plainText.split('\n').first;
+    final finalTitle = _noteTitle.isNotEmpty ? _noteTitle : autoTitle;
+
     final noteToSave = _note!.copyWith(
-      title: plainText.split('\n').first,
+      title: finalTitle,
       content: jsonContent,
       lastModified: DateTime.now(),
       tags: _currentTags,
@@ -1162,6 +1248,72 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
     return _buildUnifiedUI(editor);
   }
 
+  Widget _buildStatusBar() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      height: 22,
+      decoration: BoxDecoration(
+        color: isDark
+            ? theme.colorScheme.surfaceContainer
+            : const Color(0xFF007ACC),
+        border: Border(
+          top: BorderSide(
+            color: theme.dividerColor.withValues(alpha: 0.1),
+            width: 0.5,
+          ),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        children: [
+          ValueListenableBuilder<int>(
+            valueListenable: _wordCountNotifier,
+            builder: (context, count, _) => Text(
+              '$count words',
+              style: TextStyle(
+                color: isDark ? theme.colorScheme.onSurface : Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          ValueListenableBuilder<int>(
+            valueListenable: _charCountNotifier,
+            builder: (context, count, _) => Text(
+              '$count characters',
+              style: TextStyle(
+                color: isDark ? theme.colorScheme.onSurface : Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          const Spacer(),
+          Text(
+            _getCursorPositionInfo(),
+            style: TextStyle(
+              color: isDark ? theme.colorScheme.onSurface : Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Text(
+            'UTF-8',
+            style: TextStyle(
+              color: isDark ? theme.colorScheme.onSurface : Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildUnifiedUI(Widget editor) {
     final shortcuts = {
       LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ):
@@ -1211,9 +1363,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                 ? FluentEditorView(
                     editor: _buildEditorContent(editor),
                     isFocusMode: _isFocusMode,
-                    noteTitle: _note?.title ?? '',
+                    noteTitle: _noteTitle,
                     onTitleChanged: (newTitle) {
                       setState(() {
+                        _noteTitle = newTitle;
                         if (_note != null) {
                           _note = _note!.copyWith(title: newTitle);
                         }
@@ -1221,18 +1374,25 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                     },
                     isCollaborative: _isCollaborative,
                     remoteCursors: _remoteCursors,
-                    onToggleFindBar: () => setState(
-                      () => _isFindBarVisible = !_isFindBarVisible,
-                    ),
+                    onToggleFindBar: () =>
+                        setState(() => _isFindBarVisible = !_isFindBarVisible),
                     onShowHistory: _showHistoryDialog,
                     onToggleFocusMode: _toggleFocusMode,
+                    activePersona: _persona,
+                    onPersonaChanged: (persona) {
+                      setState(() {
+                        _persona = persona;
+                        _isDrawingMode = persona == EditorPersona.brainstorm;
+                      });
+                    },
                   )
                 : MaterialEditorView(
                     editor: _buildEditorContent(editor),
                     isFocusMode: _isFocusMode,
-                    noteTitle: _note?.title ?? '',
+                    noteTitle: _noteTitle,
                     onTitleChanged: (newTitle) {
                       setState(() {
+                        _noteTitle = newTitle;
                         if (_note != null) {
                           _note = _note!.copyWith(title: newTitle);
                         }
@@ -1240,11 +1400,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
                     },
                     isCollaborative: _isCollaborative,
                     remoteCursors: _remoteCursors,
-                    onToggleFindBar: () => setState(
-                      () => _isFindBarVisible = !_isFindBarVisible,
-                    ),
+                    onToggleFindBar: () =>
+                        setState(() => _isFindBarVisible = !_isFindBarVisible),
                     onShowHistory: _showHistoryDialog,
                     onToggleFocusMode: _toggleFocusMode,
+                    activePersona: _persona,
+                    onPersonaChanged: (persona) {
+                      setState(() {
+                        _persona = persona;
+                        _isDrawingMode = persona == EditorPersona.brainstorm;
+                      });
+                    },
                   ),
           ),
         ),
@@ -1278,6 +1444,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
         ),
         canUndo: _canUndo,
         canRedo: _canRedo,
+        isBold: _isBold,
+        isItalic: _isItalic,
+        isUnderline: _isUnderline,
+        isStrikethrough: _isStrikethrough,
+        currentAlignment: _currentAlignment,
+        currentListType: _currentListType,
       );
     }
 
@@ -1308,6 +1480,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
             _isDrawingMode = !_isDrawingMode;
           });
         },
+        isBold: _isBold,
+        isItalic: _isItalic,
+        isUnderline: _isUnderline,
+        isStrikethrough: _isStrikethrough,
+        currentAlignment: _currentAlignment,
+        currentListType: _currentListType,
       ),
     );
   }
@@ -1334,6 +1512,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen>
               if (isLargeScreen) _buildToolbar(),
               Expanded(child: editor),
               if (!isLargeScreen) _buildToolbar(),
+              _buildStatusBar(),
             ],
           ),
           if (_isToolbarVisible)

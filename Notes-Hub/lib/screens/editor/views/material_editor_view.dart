@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes_hub/models/persona_model.dart';
 import 'package:notes_hub/screens/editor/widgets/collaborator_avatars.dart';
 import 'package:notes_hub/screens/editor/widgets/editable_title.dart';
 
@@ -15,11 +16,19 @@ class MaterialEditorView extends StatelessWidget {
     required this.onToggleFindBar,
     required this.onShowHistory,
     required this.onToggleFocusMode,
+    required this.activePersona,
+    required this.onPersonaChanged,
     super.key,
   });
 
   /// The editor widget to display.
   final Widget editor;
+
+  /// The active persona.
+  final EditorPersona activePersona;
+
+  /// Callback when the persona is changed.
+  final ValueChanged<EditorPersona> onPersonaChanged;
 
   /// Whether focus mode is currently active.
   final bool isFocusMode;
@@ -55,9 +64,19 @@ class MaterialEditorView extends StatelessWidget {
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => Navigator.pop(context),
               ),
-              title: EditableTitle(
-                initialTitle: noteTitle,
-                onChanged: onTitleChanged,
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 150,
+                    child: EditableTitle(
+                      initialTitle: noteTitle,
+                      onChanged: onTitleChanged,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildPersonaSwitcher(context),
+                ],
               ),
               actions: [
                 if (isCollaborative)
@@ -79,6 +98,60 @@ class MaterialEditorView extends StatelessWidget {
               ],
             ),
       body: editor,
+    );
+  }
+
+  Widget _buildPersonaSwitcher(BuildContext context) {
+    final personas = [
+      (EditorPersona.architect, Icons.architecture),
+      (EditorPersona.writer, Icons.edit_note),
+      (EditorPersona.brainstorm, Icons.lightbulb_outline),
+      (EditorPersona.reading, Icons.menu_book),
+    ];
+
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: theme.dividerColor.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: personas.map((p) {
+          final isActive = p.$1 == activePersona;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: Tooltip(
+              message: p.$1.toString().split('.').last,
+              child: InkWell(
+                onTap: () => onPersonaChanged(p.$1),
+                borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? theme.colorScheme.primary
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Icon(
+                    p.$2,
+                    size: 12,
+                    color: isActive
+                        ? theme.colorScheme.onPrimary
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }

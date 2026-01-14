@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
+import 'package:notes_hub/models/persona_model.dart';
 import 'package:notes_hub/screens/editor/widgets/collaborator_avatars.dart';
 import 'package:notes_hub/screens/editor/widgets/editable_title.dart';
 
@@ -16,11 +17,19 @@ class FluentEditorView extends StatelessWidget {
     required this.onToggleFindBar,
     required this.onShowHistory,
     required this.onToggleFocusMode,
+    required this.activePersona,
+    required this.onPersonaChanged,
     super.key,
   });
 
   /// The editor widget to display.
   final Widget editor;
+
+  /// The active persona.
+  final EditorPersona activePersona;
+
+  /// Callback when the persona is changed.
+  final ValueChanged<EditorPersona> onPersonaChanged;
 
   /// Whether focus mode is currently active.
   final bool isFocusMode;
@@ -52,9 +61,19 @@ class FluentEditorView extends StatelessWidget {
       header: isFocusMode
           ? null
           : fluent.PageHeader(
-              title: EditableTitle(
-                initialTitle: noteTitle,
-                onChanged: onTitleChanged,
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 150,
+                    child: EditableTitle(
+                      initialTitle: noteTitle,
+                      onChanged: onTitleChanged,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  _buildPersonaSwitcher(context),
+                ],
               ),
               leading: Padding(
                 padding: const EdgeInsets.only(right: 12),
@@ -89,6 +108,60 @@ class FluentEditorView extends StatelessWidget {
               ),
             ),
       content: editor,
+    );
+  }
+
+  Widget _buildPersonaSwitcher(BuildContext context) {
+    final personas = [
+      (EditorPersona.architect, fluent.FluentIcons.design),
+      (EditorPersona.writer, fluent.FluentIcons.edit_note),
+      (EditorPersona.brainstorm, fluent.FluentIcons.lightbulb),
+      (EditorPersona.reading, fluent.FluentIcons.reading_mode),
+    ];
+
+    final theme = fluent.FluentTheme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: theme.resources.cardBackgroundFillColorDefault,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: theme.resources.surfaceStrokeColorDefault.withValues(
+            alpha: 0.5,
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: personas.map((p) {
+          final isActive = p.$1 == activePersona;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: fluent.Tooltip(
+              message: p.$1.toString().split('.').last,
+              child: fluent.IconButton(
+                style: fluent.ButtonStyle(
+                  backgroundColor: fluent.WidgetStateProperty.all(
+                    isActive ? theme.accentColor : Colors.transparent,
+                  ),
+                  padding: fluent.WidgetStateProperty.all(
+                    const EdgeInsets.all(2),
+                  ),
+                ),
+                icon: Icon(
+                  p.$2,
+                  size: 12,
+                  color: isActive
+                      ? Colors.white
+                      : theme.resources.textFillColorPrimary,
+                ),
+                onPressed: () => onPersonaChanged(p.$1),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }

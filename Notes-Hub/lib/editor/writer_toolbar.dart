@@ -24,6 +24,12 @@ class WriterToolbar extends StatelessWidget {
     required this.canUndo,
     required this.canRedo,
     required this.onStyleToggle,
+    this.isBold = false,
+    this.isItalic = false,
+    this.isUnderline = false,
+    this.isStrikethrough = false,
+    this.currentAlignment = 'left',
+    this.currentListType,
     super.key,
   });
 
@@ -74,6 +80,24 @@ class WriterToolbar extends StatelessWidget {
 
   /// Callback for toggling text style (e.g., headings).
   final ValueChanged<String> onStyleToggle;
+
+  /// Active style states
+  final bool isBold;
+
+  /// Whether the italic style is active.
+  final bool isItalic;
+
+  /// Whether the underline style is active.
+  final bool isUnderline;
+
+  /// Whether the strikethrough style is active.
+  final bool isStrikethrough;
+
+  /// The current text alignment.
+  final String currentAlignment;
+
+  /// The current list type, if any.
+  final String? currentListType;
 
   @override
   Widget build(BuildContext context) {
@@ -150,25 +174,33 @@ class WriterToolbar extends StatelessWidget {
           const CommandBarSeparator(),
 
           // Formatting
-          CommandBarButton(
-            icon: const Icon(FluentIcons.bold),
-            label: const Text('Negrito'),
+          _FluentCommandBarItem(
+            icon: FluentIcons.bold,
+            label: 'Negrito',
             onPressed: onBold,
+            selected: isBold,
+            theme: theme,
           ),
-          CommandBarButton(
-            icon: const Icon(FluentIcons.italic),
-            label: const Text('Itálico'),
+          _FluentCommandBarItem(
+            icon: FluentIcons.italic,
+            label: 'Itálico',
             onPressed: onItalic,
+            selected: isItalic,
+            theme: theme,
           ),
-          CommandBarButton(
-            icon: const Icon(FluentIcons.underline),
-            label: const Text('Sublinhado'),
+          _FluentCommandBarItem(
+            icon: FluentIcons.underline,
+            label: 'Sublinhado',
             onPressed: onUnderline,
+            selected: isUnderline,
+            theme: theme,
           ),
-          CommandBarButton(
-            icon: const Icon(FluentIcons.strikethrough),
-            label: const Text('Tachado'),
+          _FluentCommandBarItem(
+            icon: FluentIcons.strikethrough,
+            label: 'Tachado',
             onPressed: onStrikethrough,
+            selected: isStrikethrough,
+            theme: theme,
           ),
           CommandBarButton(
             icon: const Icon(FluentIcons.font_color),
@@ -178,38 +210,50 @@ class WriterToolbar extends StatelessWidget {
           const CommandBarSeparator(),
 
           // Alignment
-          CommandBarButton(
-            icon: const Icon(FluentIcons.align_left),
-            label: const Text('Esquerda'),
+          _FluentCommandBarItem(
+            icon: FluentIcons.align_left,
+            label: 'Esquerda',
             onPressed: () => onAlignment('left'),
+            selected: currentAlignment == 'left',
+            theme: theme,
           ),
-          CommandBarButton(
-            icon: const Icon(FluentIcons.align_center),
-            label: const Text('Centro'),
+          _FluentCommandBarItem(
+            icon: FluentIcons.align_center,
+            label: 'Centro',
             onPressed: () => onAlignment('center'),
+            selected: currentAlignment == 'center',
+            theme: theme,
           ),
-          CommandBarButton(
-            icon: const Icon(FluentIcons.align_right),
-            label: const Text('Direita'),
+          _FluentCommandBarItem(
+            icon: FluentIcons.align_right,
+            label: 'Direita',
             onPressed: () => onAlignment('right'),
+            selected: currentAlignment == 'right',
+            theme: theme,
           ),
           const CommandBarSeparator(),
 
           // Lists
-          CommandBarButton(
-            icon: const Icon(FluentIcons.bulleted_list),
-            label: const Text('Marcadores'),
+          _FluentCommandBarItem(
+            icon: FluentIcons.bulleted_list,
+            label: 'Marcadores',
             onPressed: () => onList('unordered'),
+            selected: currentListType == 'unordered',
+            theme: theme,
           ),
-          CommandBarButton(
-            icon: const Icon(FluentIcons.numbered_list),
-            label: const Text('Numerada'),
+          _FluentCommandBarItem(
+            icon: FluentIcons.numbered_list,
+            label: 'Numerada',
             onPressed: () => onList('ordered'),
+            selected: currentListType == 'ordered',
+            theme: theme,
           ),
-          CommandBarButton(
-            icon: const Icon(FluentIcons.check_list),
-            label: const Text('Tarefas'),
+          _FluentCommandBarItem(
+            icon: FluentIcons.check_list,
+            label: 'Tarefas',
             onPressed: () => onList('checklist'),
+            selected: currentListType == 'checklist',
+            theme: theme,
           ),
           const CommandBarSeparator(),
 
@@ -274,47 +318,157 @@ class WriterToolbar extends StatelessWidget {
               icon: const material.Icon(material.Icons.format_bold),
               onPressed: onBold,
               tooltip: 'Bold',
+              color: isBold
+                  ? material.Theme.of(context).colorScheme.primary
+                  : null,
+              style: isBold
+                  ? material.IconButton.styleFrom(
+                      backgroundColor: material.Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                    )
+                  : null,
             ),
             material.IconButton(
               icon: const material.Icon(material.Icons.format_italic),
               onPressed: onItalic,
               tooltip: 'Italic',
+              color: isItalic
+                  ? material.Theme.of(context).colorScheme.primary
+                  : null,
+              style: isItalic
+                  ? material.IconButton.styleFrom(
+                      backgroundColor: material.Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                    )
+                  : null,
             ),
             material.IconButton(
               icon: const material.Icon(material.Icons.format_underlined),
               onPressed: onUnderline,
               tooltip: 'Underline',
+              color: isUnderline
+                  ? material.Theme.of(context).colorScheme.primary
+                  : null,
+              style: isUnderline
+                  ? material.IconButton.styleFrom(
+                      backgroundColor: material.Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                    )
+                  : null,
             ),
             material.IconButton(
               icon: const material.Icon(material.Icons.strikethrough_s),
               onPressed: onStrikethrough,
               tooltip: 'Strikethrough',
+              color: isStrikethrough
+                  ? material.Theme.of(context).colorScheme.primary
+                  : null,
+              style: isStrikethrough
+                  ? material.IconButton.styleFrom(
+                      backgroundColor: material.Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                    )
+                  : null,
             ),
             const material.VerticalDivider(indent: 12, endIndent: 12),
             material.IconButton(
               icon: const material.Icon(material.Icons.format_align_left),
               onPressed: () => onAlignment('left'),
+              color: currentAlignment == 'left'
+                  ? material.Theme.of(context).colorScheme.primary
+                  : null,
+              style: currentAlignment == 'left'
+                  ? material.IconButton.styleFrom(
+                      backgroundColor: material.Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                    )
+                  : null,
             ),
             material.IconButton(
               icon: const material.Icon(material.Icons.format_align_center),
               onPressed: () => onAlignment('center'),
+              color: currentAlignment == 'center'
+                  ? material.Theme.of(context).colorScheme.primary
+                  : null,
+              style: currentAlignment == 'center'
+                  ? material.IconButton.styleFrom(
+                      backgroundColor: material.Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                    )
+                  : null,
             ),
             material.IconButton(
               icon: const material.Icon(material.Icons.format_align_right),
               onPressed: () => onAlignment('right'),
+              color: currentAlignment == 'right'
+                  ? material.Theme.of(context).colorScheme.primary
+                  : null,
+              style: currentAlignment == 'right'
+                  ? material.IconButton.styleFrom(
+                      backgroundColor: material.Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                    )
+                  : null,
             ),
             const material.VerticalDivider(indent: 12, endIndent: 12),
             material.IconButton(
               icon: const material.Icon(material.Icons.format_list_bulleted),
               onPressed: () => onList('unordered'),
+              color: currentListType == 'unordered'
+                  ? material.Theme.of(context).colorScheme.primary
+                  : null,
+              style: currentListType == 'unordered'
+                  ? material.IconButton.styleFrom(
+                      backgroundColor: material.Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                    )
+                  : null,
             ),
             material.IconButton(
               icon: const material.Icon(material.Icons.format_list_numbered),
               onPressed: () => onList('ordered'),
+              color: currentListType == 'ordered'
+                  ? material.Theme.of(context).colorScheme.primary
+                  : null,
+              style: currentListType == 'ordered'
+                  ? material.IconButton.styleFrom(
+                      backgroundColor: material.Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                    )
+                  : null,
             ),
             material.IconButton(
               icon: const material.Icon(material.Icons.checklist),
               onPressed: () => onList('checklist'),
+              color: currentListType == 'checklist'
+                  ? material.Theme.of(context).colorScheme.primary
+                  : null,
+              style: currentListType == 'checklist'
+                  ? material.IconButton.styleFrom(
+                      backgroundColor: material.Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                    )
+                  : null,
             ),
             const material.VerticalDivider(indent: 12, endIndent: 12),
             material.IconButton(
@@ -339,4 +493,36 @@ class WriterToolbar extends StatelessWidget {
       ),
     );
   }
+}
+
+class _FluentCommandBarItem extends CommandBarBuilderItem {
+  _FluentCommandBarItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+    required bool selected,
+    required FluentThemeData theme,
+  }) : super(
+          builder: (context, mode, w) => Tooltip(
+            message: label,
+            child: IconButton(
+              icon: Icon(icon),
+              onPressed: onPressed,
+              style: selected
+                  ? ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(
+                        theme.accentColor.withValues(alpha: 0.1),
+                      ),
+                      foregroundColor:
+                          WidgetStateProperty.all(theme.accentColor),
+                    )
+                  : null,
+            ),
+          ),
+          wrappedItem: CommandBarButton(
+            icon: Icon(icon),
+            label: Text(label),
+            onPressed: onPressed,
+          ),
+        );
 }

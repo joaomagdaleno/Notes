@@ -357,7 +357,15 @@ class MyApp extends StatelessWidget {
             theme: AppThemes.fluentLightTheme,
             darkTheme: AppThemes.fluentDarkTheme,
             themeMode: themeService.themeMode,
-            home: child,
+            home: Theme(
+              data: themeService.themeMode == ThemeMode.dark ||
+                      (themeService.themeMode == ThemeMode.system &&
+                          PlatformDispatcher.instance.platformBrightness ==
+                              Brightness.dark)
+                  ? AppThemes.darkTheme
+                  : AppThemes.lightTheme,
+              child: child!,
+            ),
             debugShowCheckedModeBanner: false,
           );
         }

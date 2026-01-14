@@ -127,165 +127,120 @@ class VirtualTextBuffer {
 
   void _buildLines() {
     lines.clear();
-    final currentLineSpans = <TextSpanModel>[];
 
-    for (final block in document.blocks) {
-      if (block is ImageBlock) {
-        // If there's pending text, finish that line first.
-        if (currentLineSpans.isNotEmpty) {
-          // IMPORTANT: Previous block's attributes are lost if better logic
-          // isn't applied. Since blocks usually separate content, this case
-          // (pending text from previous block) implies a TextBlock was
-          // followed by an ImageBlock. The pending text belongs to the
-          // PREVIOUS TextBlock.
-          // But here we are iterating blocks.
-          // The variable `currentLineSpans` accumulates spans from `TextBlock`.
-          // When we hit `ImageBlock`, we flush.
-          // We need to know the attributes of the block `currentLineSpans`
-          // came from.
-          // Since `currentLineSpans` is greedy across blocks only if we merged
-          // them (which we don't, we iterate blocks), we should actually flush
-          // inside the TextBlock loop or track the current attributes.
-          // Wait, the original logic accumulated lines within a TextBlock.
-          // Ah, actually the original logic reset `currentLineSpans` inside
-          // `TextBlock` loop on newlines. But if a `TextBlock` didn't end
-          // with newline, it kept `currentLineSpans` and continued to next
-          // block?
-          // DocumentModel usually has distinct blocks.
-          // Let's refine: Use the attributes of the *current* block.
-        }
-        // Actually, let's look at the TextBlock handling.
-      }
-    }
+    if (document.blocks.isEmpty) {
+      lines.add(const TextLine(spans: [TextSpanModel(text: '')]));
+    } else {
+      for (final block in document.blocks) {
+        if (block is ImageBlock) {
+          lines.add(
+            ImageLine(
+              imagePath: block.imagePath,
+              attributes: block.attributes,
+            ),
+          );
+        } else if (block is TextBlock) {
+          var currentBlockSpans = <TextSpanModel>[];
+          for (final span in block.spans) {
+            final text = span.text;
+            var start = 0;
+            int end;
 
-    // Correct re-implementation of loop
-    lines.clear();
-
-    for (final block in document.blocks) {
-      if (block is ImageBlock) {
-        lines.add(
-          ImageLine(
-            imagePath: block.imagePath,
-            attributes: block.attributes,
-          ),
-        );
-      } else if (block is DrawingBlock) {
-        // NoteEditor handles drawings via EditorWidget custom logic?
-        // Actually DocumentModel has DrawingBlock but VirtualTextBuffer
-        // didn't handle it. Assuming EditorWidget renders drawings
-        // separately or we add DrawingLine later. For consistency with
-        // existing code (which had ImageBlock), I'll ignore Drawing here
-        // or add a dummy if needed. The model has it.
-        // Existing code: Lines 107 in original view ONLY handled ImageBlock
-        // and TextBlock.
-      } else if (block is TextBlock) {
-        var currentBlockSpans = <TextSpanModel>[];
-        // We process spans. On newline, we emit a line WITH this block's
-        // attributes.
-        for (final span in block.spans) {
-          final text = span.text;
-          var start = 0;
-          int end;
-
-          while ((end = text.indexOf('\n', start)) != -1) {
-            final lineText = text.substring(start, end);
-            if (lineText.isNotEmpty) {
-              currentBlockSpans.add(span.copyWith(text: lineText));
+            while ((end = text.indexOf('\n', start)) != -1) {
+              final lineText = text.substring(start, end);
+              if (lineText.isNotEmpty) {
+                currentBlockSpans.add(span.copyWith(text: lineText));
+              }
+              lines.add(
+                TextLine(
+                  spans: currentBlockSpans,
+                  attributes: block.attributes,
+                ),
+              );
+              currentBlockSpans = [];
+              start = end + 1;
             }
-            // Flush line
+
+            if (start < text.length) {
+              currentBlockSpans.add(span.copyWith(text: text.substring(start)));
+            }
+          }
+          // If the block is empty or ends with a newline, we add an empty line
+          // representing the paragraph or the trailing cursor position.
+          lines.add(
+            TextLine(
+              spans: currentBlockSpans.isNotEmpty
+                  ? currentBlockSpans
+                  : [const TextSpanModel(text: '')],
+              attributes: block.attributes,
+            ),
+          );
+        } else if (block is CalloutBlock) {
+          final allLinesSpans = <List<TextSpanModel>>[];
+          var currentBlockSpans = <TextSpanModel>[];
+
+          for (final span in block.spans) {
+            final text = span.text;
+            var start = 0;
+            int end;
+
+            while ((end = text.indexOf('\n', start)) != -1) {
+              final lineText = text.substring(start, end);
+              if (lineText.isNotEmpty) {
+                currentBlockSpans.add(span.copyWith(text: lineText));
+              }
+              allLinesSpans.add(currentBlockSpans);
+              currentBlockSpans = [];
+              start = end + 1;
+            }
+
+            if (start < text.length) {
+              currentBlockSpans.add(span.copyWith(text: text.substring(start)));
+            }
+          }
+          // Always add the last line, even if it's empty
+          allLinesSpans.add(
+            currentBlockSpans.isNotEmpty
+                ? currentBlockSpans
+                : [const TextSpanModel(text: '')],
+          );
+
+          for (var i = 0; i < allLinesSpans.length; i++) {
             lines.add(
-              TextLine(
-                spans: currentBlockSpans,
+              CalloutLine(
+                type: block.type,
+                isFirst: i == 0,
+                isLast: i == allLinesSpans.length - 1,
+                spans: allLinesSpans[i],
                 attributes: block.attributes,
               ),
             );
-            currentBlockSpans = [];
-            start = end + 1;
           }
-
-          if (start < text.length) {
-            currentBlockSpans.add(span.copyWith(text: text.substring(start)));
-          }
-        }
-        // If there is leftover text in this block (no trailing newline),
-        // we emit it as a line. (Assuming blocks are paragraph-like
-        // boundaries). If we want to support inline blocks merging, we'd
-        // need more complex logic.
-        // For Markdown, blocks are usually distinct paragraphs/elements.
-        if (currentBlockSpans.isNotEmpty) {
+        } else if (block is TableBlock) {
           lines.add(
-            TextLine(
-              spans: currentBlockSpans,
+            TableLine(
+              rows: block.rows,
+              attributes: block.attributes,
+            ),
+          );
+        } else if (block is MathBlock) {
+          lines.add(
+            MathLine(
+              tex: block.tex,
+              attributes: block.attributes,
+            ),
+          );
+        } else if (block is TransclusionBlock) {
+          lines.add(
+            TransclusionLine(
+              noteTitle: block.noteTitle,
               attributes: block.attributes,
             ),
           );
         }
-      } else if (block is CalloutBlock) {
-        // Similar to TextBlock but produces CalloutLines
-        final allLinesSpans = <List<TextSpanModel>>[];
-        var currentBlockSpans = <TextSpanModel>[];
-
-        for (final span in block.spans) {
-          final text = span.text;
-          var start = 0;
-          int end;
-
-          while ((end = text.indexOf('\n', start)) != -1) {
-            final lineText = text.substring(start, end);
-            if (lineText.isNotEmpty) {
-              currentBlockSpans.add(span.copyWith(text: lineText));
-            }
-            allLinesSpans.add(currentBlockSpans);
-            currentBlockSpans = [];
-            start = end + 1;
-          }
-
-          if (start < text.length) {
-            currentBlockSpans.add(span.copyWith(text: text.substring(start)));
-          }
-        }
-        if (currentBlockSpans.isNotEmpty) {
-          allLinesSpans.add(currentBlockSpans);
-        }
-
-        // Now create lines with isFirst/isLast
-        for (var i = 0; i < allLinesSpans.length; i++) {
-          lines.add(
-            CalloutLine(
-              type: block.type,
-              isFirst: i == 0,
-              isLast: i == allLinesSpans.length - 1,
-              spans: allLinesSpans[i],
-              attributes: block.attributes,
-            ),
-          );
-        }
-      } else if (block is TableBlock) {
-        // TableBlock becomes a single TableLine
-        lines.add(
-          TableLine(
-            rows: block.rows,
-            attributes: block.attributes,
-          ),
-        );
-      } else if (block is MathBlock) {
-        lines.add(
-          MathLine(
-            tex: block.tex,
-            attributes: block.attributes,
-          ),
-        );
-      } else if (block is TransclusionBlock) {
-        lines.add(
-          TransclusionLine(
-            noteTitle: block.noteTitle,
-            attributes: block.attributes,
-          ),
-        );
       }
     }
 
-    // Now, calculate lengths consistently.
     _lineLengths.clear();
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
@@ -295,7 +250,6 @@ class VirtualTextBuffer {
         final length = line.spans.fold<int>(0, (sum, s) => sum + s.text.length);
         _lineLengths.add(isLast ? length : length + 1);
       } else {
-        // Table, Image, Math, Transclusion are all 1 unit + optional newline
         _lineLengths.add(isLast ? 1 : 2);
       }
     }

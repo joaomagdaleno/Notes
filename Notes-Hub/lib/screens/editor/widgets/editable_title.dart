@@ -94,11 +94,7 @@ class _EditableTitleState extends State<EditableTitle> {
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: _controller.text.isEmpty
-              ? (defaultTargetPlatform == TargetPlatform.windows
-                  ? fluent.Colors.grey
-                  : Colors.grey)
-              : null,
+          color: _controller.text.isEmpty ? Theme.of(context).hintColor : null,
         ),
       ),
     );

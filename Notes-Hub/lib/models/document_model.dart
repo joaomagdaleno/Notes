@@ -325,15 +325,26 @@ class DocumentModel {
   /// Converts the document to a plain text string.
   String toPlainText() {
     final buffer = StringBuffer();
-    for (final block in blocks) {
+    for (var i = 0; i < blocks.length; i++) {
+      final block = blocks[i];
       if (block is TextBlock) {
         for (final span in block.spans) {
           buffer.write(span.text);
         }
-        // Implicit newline between blocks, or handled by lines?
-        // Usually plain text representation assumes blocks are paragraphs.
-        // We might want to add a newline if it's not the last block?
-        // For now keeping matching behavior with existing logic (dense).
+      } else if (block is ImageBlock ||
+          block is DrawingBlock ||
+          block is MathBlock ||
+          block is TransclusionBlock) {
+        buffer.write(' '); // Placeholder character for non-text blocks
+      } else if (block is CalloutBlock) {
+        buffer.write(block.toPlainText());
+      } else if (block is TableBlock) {
+        // Simple representation
+        buffer.write('[Table]');
+      }
+
+      if (i < blocks.length - 1) {
+        buffer.write('\n');
       }
     }
     return buffer.toString();

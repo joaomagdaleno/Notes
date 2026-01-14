@@ -7,13 +7,13 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
+import 'package:notes_hub/editor/document.dart';
 import 'package:notes_hub/editor/interactive_drawing_block.dart';
 import 'package:notes_hub/editor/virtual_text_buffer.dart';
 import 'package:notes_hub/models/document_model.dart';
 import 'package:notes_hub/models/note.dart';
 import 'package:notes_hub/models/stroke.dart';
 import 'package:notes_hub/repositories/note_repository.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// A widget that renders a single line in the editor.
 ///
@@ -378,7 +378,6 @@ class EditorLine extends StatelessWidget {
                 width: 24,
                 child: Text(
                   '$listIndex.',
-                  style: const TextStyle(fontSize: 16, height: 1.5),
                 ),
               ),
               Expanded(child: textStack),
@@ -573,18 +572,8 @@ class EditorLine extends StatelessWidget {
           );
         }
 
-        // Wrap with highlight if this is the current line
-        final highlightedContent = isCurrentLine
-            ? ColoredBox(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.08),
-                child: content,
-              )
-            : content;
-
         return GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTapDown: (d) {
             // Handle Link Taps
             final localTapOffset = d.localPosition;
@@ -599,27 +588,24 @@ class EditorLine extends StatelessWidget {
               effectiveOffset -= const Offset(24, 0);
             }
 
-            // Find text position from offset
-            final textPosition = painter.getPositionForOffset(effectiveOffset);
+            for (final span in line.spans) {
+              if (span.linkUrl != null) {
+                final painter = TextPainter(
+                  text: span.toTextSpan(onLinkTap: onLinkTap),
+                  textDirection: TextDirection.ltr,
+                )..layout(maxWidth: maxWidth);
 
-            var currentOffset = 0;
-            // if (line is TextLine) - Always true
-            for (final s in line.spans) {
-              final len = s.text.length;
-              if (textPosition.offset >= currentOffset &&
-                  textPosition.offset < currentOffset + len) {
-                if (s.linkUrl != null) {
-                  final url = Uri.tryParse(s.linkUrl!);
-                  if (url != null) {
-                    unawaited(
-                      launchUrl(url, mode: LaunchMode.externalApplication),
-                    );
-                  }
+                final rects = painter.getBoxesForSelection(
+                  TextSelection(baseOffset: 0, extentOffset: span.text.length),
+                );
+
+                final isInside =
+                    rects.any((r) => r.toRect().contains(effectiveOffset));
+                if (isInside) {
+                  onLinkTap?.call(span.linkUrl!);
                   return;
                 }
-                break;
               }
-              currentOffset += len;
             }
 
             _handleTapDown(context, d, maxWidth);
@@ -628,7 +614,11 @@ class EditorLine extends StatelessWidget {
               _handlePanStart(context, details: d, maxWidth: maxWidth),
           onPanUpdate: (d) =>
               _handlePanUpdate(context, details: d, maxWidth: maxWidth),
-          child: highlightedContent,
+          child: Container(
+            width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 24),
+            child: content,
+          ),
         );
       },
     );
