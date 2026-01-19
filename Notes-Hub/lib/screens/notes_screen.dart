@@ -376,6 +376,7 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
   }
 
   Future<void> _createNewNote() async {
+    final navigator = Navigator.of(context);
     final note = Note(
       id: const Uuid().v4(),
       title: 'Nova Nota',
@@ -386,9 +387,19 @@ class _NotesScreenState extends State<NotesScreen> with WindowListener {
     );
     await NoteRepository.instance.insertNote(note);
     await _syncService.refreshLocalData();
-    if (context.mounted) {
-      unawaited(_openNoteEditor(note));
-    }
+
+    await navigator.push(
+      MaterialPageRoute<void>(
+        builder: (context) => NoteEditorScreen(
+          note: note,
+          onSave: (Note updatedNote) async {
+            await NoteRepository.instance.updateNote(updatedNote);
+            await _syncService.refreshLocalData();
+            return updatedNote;
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _createNewNoteWithPersona(

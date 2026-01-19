@@ -146,12 +146,12 @@ class FluentEditorView extends StatelessWidget {
                     isActive ? theme.accentColor : Colors.transparent,
                   ),
                   padding: fluent.WidgetStateProperty.all(
-                    const EdgeInsets.all(2),
+                    const EdgeInsets.all(6),
                   ),
                 ),
                 icon: Icon(
                   p.$2,
-                  size: 12,
+                  size: 16,
                   color: isActive
                       ? Colors.white
                       : theme.resources.textFillColorPrimary,
