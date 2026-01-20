@@ -43,65 +43,21 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.38.2'
+          flutter-version: '3.38.6'
           cache: true
+          cache-key: 'flutter-3.38.6'
+          cache-dependency-path: |
+            Notes-Hub/pubspec.lock
+            Notes-Hub/**/pubspec.yaml
       - name: Flutter Pub Get
         working-directory: Notes-Hub
         run: flutter pub get
       - name: Check Formatting
         working-directory: Notes-Hub
         run: dart format --output=none --set-exit-if-changed .
-      - name: Dependency Audit
-        run: dart scripts/audit_dependencies.dart
-      - name: License Audit
-        run: dart scripts/audit_licenses.dart > license_audit.txt 2>&1 || (cat license_audit.txt && exit 1)
-      - name: Asset Audit
-        run: dart scripts/audit_assets.dart
-      - name: Complexity Audit
-        run: dart scripts/calculate_complexity.dart
-      - name: Check Updates
-        run: dart scripts/check_updates.dart
-      - name: Toolchain Guard
-        run: dart scripts/hermes_doctor.dart
+      - name: Parallel Audit Suite
+        run: dart scripts/run_parallel_audits.dart
       - name: Generate CI Map
-        run: dart scripts/generate_ci_map.dart
-      - name: Dependency Usage Audit
-        run: dart scripts/audit_dependency_usage.dart
-      - name: Secret Expiry Watchdog
-        run: dart scripts/secret_expiry_watchdog.dart
-      - name: Governance Audit
-        run: dart scripts/audit_workflows.dart
-      - name: Platform Parity Audit
-        run: dart scripts/audit_platform_parity.dart
-      - name: I18n Guard
-        run: dart scripts/audit_i18n.dart
-      - name: Security Vulnerability Audit
-        run: dart scripts/audit_vulnerabilities.dart
-      - name: Environment Sync Check
-        run: dart scripts/audit_env_sync.dart
-      - name: Performance Guard
-        run: dart scripts/audit_performance.dart
-      - name: Architecture Guard
-        run: dart scripts/audit_architecture.dart
-      - name: Dead Code Audit
-        run: dart scripts/audit_dead_code.dart
-      - name: Environment Smoke Test
-        run: dart scripts/smoke_test_env.dart
-      - name: Git Hygiene Audit
-        run: dart scripts/audit_git_hygiene.dart
-      - name: Asset Fidelity Guard
-        run: dart scripts/audit_asset_fidelity.dart
-      - name: Design System Audit
-        run: dart scripts/audit_design_system.dart
-      - name: Test Stability Audit
-        run: dart scripts/audit_test_stability.dart
-      - name: Code Economy Auditor
-        run: dart scripts/calculate_code_economy.dart
-      - name: Asset Efficiency Audit
-        run: dart scripts/audit_asset_size.dart
-      - name: License Compliance
-        run: dart scripts/audit_licenses.dart
-      - name: Generate Governance Manifest
         run: dart scripts/generate_governance_manifest.dart
       - name: Generate Release Notes
         run: dart scripts/generate_release_notes.dart
@@ -110,6 +66,10 @@ jobs:
         run: flutter analyze --no-fatal-infos
       - name: TruffleHog OSS
         uses: trufflesecurity/trufflehog@v3.82.2
+      - name: OSV Vulnerability Scan
+        uses: google/osv-scanner-action@v1
+        with:
+          args: -r --skip-git ./Notes-Hub
       - name: Upload Analysis Results
         if: always()
         uses: actions/upload-artifact@v6
@@ -133,8 +93,12 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.38.2'
+          flutter-version: '3.38.6'
           cache: true
+          cache-key: 'flutter-3.38.6'
+          cache-dependency-path: |
+            Notes-Hub/pubspec.lock
+            Notes-Hub/**/pubspec.yaml
       - name: Flutter Pub Get
         working-directory: Notes-Hub
         run: flutter pub get
@@ -148,7 +112,7 @@ jobs:
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Run Tests
         working-directory: Notes-Hub
-        run: flutter test --coverage
+        run: flutter test --coverage --concurrency=4 --test-randomize-ordering-seed=random
       - name: Calculate coverage
         run: dart scripts/calculate_coverage.dart Notes-Hub/coverage/lcov.info ${{ inputs.min_coverage }}
       - name: Upload lcov artifact

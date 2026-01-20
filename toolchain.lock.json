@@ -1,6 +1,4 @@
 {
-  "flutter": "Flutter 3.38.2 â€¢ channel stable â€¢ https://github.com/flutter/flutter.git",
-  "dart": "Dart SDK version: 3.10.0 (stable) (Thu Nov 6 05:24:55 2025 -0800) on \"windows_x64\"",
-  "java": "openjdk version \"1.8.0_382\"\r",
-  "timestamp": "2026-01-08T11:58:22.972352"
+  "flutter": "3.38.6 â€¢ channel stable â€¢ https://github.com/flutter/flutter.git",
+  "dart": "3.10.7"
 }

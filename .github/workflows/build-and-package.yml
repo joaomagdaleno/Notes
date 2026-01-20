@@ -11,6 +11,10 @@ on:
         type: string
         default: 'nightly'
 
+concurrency:
+  group: build-package-${{ inputs.channel }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build_windows:
     name: Build Windows
@@ -25,7 +29,16 @@ jobs:
           FIREBASE_OPTIONS_DART_B64: ${{ secrets.FIREBASE_OPTIONS_DART_B64 }}
           AUTH_CONFIG_DART_B64: ${{ secrets.AUTH_CONFIG_DART_B64 }}
         run: |
-          echo "[INFO] Setting up environment for Windows build..."
+          echo "=== Validating environment configuration ==="
+          if [ -z "$FIREBASE_OPTIONS_DART_B64" ]; then
+            echo "❌ ERROR: FIREBASE_OPTIONS_DART_B64 secret is not set"
+            exit 1
+          fi
+          if [ -z "$AUTH_CONFIG_DART_B64" ]; then
+            echo "❌ ERROR: AUTH_CONFIG_DART_B64 secret is not set"
+            exit 1
+          fi
+          echo "✅ All required secrets are configured"
           mkdir -p Notes-Hub/config
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           echo "{\"FIREBASE_OPTIONS\": \"$FIREBASE_OPTIONS_DART_B64\", \"AUTH_CONFIG\": \"$AUTH_CONFIG_DART_B64\", \"APP_ENV\": \"${{ github.ref_name }}\", \"COMMIT_SHA\": \"${{ github.sha }}\", \"BUILD_TIME\": \"$DATE\"}" > Notes-Hub/env.json
@@ -40,6 +53,7 @@ jobs:
         with:
           name: changelog
           path: changelog.md
+          compression-level: 9
       - name: Generate BOM (Windows)
         run: dart scripts/generate_bom.dart Notes-Hub/build/windows/runner/Release
 
@@ -49,11 +63,25 @@ jobs:
           name: windows-bom
           path: bom.json
           retention-days: 15
+          compression-level: 9
       - name: Install Flutter
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
-          flutter-version: '3.38.2'
+          flutter-version: '3.38.6'
           cache: true
+          cache-key: 'flutter-3.38.6'
+          cache-dependency-path: |
+            Notes-Hub/pubspec.lock
+            Notes-Hub/**/pubspec.yaml
+      - name: Cache Pub Packages
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.pub-cache
+            Notes-Hub/.dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('Notes-Hub/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
       - name: Generate Version and Update Pubspec
         id: generate_version_win
         shell: bash
@@ -73,20 +101,18 @@ jobs:
             ${{ runner.os }}-build-v3
             ${{ runner.os }}-build-v2
             ${{ runner.os }}-build-
-      - name: Flutter Build Windows
-        working-directory: Notes-Hub
-        run: |
-          echo "[INFO] Running Flutter Build Windows (Release)..."
-          flutter build windows --dart-define-from-file=env.json --obfuscate --split-debug-info=build/windows/symbols -v
-      - name: Upload Windows Debug Symbols
-        uses: actions/upload-artifact@v6
+      - name: Cache Inno Setup
+        id: cache-is
+        uses: actions/cache@v5
         with:
-          name: windows-debug-symbols
-          path: Notes-Hub/build/windows/symbols
-          retention-days: 7
-      - name: Install Inno Setup
+          path: is.exe
+          key: inno-setup-6.2.2
+      - name: Download Inno Setup
+        if: steps.cache-is.outputs.cache-hit != 'true'
         run: |
           Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile is.exe
+      - name: Install Inno Setup
+        run: |
           Start-Process -FilePath "is.exe" -ArgumentList "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES" -Wait
       - name: Build Installer
         shell: pwsh
@@ -100,15 +126,24 @@ jobs:
         with:
           name: windows-installer
           path: Output/UniversalNotesSetup-${{ steps.generate_version_win.outputs.full_version }}.exe
+      - name: Report Artifact Size
+        run: |
+          $size = (Get-Item "Output/UniversalNotesSetup-${{ steps.generate_version_win.outputs.full_version }}.exe").Length
+          $sizeMb = [math]::Round($size / 1MB, 2)
+          echo "::notice title=Artifact Size::Windows Installer: ${sizeMb} MB"
       - name: Upload Version Artifact (Windows)
         uses: actions/upload-artifact@v6
         with:
           name: version-info-windows
           path: Notes-Hub/version.txt
+      - name: Windows Build Smoke Test
+        if: always()
+        run: dart scripts/smoke_test_build.dart Output/*.exe
 
   build_android:
     name: Build Android
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - name: Free up disk space
         run: |
@@ -125,6 +160,24 @@ jobs:
           GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
           GOOGLE_SERVICE_INFO: ${{ secrets.GOOGLE_SERVICE_INFO }}
         run: |
+          echo "=== Validating environment configuration ==="
+          if [ -z "$FIREBASE_OPTIONS_DART_B64" ]; then
+            echo "❌ ERROR: FIREBASE_OPTIONS_DART_B64 secret is not set"
+            exit 1
+          fi
+          if [ -z "$AUTH_CONFIG_DART_B64" ]; then
+            echo "❌ ERROR: AUTH_CONFIG_DART_B64 secret is not set"
+            exit 1
+          fi
+          if [ -z "$GOOGLE_SERVICES_JSON_BASE64" ]; then
+            echo "❌ ERROR: GOOGLE_SERVICES_JSON_BASE64 secret is not set"
+            exit 1
+          fi
+          if [ -z "$GOOGLE_SERVICE_INFO" ]; then
+            echo "❌ ERROR: GOOGLE_SERVICE_INFO secret is not set"
+            exit 1
+          fi
+          echo "✅ All required secrets are configured"
           mkdir -p Notes-Hub/config
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           echo "{\"FIREBASE_OPTIONS\": \"$FIREBASE_OPTIONS_DART_B64\", \"AUTH_CONFIG\": \"$AUTH_CONFIG_DART_B64\", \"APP_ENV\": \"${{ github.ref_name }}\", \"COMMIT_SHA\": \"${{ github.sha }}\", \"BUILD_TIME\": \"$DATE\"}" > Notes-Hub/env.json
@@ -132,15 +185,35 @@ jobs:
           echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > Notes-Hub/android/app/google-services.json
           mkdir -p Notes-Hub/ios/Runner
           echo "$GOOGLE_SERVICE_INFO" > Notes-Hub/ios/Runner/GoogleService-Info.plist
+          echo "✅ Environment configuration complete"
       - name: Install Flutter
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2
         with:
-          flutter-version: '3.38.2'
+          flutter-version: '3.38.6'
+          cache: true
+          cache-key: 'flutter-3.38.6'
+          cache-dependency-path: |
+            Notes-Hub/pubspec.lock
+            Notes-Hub/**/pubspec.yaml
+      - name: Cache Pub Packages
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.pub-cache
+            Notes-Hub/.dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('Notes-Hub/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '17'
+      - name: Configure Gradle
+        run: |
+          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties
+          echo "org.gradle.workers.max=4" >> ~/.gradle/gradle.properties
+          echo "org.gradle.jvmargs=-Xmx4g -XX:+UseParallelGC" >> ~/.gradle/gradle.properties
       - name: Restore Gradle cache
         uses: actions/cache@v5
         with:
@@ -173,34 +246,60 @@ jobs:
       - name: Flutter Build APK
         working-directory: Notes-Hub
         run: |
-          echo "[INFO] Running Flutter Build APK (Release)..."
-          flutter build apk --release --dart-define-from-file=env.json --obfuscate --split-debug-info=build/app/outputs/symbols -v
+          echo "[INFO] Running Flutter Build APK (Release) with ABI split..."
+          flutter build apk --release --dart-define-from-file=env.json --obfuscate --split-debug-info=build/app/outputs/symbols --build-cache --split-per-abi -v
       - name: Upload Android Debug Symbols
         uses: actions/upload-artifact@v6
         with:
           name: android-debug-symbols
           path: Notes-Hub/build/app/outputs/symbols
           retention-days: 7
-      - name: Rename APK with version
+      - name: Rename APKs with version
         working-directory: Notes-Hub
         run: |
-          APK_PATH=$(find build/app/outputs -name "*.apk" | head -n 1)
-          if [ -n "$APK_PATH" ]; then
-            echo "Found APK at $APK_PATH"
-            mv "$APK_PATH" "build/app/outputs/universal_notes-v${{ steps.generate_version.outputs.full_version }}.apk"
-          else
-            echo "❌ No APK found in build/app/outputs"
-            exit 1
-          fi
+          for apk in build/app/outputs/flutter-apk/*.apk; do
+            if [ -f "$apk" ]; then
+              abi=$(basename "$apk" | grep -oP '\-[a-z0-9]+\.apk' | tr -d '-\.apk')
+              new_name="universal_notes-v${{ steps.generate_version.outputs.full_version }}-${abi}.apk"
+              mv "$apk" "build/app/outputs/flutter-apk/$new_name"
+              echo "✅ Renamed: $(basename $apk) -> $new_name"
+            fi
+          done
       - name: Verify Bundle Integrity
-        run: dart scripts/verify_bundle_integrity.dart Notes-Hub/build/app/outputs/universal_notes-v${{ steps.generate_version.outputs.full_version }}.apk
-      - name: Upload APK Artifact
+        run: |
+          for apk in Notes-Hub/build/app/outputs/flutter-apk/*.apk; do
+            echo "Verifying: $(basename $apk)"
+            dart scripts/verify_bundle_integrity.dart "$apk"
+          done
+      - name: Upload APK Artifacts
         uses: actions/upload-artifact@v6
         with:
           name: android-apk
-          path: Notes-Hub/build/app/outputs/universal_notes-v${{ steps.generate_version.outputs.full_version }}.apk
+          path: Notes-Hub/build/app/outputs/flutter-apk/*.apk
+          compression-level: 9
+      - name: Report APK Sizes
+        run: |
+          total_size=0
+          for apk in Notes-Hub/build/app/outputs/flutter-apk/*.apk; do
+            if [ -f "$apk" ]; then
+              SIZE=$(stat -c%s "$apk")
+              SIZE_MB=$(echo "scale=2; $SIZE / 1048576" | bc)
+              total_size=$((total_size + SIZE))
+              echo "::notice title=Artifact Size::$(basename $apk): ${SIZE_MB} MB"
+            fi
+          done
+          TOTAL_MB=$(echo "scale=2; $total_size / 1048576" | bc)
+          echo "::notice title=Total APK Size::All APKs: ${TOTAL_MB} MB"
       - name: Upload Version Artifact (Android)
         uses: actions/upload-artifact@v6
         with:
           name: version-info-android
           path: Notes-Hub/version.txt
+      - name: Report Build Metrics
+        if: always()
+        run: |
+          echo "::notice title=Build Metrics::Android Build completed in $((${{ github.actions.runtime.workflow_run.duration }} / 60)) minutes"
+          echo "::set-output name=build_duration::${{ github.actions.runtime.workflow_run.duration }}"
+      - name: Android Build Smoke Test
+        if: always()
+        run: dart scripts/smoke_test_build.dart Notes-Hub/build/app/outputs/flutter-apk/*.apk
