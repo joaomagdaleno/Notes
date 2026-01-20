@@ -1,0 +1,77 @@
+name: Branch Protection Audit
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-branch-protection:
+    name: Audit Branch Protection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Branch Protection Rules
+        id: protection
+        run: |
+          echo "Fetching branch protection rules for main, dev, beta branches..."
+          
+          BRANCHES=("main" "dev" "beta")
+          for branch in "${BRANCHES[@]}"; do
+            echo "=== Checking $branch ==="
+            protection=$(gh api "repos/{owner}/{repo}/branches/$branch/protection" 2>/dev/null || echo "NOT_PROTECTED")
+            if [ "$protection" = "NOT_PROTECTED" ]; then
+              echo "❌ $branch is NOT protected"
+              echo "protection_${branch}=false" >> $GITHUB_OUTPUT
+            else
+              echo "✅ $branch is protected"
+              echo "protection_${branch}=true" >> $GITHUB_OUTPUT
+            fi
+          done
+
+      - name: Report Results
+        run: |
+          echo "--- Branch Protection Status ---"
+          echo "Main: ${{ steps.protection.outputs.protection_main }}"
+          echo "Dev: ${{ steps.protection.outputs.protection_dev }}"
+          echo "Beta: ${{ steps.protection.outputs.protection_beta }}"
+          
+          if [ "${{ steps.protection.outputs.protection_main }}" = "false" ]; then
+            echo "❌ CRITICAL: main branch is not protected!"
+            exit 1
+          fi
+
+  validate-workflow-permissions:
+    name: Validate Workflow Permissions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Workflow Permissions
+        run: |
+          echo "--- Validating Workflow Permissions ---"
+          
+          PERMISSIONS=$(grep -r "permissions:" .github/workflows/*.yml | grep -v "contents: read" | grep -v "contents: write" || true)
+          
+          if [ -n "$PERMISSIONS" ]; then
+            echo "Found non-standard permissions:"
+            echo "$PERMISSIONS"
+          else
+            echo "✅ All workflows use minimal permissions"
+          fi
+          
+          WORKFLOWS_WITHOUT_TIMEOUT=$(grep -L "timeout-minutes" .github/workflows/*.yml || true)
+          if [ -n "$WORKFLOWS_WITHOUT_TIMEOUT" ]; then
+            echo "⚠️ Workflows without timeout:"
+            echo "$WORKFLOWS_WITHOUT_TIMEOUT"
+          else
+            echo "✅ All workflows have timeout configured"
+          fi

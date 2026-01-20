@@ -15,6 +15,15 @@ concurrency:
   group: build-package-${{ inputs.channel }}-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    shell: bash
+    working-directory: Notes-Hub
+
+env:
+  FLUTTER_VERSION: '3.38.6'
+  JAVA_VERSION: '17'
+
 jobs:
   build_windows:
     name: Build Windows
@@ -23,6 +32,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          lfs: true
       - name: Setup Secrets & Metadata
         shell: bash
         env:
@@ -54,6 +66,7 @@ jobs:
           name: changelog
           path: changelog.md
           compression-level: 9
+          retention-days: 7
       - name: Generate BOM (Windows)
         run: dart scripts/generate_bom.dart Notes-Hub/build/windows/runner/Release
 
@@ -126,6 +139,7 @@ jobs:
         with:
           name: windows-installer
           path: Output/UniversalNotesSetup-${{ steps.generate_version_win.outputs.full_version }}.exe
+          retention-days: 30
       - name: Report Artifact Size
         run: |
           $size = (Get-Item "Output/UniversalNotesSetup-${{ steps.generate_version_win.outputs.full_version }}.exe").Length
@@ -136,6 +150,7 @@ jobs:
         with:
           name: version-info-windows
           path: Notes-Hub/version.txt
+          retention-days: 7
       - name: Windows Build Smoke Test
         if: always()
         run: dart scripts/smoke_test_build.dart Output/*.exe
@@ -153,6 +168,8 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
       - name: Setup Secrets & Metadata
         env:
           FIREBASE_OPTIONS_DART_B64: ${{ secrets.FIREBASE_OPTIONS_DART_B64 }}
@@ -277,6 +294,7 @@ jobs:
           name: android-apk
           path: Notes-Hub/build/app/outputs/flutter-apk/*.apk
           compression-level: 9
+          retention-days: 30
       - name: Report APK Sizes
         run: |
           total_size=0
@@ -295,6 +313,7 @@ jobs:
         with:
           name: version-info-android
           path: Notes-Hub/version.txt
+          retention-days: 7
       - name: Report Build Metrics
         if: always()
         run: |

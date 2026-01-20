@@ -17,9 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.filter.outputs.code }}
+      docs: ${{ steps.filter.outputs.docs }}
+      ci: ${{ steps.filter.outputs.ci }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
       - name: Check changes
         id: filter
         uses: dorny/paths-filter@v3
@@ -31,11 +35,19 @@ jobs:
               - 'Notes-Hub/pubspec.yaml'
               - '.github/workflows/**'
               - 'scripts/**'
+            docs:
+              - '**.md'
+              - 'docs/**'
+              - '**.txt'
+            ci:
+              - '.github/workflows/**'
+              - 'scripts/**'
+              - 'toolchain.lock.json'
 
   static-analysis:
     name: Static Analysis
     needs: check-changes
-    if: needs.check-changes.outputs.code == 'true'
+    if: needs.check-changes.outputs.code == 'true' || needs.check-changes.outputs.ci == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -90,6 +102,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -137,6 +151,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
       - name: Download Analysis Results
         uses: actions/download-artifact@v4
         with:
